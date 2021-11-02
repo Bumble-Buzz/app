@@ -1,0 +1,29 @@
+version: "3"
+services:
+  app:
+    image: app:latest
+    build: ./
+    stdin_open: true
+    ports:
+      - 3000:3000
+    environment:
+      - .env
+    networks:
+      - my-app
+    volumes:
+      - ./pages:/usr/src/app/pages
+      - ./components:/usr/src/app/components
+      - ./utils:/usr/src/app/utils
+      - ./ipfs:/usr/src/app/ipfs
+      - /usr/src/app/node_modules
+  ipfs:
+    image: ipfs/go-ipfs:v0.10.0
+    ports:
+      - 8080:8080
+      - 4001:4001
+      - 5001:5001
+    networks:
+      - my-app
+networks:
+  my-app:
+    driver: bridge
