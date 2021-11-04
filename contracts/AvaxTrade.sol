@@ -8,10 +8,12 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
+import "./Collection.sol";
+
 import "hardhat/console.sol";
 
 
-contract AvaxTrade is ReentrancyGuard, Ownable {
+contract AvaxTrade is Collection, ReentrancyGuard, Ownable {
   using Strings for uint256;
   using Counters for Counters.Counter;
 
@@ -52,31 +54,6 @@ contract AvaxTrade is ReentrancyGuard, Ownable {
     uint256 vault;
   }
 
-  struct MarketItem {
-    uint256 tokenId; // unique token id of the item
-    address contractAddress;
-    address payable seller; // address of the seller / current owner
-    address payable buyer; // address of the buyer / next owner (empty if not yet bought)
-    uint256 price; // price of the item
-    uint8 commission; // in percentage
-    address payable creator; // original creator of the item
-    SALE_TYPE saleType; // type of the sale for the item
-    bool sold;
-  }
-
-  struct Collection {
-    uint256 id; // unique collection id
-    string name; // collection name
-    string tokenUri; // unique token uri of the collection
-    address contractAddress; // contract address of the collection
-    mapping(uint256 => MarketItem) items; // list of items the collection owns
-    uint8 reflection; // in percentage
-    uint8 commission; // in percentage
-    address payable owner; // owner of the collection
-    COLLECTION_TYPE collectitonType; // type of the collection
-    COLLECTION_STATUS collectionStatus;
-  }
-
   // state variables
   uint256 private LISTING_PRICE = 0.0 ether; // price to list item in marketplace
   uint8 private COMMISSION = 2; // commission rate charged upon every sale, in percentage
@@ -91,45 +68,10 @@ contract AvaxTrade is ReentrancyGuard, Ownable {
   BalanceSheet private CONTRACT_BANK;
   mapping(address => Bank) private USER_BANK; // mapping collection id to collection
 
-  // collections
-  Counters.Counter private COLLECTION_SIZE; // tracks current number of collections
-  uint256 private MAX_COLLECTION_SIZE = 9999; // maximum number of collections allowed
-  mapping(uint256 => Collection) private COLLECTIONS; // mapping collection id to collection
-  mapping(string => uint256) private COLLECTION_TOKEN_URIS; // mapping token uri to collection id
-  mapping(address => uint256[]) private COLLECTION_OWNERS; // mapping collection owner to collection ids
-
 
   constructor() {
     CONTRACT_BANK = BalanceSheet(0, 0, 0, 0, 0, 0, 0, 0);
     USER_BANK[msg.sender] = Bank(msg.sender, 0, 0, 0, 0);
-  }
-
-  /**
-    * @dev Create market collection
-  */
-  function createMarketCollection(
-    string _name, string _tokenUri, uint256 _size, address _contractAddress, uint8 _reflection, uint8 _commission, address _owner
-  ) public onlyOwner() {
-  }
-  /**
-    * @dev Disable market collection using the collection id
-  */
-  function disableMarketCollection(uint256 _collectionId) public onlyOwner() {
-  }
-  /**
-    * @dev Disable market collection using the token uri
-  */
-  function disableMarketCollection(string _tokenUri) public onlyOwner() {
-  }
-  /**
-    * @dev Remove market collection using the collection id
-  */
-  function removeMarketCollection(uint256 _collectionId) public onlyOwner() {
-  }
-  /**
-    * @dev Remove market collection using the token uri
-  */
-  function removeMarketCollection(string _tokenUri) public onlyOwner() {
   }
 
   /**
