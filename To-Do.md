@@ -1,12 +1,6 @@
 Things left to do:
-- Image generator
-    - Some issue with name in config when generating 10+ images - done
-    - Create avocado artifacts
-    - Create avocado images / animations
-    - Create specific config/image for 'not revealed' state (ex: ipfs://cid/0.json)
 - Smart contract
-    - Have logic to have limited honorary NFTs
-    - After deployed, set 'notRevealedUri'
+    - All functions have correct access classifiers
 - Front-end dapp
 - Social media
     - Discord server

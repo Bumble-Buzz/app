@@ -1,12 +1,12 @@
 const hre = require("hardhat");
 
 async function main() {
-  const Avaxocado = await hre.ethers.getContractFactory("AvaxocadoNft");
-  const avaxocado = await Avaxocado.deploy('Avaxocado', 'ACD', 'ipfs://QmdE9dLUPWnV1oRsbPZms7ztETQeqdjaUaHXinfbwm52dH/');
+  const Avaxtrade = await hre.ethers.getContractFactory("AvaxTrade");
+  const avaxtrade = await Avaxtrade.deploy();
 
-  await avaxocado.deployed();
+  await avaxtrade.deployed();
 
-  console.log("Greeter deployed to:", avaxocado.address);
+  console.log("Greeter deployed to:", avaxtrade.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

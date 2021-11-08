@@ -8,12 +8,13 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-import "./Collection.sol";
+import "./User.sol";
+import "./MarketCollection.sol";
 
 import "hardhat/console.sol";
 
 
-contract AvaxTrade is Collection, ReentrancyGuard, Ownable {
+contract AvaxTrade is User, MarketCollection {
   using Strings for uint256;
   using Counters for Counters.Counter;
 
@@ -29,9 +30,6 @@ contract AvaxTrade is Collection, ReentrancyGuard, Ownable {
   */
 
   // enums
-  enum SALE_TYPE { direct, fixed_price, auction }
-  enum COLLECTION_TYPE { local, varified, unvarified }
-  enum COLLECTION_STATUS { active, inactive }
 
   // data structures
   struct BalanceSheet {
@@ -46,7 +44,7 @@ contract AvaxTrade is Collection, ReentrancyGuard, Ownable {
   }
 
   struct Bank {
-    address payable owner; // owner of this bank account
+    address owner; // owner of this bank account
     uint256 general; // any general reward balance
     uint256 commission; // commission reward balance from the item
     uint256 reflection; // reflection reward balance from the collection
@@ -58,12 +56,6 @@ contract AvaxTrade is Collection, ReentrancyGuard, Ownable {
   uint256 private LISTING_PRICE = 0.0 ether; // price to list item in marketplace
   uint8 private COMMISSION = 2; // commission rate charged upon every sale, in percentage
 
-  // // balances - balance in contract is a sum of all these
-  // uint256 private TOTAL_GENERAL_BALANCE = 0; // total balance owed for generic stuff
-  // uint256 private TOTAL_REFLECTION_BALANCE = 0; // total balance owed for reflections
-  // uint256 private TOTAL_COMMISSION_BALANCE = 0; // total balance owed for commissions
-  // uint256 private TOTAL_CONTRACT_BALANCE = 0; // available balance minus balance owed to others
-
   // monetary
   BalanceSheet private CONTRACT_BANK;
   mapping(address => Bank) private USER_BANK; // mapping collection id to collection
@@ -71,13 +63,13 @@ contract AvaxTrade is Collection, ReentrancyGuard, Ownable {
 
   constructor() {
     CONTRACT_BANK = BalanceSheet(0, 0, 0, 0, 0, 0, 0, 0);
-    USER_BANK[msg.sender] = Bank(msg.sender, 0, 0, 0, 0);
+    USER_BANK[msg.sender] = Bank(msg.sender, 0, 0, 0, 0, 0);
   }
 
   /**
     * @dev Create market item for sale. For a varified collection
   */
-  function createMarketSale(uint256 _collectionId, uint256 _tokenId, uint256 _price, string _saleType) public payable {
+  function createMarketSale(uint256 _collectionId, uint256 _tokenId, uint256 _price, string memory _saleType) public payable {
   }
   /**
     * @dev Remove market item from sale. For a varified collection
