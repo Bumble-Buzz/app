@@ -104,20 +104,6 @@ contract MarketItem {
     ITEMS_ON_SALE.push(id);
   }
 
-  // /**
-  //   * @dev Get item
-  // */
-  // function _getItem(uint256 _id) public view checkItem(_id) returns (
-  //   uint256 id, uint256 collectionId, uint256 tokenId, address contractAddress, address seller, address buyer, uint256 price,
-  //   uint8 commission, address creator, SALE_TYPE saleType, bool sold
-  // ) {
-  //   ItemDS memory item = ITEMS[_id];
-  //   return (
-  //     item.id, item.collectionId, item.tokenId, item.contractAddress, item.seller, item.buyer,
-  //     item.price, item.commission, item.creator, item.saleType, item.sold
-  //   );
-  // }
-
   /**
     * @dev Get item
   */
@@ -160,7 +146,6 @@ contract MarketItem {
         dataCounter++;
       }
     }
-
     ITEMS_ON_SALE = data;
   }
 

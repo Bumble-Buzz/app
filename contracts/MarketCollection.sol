@@ -92,7 +92,7 @@ contract MarketCollection is MarketItem, Ownable {
   /**
     * @dev Create local collection
   */
-  function createMarketCollection(string memory _name, string memory _tokenUri, address _contractAddress) public onlyOwner() {
+  function _createMarketCollection(string memory _name, string memory _tokenUri, address _contractAddress) public onlyOwner() {
     uint256 collectionIndex = COLLECTION_SIZE.current();
     COLLECTIONS[collectionIndex] = Collection({
       id: collectionIndex,
@@ -106,14 +106,14 @@ contract MarketCollection is MarketItem, Ownable {
       collectionStatus: COLLECTION_STATUS.active
     });
 
-    addCollectionForOwner(address(this), collectionIndex);
+    _addCollectionForOwner(address(this), collectionIndex);
     COLLECTION_SIZE.increment();
   }
 
   /**
     * @dev Create varified collection
   */
-  function createMarketCollection(
+  function _createMarketCollection(
     string memory _name, string memory _tokenUri, address _contractAddress, uint8 _reflection, uint8 _commission, address _owner
   ) public onlyOwner() {
     uint256 collectionIndex = COLLECTION_SIZE.current();
@@ -134,7 +134,7 @@ contract MarketCollection is MarketItem, Ownable {
   /**
     * @dev Create unvarivied collection
   */
-  function createMarketCollection(string memory _name) public onlyOwner() {
+  function _createMarketCollection(string memory _name) public onlyOwner() {
     uint256 collectionIndex = COLLECTION_SIZE.current();
     COLLECTIONS[collectionIndex] = Collection({
       id: collectionIndex,
@@ -153,14 +153,14 @@ contract MarketCollection is MarketItem, Ownable {
   /**
     * @dev Disable market collection using the collection id
   */
-  function disableMarketCollection(uint256 _collectionId) public onlyOwner() {
+  function _disableMarketCollection(uint256 _collectionId) public onlyOwner() {
     COLLECTIONS[_collectionId].collectionStatus = COLLECTION_STATUS.inactive;
   }
 
   /**
     * @dev Disable market collection using the token uri
   */
-  function disableMarketCollection(string memory _tokenUri) public onlyOwner() {
+  function _disableMarketCollection(string memory _tokenUri) public onlyOwner() {
     uint256 collectionIndex = COLLECTION_TOKEN_URIS[_tokenUri];
     COLLECTIONS[collectionIndex].collectionStatus = COLLECTION_STATUS.inactive;
   }
@@ -168,14 +168,14 @@ contract MarketCollection is MarketItem, Ownable {
   /**
     * @dev Remove market collection using the collection id
   */
-  function removeMarketCollection(uint256 _collectionId) public onlyOwner() {
+  function _removeMarketCollection(uint256 _collectionId) public onlyOwner() {
     delete COLLECTIONS[_collectionId];
   }
 
   /**
     * @dev Remove market collection using the token uri
   */
-  function removeMarketCollection(string memory _tokenUri) public onlyOwner() {
+  function _removeMarketCollection(string memory _tokenUri) public onlyOwner() {
     uint256 collectionIndex = COLLECTION_TOKEN_URIS[_tokenUri];
     delete COLLECTIONS[collectionIndex];
   }
@@ -183,21 +183,21 @@ contract MarketCollection is MarketItem, Ownable {
   /**
     * @dev Get collections for owner
   */
-  function getCollectionsForOwner(address _owner) public view returns (uint256[] memory) {
+  function _getCollectionsForOwner(address _owner) public view returns (uint256[] memory) {
     return COLLECTION_OWNERS[_owner];
   }
 
   /**
     * @dev Add a new owner (if necessary) and add collection id passed in
   */
-  function addCollectionForOwner(address _owner, uint256 _collectionId) public {
+  function _addCollectionForOwner(address _owner, uint256 _collectionId) public {
     COLLECTION_OWNERS[_owner].push(_collectionId);
   }
 
   /**
     * @dev Remove a collection for owner
   */
-  function removeCollectionForOwner(address _owner, uint256 _collectionId) public {
+  function _removeCollectionForOwner(address _owner, uint256 _collectionId) public {
     uint256 arrLength = COLLECTION_OWNERS[_owner].length - 1;
     uint256[] memory data = new uint256[](arrLength);
     uint8 dataCounter = 0;
@@ -214,9 +214,9 @@ contract MarketCollection is MarketItem, Ownable {
   /**
     * @dev Remove the owner and disable all collections associated with it
   */
-  function removeCollectionOwner(address _owner) public {
+  function _removeCollectionOwner(address _owner) public {
     for (uint256 i = 0; i < COLLECTION_OWNERS[_owner].length; i++) {
-      disableMarketCollection(COLLECTION_OWNERS[_owner][i]);
+      _disableMarketCollection(COLLECTION_OWNERS[_owner][i]);
     }
     delete COLLECTION_OWNERS[_owner];
   }
