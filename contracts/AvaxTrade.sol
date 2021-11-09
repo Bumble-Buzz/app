@@ -14,7 +14,7 @@ import "./MarketCollection.sol";
 import "hardhat/console.sol";
 
 
-contract AvaxTrade is User, MarketCollection {
+contract AvaxTrade is User, MarketCollection, Ownable {
   using Strings for uint256;
   using Counters for Counters.Counter;
 

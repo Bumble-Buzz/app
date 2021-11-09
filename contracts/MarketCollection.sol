@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.4 <0.9.0;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
 import "./MarketItem.sol";
 
 import "hardhat/console.sol";
 
 
-contract MarketCollection is MarketItem, Ownable {
+contract MarketCollection is MarketItem {
   using Counters for Counters.Counter;
 
   /**
@@ -25,25 +22,10 @@ contract MarketCollection is MarketItem, Ownable {
   */
 
   // enums
-  // enum SALE_TYPE { direct, fixed_price, auction }
   enum COLLECTION_TYPE { local, varified, unvarified }
   enum COLLECTION_STATUS { active, inactive }
 
   // data structures
-  // struct MarketItem {
-  //   uint256 id; // unique item id
-  //   uint256 collectionId; // collection id associated with this item
-  //   uint256 tokenId; // unique token id of the item
-  //   address contractAddress;
-  //   address seller; // address of the seller / current owner
-  //   address buyer; // address of the buyer / next owner (empty if not yet bought)
-  //   uint256 price; // price of the item
-  //   uint8 commission; // in percentage
-  //   address creator; // original creator of the item
-  //   SALE_TYPE saleType; // type of the sale for the item
-  //   bool sold;
-  // }
-
   struct Collection {
     uint256 id; // unique collection id
     string name; // collection name
@@ -57,19 +39,6 @@ contract MarketCollection is MarketItem, Ownable {
   }
 
   // state variables
-
-  /**
-    * @dev We use the same ITEM_SIZE to track the size of the collection, and also
-    * use it to know which index in the mapping we want to add the new collection.
-    * Example:  if ITEM_SIZE = 5
-    *           We know there are 5 collections, but we also know in the mapping the
-    *           collection id's are as follows: 0,1,2,3,4
-    * So next time when we need to add a new collection, we use the same ITEM_SIZE variable
-    * to add collection in index '5', and then increment size +1 in end because now we have 6 collections
-  */
-  // Counters.Counter private ITEM_SIZE; // tracks total number of items
-  // mapping(uint256 => MarketItem) private ITEMS; // mapping item id to market item
-  // mapping(address => uint256[]) private ITEM_OWNERS; // mapping item owner to item ids
 
   /**
     * @dev We use the same COLLECTION_SIZE to track the size of the collection, and also
@@ -92,7 +61,7 @@ contract MarketCollection is MarketItem, Ownable {
   /**
     * @dev Create local collection
   */
-  function _createMarketCollection(string memory _name, string memory _tokenUri, address _contractAddress) public onlyOwner() {
+  function _createMarketCollection(string memory _name, string memory _tokenUri, address _contractAddress) public {
     uint256 collectionIndex = COLLECTION_SIZE.current();
     COLLECTIONS[collectionIndex] = Collection({
       id: collectionIndex,
@@ -115,7 +84,7 @@ contract MarketCollection is MarketItem, Ownable {
   */
   function _createMarketCollection(
     string memory _name, string memory _tokenUri, address _contractAddress, uint8 _reflection, uint8 _commission, address _owner
-  ) public onlyOwner() {
+  ) public {
     uint256 collectionIndex = COLLECTION_SIZE.current();
     COLLECTIONS[collectionIndex] = Collection({
       id: collectionIndex,
@@ -134,7 +103,7 @@ contract MarketCollection is MarketItem, Ownable {
   /**
     * @dev Create unvarivied collection
   */
-  function _createMarketCollection(string memory _name) public onlyOwner() {
+  function _createMarketCollection(string memory _name) public {
     uint256 collectionIndex = COLLECTION_SIZE.current();
     COLLECTIONS[collectionIndex] = Collection({
       id: collectionIndex,
@@ -153,14 +122,14 @@ contract MarketCollection is MarketItem, Ownable {
   /**
     * @dev Disable market collection using the collection id
   */
-  function _disableMarketCollection(uint256 _collectionId) public onlyOwner() {
+  function _disableMarketCollection(uint256 _collectionId) public {
     COLLECTIONS[_collectionId].collectionStatus = COLLECTION_STATUS.inactive;
   }
 
   /**
     * @dev Disable market collection using the token uri
   */
-  function _disableMarketCollection(string memory _tokenUri) public onlyOwner() {
+  function _disableMarketCollection(string memory _tokenUri) public {
     uint256 collectionIndex = COLLECTION_TOKEN_URIS[_tokenUri];
     COLLECTIONS[collectionIndex].collectionStatus = COLLECTION_STATUS.inactive;
   }
@@ -168,14 +137,14 @@ contract MarketCollection is MarketItem, Ownable {
   /**
     * @dev Remove market collection using the collection id
   */
-  function _removeMarketCollection(uint256 _collectionId) public onlyOwner() {
+  function _removeMarketCollection(uint256 _collectionId) public {
     delete COLLECTIONS[_collectionId];
   }
 
   /**
     * @dev Remove market collection using the token uri
   */
-  function _removeMarketCollection(string memory _tokenUri) public onlyOwner() {
+  function _removeMarketCollection(string memory _tokenUri) public {
     uint256 collectionIndex = COLLECTION_TOKEN_URIS[_tokenUri];
     delete COLLECTIONS[collectionIndex];
   }

@@ -46,12 +46,12 @@ contract MarketItem {
   // state variables
 
   /**
-    * @dev We use the same ITEM_SIZE to track the size of the collection, and also
+    * @dev We use the same ITEM_ID_POINTER to track the size of the collection, and also
     * use it to know which index in the mapping we want to add the new collection.
-    * Example:  if ITEM_SIZE = 5
+    * Example:  if ITEM_ID_POINTER = 5
     *           We know there are 5 collections, but we also know in the mapping the
     *           collection id's are as follows: 0,1,2,3,4
-    * So next time when we need to add a new collection, we use the same ITEM_SIZE variable
+    * So next time when we need to add a new collection, we use the same ITEM_ID_POINTER variable
     * to add collection in index '5', and then increment size +1 in end because now we have 6 collections
   */
   Counters.Counter private ITEM_ID_POINTER; // tracks total number of items
@@ -155,7 +155,7 @@ contract MarketItem {
   function _updateItem(
     uint256 _id, uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, address _buyer, uint256 _price,
     uint8 _commission, address _creator, SALE_TYPE _saleType, bool _sold
-  ) public {
+  ) public checkItem(_id) {
     ITEMS[_id] = ItemDS({
       id: _id,
       collectionId: _collectionId,
@@ -174,77 +174,78 @@ contract MarketItem {
   /**
     * @dev Update item collection id
   */
-  function _updateItemCollectionId(uint256 _id, uint256 _collectionId) public {
+  function _updateItemCollectionId(uint256 _id, uint256 _collectionId) public checkItem(_id) {
     ITEMS[_id].collectionId = _collectionId;
   }
 
   /**
     * @dev Update item token id
   */
-  function _updateItemTokenId(uint256 _id, uint256 _tokenId) public {
+  function _updateItemTokenId(uint256 _id, uint256 _tokenId) public checkItem(_id) {
     ITEMS[_id].tokenId = _tokenId;
   }
 
   /**
     * @dev Update item contract address
   */
-  function _updateItemContractAddress(uint256 _id, address _contractAddress) public {
+  function _updateItemContractAddress(uint256 _id, address _contractAddress) public checkItem(_id) {
     ITEMS[_id].contractAddress = _contractAddress;
   }
 
   /**
     * @dev Update item seller
   */
-  function _updateItemSeller(uint256 _id, address _seller) public {
+  function _updateItemSeller(uint256 _id, address _seller) public checkItem(_id) {
     ITEMS[_id].seller = _seller;
   }
 
   /**
     * @dev Update item buyer
   */
-  function _updateItemBuyer(uint256 _id, address _buyer) public {
+  function _updateItemBuyer(uint256 _id, address _buyer) public checkItem(_id) {
     ITEMS[_id].buyer = _buyer;
   }
 
   /**
     * @dev Update item price
   */
-  function _updateItemPrice(uint256 _id, uint256 _price) public {
+  function _updateItemPrice(uint256 _id, uint256 _price) public checkItem(_id) {
     ITEMS[_id].price = _price;
   }
 
   /**
     * @dev Update item commission
   */
-  function _updateItemCommission(uint256 _id, uint8 _commission) public {
+  function _updateItemCommission(uint256 _id, uint8 _commission) public checkItem(_id) {
     ITEMS[_id].commission = _commission;
   }
 
   /**
     * @dev Update item creator
   */
-  function _updateItemCreator(uint256 _id, address _creator) public {
+  function _updateItemCreator(uint256 _id, address _creator) public checkItem(_id) {
     ITEMS[_id].creator = _creator;
   }
 
   /**
     * @dev Update item sale type
   */
-  function _updateItemSaleType(uint256 _id, SALE_TYPE _saleType) public {
+  function _updateItemSaleType(uint256 _id, SALE_TYPE _saleType) public checkItem(_id){
     ITEMS[_id].saleType = _saleType;
   }
 
   /**
     * @dev Update item sold boolean
   */
-  function _updateItemSold(uint256 _id, bool _sold) public {
+  function _updateItemSold(uint256 _id, bool _sold) public checkItem(_id) {
+    _removeItemId(_id);
     ITEMS[_id].sold = _sold;
   }
 
   /**
     * @dev Remove item give the item id
   */
-  function _removeItem(uint256 _id) public {
+  function _removeItem(uint256 _id) public checkItem(_id) {
     _removeItemId(_id);
     delete ITEMS[_id];
   }

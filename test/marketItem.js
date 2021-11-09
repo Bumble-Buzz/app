@@ -1,9 +1,24 @@
+const _ = require('lodash');
 const { assert, expect } = require('chai');
 require('chai').use(require('chai-as-promised')).should();
 const { ethers } = require("hardhat");
 
+
+// global variables
 let ACCOUNTS = [];
 let CONTRACT;
+
+// global functions
+const _doItemIdsInclude = (_itemIds, _identifier = {}) => {
+  const foundDna = _itemIds.find((itemId) => {
+      return _.isEqual(itemId, _identifier);
+  });
+  return foundDna == undefined ? false : true;
+};
+const _doItemIdsEqual = (_itemIds, expectedArray = []) => {
+  return _(_itemIds).differenceWith(expectedArray, _.isEqual).isEmpty();
+};
+
 describe("AvaxTrade - MarketItem", () => {
   before(async () => {
     ACCOUNTS = await ethers.getSigners();
@@ -73,6 +88,10 @@ describe("AvaxTrade - MarketItem", () => {
       expect(itemIds.length).to.be.equal(2);
       expect(itemIds[0]).to.be.equal(1);
       expect(itemIds[1]).to.be.equal(2);
+      const expectedArray = [ethers.BigNumber.from('1'), ethers.BigNumber.from('2')]
+      expect(_doItemIdsEqual(itemIds, expectedArray)).to.be.true;
+      expect(_doItemIdsInclude(itemIds, ethers.BigNumber.from('1'))).to.be.true;
+      expect(_doItemIdsInclude(itemIds, ethers.BigNumber.from('2'))).to.be.true;
 
       const items = await CONTRACT.connect(ACCOUNTS[0])._getAllItems();
       expect(items.length).to.be.equal(2);
@@ -163,9 +182,16 @@ describe("AvaxTrade - MarketItem", () => {
     });
 
     it('sold', async () => {
+      let itemIds = await CONTRACT.connect(ACCOUNTS[0])._getItemIds();
+      expect(itemIds.length).to.be.equal(1);
+      expect(_doItemIdsInclude(itemIds, ethers.BigNumber.from('1'))).to.be.true;
+
       await CONTRACT.connect(ACCOUNTS[0])._updateItemSold(1, true);
       const items = await CONTRACT.connect(ACCOUNTS[0])._getItem(1);
       expect(items[10]).to.be.equal(true);
+
+      itemIds = await CONTRACT.connect(ACCOUNTS[0])._getItemIds();
+      expect(itemIds.length).to.be.equal(0);
     });
   });
 
