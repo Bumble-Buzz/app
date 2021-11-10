@@ -10,6 +10,12 @@ import "hardhat/console.sol";
 contract MarketCollection is MarketItem {
   using Counters for Counters.Counter;
 
+  // modifiers
+  modifier checkCollection(uint256 _id) {
+    require(_collectionExists(_id), "The collection does not exist");
+    _;
+  }
+
   /**
     * Note All calculations using percentages will truncate any decimals.
     * Instead whole numbers will be used.
@@ -22,11 +28,11 @@ contract MarketCollection is MarketItem {
   */
 
   // enums
-  enum COLLECTION_TYPE { local, varified, unvarified }
+  enum COLLECTION_TYPE { local, verified, unverified }
   enum COLLECTION_STATUS { active, inactive }
 
   // data structures
-  struct Collection {
+  struct CollectionDS {
     uint256 id; // unique collection id
     string name; // collection name
     string tokenUri; // unique token uri of the collection
@@ -35,36 +41,91 @@ contract MarketCollection is MarketItem {
     uint8 commission; // in percentage
     address owner; // owner of the collection
     COLLECTION_TYPE collectitonType; // type of the collection
-    COLLECTION_STATUS collectionStatus;
+    bool active;
+  }
+  struct CollectionIdDS {
+    uint256[] active;
+    uint256[] local;
+    uint256[] verified;
+    uint256[] unverified;
   }
 
   // state variables
 
   /**
-    * @dev We use the same COLLECTION_SIZE to track the size of the collection, and also
+    * @dev We use the same COLLECTION_ID_POINTER to track the size of the collection, and also
     * use it to know which index in the mapping we want to add the new collection.
-    * Example:  if COLLECTION_SIZE = 5
+    * Example:  if COLLECTION_ID_POINTER = 5
     *           We know there are 5 collections, but we also know in the mapping the
     *           collection id's are as follows: 0,1,2,3,4
-    * So next time when we need to add a new collection, we use the same COLLECTION_SIZE variable
+    * So next time when we need to add a new collection, we use the same COLLECTION_ID_POINTER variable
     * to add collection in index '5', and then increment size +1 in end because now we have 6 collections
   */
-  Counters.Counter private COLLECTION_SIZE; // tracks total number of collections
+  Counters.Counter private COLLECTION_ID_POINTER; // tracks total number of collections
   uint256 private MAX_COLLECTION_SIZE = 9999; // maximum number of collections allowed
-  mapping(uint256 => Collection) private COLLECTIONS; // mapping collection id to collection
+  CollectionIdDS private COLLECTION_IDS; // Track important info for all collections
+  mapping(uint256 => CollectionDS) private COLLECTIONS; // mapping collection id to collection
   mapping(address => uint256[]) private COLLECTION_OWNERS; // mapping collection owner to collection ids
-  mapping(string => uint256) private COLLECTION_TOKEN_URIS; // mapping token uri to collection id
 
-  mapping(uint256 => uint256[]) private ITEMS_IN_COLLECTION; // mapping collection id to list of item ids
+  mapping(uint256 => uint256[]) private COLLECTION_ITEMS; // mapping collection id to list of item ids
 
+
+  /**
+    * @dev Check if item exists
+  */
+  function _collectionExists(uint256 _id) private view returns (bool) {
+    if (COLLECTIONS[_id].id != 0) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+    * @dev Get max collection size
+  */
+  function _getMaxCollectionSize() public view returns (uint256) {
+    return MAX_COLLECTION_SIZE;
+  }
+
+  /**
+    * @dev Set max collection size
+  */
+  function _setMaxCollectionSize(uint256 _size) public {
+    MAX_COLLECTION_SIZE = _size;
+  }
+
+  /**
+    * @dev Get collection id pointer
+  */
+  function _getCollectionIdPointer() public view returns (uint256) {
+    return COLLECTION_ID_POINTER.current();
+  }
+
+  /**
+    * @dev Reset collection id pointer to 0
+  */
+  function _resetCollectionIdPointer() public {
+    COLLECTION_ID_POINTER.reset();
+  }
+
+  /**
+    * @dev Add empty collection
+  */
+  function _createEmptyCollection() public {
+    COLLECTION_ID_POINTER.increment();
+    uint256 id = COLLECTION_ID_POINTER.current();
+    COLLECTIONS[id].id = id;
+    COLLECTION_IDS.active.push(id);
+  }
 
   /**
     * @dev Create local collection
   */
-  function _createMarketCollection(string memory _name, string memory _tokenUri, address _contractAddress) public {
-    uint256 collectionIndex = COLLECTION_SIZE.current();
-    COLLECTIONS[collectionIndex] = Collection({
-      id: collectionIndex,
+  function _createCollection(string memory _name, string memory _tokenUri, address _contractAddress) public {
+    COLLECTION_ID_POINTER.increment();
+    uint256 id = COLLECTION_ID_POINTER.current();
+    COLLECTIONS[id] = CollectionDS({
+      id: id,
       name: _name,
       tokenUri: _tokenUri,
       contractAddress: _contractAddress,
@@ -72,81 +133,298 @@ contract MarketCollection is MarketItem {
       commission: 0,
       owner: address(this),
       collectitonType: COLLECTION_TYPE.local,
-      collectionStatus: COLLECTION_STATUS.active
+      active: true
     });
 
-    _addCollectionForOwner(address(this), collectionIndex);
-    COLLECTION_SIZE.increment();
+    COLLECTION_IDS.active.push(id);
+    COLLECTION_IDS.local.push(id);
+    _addCollectionForOwner(address(this), id);
   }
 
   /**
-    * @dev Create varified collection
+    * @dev Create verified collection
   */
-  function _createMarketCollection(
+  function _createCollection(
     string memory _name, string memory _tokenUri, address _contractAddress, uint8 _reflection, uint8 _commission, address _owner
   ) public {
-    uint256 collectionIndex = COLLECTION_SIZE.current();
-    COLLECTIONS[collectionIndex] = Collection({
-      id: collectionIndex,
+    COLLECTION_ID_POINTER.increment();
+    uint256 id = COLLECTION_ID_POINTER.current();
+    COLLECTIONS[id] = CollectionDS({
+      id: id,
       name: _name,
       tokenUri: _tokenUri,
       contractAddress: _contractAddress,
       reflection: _reflection,
       commission: _commission,
       owner: _owner,
-      collectitonType: COLLECTION_TYPE.varified,
-      collectionStatus: COLLECTION_STATUS.active
+      collectitonType: COLLECTION_TYPE.verified,
+      active: true
     });
-    COLLECTION_SIZE.increment();
+
+    COLLECTION_IDS.active.push(id);
+    COLLECTION_IDS.verified.push(id);
+    _addCollectionForOwner(_owner, id);
   }
 
   /**
     * @dev Create unvarivied collection
   */
-  function _createMarketCollection(string memory _name) public {
-    uint256 collectionIndex = COLLECTION_SIZE.current();
-    COLLECTIONS[collectionIndex] = Collection({
-      id: collectionIndex,
+  function _createCollection(string memory _name) public {
+    COLLECTION_ID_POINTER.increment();
+    uint256 id = COLLECTION_ID_POINTER.current();
+    COLLECTIONS[id] = CollectionDS({
+      id: id,
       name: _name,
       tokenUri: '',
       contractAddress: address(0),
       reflection: 0,
       commission: 0,
       owner: address(this),
-      collectitonType: COLLECTION_TYPE.unvarified,
-      collectionStatus: COLLECTION_STATUS.active
+      collectitonType: COLLECTION_TYPE.unverified,
+      active: true
     });
-    COLLECTION_SIZE.increment();
+
+    COLLECTION_IDS.active.push(id);
+    COLLECTION_IDS.unverified.push(id);
+    _addCollectionForOwner(address(this), id);
   }
 
   /**
-    * @dev Disable market collection using the collection id
+    * @dev Get collection
   */
-  function _disableMarketCollection(uint256 _collectionId) public {
-    COLLECTIONS[_collectionId].collectionStatus = COLLECTION_STATUS.inactive;
+  function _getCollection(uint256 _id) public view checkCollection(_id) returns (CollectionDS memory) {
+    CollectionDS memory collection = COLLECTIONS[_id];
+    return collection;
   }
 
   /**
-    * @dev Disable market collection using the token uri
+    * @dev Get active collections
   */
-  function _disableMarketCollection(string memory _tokenUri) public {
-    uint256 collectionIndex = COLLECTION_TOKEN_URIS[_tokenUri];
-    COLLECTIONS[collectionIndex].collectionStatus = COLLECTION_STATUS.inactive;
+  function _getActiveCollections() public view returns (CollectionDS[] memory) {
+    uint256 arrLength = COLLECTION_IDS.active.length;
+    CollectionDS[] memory collections = new CollectionDS[](arrLength);
+    for (uint256 i = 0; i < arrLength; i++) {
+      uint256 id = COLLECTION_IDS.active[i];
+      CollectionDS memory collection = COLLECTIONS[id];
+      collections[i] = collection;
+    }
+    return collections;
   }
 
   /**
-    * @dev Remove market collection using the collection id
+    * @dev Get local collections
   */
-  function _removeMarketCollection(uint256 _collectionId) public {
-    delete COLLECTIONS[_collectionId];
+  function _getLocalCollections() public view returns (CollectionDS[] memory) {
+    uint256 arrLength = COLLECTION_IDS.local.length;
+    CollectionDS[] memory collections = new CollectionDS[](arrLength);
+    for (uint256 i = 0; i < arrLength; i++) {
+      uint256 id = COLLECTION_IDS.local[i];
+      CollectionDS memory collection = COLLECTIONS[id];
+      collections[i] = collection;
+    }
+    return collections;
   }
 
   /**
-    * @dev Remove market collection using the token uri
+    * @dev Get verified collections
   */
-  function _removeMarketCollection(string memory _tokenUri) public {
-    uint256 collectionIndex = COLLECTION_TOKEN_URIS[_tokenUri];
-    delete COLLECTIONS[collectionIndex];
+  function _getVerifiedCollections() public view returns (CollectionDS[] memory) {
+    uint256 arrLength = COLLECTION_IDS.verified.length;
+    CollectionDS[] memory collections = new CollectionDS[](arrLength);
+    for (uint256 i = 0; i < arrLength; i++) {
+      uint256 id = COLLECTION_IDS.verified[i];
+      CollectionDS memory collection = COLLECTIONS[id];
+      collections[i] = collection;
+    }
+    return collections;
+  }
+
+  /**
+    * @dev Get vunerified collections
+  */
+  function _getUnverifiedCollections() public view returns (CollectionDS[] memory) {
+    uint256 arrLength = COLLECTION_IDS.unverified.length;
+    CollectionDS[] memory collections = new CollectionDS[](arrLength);
+    for (uint256 i = 0; i < arrLength; i++) {
+      uint256 id = COLLECTION_IDS.unverified[i];
+      CollectionDS memory collection = COLLECTIONS[id];
+      collections[i] = collection;
+    }
+    return collections;
+  }
+
+  /**
+    * @dev Update collection
+  */
+  function _updateCollection(
+    uint256 _id, string memory _name, string memory _tokenUri, address _contractAddress, uint8 _reflection, uint8 _commission,
+    address _owner, COLLECTION_TYPE _collectitonType, bool _active
+  ) public checkCollection(_id) {
+    COLLECTIONS[_id] = CollectionDS({
+      id: _id,
+      name: _name,
+      tokenUri: _tokenUri,
+      contractAddress: _contractAddress,
+      reflection: _reflection,
+      commission: _commission,
+      owner: _owner,
+      collectitonType: _collectitonType,
+      active: _active
+    });
+  }
+
+  /**
+    * @dev Update collection name
+  */
+  function _updateCollectionName(uint256 _id, string memory _name) public checkCollection(_id) {
+    COLLECTIONS[_id].name = _name;
+  }
+
+  /**
+    * @dev Update collection token uri
+  */
+  function _updateCollectionTokenUri(uint256 _id, string memory _tokenUri) public checkCollection(_id) {
+    COLLECTIONS[_id].tokenUri = _tokenUri;
+  }
+
+  /**
+    * @dev Update collection contract address
+  */
+  function _updateCollectionContractAddress(uint256 _id, address _contractAddress) public checkCollection(_id) {
+    COLLECTIONS[_id].contractAddress = _contractAddress;
+  }
+
+  /**
+    * @dev Update collection reflection
+  */
+  function _updateCollectionReflection(uint256 _id, uint8 _reflection) public checkCollection(_id) {
+    COLLECTIONS[_id].reflection = _reflection;
+  }
+
+  /**
+    * @dev Update collection commission
+  */
+  function _updateCollectionCommission(uint256 _id, uint8 _commission) public checkCollection(_id) {
+    COLLECTIONS[_id].commission = _commission;
+  }
+
+  /**
+    * @dev Update collection owner
+  */
+  function _updateCollectionOwner(uint256 _id, address _owner) public checkCollection(_id) {
+    COLLECTIONS[_id].owner = _owner;
+  }
+
+  /**
+    * @dev Update item collectiton type
+  */
+  function _updateCollectitonType(uint256 _id, COLLECTION_TYPE _collectitonType) public checkCollection(_id){
+    COLLECTIONS[_id].collectitonType = _collectitonType;
+  }
+
+  /**
+    * @dev Update item active boolean
+  */
+  function _updateItemActive(uint256 _id, bool _active) public checkCollection(_id) {
+    _removeCollectionId(_id);
+    COLLECTIONS[_id].active = _active;
+  }
+
+  /**
+    * @dev Remove market collection
+  */
+  function _removeCollection(uint256 _id) public {
+    _removeCollectionId(_id);
+    delete COLLECTIONS[_id];
+  }
+
+
+  /**
+    * @dev Get active collection ids
+  */
+  function _getActiveCollectionIds() public view returns (uint256[] memory) {
+    return COLLECTION_IDS.active;
+  }
+
+  /**
+    * @dev Get local collection ids
+  */
+  function _getLocalCollectionIds() public view returns (uint256[] memory) {
+    return COLLECTION_IDS.local;
+  }
+
+  /**
+    * @dev Get verified collection ids
+  */
+  function _getVerifiedCollectionIds() public view returns (uint256[] memory) {
+    return COLLECTION_IDS.verified;
+  }
+
+  /**
+    * @dev Get unverified collection ids
+  */
+  function _getUnerifiedCollectionIds() public view returns (uint256[] memory) {
+    return COLLECTION_IDS.unverified;
+  }
+
+  /**
+    * @dev Get collection ids
+  */
+  function _getCollectionIds() public view returns (CollectionIdDS memory) {
+    return COLLECTION_IDS;
+  }
+
+  /**
+    * @dev Remove collection id
+  */
+  function _removeCollectionId(uint256 _id) public view checkCollection(_id) {
+    // remove from active collection array
+    // uint256 arrLength = COLLECTION_IDS.active.length - 1;
+    // uint256[] memory data = new uint256[](arrLength);
+    // uint8 dataCounter = 0;
+    // for (uint256 i = 0; i < COLLECTION_IDS.active.length; i++) {
+    //   if (COLLECTION_IDS.active[i] != _id) {
+    //     data[dataCounter] = COLLECTION_IDS.active[i];
+    //     dataCounter++;
+    //   }
+    // }
+    // COLLECTION_IDS.active = data;
+    _removeSpecificCollectionId(_id, COLLECTION_IDS.active);
+
+    // remove from collection type specific array
+    COLLECTION_TYPE collectitonType = COLLECTIONS[_id].collectitonType;
+    if (collectitonType == COLLECTION_TYPE.local) {
+      _removeSpecificCollectionId(_id, COLLECTION_IDS.local);
+    } else if (collectitonType == COLLECTION_TYPE.verified) {
+      _removeSpecificCollectionId(_id, COLLECTION_IDS.verified);
+    } else if (collectitonType == COLLECTION_TYPE.unverified) {
+      _removeSpecificCollectionId(_id, COLLECTION_IDS.unverified);
+    }
+  }
+
+  /**
+    * @dev Remove collection id for specific collection type
+  */
+  function _removeSpecificCollectionId(uint256 _id, uint256[] memory _collectionArray) private view checkCollection(_id) {
+    // remove from active collection array
+    uint256 arrLength = _collectionArray.length - 1;
+    uint256[] memory data = new uint256[](arrLength);
+    uint8 dataCounter = 0;
+    for (uint256 i = 0; i < _collectionArray.length; i++) {
+      if (_collectionArray[i] != _id) {
+        data[dataCounter] = _collectionArray[i];
+        dataCounter++;
+      }
+    }
+    _collectionArray = data;
+  }
+
+
+  /**
+    * @dev Add a new owner (if necessary) and add collection id passed in
+  */
+  function _addCollectionForOwner(address _owner, uint256 _id) public {
+    COLLECTION_OWNERS[_owner].push(_id);
   }
 
   /**
@@ -157,37 +435,74 @@ contract MarketCollection is MarketItem {
   }
 
   /**
-    * @dev Add a new owner (if necessary) and add collection id passed in
-  */
-  function _addCollectionForOwner(address _owner, uint256 _collectionId) public {
-    COLLECTION_OWNERS[_owner].push(_collectionId);
-  }
-
-  /**
     * @dev Remove a collection for owner
   */
-  function _removeCollectionForOwner(address _owner, uint256 _collectionId) public {
+  function _removeCollectionForOwner(address _owner, uint256 _id) public {
     uint256 arrLength = COLLECTION_OWNERS[_owner].length - 1;
     uint256[] memory data = new uint256[](arrLength);
     uint8 dataCounter = 0;
     for (uint256 i = 0; i < COLLECTION_OWNERS[_owner].length; i++) {
-      if (COLLECTION_OWNERS[_owner][i] != _collectionId) {
+      if (COLLECTION_OWNERS[_owner][i] != _id) {
         data[dataCounter] = COLLECTION_OWNERS[_owner][i];
         dataCounter++;
       }
     }
-
     COLLECTION_OWNERS[_owner] = data;
+    COLLECTIONS[_id].owner = address(0);
   }
 
   /**
-    * @dev Remove the owner and disable all collections associated with it
+    * @dev Remove the owner and remove owner field for each collection as well
   */
   function _removeCollectionOwner(address _owner) public {
     for (uint256 i = 0; i < COLLECTION_OWNERS[_owner].length; i++) {
-      _disableMarketCollection(COLLECTION_OWNERS[_owner][i]);
+      uint256 _id = COLLECTION_OWNERS[_owner][i];
+      COLLECTIONS[_id].owner = address(0);
     }
     delete COLLECTION_OWNERS[_owner];
+  }
+
+
+  /**
+    * @dev Add a new collection id (if necessary) and add item id to the array
+  */
+  function _addItemInCollection(uint256 _id, uint256 _itemId) public {
+    COLLECTION_ITEMS[_id].push(_itemId);
+  }
+
+  /**
+    * @dev Get item ids for the given collection
+  */
+  function _getItemsInCollection(uint256 _id) public view returns (uint256[] memory) {
+    return COLLECTION_ITEMS[_id];
+  }
+
+  /**
+    * @dev Remove an item in collection
+  */
+  function _removeItemInCollection(uint256 _id, uint256 _itemId) public {
+    uint256 arrLength = COLLECTION_ITEMS[_id].length - 1;
+    uint256[] memory data = new uint256[](arrLength);
+    uint8 dataCounter = 0;
+    for (uint256 i = 0; i < COLLECTION_ITEMS[_id].length; i++) {
+      if (COLLECTION_ITEMS[_id][i] != _itemId) {
+        data[dataCounter] = COLLECTION_ITEMS[_id][i];
+        dataCounter++;
+      }
+    }
+    COLLECTION_ITEMS[_id] = data;
+    _removeItem(_itemId);
+  }
+
+  /**
+    * @dev Remove the collection and remove items for the collection as well
+  */
+  function _removeCollectionItem(uint256 _id) public {
+    for (uint256 i = 0; i < COLLECTION_ITEMS[_id].length; i++) {
+      uint256 _itemId = COLLECTION_ITEMS[_id][i];
+      _removeItem(_itemId);
+    }
+    delete COLLECTION_ITEMS[_id];
   }
 
 }

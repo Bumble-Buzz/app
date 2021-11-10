@@ -1,21 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.4 <0.9.0;
 
-import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-import "./User.sol";
+// import "./User.sol";
 import "./MarketCollection.sol";
 
 import "hardhat/console.sol";
 
 
-contract AvaxTrade is User, MarketCollection, Ownable {
-  using Strings for uint256;
+contract AvaxTrade is MarketCollection {
   using Counters for Counters.Counter;
 
   /**

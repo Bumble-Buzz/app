@@ -1,6 +1,10 @@
 Things left to do:
 - Smart contract
     - All functions have correct access classifiers
+    - Use one specific version in the contracts, not a range
+    - Monetary
+        - Add option for anyone to donate funds to the contract
+        - Dividends
 - Front-end dapp
 - Social media
     - Discord server
