@@ -290,10 +290,24 @@ contract MarketCollection is MarketItem {
   }
 
   /**
+    * @dev Get collection name
+  */
+  function _getCollectionName(uint256 _id) public view checkCollection(_id) returns (string memory) {
+    return COLLECTIONS[_id].name;
+  }
+
+  /**
     * @dev Update collection name
   */
   function _updateCollectionName(uint256 _id, string memory _name) public checkCollection(_id) {
     COLLECTIONS[_id].name = _name;
+  }
+
+  /**
+    * @dev Get collection token uri
+  */
+  function _getCollectionTokenUri(uint256 _id) public view checkCollection(_id) returns (string memory) {
+    return COLLECTIONS[_id].tokenUri;
   }
 
   /**
@@ -304,10 +318,24 @@ contract MarketCollection is MarketItem {
   }
 
   /**
+    * @dev Get collection contract address
+  */
+  function _getCollectionContractAddress(uint256 _id) public view checkCollection(_id) returns (address) {
+    return COLLECTIONS[_id].contractAddress;
+  }
+
+  /**
     * @dev Update collection contract address
   */
   function _updateCollectionContractAddress(uint256 _id, address _contractAddress) public checkCollection(_id) {
     COLLECTIONS[_id].contractAddress = _contractAddress;
+  }
+
+  /**
+    * @dev Get collection reflection
+  */
+  function _getCollectionReflection(uint256 _id) public view checkCollection(_id) returns (uint8) {
+    return COLLECTIONS[_id].reflection;
   }
 
   /**
@@ -318,10 +346,24 @@ contract MarketCollection is MarketItem {
   }
 
   /**
+    * @dev Get collection commission
+  */
+  function _getCollectionCommission(uint256 _id) public view checkCollection(_id) returns (uint8) {
+    return COLLECTIONS[_id].commission;
+  }
+
+  /**
     * @dev Update collection commission
   */
   function _updateCollectionCommission(uint256 _id, uint8 _commission) public checkCollection(_id) {
     COLLECTIONS[_id].commission = _commission;
+  }
+
+  /**
+    * @dev Get collection owner
+  */
+  function _getCollectionOwner(uint256 _id) public view checkCollection(_id) returns (address) {
+    return COLLECTIONS[_id].owner;
   }
 
   /**
@@ -332,20 +374,39 @@ contract MarketCollection is MarketItem {
   }
 
   /**
-    * @dev Update item collectiton type
+    * @dev Get collectiton type
   */
-  function _updateCollectitonType(uint256 _id, COLLECTION_TYPE _collectitonType) public checkCollection(_id){
+  function _getCollectitonType(uint256 _id) public view checkCollection(_id) returns (COLLECTION_TYPE) {
+    return COLLECTIONS[_id].collectitonType;
+  }
+
+  /**
+    * @dev Update collectiton type
+  */
+  function _updateCollectitonType(uint256 _id, COLLECTION_TYPE _collectitonType) public checkCollection(_id) {
     COLLECTIONS[_id].collectitonType = _collectitonType;
   }
 
   /**
-    * @dev Update item active boolean
+    * @dev Get collectiton active boolean
+  */
+  function _getItemActive(uint256 _id) public view checkCollection(_id) returns (bool) {
+    return COLLECTIONS[_id].active;
+  }
+
+  /**
+    * @dev Update collectiton active boolean
   */
   function _updateItemActive(uint256 _id, bool _active) public checkCollection(_id) {
-    if (!_active) {
-      _removeCollectionId(_id);
-    }
     COLLECTIONS[_id].active = _active;
+  }
+
+  /**
+    * @dev Deactivate collection
+  */
+  function _deactivateCollection(uint256 _id) public {
+    _removeCollectionId(_id);
+    _updateItemActive(_id, false);
   }
 
   /**
@@ -430,35 +491,25 @@ contract MarketCollection is MarketItem {
   /**
     * @dev Remove collection id
   */
-  function _removeCollectionId(uint256 _id) public view checkCollection(_id) {
-    // remove from active collection array
-    // uint256 arrLength = COLLECTION_IDS.active.length - 1;
-    // uint256[] memory data = new uint256[](arrLength);
-    // uint8 dataCounter = 0;
-    // for (uint256 i = 0; i < COLLECTION_IDS.active.length; i++) {
-    //   if (COLLECTION_IDS.active[i] != _id) {
-    //     data[dataCounter] = COLLECTION_IDS.active[i];
-    //     dataCounter++;
-    //   }
-    // }
+  function _removeCollectionId(uint256 _id) public checkCollection(_id) {
     // COLLECTION_IDS.active = data;
-    _removeSpecificCollectionId(_id, COLLECTION_IDS.active);
+    COLLECTION_IDS.active = _removeSpecificCollectionId(_id, COLLECTION_IDS.active);
 
     // remove from collection type specific array
     COLLECTION_TYPE collectitonType = COLLECTIONS[_id].collectitonType;
     if (collectitonType == COLLECTION_TYPE.local) {
-      _removeSpecificCollectionId(_id, COLLECTION_IDS.local);
+      COLLECTION_IDS.local = _removeSpecificCollectionId(_id, COLLECTION_IDS.local);
     } else if (collectitonType == COLLECTION_TYPE.verified) {
-      _removeSpecificCollectionId(_id, COLLECTION_IDS.verified);
+      COLLECTION_IDS.verified = _removeSpecificCollectionId(_id, COLLECTION_IDS.verified);
     } else if (collectitonType == COLLECTION_TYPE.unverified) {
-      _removeSpecificCollectionId(_id, COLLECTION_IDS.unverified);
+      COLLECTION_IDS.unverified = _removeSpecificCollectionId(_id, COLLECTION_IDS.unverified);
     }
   }
 
   /**
     * @dev Remove collection id for specific collection type
   */
-  function _removeSpecificCollectionId(uint256 _id, uint256[] memory _collectionArray) private view checkCollection(_id) {
+  function _removeSpecificCollectionId(uint256 _id, uint256[] memory _collectionArray) private view checkCollection(_id) returns (uint256[] memory) {
     // remove from active collection array
     uint256 arrLength = _collectionArray.length - 1;
     uint256[] memory data = new uint256[](arrLength);
@@ -469,7 +520,7 @@ contract MarketCollection is MarketItem {
         dataCounter++;
       }
     }
-    _collectionArray = data;
+    return _collectionArray = data;
   }
 
 
