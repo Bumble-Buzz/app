@@ -2,7 +2,6 @@
 pragma solidity >=0.8.4 <0.9.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "hardhat/console.sol";
 
 
 contract MarketItem {
@@ -70,6 +69,32 @@ contract MarketItem {
     return false;
   }
 
+
+  /** 
+    *****************************************************
+    **************** Attribute Functions ****************
+    *****************************************************
+  */
+  /**
+    * @dev Get item id pointer
+  */
+  function _getItemIdPointer() internal view returns (uint256) {
+    return ITEM_ID_POINTER.current();
+  }
+
+  /**
+    * @dev Reset item id pointer to 0
+  */
+  function _resetItemIdPointer() internal {
+    ITEM_ID_POINTER.reset();
+  }
+
+
+  /** 
+    *****************************************************
+    ****************** Main Functions *******************
+    *****************************************************
+  */
   /**
     * @dev Add empty item
   */
@@ -77,7 +102,7 @@ contract MarketItem {
     ITEM_ID_POINTER.increment();
     uint256 id = ITEM_ID_POINTER.current();
     ITEMS[id].id = id;
-    ITEMS_ON_SALE.push(id);
+    _addItemId(id);
   }
 
   /**
@@ -101,7 +126,8 @@ contract MarketItem {
       saleType: saleType,
       sold: false
     });
-    ITEMS_ON_SALE.push(id);
+
+    _addItemId(id);
   }
 
   /**
@@ -124,29 +150,6 @@ contract MarketItem {
       items[i] = item;
     }
     return items;
-  }
-
-  /**
-    * @dev Get item ids
-  */
-  function _getItemIds() internal view returns (uint256[] memory) {
-    return ITEMS_ON_SALE;
-  }
-
-  /**
-    * @dev Remove item id
-  */
-  function _removeItemId(uint256 _id) private checkItem(_id) {
-    uint256 arrLength = ITEMS_ON_SALE.length - 1;
-    uint256[] memory data = new uint256[](arrLength);
-    uint8 dataCounter = 0;
-    for (uint256 i = 0; i < ITEMS_ON_SALE.length; i++) {
-      if (ITEMS_ON_SALE[i] != _id) {
-        data[dataCounter] = ITEMS_ON_SALE[i];
-        dataCounter++;
-      }
-    }
-    ITEMS_ON_SALE = data;
   }
 
   /**
@@ -238,16 +241,54 @@ contract MarketItem {
     * @dev Update item sold boolean
   */
   function _updateItemSold(uint256 _id, bool _sold) internal checkItem(_id) {
-    _removeItemId(_id);
+    if (_sold) {
+      _removeItemId(_id);
+    }
     ITEMS[_id].sold = _sold;
   }
 
   /**
-    * @dev Remove item give the item id
+    * @dev Remove item
   */
   function _removeItem(uint256 _id) internal checkItem(_id) {
     _removeItemId(_id);
     delete ITEMS[_id];
+  }
+
+
+  /** 
+    *****************************************************
+    ************* ITEMS_ON_SALE Functions ***************
+    *****************************************************
+  */
+  /**
+    * @dev Add a new item
+  */
+  function _addItemId(uint256 _id) internal {
+    ITEMS_ON_SALE.push(_id);
+  }
+
+  /**
+    * @dev Get item ids
+  */
+  function _getItemIds() internal view returns (uint256[] memory) {
+    return ITEMS_ON_SALE;
+  }
+
+  /**
+    * @dev Remove item id
+  */
+  function _removeItemId(uint256 _id) private checkItem(_id) {
+    uint256 arrLength = ITEMS_ON_SALE.length - 1;
+    uint256[] memory data = new uint256[](arrLength);
+    uint8 dataCounter = 0;
+    for (uint256 i = 0; i < ITEMS_ON_SALE.length; i++) {
+      if (ITEMS_ON_SALE[i] != _id) {
+        data[dataCounter] = ITEMS_ON_SALE[i];
+        dataCounter++;
+      }
+    }
+    ITEMS_ON_SALE = data;
   }
 
 }

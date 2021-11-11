@@ -36,11 +36,6 @@ describe("AvaxTrade - MarketItem", () => {
     assert.notEqual(address, 0x0);
   });
 
-  it('owner', async () => {
-    const owner = await CONTRACT.owner();
-    expect(owner).to.be.equal(ACCOUNTS[0].address);
-  });
-
   describe('item', async () => {
     it('item does not exist', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._getItem(1)
