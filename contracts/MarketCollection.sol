@@ -29,7 +29,6 @@ contract MarketCollection is MarketItem {
 
   // enums
   enum COLLECTION_TYPE { local, verified, unverified }
-  enum COLLECTION_STATUS { active, inactive }
 
   // data structures
   struct CollectionDS {
