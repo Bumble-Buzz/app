@@ -40,21 +40,22 @@ contract MarketItem {
     address creator; // original creator of the item
     SALE_TYPE saleType; // type of the sale for the item
     bool sold;
+    bool active;
   }
 
   // state variables
 
   /**
-    * @dev We use the same ITEM_ID_POINTER to track the size of the collection, and also
-    * use it to know which index in the mapping we want to add the new collection.
+    * @dev We use the same ITEM_ID_POINTER to track the size of the items, and also
+    * use it to know which index in the mapping we want to add the new item.
     * Example:  if ITEM_ID_POINTER = 5
     *           We know there are 5 collections, but we also know in the mapping the
-    *           collection id's are as follows: 0,1,2,3,4
-    * So next time when we need to add a new collection, we use the same ITEM_ID_POINTER variable
-    * to add collection in index '5', and then increment size +1 in end because now we have 6 collections
+    *           item id's are as follows: 0,1,2,3,4
+    * So next time when we need to add a new item, we use the same ITEM_ID_POINTER variable
+    * to add item in index '5', and then increment size +1 in end because now we have 6 collections
   */
   Counters.Counter private ITEM_ID_POINTER; // tracks total number of items
-  uint256[] ITEMS_ON_SALE;
+  uint256[] private ITEM_IDS; // current list of items on sale
   mapping(uint256 => ItemDS) private ITEMS; // mapping item id to market item
   mapping(address => uint256[]) private ITEM_OWNERS; // mapping item owner to item ids
 
@@ -78,14 +79,14 @@ contract MarketItem {
   /**
     * @dev Get item id pointer
   */
-  function _getItemIdPointer() internal view returns (uint256) {
+  function _getItemIdPointer() public view returns (uint256) {
     return ITEM_ID_POINTER.current();
   }
 
   /**
     * @dev Reset item id pointer to 0
   */
-  function _resetItemIdPointer() internal {
+  function _resetItemIdPointer() public {
     ITEM_ID_POINTER.reset();
   }
 
@@ -98,7 +99,7 @@ contract MarketItem {
   /**
     * @dev Add empty item
   */
-  function _addEmptyItem() internal {
+  function _addEmptyItem() public {
     ITEM_ID_POINTER.increment();
     uint256 id = ITEM_ID_POINTER.current();
     ITEMS[id].id = id;
@@ -106,11 +107,11 @@ contract MarketItem {
   }
 
   /**
-    * @dev Add item to put up for sale
+    * @dev Add local item to put up for sale
   */
-  function _addItem(
+  function _addLocalItem(
     uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, uint256 _price, uint8 _commission, address _creator, SALE_TYPE saleType
-  ) internal {
+  ) public {
     ITEM_ID_POINTER.increment();
     uint256 id = ITEM_ID_POINTER.current();
     ITEMS[id] = ItemDS({
@@ -124,16 +125,72 @@ contract MarketItem {
       commission: _commission,
       creator: _creator,
       saleType: saleType,
-      sold: false
+      sold: false,
+      active: true
     });
 
     _addItemId(id);
+    _addItemForOwner(_seller, id);
+  }
+
+  /**
+    * @dev Add verified item to put up for sale
+  */
+  function _addVerifiedItem(
+    uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, uint256 _price, SALE_TYPE saleType
+  ) public {
+    ITEM_ID_POINTER.increment();
+    uint256 id = ITEM_ID_POINTER.current();
+    ITEMS[id] = ItemDS({
+      id: id,
+      collectionId: _collectionId,
+      tokenId: _tokenId,
+      contractAddress: _contractAddress,
+      seller: _seller,
+      buyer: address(0),
+      price: _price,
+      commission: 0,
+      creator: address(0),
+      saleType: saleType,
+      sold: false,
+      active: true
+    });
+
+    _addItemId(id);
+    _addItemForOwner(_seller, id);
+  }
+
+  /**
+    * @dev Add unverified item to put up for sale
+  */
+  function _addUnverifiedItem(
+    uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, uint256 _price, SALE_TYPE saleType
+  ) public {
+    ITEM_ID_POINTER.increment();
+    uint256 id = ITEM_ID_POINTER.current();
+    ITEMS[id] = ItemDS({
+      id: id,
+      collectionId: _collectionId,
+      tokenId: _tokenId,
+      contractAddress: _contractAddress,
+      seller: _seller,
+      buyer: address(0),
+      price: _price,
+      commission: 0,
+      creator: address(0),
+      saleType: saleType,
+      sold: false,
+      active: true
+    });
+
+    _addItemId(id);
+    _addItemForOwner(_seller, id);
   }
 
   /**
     * @dev Get item
   */
-  function _getItem(uint256 _id) internal view checkItem(_id) returns (ItemDS memory) {
+  function _getItem(uint256 _id) public view checkItem(_id) returns (ItemDS memory) {
     ItemDS memory item = ITEMS[_id];
     return item;
   }
@@ -141,11 +198,11 @@ contract MarketItem {
   /**
     * @dev Get all items
   */
-  function _getAllItems() internal view returns (ItemDS[] memory) {
-    uint256 arrLength = ITEMS_ON_SALE.length;
+  function _getAllItems() public view returns (ItemDS[] memory) {
+    uint256 arrLength = ITEM_IDS.length;
     ItemDS[] memory items = new ItemDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
-      uint256 id = ITEMS_ON_SALE[i];
+      uint256 id = ITEM_IDS[i];
       ItemDS memory item = ITEMS[id];
       items[i] = item;
     }
@@ -157,8 +214,8 @@ contract MarketItem {
   */
   function _updateItem(
     uint256 _id, uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, address _buyer, uint256 _price,
-    uint8 _commission, address _creator, SALE_TYPE _saleType, bool _sold
-  ) internal checkItem(_id) {
+    uint8 _commission, address _creator, SALE_TYPE _saleType, bool _sold, bool _active
+  ) public checkItem(_id) {
     ITEMS[_id] = ItemDS({
       id: _id,
       collectionId: _collectionId,
@@ -170,87 +227,180 @@ contract MarketItem {
       commission: _commission,
       creator: _creator,
       saleType: _saleType,
-      sold: _sold
+      sold: _sold,
+      active: _active
     });
+    if (!_active) {
+      _removeItemId(_id);
+    }
+  }
+
+  /**
+    * @dev Get item collection id
+  */
+  function _getItemCollectionId(uint256 _id) public view checkItem(_id) returns (uint256) {
+    return ITEMS[_id].collectionId;
   }
 
   /**
     * @dev Update item collection id
   */
-  function _updateItemCollectionId(uint256 _id, uint256 _collectionId) internal checkItem(_id) {
+  function _updateItemCollectionId(uint256 _id, uint256 _collectionId) public checkItem(_id) {
     ITEMS[_id].collectionId = _collectionId;
+  }
+
+  /**
+    * @dev Get item token id
+  */
+  function _getItemTokenId(uint256 _id) public view checkItem(_id) returns (uint256) {
+    return ITEMS[_id].tokenId;
   }
 
   /**
     * @dev Update item token id
   */
-  function _updateItemTokenId(uint256 _id, uint256 _tokenId) internal checkItem(_id) {
+  function _updateItemTokenId(uint256 _id, uint256 _tokenId) public checkItem(_id) {
     ITEMS[_id].tokenId = _tokenId;
+  }
+
+  /**
+    * @dev Get item contract address
+  */
+  function _getItemContractAddress(uint256 _id) public view checkItem(_id) returns (address) {
+    return ITEMS[_id].contractAddress;
   }
 
   /**
     * @dev Update item contract address
   */
-  function _updateItemContractAddress(uint256 _id, address _contractAddress) internal checkItem(_id) {
+  function _updateItemContractAddress(uint256 _id, address _contractAddress) public checkItem(_id) {
     ITEMS[_id].contractAddress = _contractAddress;
+  }
+
+  /**
+    * @dev Get item seller
+  */
+  function _getItemSeller(uint256 _id) public view checkItem(_id) returns (address) {
+    return ITEMS[_id].seller;
   }
 
   /**
     * @dev Update item seller
   */
-  function _updateItemSeller(uint256 _id, address _seller) internal checkItem(_id) {
+  function _updateItemSeller(uint256 _id, address _seller) public checkItem(_id) {
     ITEMS[_id].seller = _seller;
+  }
+
+  /**
+    * @dev Get item buyer
+  */
+  function _getItemBuyer(uint256 _id) public view checkItem(_id) returns (address) {
+    return ITEMS[_id].buyer;
   }
 
   /**
     * @dev Update item buyer
   */
-  function _updateItemBuyer(uint256 _id, address _buyer) internal checkItem(_id) {
+  function _updateItemBuyer(uint256 _id, address _buyer) public checkItem(_id) {
     ITEMS[_id].buyer = _buyer;
+  }
+
+  /**
+    * @dev Get item price
+  */
+  function _getItemPrice(uint256 _id) public view checkItem(_id) returns (uint256) {
+    return ITEMS[_id].price;
   }
 
   /**
     * @dev Update item price
   */
-  function _updateItemPrice(uint256 _id, uint256 _price) internal checkItem(_id) {
+  function _updateItemPrice(uint256 _id, uint256 _price) public checkItem(_id) {
     ITEMS[_id].price = _price;
+  }
+
+  /**
+    * @dev Get item commission
+  */
+  function _getItemCommission(uint256 _id) public view checkItem(_id) returns (uint8) {
+    return ITEMS[_id].commission;
   }
 
   /**
     * @dev Update item commission
   */
-  function _updateItemCommission(uint256 _id, uint8 _commission) internal checkItem(_id) {
+  function _updateItemCommission(uint256 _id, uint8 _commission) public checkItem(_id) {
     ITEMS[_id].commission = _commission;
+  }
+
+  /**
+    * @dev Get item creator
+  */
+  function _getItemCreator(uint256 _id) public view checkItem(_id) returns (address) {
+    return ITEMS[_id].creator;
   }
 
   /**
     * @dev Update item creator
   */
-  function _updateItemCreator(uint256 _id, address _creator) internal checkItem(_id) {
+  function _updateItemCreator(uint256 _id, address _creator) public checkItem(_id) {
     ITEMS[_id].creator = _creator;
+  }
+
+  /**
+    * @dev Get item sale type
+  */
+  function _getItemSaleType(uint256 _id) public view checkItem(_id) returns (SALE_TYPE) {
+    return ITEMS[_id].saleType;
   }
 
   /**
     * @dev Update item sale type
   */
-  function _updateItemSaleType(uint256 _id, SALE_TYPE _saleType) internal checkItem(_id){
+  function _updateItemSaleType(uint256 _id, SALE_TYPE _saleType) public checkItem(_id) {
     ITEMS[_id].saleType = _saleType;
+  }
+
+  /**
+    * @dev Get item sold boolean
+  */
+  function _getItemSold(uint256 _id) public view checkItem(_id) returns (bool) {
+    return ITEMS[_id].sold;
   }
 
   /**
     * @dev Update item sold boolean
   */
-  function _updateItemSold(uint256 _id, bool _sold) internal checkItem(_id) {
-    if (_sold) {
-      _removeItemId(_id);
-    }
+  function _updateItemSold(uint256 _id, bool _sold) public checkItem(_id) {
     ITEMS[_id].sold = _sold;
+  }
+
+  /**
+    * @dev Get item active boolean
+  */
+  function _getItemActive(uint256 _id) public view checkItem(_id) returns (bool) {
+    return ITEMS[_id].active;
+  }
+
+  /**
+    * @dev Update item active boolean
+  */
+  function _updateItemActive(uint256 _id, bool _active) public checkItem(_id) {
+    ITEMS[_id].active = _active;
+  }
+
+  /**
+    * @dev Deactivate item
+  */
+  function _deactivateItem(uint256 _id) public checkItem(_id) {
+    _removeItemId(_id);
+    _updateItemActive(_id, false);
   }
 
   /**
     * @dev Remove item
   */
-  function _removeItem(uint256 _id) internal checkItem(_id) {
+  function _removeItem(uint256 _id) public checkItem(_id) {
     _removeItemId(_id);
     delete ITEMS[_id];
   }
@@ -258,37 +408,80 @@ contract MarketItem {
 
   /** 
     *****************************************************
-    ************* ITEMS_ON_SALE Functions ***************
+    ************* ITEM_IDS Functions ***************
     *****************************************************
   */
   /**
     * @dev Add a new item
   */
-  function _addItemId(uint256 _id) internal {
-    ITEMS_ON_SALE.push(_id);
+  function _addItemId(uint256 _id) public {
+    ITEM_IDS.push(_id);
   }
 
   /**
     * @dev Get item ids
   */
-  function _getItemIds() internal view returns (uint256[] memory) {
-    return ITEMS_ON_SALE;
+  function _getItemIds() public view returns (uint256[] memory) {
+    return ITEM_IDS;
   }
 
   /**
     * @dev Remove item id
   */
-  function _removeItemId(uint256 _id) private checkItem(_id) {
-    uint256 arrLength = ITEMS_ON_SALE.length - 1;
+  function _removeItemId(uint256 _id) public checkItem(_id) {
+    uint256 arrLength = ITEM_IDS.length - 1;
     uint256[] memory data = new uint256[](arrLength);
     uint8 dataCounter = 0;
-    for (uint256 i = 0; i < ITEMS_ON_SALE.length; i++) {
-      if (ITEMS_ON_SALE[i] != _id) {
-        data[dataCounter] = ITEMS_ON_SALE[i];
+    for (uint256 i = 0; i < ITEM_IDS.length; i++) {
+      if (ITEM_IDS[i] != _id) {
+        data[dataCounter] = ITEM_IDS[i];
         dataCounter++;
       }
     }
-    ITEMS_ON_SALE = data;
+    ITEM_IDS = data;
+  }
+
+
+  /** 
+    *****************************************************
+    *********** ITEM_OWNERS Functions *************
+    *****************************************************
+  */
+  /**
+    * @dev Add a new owner (if necessary) and add item id passed in
+  */
+  function _addItemForOwner(address _owner, uint256 _id) public {
+    ITEM_OWNERS[_owner].push(_id);
+  }
+
+  /**
+    * @dev Get items for owner
+  */
+  function _getItemsForOwner(address _owner) public view returns (uint256[] memory) {
+    return ITEM_OWNERS[_owner];
+  }
+
+  /**
+    * @dev Remove a item for owner
+  */
+  function _removeItemForOwner(address _owner, uint256 _id) public {
+    uint256 arrLength = ITEM_OWNERS[_owner].length - 1;
+    uint256[] memory data = new uint256[](arrLength);
+    uint8 dataCounter = 0;
+    for (uint256 i = 0; i < ITEM_OWNERS[_owner].length; i++) {
+      if (ITEM_OWNERS[_owner][i] != _id) {
+        data[dataCounter] = ITEM_OWNERS[_owner][i];
+        dataCounter++;
+      }
+    }
+    ITEM_OWNERS[_owner] = data;
+  }
+
+  /**
+    * @dev Remove the item owner
+  */
+  function _removeItemOwner(address _owner) public {
+    delete ITEM_OWNERS[_owner];
   }
 
 }

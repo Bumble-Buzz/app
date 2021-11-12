@@ -383,7 +383,7 @@ describe("AvaxTrade - MarketCollection", () => {
       expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionCommission(1)).to.be.equal(0);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionOwner(1)).to.be.equal(CONTRACT.address);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectitonType(1)).to.be.equal(0);
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemActive(1)).to.be.equal(true);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionActive(1)).to.be.equal(true);
     });
     it('create verified collection', async () => {
       // {
@@ -682,11 +682,11 @@ describe("AvaxTrade - MarketCollection", () => {
     });
 
     it('get collection active', async () => {
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemActive(1)).to.be.equal(true);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionActive(1)).to.be.equal(true);
     });
     it('update collection active', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._updateItemActive(1, false);
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemActive(1)).to.be.equal(false);
+      await CONTRACT.connect(ACCOUNTS[0])._updateCollectionActive(1, false);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionActive(1)).to.be.equal(false);
     });
 
     it('get collection', async () => {
@@ -694,6 +694,12 @@ describe("AvaxTrade - MarketCollection", () => {
       expect(collection.name).to.be.equal('collection name');
     });
     it('update collection', async () => {
+      let collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
+      expect(collectionIds[0].length).to.be.equal(1);
+      expect(collectionIds[1].length).to.be.equal(0);
+      expect(collectionIds[2].length).to.be.equal(1);
+      expect(collectionIds[3].length).to.be.equal(0);
+
       await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
         1 ,'collection name 2', 'token_uri 2', ACCOUNTS[3].address, 22, 33, ACCOUNTS[4].address, 1, false
       );
@@ -707,6 +713,12 @@ describe("AvaxTrade - MarketCollection", () => {
       expect(collection.owner).to.be.equal(ACCOUNTS[4].address);
       expect(collection.collectitonType).to.be.equal(1);
       expect(collection.active).to.be.equal(false);
+
+      collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
+      expect(collectionIds[0].length).to.be.equal(0);
+      expect(collectionIds[1].length).to.be.equal(0);
+      expect(collectionIds[2].length).to.be.equal(0);
+      expect(collectionIds[3].length).to.be.equal(0);
     });
   });
 
