@@ -9,15 +9,6 @@ let ACCOUNTS = [];
 let CONTRACT;
 
 // global functions
-const _doItemIdsInclude = (_itemIds, _identifier = {}) => {
-  const foundDna = _itemIds.find((itemId) => {
-      return _.isEqual(itemId, _identifier);
-  });
-  return foundDna == undefined ? false : true;
-};
-const _doItemIdsEqual = (_itemIds, expectedArray = []) => {
-  return _(_itemIds).differenceWith(expectedArray, _.isEqual).isEmpty();
-};
 const _doesArrayInclude = (_array, _identifier = {}) => {
   const foundDna = _array.find((arrayElement) => {
       return _.isEqual(arrayElement, _identifier);
