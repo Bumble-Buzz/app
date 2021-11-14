@@ -50,7 +50,7 @@ contract User {
   /**
     * @dev Add user
   */
-  function _addUser(address _id) public {
+  function _addUser(address _id) internal {
     if (_isUserAddressesUnique(_id)) {
       _addUserAddress(_id);
     }
@@ -60,14 +60,14 @@ contract User {
   /**
     * @dev Get user
   */
-  function _getUser(address _id) public view checkUser(_id) returns (UserDS memory) {
+  function _getUser(address _id) internal view checkUser(_id) returns (UserDS memory) {
     return USERS[_id];
   }
 
   /**
     * @dev Get all users
   */
-  function _getAllUsers() public view returns (UserDS[] memory) {
+  function _getAllUsers() internal view returns (UserDS[] memory) {
     uint256 arrLength = USER_ADDRESSES.length;
     UserDS[] memory users = new UserDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
@@ -83,7 +83,7 @@ contract User {
   */
   function _updateUser(
     address _id, uint256 _totalItemsSold, uint256 _totalItemsBought
-  ) public checkUser(_id) {
+  ) internal checkUser(_id) {
     USERS[_id] = UserDS({
       id: _id,
       totalItemsSold: _totalItemsSold,
@@ -94,35 +94,35 @@ contract User {
   /**
     * @dev Get user total items sold
   */
-  function _getUserTotalItemsSold(address _id) public view checkUser(_id) returns (uint256) {
+  function _getUserTotalItemsSold(address _id) internal view checkUser(_id) returns (uint256) {
     return USERS[_id].totalItemsSold;
   }
 
   /**
     * @dev Increment user total items sold
   */
-  function _incrementUserTotalItemsSold(address _id) public checkUser(_id) {
+  function _incrementUserTotalItemsSold(address _id) internal checkUser(_id) {
     USERS[_id].totalItemsSold++;
   }
 
   /**
     * @dev Get user total items bought
   */
-  function _getUserTotalItemsBought(address _id) public view checkUser(_id) returns (uint256) {
+  function _getUserTotalItemsBought(address _id) internal view checkUser(_id) returns (uint256) {
     return USERS[_id].totalItemsBought;
   }
 
   /**
     * @dev Increment user total items bought
   */
-  function _incrementUserTotalItemsBought(address _id) public checkUser(_id) {
+  function _incrementUserTotalItemsBought(address _id) internal checkUser(_id) {
     USERS[_id].totalItemsBought++;
   }
 
   /**
     * @dev Remove user
   */
-  function _removeUser(address _id) public checkUser(_id) {
+  function _removeUser(address _id) internal checkUser(_id) {
     _removeUserAddress(_id);
     delete USERS[_id];
   }
@@ -136,21 +136,21 @@ contract User {
   /**
     * @dev Add user address
   */
-  function _addUserAddress(address _id) public {
+  function _addUserAddress(address _id) internal {
     USER_ADDRESSES.push(_id);
   }
 
   /**
     * @dev Get user addresses
   */
-  function _getUserAddresses() public view returns (address[] memory) {
+  function _getUserAddresses() internal view returns (address[] memory) {
     return USER_ADDRESSES;
   }
 
   /**
     * @dev Does user already exist in the mapping?
   */
-  function _isUserAddressesUnique(address _id) public view returns (bool) {
+  function _isUserAddressesUnique(address _id) internal view returns (bool) {
     for (uint256 i = 0; i < USER_ADDRESSES.length; i++) {
       if (USER_ADDRESSES[i] == _id) {
         return false;
@@ -162,7 +162,7 @@ contract User {
   /**
     * @dev Remove user address
   */
-  function _removeUserAddress(address _id) public checkUser(_id) {
+  function _removeUserAddress(address _id) internal checkUser(_id) {
     uint256 arrLength = USER_ADDRESSES.length - 1;
     address[] memory data = new address[](arrLength);
     uint8 dataCounter = 0;
