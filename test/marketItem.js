@@ -110,7 +110,7 @@ describe("AvaxTrade - MarketItem", () => {
   });
 
   describe('Item id', async () => {
-    // uint256[] ITEM_IDS;
+    // uint256[] private ITEM_IDS;
 
     it('get item ids', async () => {
       const result = await CONTRACT.connect(ACCOUNTS[0])._getItemIds();

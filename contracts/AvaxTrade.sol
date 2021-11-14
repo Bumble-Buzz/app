@@ -5,13 +5,13 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-// import "./User.sol";
+import "./User.sol";
 import "./MarketCollection.sol";
 
 import "hardhat/console.sol";
 
 
-contract AvaxTrade is MarketCollection {
+contract AvaxTrade is User, MarketCollection {
   using Counters for Counters.Counter;
 
   /**

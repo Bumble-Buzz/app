@@ -2,6 +2,8 @@ Things left to do:
 - Smart contract
     - All functions have correct access classifiers
     - Use one specific version in the contracts, not a range
+    - Remove `import "hardhat/console.sol";` from all contracts
+    - Ensure all appropriate attributes and functions are private/internal
     - Monetary
         - Add option for anyone to donate funds to the contract
         - Dividends

@@ -2,7 +2,6 @@
 pragma solidity >=0.8.4 <0.9.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
-
 import "hardhat/console.sol";
 
 
@@ -10,106 +9,169 @@ contract User {
   using Counters for Counters.Counter;
 
   // modifiers
-  modifier checkUser(address _user) {
-    require(_exists(_user), "The user does not exist");
-    // if (!_exists(_user)) {
-    //   _addUser(_user);
-    // }
+  modifier checkUser(address _id) {
+    require(_userExists(_id), "The user does not exist");
     _;
   }
 
   // data structures
   struct UserDS {
     address id; // address of the user
-    uint256[] itemsOnSale;
-    Counters.Counter totalItemsSold;
-    Counters.Counter totalItemsBought;
+    uint256 totalItemsSold;
+    uint256 totalItemsBought;
   }
 
-  mapping(address => UserDS) private USERS;
+  address[] private USER_ADDRESSES; // current list of users
+  mapping(address => UserDS) private USERS; // mapping owner address to user object
 
 
   /**
     * @dev Check if user exists
   */
-  function _exists(address _user) private view returns (bool) {
-    if (USERS[_user].id != address(0)) {
+  function _userExists(address _id) private view returns (bool) {
+    if (USERS[_id].id != address(0)) {
       return true;
     }
     return false;
   }
 
-  /**
-    * @dev Add a new user
+  /** 
+    *****************************************************
+    **************** Attribute Functions ****************
+    *****************************************************
   */
-  function addUser(address _user) public {
-    USERS[_user].id = _user;
+
+
+  /** 
+    *****************************************************
+    ****************** Main Functions *******************
+    *****************************************************
+  */
+  /**
+    * @dev Add user
+  */
+  function _addUser(address _id) public {
+    if (_isUserAddressesUnique(_id)) {
+      _addUserAddress(_id);
+    }
+    USERS[_id].id = _id;
   }
 
   /**
-    * @dev Get all the items that are on sale for this user
+    * @dev Get user
   */
-  function getItemsOnSale(address _user) public view checkUser(_user) returns (uint256[] memory) {
-    return USERS[_user].itemsOnSale;
+  function _getUser(address _id) public view checkUser(_id) returns (UserDS memory) {
+    return USERS[_id];
   }
 
   /**
-    * @dev Get total number of items on sale for this user
+    * @dev Get all users
   */
-  function getTotalItemsOnSale(address _user) public view checkUser(_user) returns (uint256) {
-    return USERS[_user].itemsOnSale.length;
+  function _getAllUsers() public view returns (UserDS[] memory) {
+    uint256 arrLength = USER_ADDRESSES.length;
+    UserDS[] memory users = new UserDS[](arrLength);
+    for (uint256 i = 0; i < arrLength; i++) {
+      address id = USER_ADDRESSES[i];
+      UserDS memory user = USERS[id];
+      users[i] = user;
+    }
+    return users;
   }
 
   /**
-    * @dev Add a new item for sale for this user
+    * @dev Update user
   */
-  function addItemOnSale(address _user, uint256 _item) public checkUser(_user) {
-    USERS[_user].itemsOnSale.push(_item);
+  function _updateUser(
+    address _id, uint256 _totalItemsSold, uint256 _totalItemsBought
+  ) public checkUser(_id) {
+    USERS[_id] = UserDS({
+      id: _id,
+      totalItemsSold: _totalItemsSold,
+      totalItemsBought: _totalItemsBought
+    });
   }
 
   /**
-    * @dev Remove an item from sale for this user
+    * @dev Get user total items sold
   */
-  function removeItemOnSale(address _user, uint256 _item) public checkUser(_user) {
-    uint256 arrLength = USERS[_user].itemsOnSale.length - 1;
-    uint256[] memory data = new uint256[](arrLength);
+  function _getUserTotalItemsSold(address _id) public view checkUser(_id) returns (uint256) {
+    return USERS[_id].totalItemsSold;
+  }
+
+  /**
+    * @dev Increment user total items sold
+  */
+  function _incrementUserTotalItemsSold(address _id) public checkUser(_id) {
+    USERS[_id].totalItemsSold++;
+  }
+
+  /**
+    * @dev Get user total items bought
+  */
+  function _getUserTotalItemsBought(address _id) public view checkUser(_id) returns (uint256) {
+    return USERS[_id].totalItemsBought;
+  }
+
+  /**
+    * @dev Increment user total items bought
+  */
+  function _incrementUserTotalItemsBought(address _id) public checkUser(_id) {
+    USERS[_id].totalItemsBought++;
+  }
+
+  /**
+    * @dev Remove user
+  */
+  function _removeUser(address _id) public checkUser(_id) {
+    _removeUserAddress(_id);
+    delete USERS[_id];
+  }
+
+
+  /** 
+    *****************************************************
+    ************* USER_ADDRESSES Functions ***************
+    *****************************************************
+  */
+  /**
+    * @dev Add user address
+  */
+  function _addUserAddress(address _id) public {
+    USER_ADDRESSES.push(_id);
+  }
+
+  /**
+    * @dev Get user addresses
+  */
+  function _getUserAddresses() public view returns (address[] memory) {
+    return USER_ADDRESSES;
+  }
+
+  /**
+    * @dev Does user already exist in the mapping?
+  */
+  function _isUserAddressesUnique(address _id) public view returns (bool) {
+    for (uint256 i = 0; i < USER_ADDRESSES.length; i++) {
+      if (USER_ADDRESSES[i] == _id) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+    * @dev Remove user address
+  */
+  function _removeUserAddress(address _id) public checkUser(_id) {
+    uint256 arrLength = USER_ADDRESSES.length - 1;
+    address[] memory data = new address[](arrLength);
     uint8 dataCounter = 0;
-    for (uint256 i = 0; i < USERS[_user].itemsOnSale.length; i++) {
-      if (USERS[_user].itemsOnSale[i] != _item) {
-        data[dataCounter] = USERS[_user].itemsOnSale[i];
+    for (uint256 i = 0; i < USER_ADDRESSES.length; i++) {
+      if (USER_ADDRESSES[i] != _id) {
+        data[dataCounter] = USER_ADDRESSES[i];
         dataCounter++;
       }
     }
-
-    USERS[_user].itemsOnSale = data;
+    USER_ADDRESSES = data;
   }
-
-  /**
-    * @dev Get total number of items sold by this user
-  */
-  function getTotalItemsSold(address _user) public view checkUser(_user) returns (Counters.Counter memory) {
-    return USERS[_user].totalItemsSold;
-  }
-
-  /**
-    * @dev Increment total number of items sold by this user
-  */
-  function incrementTotalItemsSold(address _user) internal checkUser(_user) {
-    USERS[_user].totalItemsSold.increment();
-  }
-
-  /**
-    * @dev Get total number of items bought by this user
-  */
-  function getTotalItemsBought(address _user) public view checkUser(_user) returns (Counters.Counter memory) {
-    return USERS[_user].totalItemsBought;
-  }
-
-  /**
-    * @dev Increment total number of items bought by this user
-  */
-  function incrementTotalItemsBought(address _user) internal checkUser(_user) {
-    USERS[_user].totalItemsBought.increment();
-  }
-
 }
