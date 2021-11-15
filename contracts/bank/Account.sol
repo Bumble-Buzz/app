@@ -150,7 +150,7 @@ contract Account {
   /**
     * @dev Nullify account
   */
-  function _nullifyUser(address _id) public checkAccount(_id) {
+  function _nullifyAccount(address _id) public checkAccount(_id) {
     _updateAccount(_id, 0, 0, 0, 0);
   }
 
