@@ -52,7 +52,7 @@ contract Bank is Account, Vault {
   /**
     * @dev Add bank
   */
-  function _addBank(address _id) public {
+  function _addBank(address _id) internal {
     if (_isBankOwnerUnique(_id)) {
       _addBankOwner(_id);
       _addAccount(_id);
@@ -63,7 +63,7 @@ contract Bank is Account, Vault {
   /**
     * @dev Get bank
   */
-  function _getBank(address _id) public view checkBank(_id) returns (BankDS memory) {
+  function _getBank(address _id) internal view checkBank(_id) returns (BankDS memory) {
     BankDS memory bank = BankDS({
       id: _id,
       accounts: _getAccount(_id),
@@ -75,21 +75,21 @@ contract Bank is Account, Vault {
   /**
     * @dev Get bank account
   */
-  function _getBankAccount(address _id) public view checkBank(_id) returns (AccountDS memory) {
+  function _getBankAccount(address _id) internal view checkBank(_id) returns (AccountDS memory) {
     return _getAccount(_id);
   }
 
   /**
     * @dev Get bank vault
   */
-  function _getBankVault(address _id) public view checkBank(_id) returns (VaultDS memory) {
+  function _getBankVault(address _id) internal view checkBank(_id) returns (VaultDS memory) {
     return _getVault(_id);
   }
 
   /**
     * @dev Get banks
   */
-  function _getBanks(address[] memory _ids) public view returns (BankDS[] memory) {
+  function _getBanks(address[] memory _ids) internal view returns (BankDS[] memory) {
     uint256 arrLength = _ids.length;
     BankDS[] memory banks = new BankDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
@@ -111,7 +111,7 @@ contract Bank is Account, Vault {
   */
   function _updateBank(
     address _id, uint256 _general, uint256 _commission, uint256 _reflection, uint256 _collectionCommission, uint256 _balance
-  ) public checkBank(_id) {
+  ) internal checkBank(_id) {
     _updateBankAccount(_id, _general, _commission, _reflection, _collectionCommission);
     _updateBankVault(_id, _balance);
   }
@@ -121,7 +121,7 @@ contract Bank is Account, Vault {
   */
   function _updateBankAccount(
     address _id, uint256 _general, uint256 _commission, uint256 _reflection, uint256 _collectionCommission
-  ) public checkBank(_id) {
+  ) internal checkBank(_id) {
     _updateAccount(_id, _general, _commission, _reflection, _collectionCommission);
   }
 
@@ -130,14 +130,14 @@ contract Bank is Account, Vault {
   */
   function _updateBankVault(
     address _id, uint256 _balance
-  ) public checkBank(_id) {
+  ) internal checkBank(_id) {
     _updateVault(_id, _balance);
   }
 
   /**
     * @dev Nullify bank
   */
-  function _nullifyBank(address _id) public checkBank(_id) {
+  function _nullifyBank(address _id) internal checkBank(_id) {
     _updateBankAccount(_id, 0, 0, 0, 0);
     _updateBankVault(_id, 0);
   }
@@ -145,7 +145,7 @@ contract Bank is Account, Vault {
   /**
     * @dev Remove bank
   */
-  function _removeBank(address _id) public checkBank(_id) {
+  function _removeBank(address _id) internal checkBank(_id) {
     _removeBankOwner(_id);
     _removeAccount(_id);
     _removeVault(_id);
@@ -160,21 +160,21 @@ contract Bank is Account, Vault {
   /**
     * @dev Add bank owner
   */
-  function _addBankOwner(address _id) public {
+  function _addBankOwner(address _id) internal {
     BANK_OWNERS.push(_id);
   }
 
   /**
     * @dev Get bank owners
   */
-  function _getBankOwners() public view returns (address[] memory) {
+  function _getBankOwners() internal view returns (address[] memory) {
     return BANK_OWNERS;
   }
 
   /**
     * @dev Does bank owner already exist in the mapping?
   */
-  function _isBankOwnerUnique(address _id) public view returns (bool) {
+  function _isBankOwnerUnique(address _id) internal view returns (bool) {
     for (uint256 i = 0; i < BANK_OWNERS.length; i++) {
       if (BANK_OWNERS[i] == _id) {
         return false;
@@ -186,7 +186,7 @@ contract Bank is Account, Vault {
   /**
     * @dev Remove bank owner
   */
-  function _removeBankOwner(address _id) public checkBank(_id) {
+  function _removeBankOwner(address _id) internal checkBank(_id) {
     uint256 arrLength = BANK_OWNERS.length - 1;
     address[] memory data = new address[](arrLength);
     uint8 dataCounter = 0;

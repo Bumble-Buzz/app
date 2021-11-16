@@ -47,21 +47,21 @@ contract Vault {
   /**
     * @dev Add vault
   */
-  function _addVault(address _id) public {
+  function _addVault(address _id) internal {
     VAULTS[_id].id = _id;
   }
 
   /**
     * @dev Get vault of user
   */
-  function _getVault(address _id) public view checkVault(_id) returns (VaultDS memory) {
+  function _getVault(address _id) internal view checkVault(_id) returns (VaultDS memory) {
     return VAULTS[_id];
   }
 
   /**
     * @dev Get vaults for list of users
   */
-  function _getVaults(address[] memory _ids) public view returns (VaultDS[] memory) {
+  function _getVaults(address[] memory _ids) internal view returns (VaultDS[] memory) {
     uint256 arrLength = _ids.length;
     VaultDS[] memory vaults = new VaultDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
@@ -76,7 +76,7 @@ contract Vault {
   /**
     * @dev Update vault
   */
-  function _updateVault(address _id, uint256 _balance) public checkVault(_id) {
+  function _updateVault(address _id, uint256 _balance) internal checkVault(_id) {
     VAULTS[_id] = VaultDS({
       id: _id,
       balance: _balance
@@ -86,28 +86,28 @@ contract Vault {
   /**
     * @dev Get vault balance
   */
-  function _getVaultBalance(address _id) public view checkVault(_id) returns (uint256) {
+  function _getVaultBalance(address _id) internal view checkVault(_id) returns (uint256) {
     return VAULTS[_id].balance;
   }
 
   /**
     * @dev Update vault balance
   */
-  function _updateVaultBalance(address _id, uint256 _balance) public checkVault(_id) {
+  function _updateVaultBalance(address _id, uint256 _balance) internal checkVault(_id) {
     VAULTS[_id].balance = _balance;
   }
 
   /**
     * @dev Nullify vault
   */
-  function _nullifyVault(address _id) public checkVault(_id) {
+  function _nullifyVault(address _id) internal checkVault(_id) {
     _updateVault(_id, 0);
   }
 
   /**
     * @dev Remove vault
   */
-  function _removeVault(address _id) public checkVault(_id) {
+  function _removeVault(address _id) internal checkVault(_id) {
     delete VAULTS[_id];
   }
 }
