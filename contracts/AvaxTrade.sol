@@ -7,11 +7,12 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "./User.sol";
 import "./MarketCollection.sol";
+import "./bank/Bank.sol";
 
 import "hardhat/console.sol";
 
 
-contract AvaxTrade is User, MarketCollection {
+contract AvaxTrade is User, MarketCollection, Bank {
   using Counters for Counters.Counter;
 
   /**
@@ -39,14 +40,14 @@ contract AvaxTrade is User, MarketCollection {
     uint256 availableFunds; // final funds in contract after deductions as revenue
   }
 
-  struct Bank {
-    address owner; // owner of this bank account
-    uint256 general; // any general reward balance
-    uint256 commission; // commission reward balance from the item
-    uint256 reflection; // reflection reward balance from the collection
-    uint256 collectionCommission; // commission reward balance from the collection
-    uint256 vault;
-  }
+  // struct Bank {
+  //   address owner; // owner of this bank account
+  //   uint256 general; // any general reward balance
+  //   uint256 commission; // commission reward balance from the item
+  //   uint256 reflection; // reflection reward balance from the collection
+  //   uint256 collectionCommission; // commission reward balance from the collection
+  //   uint256 vault;
+  // }
 
   // state variables
   uint256 private LISTING_PRICE = 0.0 ether; // price to list item in marketplace
@@ -54,12 +55,12 @@ contract AvaxTrade is User, MarketCollection {
 
   // monetary
   BalanceSheet private CONTRACT_BANK;
-  mapping(address => Bank) private USER_BANK; // mapping collection id to collection
+  // mapping(address => Bank) private USER_BANK; // mapping collection id to collection
 
 
   constructor() {
     CONTRACT_BANK = BalanceSheet(0, 0, 0, 0, 0, 0, 0, 0);
-    USER_BANK[msg.sender] = Bank(msg.sender, 0, 0, 0, 0, 0);
+    // USER_BANK[msg.sender] = Bank(msg.sender, 0, 0, 0, 0, 0);
   }
 
   /**

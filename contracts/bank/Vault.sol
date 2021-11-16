@@ -66,6 +66,7 @@ contract Vault {
     VaultDS[] memory vaults = new VaultDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
       address id = _ids[i];
+      require(_vaultExists(id), "A vault in the list does not exist");
       VaultDS memory vault = VAULTS[id];
       vaults[i] = vault;
     }

@@ -53,16 +53,11 @@ contract Bank is Account, Vault {
     * @dev Add bank
   */
   function _addBank(address _id) public {
-    _addBankOwner(_id);
-    _addAccount(_id);
-    _addVault(_id);
-  }
-
-  /**
-    * @dev Get bank all ids
-  */
-  function _getBankIds() public view returns (address[] memory) {
-    return BANK_OWNERS;
+    if (_isBankOwnerUnique(_id)) {
+      _addBankOwner(_id);
+      _addAccount(_id);
+      _addVault(_id);
+    }
   }
 
   /**
@@ -76,9 +71,20 @@ contract Bank is Account, Vault {
     });
     return bank;
   }
-  // function _getBank(address _id) public view checkBank(_id) returns (AccountDS memory, VaultDS memory) {
-  //   return (_getAccount(_id), _getVault(_id));
-  // }
+
+  /**
+    * @dev Get bank account
+  */
+  function _getBankAccount(address _id) public view checkBank(_id) returns (AccountDS memory) {
+    return _getAccount(_id);
+  }
+
+  /**
+    * @dev Get bank vault
+  */
+  function _getBankVault(address _id) public view checkBank(_id) returns (VaultDS memory) {
+    return _getVault(_id);
+  }
 
   /**
     * @dev Get banks
@@ -159,9 +165,9 @@ contract Bank is Account, Vault {
   }
 
   /**
-    * @dev Get bank owner
+    * @dev Get bank owners
   */
-  function _getBankOwner() public view returns (address[] memory) {
+  function _getBankOwners() public view returns (address[] memory) {
     return BANK_OWNERS;
   }
 

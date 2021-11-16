@@ -19,7 +19,6 @@ contract Account {
     uint256 commission; // commission reward balance from the item
     uint256 reflection; // reflection reward balance from the collection
     uint256 collectionCommission; // commission reward balance from the collection
-    // uint256 vault;
   }
 
   mapping(address => AccountDS) private ACCOUNTS; // mapping owner address to account object
@@ -70,6 +69,7 @@ contract Account {
     AccountDS[] memory accounts = new AccountDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
       address id = _ids[i];
+      require(_accountExists(id), "An account in the list does not exist");
       AccountDS memory account = ACCOUNTS[id];
       accounts[i] = account;
     }
@@ -123,7 +123,7 @@ contract Account {
     * @dev Get reflection account
   */
   function _getReflectionAccount(address _id) public view checkAccount(_id) returns (uint256) {
-    return ACCOUNTS[_id].commission;
+    return ACCOUNTS[_id].reflection;
   }
 
   /**
@@ -137,7 +137,7 @@ contract Account {
     * @dev Get collection commission account
   */
   function _getCollectionCommissionAccount(address _id) public view checkAccount(_id) returns (uint256) {
-    return ACCOUNTS[_id].commission;
+    return ACCOUNTS[_id].collectionCommission;
   }
 
   /**
