@@ -10,6 +10,7 @@ Things left to do:
     - Monetary
         - Add option for anyone to donate funds to the contract
         - Dividends
+    - Address all `@todo` in the code
 - Front-end dapp
 - Social media
     - Discord server

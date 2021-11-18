@@ -4,24 +4,19 @@ pragma solidity >=0.8.4 <0.9.0;
 import "hardhat/console.sol";
 
 
-contract Direct {
+contract Immediate {
 
   // enums
 
   // data structures
-  struct DirectDS {
+  struct ImmediateS {
     address id; // owner of this item
-    uint256 tokenId; // unique token id of the item
-    address contractAddress; // contract address of the item
-    address seller; // address of the seller / current owner
-    address buyer; // address of the buyer / next owner (empty if not yet bought)
-    uint256 price; // price of the item
-    bool sold; // false by default
+    uint256 itemId; // unique item id for this sale
     bool active; // true by default
   }
 
   // state variables
-  mapping(address => DirectDS[]) private DIRECT_SALES; // mapping owner to direct sale items
+  mapping(address => ImmediateS[]) private IMMEDIATE_SALES; // mapping owner to immediate sale items
 
 
   /** 
