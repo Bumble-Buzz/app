@@ -68,6 +68,7 @@ describe("AvaxTrade - MarketCollection", () => {
     // struct CollectionIdDS {
     //   uint256[] active;
     //   uint256[] local;
+    //   uint256[] direct;
     //   uint256[] verified;
     //   uint256[] unverified;
     // }
@@ -108,6 +109,23 @@ describe("AvaxTrade - MarketCollection", () => {
       expect(collectionIds[1]).to.be.an('array').that.is.not.empty;
       expect(collectionIds[2]).to.be.an('array').that.is.empty;
       expect(collectionIds[3]).to.be.an('array').that.is.empty;
+      expect(collectionIds[4]).to.be.an('array').that.is.empty;
+    });
+
+    it('get direct collection ids', async () => {
+      const result = await CONTRACT.connect(ACCOUNTS[0])._getDirectCollectionIds();
+      expect(result).to.be.an('array').that.is.empty;
+    });
+    it('add direct collection id', async () => {
+      await CONTRACT.connect(ACCOUNTS[0])._addDirectCollectionId(123);
+      const result = await CONTRACT.connect(ACCOUNTS[0])._getDirectCollectionIds();
+      expect(_doesArrayInclude(result, ethers.BigNumber.from('123'))).to.be.true;
+      const collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
+      expect(collectionIds[0]).to.be.an('array').that.is.empty;
+      expect(collectionIds[1]).to.be.an('array').that.is.empty;
+      expect(collectionIds[2]).to.be.an('array').that.is.not.empty;
+      expect(collectionIds[3]).to.be.an('array').that.is.empty;
+      expect(collectionIds[4]).to.be.an('array').that.is.empty;
     });
 
     it('get verified collection ids', async () => {
@@ -121,8 +139,9 @@ describe("AvaxTrade - MarketCollection", () => {
       const collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
       expect(collectionIds[0]).to.be.an('array').that.is.empty;
       expect(collectionIds[1]).to.be.an('array').that.is.empty;
-      expect(collectionIds[2]).to.be.an('array').that.is.not.empty;
-      expect(collectionIds[3]).to.be.an('array').that.is.empty;
+      expect(collectionIds[2]).to.be.an('array').that.is.empty;
+      expect(collectionIds[3]).to.be.an('array').that.is.not.empty;
+      expect(collectionIds[4]).to.be.an('array').that.is.empty;
     });
 
     it('get unverified collection ids', async () => {
@@ -137,7 +156,8 @@ describe("AvaxTrade - MarketCollection", () => {
       expect(collectionIds[0]).to.be.an('array').that.is.empty;
       expect(collectionIds[1]).to.be.an('array').that.is.empty;
       expect(collectionIds[2]).to.be.an('array').that.is.empty;
-      expect(collectionIds[3]).to.be.an('array').that.is.not.empty;
+      expect(collectionIds[3]).to.be.an('array').that.is.empty;
+      expect(collectionIds[4]).to.be.an('array').that.is.not.empty;
     });
 
     it('add various types of collection ids and test', async () => {
@@ -150,22 +170,25 @@ describe("AvaxTrade - MarketCollection", () => {
       await CONTRACT.connect(ACCOUNTS[0])._addVerifiedCollectionId(7);
       await CONTRACT.connect(ACCOUNTS[0])._addUnverifiedCollectionId(8);
       await CONTRACT.connect(ACCOUNTS[0])._addUnverifiedCollectionId(9);
+      await CONTRACT.connect(ACCOUNTS[0])._addDirectCollectionId(10);
 
       const collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
       expect(collectionIds[0]).to.be.an('array').that.is.not.empty;
       expect(collectionIds[1]).to.be.an('array').that.is.not.empty;
       expect(collectionIds[2]).to.be.an('array').that.is.not.empty;
       expect(collectionIds[3]).to.be.an('array').that.is.not.empty;
+      expect(collectionIds[4]).to.be.an('array').that.is.not.empty;
 
       expect(_doesArrayInclude(collectionIds[0], ethers.BigNumber.from('1'))).to.be.true;
       expect(_doesArrayInclude(collectionIds[0], ethers.BigNumber.from('2'))).to.be.true;
       expect(_doesArrayInclude(collectionIds[1], ethers.BigNumber.from('3'))).to.be.true;
       expect(_doesArrayInclude(collectionIds[1], ethers.BigNumber.from('4'))).to.be.true;
-      expect(_doesArrayInclude(collectionIds[2], ethers.BigNumber.from('5'))).to.be.true;
-      expect(_doesArrayInclude(collectionIds[2], ethers.BigNumber.from('6'))).to.be.true;
-      expect(_doesArrayInclude(collectionIds[2], ethers.BigNumber.from('7'))).to.be.true;
-      expect(_doesArrayInclude(collectionIds[3], ethers.BigNumber.from('8'))).to.be.true;
-      expect(_doesArrayInclude(collectionIds[3], ethers.BigNumber.from('9'))).to.be.true;
+      expect(_doesArrayInclude(collectionIds[2], ethers.BigNumber.from('10'))).to.be.true;
+      expect(_doesArrayInclude(collectionIds[3], ethers.BigNumber.from('5'))).to.be.true;
+      expect(_doesArrayInclude(collectionIds[3], ethers.BigNumber.from('6'))).to.be.true;
+      expect(_doesArrayInclude(collectionIds[3], ethers.BigNumber.from('7'))).to.be.true;
+      expect(_doesArrayInclude(collectionIds[4], ethers.BigNumber.from('8'))).to.be.true;
+      expect(_doesArrayInclude(collectionIds[4], ethers.BigNumber.from('9'))).to.be.true;
     });
 
     it('add and remove collection ids', async () => {
@@ -322,6 +345,10 @@ describe("AvaxTrade - MarketCollection", () => {
       const result = await CONTRACT.connect(ACCOUNTS[0])._getLocalCollections();
       expect(result).to.be.an('array').that.is.empty;
     });
+    it('get direct collections', async () => {
+      const result = await CONTRACT.connect(ACCOUNTS[0])._getDirectCollections();
+      expect(result).to.be.an('array').that.is.empty;
+    });
     it('get verified collections', async () => {
       const result = await CONTRACT.connect(ACCOUNTS[0])._getVerifiedCollections();
       expect(result).to.be.an('array').that.is.empty;
@@ -385,6 +412,45 @@ describe("AvaxTrade - MarketCollection", () => {
       expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectitonType(1)).to.be.equal(0);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionActive(1)).to.be.equal(true);
     });
+    it('create direct collection', async () => {
+      // {
+      //   id: id,
+      //   name: _name,
+      //   tokenUri: '',
+      //   contractAddress: address(0),
+      //   reflection: 0,
+      //   commission: 0,
+      //   owner: address(this),
+      //   collectitonType: COLLECTION_TYPE.direct,
+      //   active: true
+      // }
+
+      await CONTRACT.connect(ACCOUNTS[0])._createDirectCollection(
+        'direct collection'
+      );
+      const collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
+      expect(collectionIds[0]).to.be.an('array').that.is.not.empty;
+      expect(collectionIds[1]).to.be.an('array').that.is.empty;
+      expect(collectionIds[2]).to.be.an('array').that.is.not.empty;
+      expect(collectionIds[3]).to.be.an('array').that.is.empty;
+      expect(collectionIds[4]).to.be.an('array').that.is.empty;
+      expect(_doesArrayEqual(collectionIds[0], [ethers.BigNumber.from('1')])).to.be.true;
+      expect(_doesArrayEqual(collectionIds[2], [ethers.BigNumber.from('1')])).to.be.true;
+
+      const collectionOwner = await CONTRACT.connect(ACCOUNTS[0])._getCollectionsForOwner(CONTRACT.address);
+      expect(collectionOwner).to.be.an('array').that.is.not.empty;
+      expect(_doesArrayEqual(collectionOwner, [ethers.BigNumber.from('1')])).to.be.true;
+
+      const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(1);
+      expect(collection.name).to.be.equal('direct collection');
+      expect(collection.tokenUri).to.be.equal('');
+      expect(collection.contractAddress).to.be.equal('0x0000000000000000000000000000000000000000');
+      expect(collection.reflection).to.be.equal(0);
+      expect(collection.commission).to.be.equal(0);
+      expect(collection.owner).to.be.equal(CONTRACT.address);
+      expect(collection.collectitonType).to.be.equal(1);
+      expect(collection.active).to.be.equal(true);
+    });
     it('create verified collection', async () => {
       // {
       //   id: id,
@@ -409,10 +475,11 @@ describe("AvaxTrade - MarketCollection", () => {
       const collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
       expect(collectionIds[0]).to.be.an('array').that.is.not.empty;
       expect(collectionIds[1]).to.be.an('array').that.is.empty;
-      expect(collectionIds[2]).to.be.an('array').that.is.not.empty;
-      expect(collectionIds[3]).to.be.an('array').that.is.empty;
+      expect(collectionIds[2]).to.be.an('array').that.is.empty;
+      expect(collectionIds[3]).to.be.an('array').that.is.not.empty;
+      expect(collectionIds[4]).to.be.an('array').that.is.empty;
       expect(_doesArrayEqual(collectionIds[0], [ethers.BigNumber.from('1')])).to.be.true;
-      expect(_doesArrayEqual(collectionIds[2], [ethers.BigNumber.from('1')])).to.be.true;
+      expect(_doesArrayEqual(collectionIds[3], [ethers.BigNumber.from('1')])).to.be.true;
 
       const collectionOwner = await CONTRACT.connect(ACCOUNTS[0])._getCollectionsForOwner(ACCOUNTS[2].address);
       expect(collectionOwner).to.be.an('array').that.is.not.empty;
@@ -425,7 +492,7 @@ describe("AvaxTrade - MarketCollection", () => {
       expect(collection.reflection).to.be.equal(2);
       expect(collection.commission).to.be.equal(3);
       expect(collection.owner).to.be.equal(ACCOUNTS[2].address);
-      expect(collection.collectitonType).to.be.equal(1);
+      expect(collection.collectitonType).to.be.equal(2);
       expect(collection.active).to.be.equal(true);
     });
     it('create unvarivied collection', async () => {
@@ -448,7 +515,8 @@ describe("AvaxTrade - MarketCollection", () => {
       expect(collectionIds[0]).to.be.an('array').that.is.not.empty;
       expect(collectionIds[1]).to.be.an('array').that.is.empty;
       expect(collectionIds[2]).to.be.an('array').that.is.empty;
-      expect(collectionIds[3]).to.be.an('array').that.is.not.empty;
+      expect(collectionIds[3]).to.be.an('array').that.is.empty;
+      expect(collectionIds[4]).to.be.an('array').that.is.not.empty;
       expect(_doesArrayEqual(collectionIds[0], [ethers.BigNumber.from('1')])).to.be.true;
       expect(_doesArrayEqual(collectionIds[3], [ethers.BigNumber.from('1')])).to.be.true;
 
@@ -463,7 +531,7 @@ describe("AvaxTrade - MarketCollection", () => {
       expect(collection.reflection).to.be.equal(0);
       expect(collection.commission).to.be.equal(0);
       expect(collection.owner).to.be.equal(CONTRACT.address);
-      expect(collection.collectitonType).to.be.equal(2);
+      expect(collection.collectitonType).to.be.equal(3);
       expect(collection.active).to.be.equal(true);
     });
     it('create multiple collections - same user', async () => {
@@ -484,24 +552,30 @@ describe("AvaxTrade - MarketCollection", () => {
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
         'verified collection 9', 'token_uri_9', ACCOUNTS[1].address, 2, 3, ACCOUNTS[2].address
       );
+      await CONTRACT.connect(ACCOUNTS[0])._createDirectCollection('direct collection 10');
+      await CONTRACT.connect(ACCOUNTS[0])._createDirectCollection('direct collection 11');
 
       const result = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
-      expect(result).to.be.equal(9);
+      expect(result).to.be.equal(11);
 
       const collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
       expect(collectionIds[0]).to.be.an('array').that.is.not.empty;
       expect(collectionIds[1]).to.be.an('array').that.is.not.empty;
       expect(collectionIds[2]).to.be.an('array').that.is.not.empty;
       expect(collectionIds[3]).to.be.an('array').that.is.not.empty;
-      expect(collectionIds[0].length).to.be.equal(9);
+      expect(collectionIds[4]).to.be.an('array').that.is.not.empty;
+      expect(collectionIds[0].length).to.be.equal(11);
       expect(collectionIds[1].length).to.be.equal(3);
-      expect(collectionIds[2].length).to.be.equal(4);
-      expect(collectionIds[3].length).to.be.equal(2);
+      expect(collectionIds[2].length).to.be.equal(2);
+      expect(collectionIds[3].length).to.be.equal(4);
+      expect(collectionIds[4].length).to.be.equal(2);
 
       const activeCollections = await CONTRACT.connect(ACCOUNTS[0])._getActiveCollections();
-      expect(activeCollections.length).to.be.equal(9);
+      expect(activeCollections.length).to.be.equal(11);
       const localCollections = await CONTRACT.connect(ACCOUNTS[0])._getLocalCollections();
       expect(localCollections.length).to.be.equal(3);
+      const directCollections = await CONTRACT.connect(ACCOUNTS[0])._getDirectCollections();
+      expect(directCollections.length).to.be.equal(2);
       const verifiedCollections = await CONTRACT.connect(ACCOUNTS[0])._getVerifiedCollections();
       expect(verifiedCollections.length).to.be.equal(4);
       const unverifiedCollections = await CONTRACT.connect(ACCOUNTS[0])._getUnverifiedCollections();
@@ -525,24 +599,29 @@ describe("AvaxTrade - MarketCollection", () => {
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
         'verified collection 9', 'token_uri_9', ACCOUNTS[1].address, 2, 3, ACCOUNTS[4].address
       );
+      await CONTRACT.connect(ACCOUNTS[0])._createDirectCollection('direct collection 10');
 
       const result = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
-      expect(result).to.be.equal(9);
+      expect(result).to.be.equal(10);
 
       const collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
       expect(collectionIds[0]).to.be.an('array').that.is.not.empty;
       expect(collectionIds[1]).to.be.an('array').that.is.not.empty;
       expect(collectionIds[2]).to.be.an('array').that.is.not.empty;
       expect(collectionIds[3]).to.be.an('array').that.is.not.empty;
-      expect(collectionIds[0].length).to.be.equal(9);
+      expect(collectionIds[4]).to.be.an('array').that.is.not.empty;
+      expect(collectionIds[0].length).to.be.equal(10);
       expect(collectionIds[1].length).to.be.equal(3);
-      expect(collectionIds[2].length).to.be.equal(4);
-      expect(collectionIds[3].length).to.be.equal(2);
+      expect(collectionIds[2].length).to.be.equal(1);
+      expect(collectionIds[3].length).to.be.equal(4);
+      expect(collectionIds[4].length).to.be.equal(2);
 
       const activeCollections = await CONTRACT.connect(ACCOUNTS[0])._getActiveCollections();
-      expect(activeCollections.length).to.be.equal(9);
+      expect(activeCollections.length).to.be.equal(10);
       const localCollections = await CONTRACT.connect(ACCOUNTS[0])._getLocalCollections();
       expect(localCollections.length).to.be.equal(3);
+      const directCollections = await CONTRACT.connect(ACCOUNTS[0])._getDirectCollections();
+      expect(directCollections.length).to.be.equal(1);
       const verifiedCollections = await CONTRACT.connect(ACCOUNTS[0])._getVerifiedCollections();
       expect(verifiedCollections.length).to.be.equal(4);
       const unverifiedCollections = await CONTRACT.connect(ACCOUNTS[0])._getUnverifiedCollections();
@@ -554,26 +633,29 @@ describe("AvaxTrade - MarketCollection", () => {
         'verified collection 2', 'token_uri_2', CONTRACT.address, 2, 3, ACCOUNTS[2].address
       );
       await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3');
+      await CONTRACT.connect(ACCOUNTS[0])._createDirectCollection('direct collection 4');
 
       let collectionIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
-      expect(collectionIdPointer).to.be.equal(3);
+      expect(collectionIdPointer).to.be.equal(4);
 
       let collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
-      expect(collectionIds[0].length).to.be.equal(3);
+      expect(collectionIds[0].length).to.be.equal(4);
       expect(collectionIds[1].length).to.be.equal(1);
       expect(collectionIds[2].length).to.be.equal(1);
       expect(collectionIds[3].length).to.be.equal(1);
+      expect(collectionIds[4].length).to.be.equal(1);
 
       await CONTRACT.connect(ACCOUNTS[0])._deactivateCollection(2);
 
       collectionIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
-      expect(collectionIdPointer).to.be.equal(3);
+      expect(collectionIdPointer).to.be.equal(4);
 
       collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
-      expect(collectionIds[0].length).to.be.equal(2);
+      expect(collectionIds[0].length).to.be.equal(3);
       expect(collectionIds[1].length).to.be.equal(1);
-      expect(collectionIds[2].length).to.be.equal(0);
-      expect(collectionIds[3].length).to.be.equal(1);
+      expect(collectionIds[2].length).to.be.equal(1);
+      expect(collectionIds[3].length).to.be.equal(0);
+      expect(collectionIds[4].length).to.be.equal(1);
 
       const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2);
       expect(collection.active).to.be.equal(false);
@@ -588,26 +670,29 @@ describe("AvaxTrade - MarketCollection", () => {
         'verified collection 2', 'token_uri_2', CONTRACT.address, 2, 3, ACCOUNTS[2].address
       );
       await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3');
+      await CONTRACT.connect(ACCOUNTS[0])._createDirectCollection('direct collection 4');
 
       let collectionIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
-      expect(collectionIdPointer).to.be.equal(3);
+      expect(collectionIdPointer).to.be.equal(4);
 
       let collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
-      expect(collectionIds[0].length).to.be.equal(3);
+      expect(collectionIds[0].length).to.be.equal(4);
       expect(collectionIds[1].length).to.be.equal(1);
       expect(collectionIds[2].length).to.be.equal(1);
       expect(collectionIds[3].length).to.be.equal(1);
+      expect(collectionIds[4].length).to.be.equal(1);
 
       await CONTRACT.connect(ACCOUNTS[0])._removeCollection(2);
 
       collectionIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
-      expect(collectionIdPointer).to.be.equal(3);
+      expect(collectionIdPointer).to.be.equal(4);
 
       collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
-      expect(collectionIds[0].length).to.be.equal(2);
+      expect(collectionIds[0].length).to.be.equal(3);
       expect(collectionIds[1].length).to.be.equal(1);
-      expect(collectionIds[2].length).to.be.equal(0);
-      expect(collectionIds[3].length).to.be.equal(1);
+      expect(collectionIds[2].length).to.be.equal(1);
+      expect(collectionIds[3].length).to.be.equal(0);
+      expect(collectionIds[4].length).to.be.equal(1);
 
       const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2)
         .should.be.rejectedWith('The collection does not exist');
@@ -674,11 +759,11 @@ describe("AvaxTrade - MarketCollection", () => {
     });
 
     it('get collection type', async () => {
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectitonType(1)).to.be.equal(1);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectitonType(1)).to.be.equal(2);
     });
     it('update collection type', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._updateCollectitonType(1, 2);
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectitonType(1)).to.be.equal(2);
+      await CONTRACT.connect(ACCOUNTS[0])._updateCollectitonType(1, 3);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectitonType(1)).to.be.equal(3);
     });
 
     it('get collection active', async () => {
@@ -697,11 +782,12 @@ describe("AvaxTrade - MarketCollection", () => {
       let collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
       expect(collectionIds[0].length).to.be.equal(1);
       expect(collectionIds[1].length).to.be.equal(0);
-      expect(collectionIds[2].length).to.be.equal(1);
-      expect(collectionIds[3].length).to.be.equal(0);
+      expect(collectionIds[2].length).to.be.equal(0);
+      expect(collectionIds[3].length).to.be.equal(1);
+      expect(collectionIds[4].length).to.be.equal(0);
 
       await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        1 ,'collection name 2', 'token_uri 2', ACCOUNTS[3].address, 22, 33, ACCOUNTS[4].address, 1, false
+        1 ,'collection name 2', 'token_uri 2', ACCOUNTS[3].address, 22, 33, ACCOUNTS[4].address, 2, false
       );
       const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(1);
       expect(collection.id).to.be.equal(1);
@@ -711,7 +797,7 @@ describe("AvaxTrade - MarketCollection", () => {
       expect(collection.reflection).to.be.equal(22);
       expect(collection.commission).to.be.equal(33);
       expect(collection.owner).to.be.equal(ACCOUNTS[4].address);
-      expect(collection.collectitonType).to.be.equal(1);
+      expect(collection.collectitonType).to.be.equal(2);
       expect(collection.active).to.be.equal(false);
 
       collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
@@ -719,6 +805,7 @@ describe("AvaxTrade - MarketCollection", () => {
       expect(collectionIds[1].length).to.be.equal(0);
       expect(collectionIds[2].length).to.be.equal(0);
       expect(collectionIds[3].length).to.be.equal(0);
+      expect(collectionIds[4].length).to.be.equal(0);
     });
   });
 

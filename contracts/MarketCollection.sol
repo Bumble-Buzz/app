@@ -28,7 +28,7 @@ contract MarketCollection is MarketItem {
   */
 
   // enums
-  enum COLLECTION_TYPE { local, verified, unverified }
+  enum COLLECTION_TYPE { local, direct, verified, unverified }
 
   // data structures
   struct CollectionDS {
@@ -45,6 +45,7 @@ contract MarketCollection is MarketItem {
   struct CollectionIdDS {
     uint256[] active;
     uint256[] local;
+    uint256[] direct;
     uint256[] verified;
     uint256[] unverified;
   }
@@ -154,6 +155,29 @@ contract MarketCollection is MarketItem {
   }
 
   /**
+    * @dev Create direct collection
+  */
+  function _createDirectCollection(string memory _name) internal {
+    COLLECTION_ID_POINTER.increment();
+    uint256 id = COLLECTION_ID_POINTER.current();
+    COLLECTIONS[id] = CollectionDS({
+      id: id,
+      name: _name,
+      tokenUri: '',
+      contractAddress: address(0),
+      reflection: 0,
+      commission: 0,
+      owner: address(this),
+      collectitonType: COLLECTION_TYPE.direct,
+      active: true
+    });
+
+    _addActiveCollectionId(id);
+    _addDirectCollectionId(id);
+    _addCollectionForOwner(address(this), id);
+  }
+
+  /**
     * @dev Create verified collection
   */
   function _createVerifiedCollection(
@@ -231,6 +255,20 @@ contract MarketCollection is MarketItem {
     CollectionDS[] memory collections = new CollectionDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
       uint256 id = COLLECTION_IDS.local[i];
+      CollectionDS memory collection = COLLECTIONS[id];
+      collections[i] = collection;
+    }
+    return collections;
+  }
+
+  /**
+    * @dev Get direct collections
+  */
+  function _getDirectCollections() internal view returns (CollectionDS[] memory) {
+    uint256 arrLength = COLLECTION_IDS.direct.length;
+    CollectionDS[] memory collections = new CollectionDS[](arrLength);
+    for (uint256 i = 0; i < arrLength; i++) {
+      uint256 id = COLLECTION_IDS.direct[i];
       CollectionDS memory collection = COLLECTIONS[id];
       collections[i] = collection;
     }
@@ -453,6 +491,20 @@ contract MarketCollection is MarketItem {
   }
 
   /**
+    * @dev Add a new direct collection
+  */
+  function _addDirectCollectionId(uint256 _id) internal {
+    COLLECTION_IDS.direct.push(_id);
+  }
+
+  /**
+    * @dev Get direct collection ids
+  */
+  function _getDirectCollectionIds() internal view returns (uint256[] memory) {
+    return COLLECTION_IDS.direct;
+  }
+
+  /**
     * @dev Add a new verified collection
   */
   function _addVerifiedCollectionId(uint256 _id) internal {
@@ -498,6 +550,8 @@ contract MarketCollection is MarketItem {
     COLLECTION_TYPE collectitonType = COLLECTIONS[_id].collectitonType;
     if (collectitonType == COLLECTION_TYPE.local) {
       COLLECTION_IDS.local = _removeSpecificCollectionId(_id, COLLECTION_IDS.local);
+    } else if (collectitonType == COLLECTION_TYPE.direct) {
+      COLLECTION_IDS.direct = _removeSpecificCollectionId(_id, COLLECTION_IDS.direct);
     } else if (collectitonType == COLLECTION_TYPE.verified) {
       COLLECTION_IDS.verified = _removeSpecificCollectionId(_id, COLLECTION_IDS.verified);
     } else if (collectitonType == COLLECTION_TYPE.unverified) {
