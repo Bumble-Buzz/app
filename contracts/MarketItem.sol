@@ -134,6 +134,33 @@ contract MarketItem {
   }
 
   /**
+    * @dev Add direct item for direct transfer
+  */
+  function _addDirectItem(
+    uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, uint256 _price, SALE_TYPE saleType
+  ) internal {
+    ITEM_ID_POINTER.increment();
+    uint256 id = ITEM_ID_POINTER.current();
+    ITEMS[id] = ItemDS({
+      id: id,
+      collectionId: _collectionId,
+      tokenId: _tokenId,
+      contractAddress: _contractAddress,
+      seller: _seller,
+      buyer: address(0),
+      price: _price,
+      commission: 0,
+      creator: address(0),
+      saleType: saleType,
+      sold: false,
+      active: true
+    });
+
+    _addItemId(id);
+    _addItemForOwner(_seller, id);
+  }
+
+  /**
     * @dev Add verified item to put up for sale
   */
   function _addVerifiedItem(

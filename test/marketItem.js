@@ -209,9 +209,9 @@ describe("AvaxTrade - MarketItem", () => {
       expect(await CONTRACT.connect(ACCOUNTS[0])._getItemSold(1)).to.be.equal(false);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getItemActive(1)).to.be.equal(true);
     });
-    it('add verified item', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._addVerifiedItem(
-        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 0
+    it('add direct item', async () => {
+      await CONTRACT.connect(ACCOUNTS[0])._addDirectItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 1
       );
       const itemIds = await CONTRACT.connect(ACCOUNTS[0])._getItemIds();
       expect(itemIds).to.be.an('array').that.is.not.empty;
@@ -232,7 +232,34 @@ describe("AvaxTrade - MarketItem", () => {
       expect(item.price).to.be.equal(123);
       expect(item.commission).to.be.equal(0);
       expect(item.creator).to.be.equal('0x0000000000000000000000000000000000000000');
-      expect(item.saleType).to.be.equal(0);
+      expect(item.saleType).to.be.equal(1);
+      expect(item.sold).to.be.equal(false);
+      expect(item.active).to.be.equal(true);
+    });
+    it('add verified item', async () => {
+      await CONTRACT.connect(ACCOUNTS[0])._addVerifiedItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 2
+      );
+      const itemIds = await CONTRACT.connect(ACCOUNTS[0])._getItemIds();
+      expect(itemIds).to.be.an('array').that.is.not.empty;
+      expect(itemIds.length).to.be.equal(1);
+      expect(_doesArrayInclude(itemIds, ethers.BigNumber.from('1'))).to.be.true;
+
+      const itemOwner = await CONTRACT.connect(ACCOUNTS[0])._getItemsForOwner(ACCOUNTS[2].address);
+      expect(itemOwner).to.be.an('array').that.is.not.empty;
+      expect(_doesArrayEqual(itemOwner, [ethers.BigNumber.from('1')])).to.be.true;
+
+      const item = await CONTRACT.connect(ACCOUNTS[0])._getItem(1);
+      expect(item.id).to.be.equal(1);
+      expect(item.collectionId).to.be.equal(1);
+      expect(item.tokenId).to.be.equal(2);
+      expect(item.contractAddress).to.be.equal(ACCOUNTS[1].address);
+      expect(item.seller).to.be.equal(ACCOUNTS[2].address);
+      expect(item.buyer).to.be.equal('0x0000000000000000000000000000000000000000');
+      expect(item.price).to.be.equal(123);
+      expect(item.commission).to.be.equal(0);
+      expect(item.creator).to.be.equal('0x0000000000000000000000000000000000000000');
+      expect(item.saleType).to.be.equal(2);
       expect(item.sold).to.be.equal(false);
       expect(item.active).to.be.equal(true);
     });
