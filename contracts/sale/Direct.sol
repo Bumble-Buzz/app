@@ -6,17 +6,33 @@ import "hardhat/console.sol";
 
 contract Direct {
 
+  // modifiers
+  modifier checkDirectSale(address _id, uint256 _itemId) {
+    require(_directSaleExists(_id, _itemId), "This item is not a direct sale");
+    _;
+  }
+
   // enums
 
   // data structures
-  struct DirectDS {
-    address id; // owner of this item
-    uint256 itemId; // unique item id for this sale
-    bool active; // true by default
-  }
 
   // state variables
-  mapping(address => DirectDS[]) private DIRECT_SALES; // mapping owner to direct sale items
+  uint256[] private TOTAL_DIRECT_SALES; // total direct sale items on sale
+  mapping(address => uint256[]) private DIRECT_SALES; // mapping owner to direct sale items
+
+
+  /**
+    * @dev Check if direct item exists for user
+  */
+  function _directSaleExists(address _id, uint256 _itemId) private view returns (bool) {
+    uint256[] memory items = DIRECT_SALES[_id];
+    for (uint256 i = 0; i < items.length; i++) {
+      if (items[i] == _itemId) {
+        return true;
+      }
+    }
+    return false;
+  }
 
 
   /** 
@@ -32,36 +48,11 @@ contract Direct {
     *****************************************************
   */
   /**
-    * @dev Create direct sale
+    * @dev Create direct sale item
   */
   function _createDirectSale(address _id, uint256 _itemId) public {
-    DirectDS memory sale = DirectDS({
-      id: _id,
-      itemId: _itemId,
-      active: true
-    });
-    DIRECT_SALES[_id].push(sale);
-  }
-
-  /**
-    * @dev Get all direct item ids for user
-  */
-  function _getDirectSaleItemIds(address _id) public view returns (uint256[] memory) {
-    uint256 arrLength = DIRECT_SALES[_id].length;
-    uint256[] memory data = new uint256[](arrLength);
-    uint8 dataCounter = 0;
-    for (uint256 i = 0; i < arrLength; i++) {
-      data[dataCounter] = DIRECT_SALES[_id].id;
-      dataCounter++;
-    }
-    return data;
-  }
-
-  /**
-    * @dev Get all direct items for user
-  */
-  function _getDirectSaleItems(address _id) public view returns (DirectDS[] memory) {
-    return DIRECT_SALES[_id];
+    _addTotalDirectSale(_itemId);
+    DIRECT_SALES[_id].push(_itemId);
   }
 
   /**
@@ -72,41 +63,85 @@ contract Direct {
   }
 
   /**
-    * @dev If a given direct sale item active
+    * @dev Get total number of direct sales
   */
-  function _isDirectSaleItemActive(address _id, uint256 _itemId) public returns (bool) {
-    return DIRECT_SALES[_id].active;
+  function _getTotalDirectSaleCount() public view returns (uint256) {
+    return _getTotalDirectSale().length;
   }
 
   /**
-    * @dev Does direct sale exist for user
-    * @todo Probably better to get this info from MarketItem
+    * @dev Get direct item ids for user
   */
-  function _doesDirectSaleExist(address _id, uint256 _itemId) public returns (bool) {
-    uint256 saleCount = DIRECT_SALES[_id].length;
-    for (uint256 i = 0; i < saleCount; i++) {
-      if (DIRECT_SALES[_id][i].itemId == _itemId) {
-        return true;
-      }
-    }
-    return false;
+  function _getDirectSaleItemIds(address _id) public view returns (uint256[] memory) {
+    return DIRECT_SALES[_id];
   }
 
   /**
-    * @dev Remove direct item
+    * @dev Get total direct item ids
   */
-  function _removeItemId(address _id, uint256 _itemId) internal checkItem(_id) {
-    DirectDS[] memory items = DIRECT_SALES[_id];
+  function _getTotalDirectSaleItemIds() public view returns (uint256[] memory) {
+    return _getTotalDirectSale();
+  }
+
+  /**
+    * @dev Does direct sale id exist
+  */
+  function _doesDirectSaleItemIdExists(address _id, uint256 _itemId) public view checkDirectSale(_id,_itemId) returns (bool) {
+    return _directSaleExists(_id, _itemId);
+  }
+
+  /**
+    * @dev Remove direct sale item
+  */
+  function _removeDirectSale(address _id, uint256 _itemId) public checkDirectSale(_id,_itemId) {
+    _removeTotalDirectSale(_itemId);
+    uint256[] memory items = DIRECT_SALES[_id];
     uint256 arrLength = items.length - 1;
-    DirectDS[] memory data = new DirectDS[](arrLength);
+    uint256[] memory data = new uint256[](arrLength);
     uint8 dataCounter = 0; 
     for (uint256 i = 0; i < items.length; i++) {
-      if (items[i].itemId != _itemId) {
+      if (items[i] != _itemId) {
         data[dataCounter] = items[i];
         dataCounter++;
       }
     }
     DIRECT_SALES[_id] = data;
+  }
+
+
+  /** 
+    *****************************************************
+    ************* TOTAL_DIRECT_SALES Functions ***************
+    *****************************************************
+  */
+  /**
+    * @dev Add a new direct sale item id
+  */
+  function _addTotalDirectSale(uint256 _id) public {
+    TOTAL_DIRECT_SALES.push(_id);
+  }
+
+  /**
+    * @dev Get direct sale item ids
+  */
+  function _getTotalDirectSale() public view returns (uint256[] memory) {
+    return TOTAL_DIRECT_SALES;
+  }
+
+  /**
+    * @dev Remove direct sale item id
+  */
+  function _removeTotalDirectSale(uint256 _id) public {
+    uint256 arrLength = TOTAL_DIRECT_SALES.length - 1;
+    uint256[] memory data = new uint256[](arrLength);
+    uint8 dataCounter = 0;
+    for (uint256 i = 0; i < TOTAL_DIRECT_SALES.length; i++) {
+      if (TOTAL_DIRECT_SALES[i] != _id) {
+        data[dataCounter] = TOTAL_DIRECT_SALES[i];
+        dataCounter++;
+      }
+    }
+    TOTAL_DIRECT_SALES = data;
   }
 
 }

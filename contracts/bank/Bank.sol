@@ -61,7 +61,7 @@ contract Bank is Account, Vault {
   }
 
   /**
-    * @dev Get bank
+    * @dev Get bank for given user
   */
   function _getBank(address _id) internal view checkBank(_id) returns (BankDS memory) {
     BankDS memory bank = BankDS({
@@ -87,7 +87,7 @@ contract Bank is Account, Vault {
   }
 
   /**
-    * @dev Get banks
+    * @dev Get banks for list of users
   */
   function _getBanks(address[] memory _ids) internal view returns (BankDS[] memory) {
     uint256 arrLength = _ids.length;

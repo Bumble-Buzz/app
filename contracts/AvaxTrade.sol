@@ -8,11 +8,12 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./User.sol";
 import "./MarketCollection.sol";
 import "./bank/Bank.sol";
+import "./sale/Sale.sol";
 
 import "hardhat/console.sol";
 
 
-contract AvaxTrade is User, MarketCollection, Bank {
+contract AvaxTrade is User, MarketCollection, Bank, Sale {
   using Counters for Counters.Counter;
 
   /**
