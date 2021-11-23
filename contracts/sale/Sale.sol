@@ -69,7 +69,7 @@ contract Sale is Direct, Immediate, Auction {
   /**
     * @dev Create empty sale
   */
-  function _createEmptySale(uint256 _id) public {
+  function _createEmptySale(uint256 _id) internal {
     require(!_saleExists(_id), "Sale already exists");
     SALES[_id].id = _id;
     _addTotalSaleItemId(_id);
@@ -78,7 +78,7 @@ contract Sale is Direct, Immediate, Auction {
   /**
     * @dev Create direct sale
   */
-  function _createSaleDirect(uint256 _id, address _owner) public {
+  function _createSaleDirect(uint256 _id, address _owner) internal {
     require(!_saleExists(_id), "Sale already exists - Direct");
     SALES[_id] = SaleDS({
       id: _id,
@@ -92,7 +92,7 @@ contract Sale is Direct, Immediate, Auction {
   /**
     * @dev Create immediate sale
   */
-  function _createSaleImmediate(uint256 _id, address _owner) public {
+  function _createSaleImmediate(uint256 _id, address _owner) internal {
     require(!_saleExists(_id), "Sale already exists - Immediate");
     SALES[_id] = SaleDS({
       id: _id,
@@ -106,7 +106,7 @@ contract Sale is Direct, Immediate, Auction {
   /**
     * @dev Create auction sale
   */
-  function _createSaleAuction(uint256 _id, address _owner) public {
+  function _createSaleAuction(uint256 _id, address _owner) internal {
     require(!_saleExists(_id), "Sale already exists - Auction");
     SALES[_id] = SaleDS({
       id: _id,
@@ -120,7 +120,7 @@ contract Sale is Direct, Immediate, Auction {
   /**
     * @dev Create sale
   */
-  function _createSale(uint256 _id, address _owner, SALE_TYPE_2 _saleType) public {
+  function _createSale(uint256 _id, address _owner, SALE_TYPE_2 _saleType) internal {
     require(!_saleExists(_id), "Sale already exists");
     if (_saleType == SALE_TYPE_2.direct) {
       _createSaleDirect(_id, _owner);
@@ -134,56 +134,56 @@ contract Sale is Direct, Immediate, Auction {
   /**
     * @dev Is direct sale valid
   */
-  function _isDirectSaleValid(uint256 _id, address _owner) public view checkSale(_id) returns (bool) {
+  function _isDirectSaleValid(uint256 _id, address _owner) internal view checkSale(_id) returns (bool) {
     return _doesDirectSaleItemIdExists(_owner, _id);
   } 
 
   /**
     * @dev Is immediate sale valid
   */
-  function _isImmediateSaleValid(uint256 _id, address _owner) public view checkSale(_id) returns (bool) {
+  function _isImmediateSaleValid(uint256 _id, address _owner) internal view checkSale(_id) returns (bool) {
     return _doesImmediateSaleItemIdExists(_owner, _id);
   }
 
   /**
     * @dev Is auction sale valid
   */
-  function _isAuctionSaleValid(uint256 _id, address _owner) public view checkSale(_id) returns (bool) {
+  function _isAuctionSaleValid(uint256 _id, address _owner) internal view checkSale(_id) returns (bool) {
     return _doesAuctionSaleItemIdExists(_owner, _id);
   }
 
   /**
     * @dev Is sale valid
   */
-  function _isSaleValid(uint256 _id) public view returns (bool) {
+  function _isSaleValid(uint256 _id) internal view returns (bool) {
     return _saleExists(_id);
   }
 
   /**
     * @dev Get all direct sales
   */
-  function _getAllDirectSales() public view returns (uint256[] memory) {
+  function _getAllDirectSales() internal view returns (uint256[] memory) {
     return _getTotalDirectSaleItemIds();
   }
 
   /**
     * @dev Get all immediate sales
   */
-  function _getAllImmediateSales() public view returns (uint256[] memory) {
+  function _getAllImmediateSales() internal view returns (uint256[] memory) {
     return _getTotalImmediateSaleItemIds();
   }
 
   /**
     * @dev Get all auction sales
   */
-  function _getAllAuctionSales() public view returns (uint256[] memory) {
+  function _getAllAuctionSales() internal view returns (uint256[] memory) {
     return _getTotalAuctionSaleItemIds();
   }
 
   /**
     * @dev Get all sales
   */
-  function _getAllSales() public view returns (SaleTotalDS memory) {
+  function _getAllSales() internal view returns (SaleTotalDS memory) {
     SaleTotalDS memory sale = SaleTotalDS({
       direct: _getTotalDirectSaleItemIds(),
       immediate: _getTotalImmediateSaleItemIds(),
@@ -195,7 +195,7 @@ contract Sale is Direct, Immediate, Auction {
   /**
     * @dev Get direct sales for user
   */
-  function _getDirectSalesForUser(address _id) public view returns (uint256[] memory) {
+  function _getDirectSalesForUser(address _id) internal view returns (uint256[] memory) {
     // SaleUserDS memory sale = SaleUserDS({
     //   id: _id,
     //   direct: _getDirectSaleItemIds(_id),
@@ -209,21 +209,21 @@ contract Sale is Direct, Immediate, Auction {
   /**
     * @dev Get immediate sales for user
   */
-  function _getImmediateSalesForUser(address _id) public view returns (uint256[] memory) {
+  function _getImmediateSalesForUser(address _id) internal view returns (uint256[] memory) {
     return _getImmediateSaleItemIds(_id);
   }
 
   /**
     * @dev Get auction sales for user
   */
-  function _getAuctionSalesForUser(address _id) public view returns (uint256[] memory) {
+  function _getAuctionSalesForUser(address _id) internal view returns (uint256[] memory) {
     return _getAuctionSaleItemIds(_id);
   }
 
   /**
     * @dev Get sales for user
   */
-  function _getSalesForUser(address _id) public view returns (SaleUserDS memory) {
+  function _getSalesForUser(address _id) internal view returns (SaleUserDS memory) {
     SaleUserDS memory sale = SaleUserDS({
       id: _id,
       direct: _getDirectSaleItemIds(_id),
@@ -236,7 +236,7 @@ contract Sale is Direct, Immediate, Auction {
   /**
     * @dev Get sales for users
   */
-  function _getSalesForUsers(address[] memory _ids) public view returns (SaleUserDS[] memory) {
+  function _getSalesForUsers(address[] memory _ids) internal view returns (SaleUserDS[] memory) {
     uint256 arrLength = _ids.length;
     SaleUserDS[] memory sales = new SaleUserDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
@@ -255,7 +255,7 @@ contract Sale is Direct, Immediate, Auction {
   /**
     * @dev Remove sale for user
   */
-  function _removeSale(uint256 _id, address _owner) public checkSale(_id) {
+  function _removeSale(uint256 _id, address _owner) internal checkSale(_id) {
     SALE_TYPE_2 saleType = SALES[_id].saleType;
     if (saleType == SALE_TYPE_2.direct) {
       _removeDirectSale(_owner, _id);
@@ -277,21 +277,21 @@ contract Sale is Direct, Immediate, Auction {
   /**
     * @dev Add total sale item
   */
-  function _addTotalSaleItemId(uint256 _id) public {
+  function _addTotalSaleItemId(uint256 _id) internal {
     SALE_ITEMS.push(_id);
   }
 
   /**
     * @dev Get total sale item ids
   */
-  function _getTotalSaleItemIds() public view returns (uint256[] memory) {
+  function _getTotalSaleItemIds() internal view returns (uint256[] memory) {
     return SALE_ITEMS;
   }
 
   /**
     * @dev Remove total sale item id
   */
-  function _removeTotalSaleItemId(uint256 _id) public checkSale(_id) {
+  function _removeTotalSaleItemId(uint256 _id) internal checkSale(_id) {
     uint256 arrLength = SALE_ITEMS.length - 1;
     uint256[] memory data = new uint256[](arrLength);
     uint8 dataCounter = 0;

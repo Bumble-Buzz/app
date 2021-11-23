@@ -50,7 +50,7 @@ contract Immediate {
   /**
     * @dev Create immediate sale item
   */
-  function _createImmediateSale(address _id, uint256 _itemId) public {
+  function _createImmediateSale(address _id, uint256 _itemId) internal {
     _addTotalImmediateSale(_itemId);
     IMMEDIATE_SALES[_id].push(_itemId);
   }
@@ -58,42 +58,42 @@ contract Immediate {
   /**
     * @dev Get number of immediate sales for user
   */
-  function _getImmediateSaleCount(address _id) public view returns (uint256) {
+  function _getImmediateSaleCount(address _id) internal view returns (uint256) {
     return IMMEDIATE_SALES[_id].length;
   }
 
   /**
     * @dev Get total number of immediate sales
   */
-  function _getTotalImmediateSaleCount() public view returns (uint256) {
+  function _getTotalImmediateSaleCount() internal view returns (uint256) {
     return _getTotalImmediateSale().length;
   }
 
   /**
     * @dev Get all immediate item ids for user
   */
-  function _getImmediateSaleItemIds(address _id) public view returns (uint256[] memory) {
+  function _getImmediateSaleItemIds(address _id) internal view returns (uint256[] memory) {
     return IMMEDIATE_SALES[_id];
   }
 
   /**
     * @dev Get total immediate item ids
   */
-  function _getTotalImmediateSaleItemIds() public view returns (uint256[] memory) {
+  function _getTotalImmediateSaleItemIds() internal view returns (uint256[] memory) {
     return _getTotalImmediateSale();
   }
 
   /**
     * @dev Does immediate sale id exist
   */
-  function _doesImmediateSaleItemIdExists(address _id, uint256 _itemId) public view checkImmediateSale(_id,_itemId) returns (bool) {
+  function _doesImmediateSaleItemIdExists(address _id, uint256 _itemId) internal view checkImmediateSale(_id,_itemId) returns (bool) {
     return _immediateSaleExists(_id, _itemId);
   }
 
   /**
     * @dev Remove immediate sale item
   */
-  function _removeImmediateSale(address _id, uint256 _itemId) public checkImmediateSale(_id,_itemId) {
+  function _removeImmediateSale(address _id, uint256 _itemId) internal checkImmediateSale(_id,_itemId) {
     _removeTotalImmediateSale(_itemId);
     uint256[] memory items = IMMEDIATE_SALES[_id];
     uint256 arrLength = items.length - 1;
@@ -117,21 +117,21 @@ contract Immediate {
   /**
     * @dev Add a new immediate sale item id
   */
-  function _addTotalImmediateSale(uint256 _id) public {
+  function _addTotalImmediateSale(uint256 _id) internal {
     TOTAL_IMMEDIATE_SALES.push(_id);
   }
 
   /**
     * @dev Get immediate sale item ids
   */
-  function _getTotalImmediateSale() public view returns (uint256[] memory) {
+  function _getTotalImmediateSale() internal view returns (uint256[] memory) {
     return TOTAL_IMMEDIATE_SALES;
   }
 
   /**
     * @dev Remove immediate sale item id
   */
-  function _removeTotalImmediateSale(uint256 _id) public {
+  function _removeTotalImmediateSale(uint256 _id) internal {
     uint256 arrLength = TOTAL_IMMEDIATE_SALES.length - 1;
     uint256[] memory data = new uint256[](arrLength);
     uint8 dataCounter = 0;

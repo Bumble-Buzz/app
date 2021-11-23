@@ -50,7 +50,7 @@ contract Direct {
   /**
     * @dev Create direct sale item
   */
-  function _createDirectSale(address _id, uint256 _itemId) public {
+  function _createDirectSale(address _id, uint256 _itemId) internal {
     _addTotalDirectSale(_itemId);
     DIRECT_SALES[_id].push(_itemId);
   }
@@ -58,42 +58,42 @@ contract Direct {
   /**
     * @dev Get number of direct sales for user
   */
-  function _getDirectSaleCount(address _id) public view returns (uint256) {
+  function _getDirectSaleCount(address _id) internal view returns (uint256) {
     return DIRECT_SALES[_id].length;
   }
 
   /**
     * @dev Get total number of direct sales
   */
-  function _getTotalDirectSaleCount() public view returns (uint256) {
+  function _getTotalDirectSaleCount() internal view returns (uint256) {
     return _getTotalDirectSale().length;
   }
 
   /**
     * @dev Get direct item ids for user
   */
-  function _getDirectSaleItemIds(address _id) public view returns (uint256[] memory) {
+  function _getDirectSaleItemIds(address _id) internal view returns (uint256[] memory) {
     return DIRECT_SALES[_id];
   }
 
   /**
     * @dev Get total direct item ids
   */
-  function _getTotalDirectSaleItemIds() public view returns (uint256[] memory) {
+  function _getTotalDirectSaleItemIds() internal view returns (uint256[] memory) {
     return _getTotalDirectSale();
   }
 
   /**
     * @dev Does direct sale id exist
   */
-  function _doesDirectSaleItemIdExists(address _id, uint256 _itemId) public view checkDirectSale(_id,_itemId) returns (bool) {
+  function _doesDirectSaleItemIdExists(address _id, uint256 _itemId) internal view checkDirectSale(_id,_itemId) returns (bool) {
     return _directSaleExists(_id, _itemId);
   }
 
   /**
     * @dev Remove direct sale item
   */
-  function _removeDirectSale(address _id, uint256 _itemId) public checkDirectSale(_id,_itemId) {
+  function _removeDirectSale(address _id, uint256 _itemId) internal checkDirectSale(_id,_itemId) {
     _removeTotalDirectSale(_itemId);
     uint256[] memory items = DIRECT_SALES[_id];
     uint256 arrLength = items.length - 1;
@@ -117,21 +117,21 @@ contract Direct {
   /**
     * @dev Add a new direct sale item id
   */
-  function _addTotalDirectSale(uint256 _id) public {
+  function _addTotalDirectSale(uint256 _id) internal {
     TOTAL_DIRECT_SALES.push(_id);
   }
 
   /**
     * @dev Get direct sale item ids
   */
-  function _getTotalDirectSale() public view returns (uint256[] memory) {
+  function _getTotalDirectSale() internal view returns (uint256[] memory) {
     return TOTAL_DIRECT_SALES;
   }
 
   /**
     * @dev Remove direct sale item id
   */
-  function _removeTotalDirectSale(uint256 _id) public {
+  function _removeTotalDirectSale(uint256 _id) internal {
     uint256 arrLength = TOTAL_DIRECT_SALES.length - 1;
     uint256[] memory data = new uint256[](arrLength);
     uint8 dataCounter = 0;

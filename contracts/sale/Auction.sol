@@ -50,7 +50,7 @@ contract Auction {
   /**
     * @dev Create auction sale item
   */
-  function _createAuctionSale(address _id, uint256 _itemId) public {
+  function _createAuctionSale(address _id, uint256 _itemId) internal {
     _addTotalAuctionSale(_itemId);
     AUCTION_SALES[_id].push(_itemId);
   }
@@ -58,42 +58,42 @@ contract Auction {
   /**
     * @dev Get number of auction sales for user
   */
-  function _getAuctionSaleCount(address _id) public view returns (uint256) {
+  function _getAuctionSaleCount(address _id) internal view returns (uint256) {
     return AUCTION_SALES[_id].length;
   }
 
   /**
     * @dev Get total number of auction sales
   */
-  function _getTotalAuctionSaleCount() public view returns (uint256) {
+  function _getTotalAuctionSaleCount() internal view returns (uint256) {
     return _getTotalAuctionSale().length;
   }
 
   /**
     * @dev Get all auction item ids for user
   */
-  function _getAuctionSaleItemIds(address _id) public view returns (uint256[] memory) {
+  function _getAuctionSaleItemIds(address _id) internal view returns (uint256[] memory) {
     return AUCTION_SALES[_id];
   }
 
   /**
     * @dev Get total auction item ids
   */
-  function _getTotalAuctionSaleItemIds() public view returns (uint256[] memory) {
+  function _getTotalAuctionSaleItemIds() internal view returns (uint256[] memory) {
     return _getTotalAuctionSale();
   }
 
   /**
     * @dev Does auction sale id exist
   */
-  function _doesAuctionSaleItemIdExists(address _id, uint256 _itemId) public view checkAuctionSale(_id,_itemId) returns (bool) {
+  function _doesAuctionSaleItemIdExists(address _id, uint256 _itemId) internal view checkAuctionSale(_id,_itemId) returns (bool) {
     return _auctionSaleExists(_id, _itemId);
   }
 
   /**
     * @dev Remove auction sale item
   */
-  function _removeAuctionSale(address _id, uint256 _itemId) public checkAuctionSale(_id,_itemId) {
+  function _removeAuctionSale(address _id, uint256 _itemId) internal checkAuctionSale(_id,_itemId) {
     _removeTotalAuctionSale(_itemId);
     uint256[] memory items = AUCTION_SALES[_id];
     uint256 arrLength = items.length - 1;
@@ -117,21 +117,21 @@ contract Auction {
   /**
     * @dev Add a new auction sale item id
   */
-  function _addTotalAuctionSale(uint256 _id) public {
+  function _addTotalAuctionSale(uint256 _id) internal {
     TOTAL_AUCTION_SALES.push(_id);
   }
 
   /**
     * @dev Get auction sale item ids
   */
-  function _getTotalAuctionSale() public view returns (uint256[] memory) {
+  function _getTotalAuctionSale() internal view returns (uint256[] memory) {
     return TOTAL_AUCTION_SALES;
   }
 
   /**
     * @dev Remove auction sale item id
   */
-  function _removeTotalAuctionSale(uint256 _id) public {
+  function _removeTotalAuctionSale(uint256 _id) internal {
     uint256 arrLength = TOTAL_AUCTION_SALES.length - 1;
     uint256[] memory data = new uint256[](arrLength);
     uint8 dataCounter = 0;
