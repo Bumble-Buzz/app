@@ -14,7 +14,8 @@ const _doesArrayInclude = (_array, _identifier = {}) => {
       return _.isEqual(arrayElement, _identifier);
   });
   return foundDna == undefined ? false : true;
-};const _doesArrayExpect = (_array, _identifier = {}) => {
+};
+const _doesArrayExpect = (_array, _identifier = {}) => {
   const foundDna = _array.find((arrayElement) => {
       return expect(arrayElement).to.be.equal(_identifier);
   });

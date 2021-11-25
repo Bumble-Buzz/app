@@ -4,7 +4,7 @@ pragma solidity >=0.8.4 <0.9.0;
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 
-contract MarketItem {
+contract Item {
   using Counters for Counters.Counter;
 
   // modifiers
@@ -25,7 +25,6 @@ contract MarketItem {
   */
 
   // enums
-  enum SALE_TYPE { direct, fixed_price, auction }
 
   // data structures
   struct ItemDS {
@@ -38,7 +37,6 @@ contract MarketItem {
     uint256 price; // price of the item
     uint8 commission; // in percentage
     address creator; // original creator of the item
-    SALE_TYPE saleType; // type of the sale for the item
     bool sold;
     bool active;
   }
@@ -83,7 +81,7 @@ contract MarketItem {
     return ITEM_ID_POINTER.current();
   }
 
-  /**
+  /**```~```````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
     * @dev Reset item id pointer to 0
   */
   function _resetItemIdPointer() internal {
@@ -109,9 +107,9 @@ contract MarketItem {
   /**
     * @dev Add local item to put up for sale
   */
-  function _addLocalItem(
-    uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, uint256 _price, uint8 _commission, address _creator, SALE_TYPE saleType
-  ) internal {
+  function _addItem(
+    uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, address _buyer, uint256 _price, uint8 _commission, address _creator
+  ) internal returns (uint256) {
     ITEM_ID_POINTER.increment();
     uint256 id = ITEM_ID_POINTER.current();
     ITEMS[id] = ItemDS({
@@ -120,99 +118,126 @@ contract MarketItem {
       tokenId: _tokenId,
       contractAddress: _contractAddress,
       seller: _seller,
-      buyer: address(0),
+      buyer: _buyer,
       price: _price,
       commission: _commission,
       creator: _creator,
-      saleType: saleType,
       sold: false,
       active: true
     });
 
     _addItemId(id);
     _addItemForOwner(_seller, id);
+    return ITEM_ID_POINTER.current();
   }
 
-  /**
-    * @dev Add direct item for direct transfer
-  */
-  function _addDirectItem(
-    uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, uint256 _price, SALE_TYPE saleType
-  ) internal {
-    ITEM_ID_POINTER.increment();
-    uint256 id = ITEM_ID_POINTER.current();
-    ITEMS[id] = ItemDS({
-      id: id,
-      collectionId: _collectionId,
-      tokenId: _tokenId,
-      contractAddress: _contractAddress,
-      seller: _seller,
-      buyer: address(0),
-      price: _price,
-      commission: 0,
-      creator: address(0),
-      saleType: saleType,
-      sold: false,
-      active: true
-    });
+  // /**
+  //   * @dev Add local item to put up for sale
+  // */
+  // function _addLocalItem(
+  //   uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, uint256 _price, uint8 _commission, address _creator, SALE_TYPE saleType
+  // ) internal {
+  //   ITEM_ID_POINTER.increment();
+  //   uint256 id = ITEM_ID_POINTER.current();
+  //   ITEMS[id] = ItemDS({
+  //     id: id,
+  //     collectionId: _collectionId,
+  //     tokenId: _tokenId,
+  //     contractAddress: _contractAddress,
+  //     seller: _seller,
+  //     buyer: address(0),
+  //     price: _price,
+  //     commission: _commission,
+  //     creator: _creator,
+  //     saleType: saleType,
+  //     sold: false,
+  //     active: true
+  //   });
 
-    _addItemId(id);
-    _addItemForOwner(_seller, id);
-  }
+  //   _addItemId(id);
+  //   _addItemForOwner(_seller, id);
+  // }
 
-  /**
-    * @dev Add verified item to put up for sale
-  */
-  function _addVerifiedItem(
-    uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, uint256 _price, SALE_TYPE saleType
-  ) internal {
-    ITEM_ID_POINTER.increment();
-    uint256 id = ITEM_ID_POINTER.current();
-    ITEMS[id] = ItemDS({
-      id: id,
-      collectionId: _collectionId,
-      tokenId: _tokenId,
-      contractAddress: _contractAddress,
-      seller: _seller,
-      buyer: address(0),
-      price: _price,
-      commission: 0,
-      creator: address(0),
-      saleType: saleType,
-      sold: false,
-      active: true
-    });
+  // /**
+  //   * @dev Add direct item for direct transfer
+  // */
+  // function _addDirectItem(
+  //   uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, uint256 _price, SALE_TYPE saleType
+  // ) internal {
+  //   ITEM_ID_POINTER.increment();
+  //   uint256 id = ITEM_ID_POINTER.current();
+  //   ITEMS[id] = ItemDS({
+  //     id: id,
+  //     collectionId: _collectionId,
+  //     tokenId: _tokenId,
+  //     contractAddress: _contractAddress,
+  //     seller: _seller,
+  //     buyer: address(0),
+  //     price: _price,
+  //     commission: 0,
+  //     creator: address(0),
+  //     saleType: saleType,
+  //     sold: false,
+  //     active: true
+  //   });
 
-    _addItemId(id);
-    _addItemForOwner(_seller, id);
-  }
+  //   _addItemId(id);
+  //   _addItemForOwner(_seller, id);
+  // }
 
-  /**
-    * @dev Add unverified item to put up for sale
-  */
-  function _addUnverifiedItem(
-    uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, uint256 _price, SALE_TYPE saleType
-  ) internal {
-    ITEM_ID_POINTER.increment();
-    uint256 id = ITEM_ID_POINTER.current();
-    ITEMS[id] = ItemDS({
-      id: id,
-      collectionId: _collectionId,
-      tokenId: _tokenId,
-      contractAddress: _contractAddress,
-      seller: _seller,
-      buyer: address(0),
-      price: _price,
-      commission: 0,
-      creator: address(0),
-      saleType: saleType,
-      sold: false,
-      active: true
-    });
+  // /**
+  //   * @dev Add verified item to put up for sale
+  // */
+  // function _addVerifiedItem(
+  //   uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, uint256 _price, SALE_TYPE saleType
+  // ) internal {
+  //   ITEM_ID_POINTER.increment();
+  //   uint256 id = ITEM_ID_POINTER.current();
+  //   ITEMS[id] = ItemDS({
+  //     id: id,
+  //     collectionId: _collectionId,
+  //     tokenId: _tokenId,
+  //     contractAddress: _contractAddress,
+  //     seller: _seller,
+  //     buyer: address(0),
+  //     price: _price,
+  //     commission: 0,
+  //     creator: address(0),
+  //     saleType: saleType,
+  //     sold: false,
+  //     active: true
+  //   });
 
-    _addItemId(id);
-    _addItemForOwner(_seller, id);
-  }
+  //   _addItemId(id);
+  //   _addItemForOwner(_seller, id);
+  // }
+
+  // /**
+  //   * @dev Add unverified item to put up for sale
+  // */
+  // function _addUnverifiedItem(
+  //   uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, uint256 _price, SALE_TYPE saleType
+  // ) internal {
+  //   ITEM_ID_POINTER.increment();
+  //   uint256 id = ITEM_ID_POINTER.current();
+  //   ITEMS[id] = ItemDS({
+  //     id: id,
+  //     collectionId: _collectionId,
+  //     tokenId: _tokenId,
+  //     contractAddress: _contractAddress,
+  //     seller: _seller,
+  //     buyer: address(0),
+  //     price: _price,
+  //     commission: 0,
+  //     creator: address(0),
+  //     saleType: saleType,
+  //     sold: false,
+  //     active: true
+  //   });
+
+  //   _addItemId(id);
+  //   _addItemForOwner(_seller, id);
+  // }
 
   /**
     * @dev Get item
@@ -220,6 +245,20 @@ contract MarketItem {
   function _getItem(uint256 _id) internal view checkItem(_id) returns (ItemDS memory) {
     ItemDS memory item = ITEMS[_id];
     return item;
+  }
+
+  /**
+    * @dev Get items
+  */
+  function _getItems(uint256[] memory _ids) internal view returns (ItemDS[] memory) {
+    uint256 arrLength = _ids.length;
+    ItemDS[] memory items = new ItemDS[](arrLength);
+    for (uint256 i = 0; i < arrLength; i++) {
+      uint256 id = _ids[i];
+      ItemDS memory item = ITEMS[id];
+      items[i] = item;
+    }
+    return items;
   }
 
   /**
@@ -241,7 +280,7 @@ contract MarketItem {
   */
   function _updateItem(
     uint256 _id, uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, address _buyer, uint256 _price,
-    uint8 _commission, address _creator, SALE_TYPE _saleType, bool _sold, bool _active
+    uint8 _commission, address _creator, bool _sold, bool _active
   ) internal checkItem(_id) {
     ITEMS[_id] = ItemDS({
       id: _id,
@@ -253,7 +292,6 @@ contract MarketItem {
       price: _price,
       commission: _commission,
       creator: _creator,
-      saleType: _saleType,
       sold: _sold,
       active: _active
     });
@@ -375,20 +413,6 @@ contract MarketItem {
   }
 
   /**
-    * @dev Get item sale type
-  */
-  function _getItemSaleType(uint256 _id) internal view checkItem(_id) returns (SALE_TYPE) {
-    return ITEMS[_id].saleType;
-  }
-
-  /**
-    * @dev Update item sale type
-  */
-  function _updateItemSaleType(uint256 _id, SALE_TYPE _saleType) internal checkItem(_id) {
-    ITEMS[_id].saleType = _saleType;
-  }
-
-  /**
     * @dev Get item sold boolean
   */
   function _getItemSold(uint256 _id) internal view checkItem(_id) returns (bool) {
@@ -414,6 +438,14 @@ contract MarketItem {
   */
   function _updateItemActive(uint256 _id, bool _active) internal checkItem(_id) {
     ITEMS[_id].active = _active;
+  }
+
+  /**
+    * @dev Mark item as sold
+  */
+  function _markItemSold(uint256 _id) internal checkItem(_id) {
+    _removeItemId(_id);
+    _updateItemSold(_id, false);
   }
 
   /**

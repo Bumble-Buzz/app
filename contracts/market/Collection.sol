@@ -2,12 +2,11 @@
 pragma solidity >=0.8.4 <0.9.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "./MarketItem.sol";
 
 import "hardhat/console.sol";
 
 
-contract MarketCollection is MarketItem {
+contract Collection {
   using Counters for Counters.Counter;
 
   // modifiers
@@ -28,7 +27,7 @@ contract MarketCollection is MarketItem {
   */
 
   // enums
-  enum COLLECTION_TYPE { local, direct, verified, unverified }
+  enum COLLECTION_TYPE { local, verified, unverified }
 
   // data structures
   struct CollectionDS {
@@ -39,13 +38,12 @@ contract MarketCollection is MarketItem {
     uint8 reflection; // in percentage
     uint8 commission; // in percentage
     address owner; // owner of the collection
-    COLLECTION_TYPE collectitonType; // type of the collection
+    COLLECTION_TYPE collectionType; // type of the collection
     bool active;
   }
   struct CollectionIdDS {
     uint256[] active;
     uint256[] local;
-    uint256[] direct;
     uint256[] verified;
     uint256[] unverified;
   }
@@ -65,9 +63,9 @@ contract MarketCollection is MarketItem {
   uint256 private MAX_COLLECTION_SIZE = 9999; // maximum number of collections allowed
   CollectionIdDS private COLLECTION_IDS; // Track important info for all collections
   mapping(uint256 => CollectionDS) private COLLECTIONS; // mapping collection id to collection
-  mapping(address => uint256[]) private COLLECTION_OWNERS; // mapping collection owner to collection ids
 
-  mapping(uint256 => uint256[]) private COLLECTION_ITEMS; // mapping collection id to list of item ids
+  mapping(address => uint256[]) private COLLECTION_OWNERS; // mapping collection owner to collection ids
+  mapping(address => uint256) private COLLECTION_CONTRACTS; // mapping contract addresses to a collection id
 
 
 
@@ -90,28 +88,28 @@ contract MarketCollection is MarketItem {
   /**
     * @dev Get max collection size
   */
-  function _getMaxCollectionSize() internal view returns (uint256) {
+  function _getMaxCollectionSize() public view returns (uint256) {
     return MAX_COLLECTION_SIZE;
   }
 
   /**
     * @dev Set max collection size
   */
-  function _setMaxCollectionSize(uint256 _size) internal {
+  function _setMaxCollectionSize(uint256 _size) public {
     MAX_COLLECTION_SIZE = _size;
   }
 
   /**
     * @dev Get collection id pointer
   */
-  function _getCollectionIdPointer() internal view returns (uint256) {
+  function _getCollectionIdPointer() public view returns (uint256) {
     return COLLECTION_ID_POINTER.current();
   }
 
   /**
     * @dev Reset collection id pointer to 0
   */
-  function _resetCollectionIdPointer() internal {
+  function _resetCollectionIdPointer() public {
     COLLECTION_ID_POINTER.reset();
   }
 
@@ -124,7 +122,7 @@ contract MarketCollection is MarketItem {
   /**
     * @dev Add empty collection
   */
-  function _createEmptyCollection() internal {
+  function _createEmptyCollection() public {
     COLLECTION_ID_POINTER.increment();
     uint256 id = COLLECTION_ID_POINTER.current();
     COLLECTIONS[id].id = id;
@@ -134,7 +132,7 @@ contract MarketCollection is MarketItem {
   /**
     * @dev Create local collection
   */
-  function _createLocalCollection(string memory _name, string memory _tokenUri, address _contractAddress) internal {
+  function _createLocalCollection(string memory _name, string memory _tokenUri, address _contractAddress) public {
     COLLECTION_ID_POINTER.increment();
     uint256 id = COLLECTION_ID_POINTER.current();
     COLLECTIONS[id] = CollectionDS({
@@ -145,36 +143,14 @@ contract MarketCollection is MarketItem {
       reflection: 0,
       commission: 0,
       owner: address(this),
-      collectitonType: COLLECTION_TYPE.local,
+      collectionType: COLLECTION_TYPE.local,
       active: true
     });
 
     _addActiveCollectionId(id);
     _addLocalCollectionId(id);
     _addCollectionForOwner(address(this), id);
-  }
-
-  /**
-    * @dev Create direct collection
-  */
-  function _createDirectCollection(string memory _name) internal {
-    COLLECTION_ID_POINTER.increment();
-    uint256 id = COLLECTION_ID_POINTER.current();
-    COLLECTIONS[id] = CollectionDS({
-      id: id,
-      name: _name,
-      tokenUri: '',
-      contractAddress: address(0),
-      reflection: 0,
-      commission: 0,
-      owner: address(this),
-      collectitonType: COLLECTION_TYPE.direct,
-      active: true
-    });
-
-    _addActiveCollectionId(id);
-    _addDirectCollectionId(id);
-    _addCollectionForOwner(address(this), id);
+    _assignContractToCollection(_contractAddress, id);
   }
 
   /**
@@ -182,7 +158,7 @@ contract MarketCollection is MarketItem {
   */
   function _createVerifiedCollection(
     string memory _name, string memory _tokenUri, address _contractAddress, uint8 _reflection, uint8 _commission, address _owner
-  ) internal {
+  ) public {
     COLLECTION_ID_POINTER.increment();
     uint256 id = COLLECTION_ID_POINTER.current();
     COLLECTIONS[id] = CollectionDS({
@@ -193,19 +169,20 @@ contract MarketCollection is MarketItem {
       reflection: _reflection,
       commission: _commission,
       owner: _owner,
-      collectitonType: COLLECTION_TYPE.verified,
+      collectionType: COLLECTION_TYPE.verified,
       active: true
     });
 
     _addActiveCollectionId(id);
     _addVerifiedCollectionId(id);
     _addCollectionForOwner(_owner, id);
+    _assignContractToCollection(_contractAddress, id);
   }
 
   /**
     * @dev Create unvarivied collection
   */
-  function _createUnvariviedCollection(string memory _name) internal {
+  function _createUnvariviedCollection(string memory _name) public {
     COLLECTION_ID_POINTER.increment();
     uint256 id = COLLECTION_ID_POINTER.current();
     COLLECTIONS[id] = CollectionDS({
@@ -216,19 +193,20 @@ contract MarketCollection is MarketItem {
       reflection: 0,
       commission: 0,
       owner: address(this),
-      collectitonType: COLLECTION_TYPE.unverified,
+      collectionType: COLLECTION_TYPE.unverified,
       active: true
     });
 
     _addActiveCollectionId(id);
     _addUnverifiedCollectionId(id);
     _addCollectionForOwner(address(this), id);
+    _assignContractToCollection(address(0), id);
   }
 
   /**
     * @dev Get collection
   */
-  function _getCollection(uint256 _id) internal view checkCollection(_id) returns (CollectionDS memory) {
+  function _getCollection(uint256 _id) public view checkCollection(_id) returns (CollectionDS memory) {
     CollectionDS memory collection = COLLECTIONS[_id];
     return collection;
   }
@@ -236,7 +214,7 @@ contract MarketCollection is MarketItem {
   /**
     * @dev Get active collections
   */
-  function _getActiveCollections() internal view returns (CollectionDS[] memory) {
+  function _getActiveCollections() public view returns (CollectionDS[] memory) {
     uint256 arrLength = COLLECTION_IDS.active.length;
     CollectionDS[] memory collections = new CollectionDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
@@ -250,7 +228,7 @@ contract MarketCollection is MarketItem {
   /**
     * @dev Get local collections
   */
-  function _getLocalCollections() internal view returns (CollectionDS[] memory) {
+  function _getLocalCollections() public view returns (CollectionDS[] memory) {
     uint256 arrLength = COLLECTION_IDS.local.length;
     CollectionDS[] memory collections = new CollectionDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
@@ -262,23 +240,9 @@ contract MarketCollection is MarketItem {
   }
 
   /**
-    * @dev Get direct collections
-  */
-  function _getDirectCollections() internal view returns (CollectionDS[] memory) {
-    uint256 arrLength = COLLECTION_IDS.direct.length;
-    CollectionDS[] memory collections = new CollectionDS[](arrLength);
-    for (uint256 i = 0; i < arrLength; i++) {
-      uint256 id = COLLECTION_IDS.direct[i];
-      CollectionDS memory collection = COLLECTIONS[id];
-      collections[i] = collection;
-    }
-    return collections;
-  }
-
-  /**
     * @dev Get verified collections
   */
-  function _getVerifiedCollections() internal view returns (CollectionDS[] memory) {
+  function _getVerifiedCollections() public view returns (CollectionDS[] memory) {
     uint256 arrLength = COLLECTION_IDS.verified.length;
     CollectionDS[] memory collections = new CollectionDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
@@ -292,7 +256,7 @@ contract MarketCollection is MarketItem {
   /**
     * @dev Get vunerified collections
   */
-  function _getUnverifiedCollections() internal view returns (CollectionDS[] memory) {
+  function _getUnverifiedCollections() public view returns (CollectionDS[] memory) {
     uint256 arrLength = COLLECTION_IDS.unverified.length;
     CollectionDS[] memory collections = new CollectionDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
@@ -308,8 +272,10 @@ contract MarketCollection is MarketItem {
   */
   function _updateCollection(
     uint256 _id, string memory _name, string memory _tokenUri, address _contractAddress, uint8 _reflection, uint8 _commission,
-    address _owner, COLLECTION_TYPE _collectitonType, bool _active
-  ) internal checkCollection(_id) {
+    address _owner, bool _active
+  ) public checkCollection(_id) {
+    // preserve the collection type. Must not allow to update collection type
+    COLLECTION_TYPE collectionType = COLLECTIONS[_id].collectionType;
     COLLECTIONS[_id] = CollectionDS({
       id: _id,
       name: _name,
@@ -318,7 +284,7 @@ contract MarketCollection is MarketItem {
       reflection: _reflection,
       commission: _commission,
       owner: _owner,
-      collectitonType: _collectitonType,
+      collectionType: collectionType,
       active: _active
     });
     if (!_active) {
@@ -329,119 +295,119 @@ contract MarketCollection is MarketItem {
   /**
     * @dev Get collection name
   */
-  function _getCollectionName(uint256 _id) internal view checkCollection(_id) returns (string memory) {
+  function _getCollectionName(uint256 _id) public view checkCollection(_id) returns (string memory) {
     return COLLECTIONS[_id].name;
   }
 
   /**
     * @dev Update collection name
   */
-  function _updateCollectionName(uint256 _id, string memory _name) internal checkCollection(_id) {
+  function _updateCollectionName(uint256 _id, string memory _name) public checkCollection(_id) {
     COLLECTIONS[_id].name = _name;
   }
 
   /**
     * @dev Get collection token uri
   */
-  function _getCollectionTokenUri(uint256 _id) internal view checkCollection(_id) returns (string memory) {
+  function _getCollectionTokenUri(uint256 _id) public view checkCollection(_id) returns (string memory) {
     return COLLECTIONS[_id].tokenUri;
   }
 
   /**
     * @dev Update collection token uri
   */
-  function _updateCollectionTokenUri(uint256 _id, string memory _tokenUri) internal checkCollection(_id) {
+  function _updateCollectionTokenUri(uint256 _id, string memory _tokenUri) public checkCollection(_id) {
     COLLECTIONS[_id].tokenUri = _tokenUri;
   }
 
   /**
     * @dev Get collection contract address
   */
-  function _getCollectionContractAddress(uint256 _id) internal view checkCollection(_id) returns (address) {
+  function _getCollectionContractAddress(uint256 _id) public view checkCollection(_id) returns (address) {
     return COLLECTIONS[_id].contractAddress;
   }
 
   /**
     * @dev Update collection contract address
   */
-  function _updateCollectionContractAddress(uint256 _id, address _contractAddress) internal checkCollection(_id) {
+  function _updateCollectionContractAddress(uint256 _id, address _contractAddress) public checkCollection(_id) {
     COLLECTIONS[_id].contractAddress = _contractAddress;
   }
 
   /**
     * @dev Get collection reflection
   */
-  function _getCollectionReflection(uint256 _id) internal view checkCollection(_id) returns (uint8) {
+  function _getCollectionReflection(uint256 _id) public view checkCollection(_id) returns (uint8) {
     return COLLECTIONS[_id].reflection;
   }
 
   /**
     * @dev Update collection reflection
   */
-  function _updateCollectionReflection(uint256 _id, uint8 _reflection) internal checkCollection(_id) {
+  function _updateCollectionReflection(uint256 _id, uint8 _reflection) public checkCollection(_id) {
     COLLECTIONS[_id].reflection = _reflection;
   }
 
   /**
     * @dev Get collection commission
   */
-  function _getCollectionCommission(uint256 _id) internal view checkCollection(_id) returns (uint8) {
+  function _getCollectionCommission(uint256 _id) public view checkCollection(_id) returns (uint8) {
     return COLLECTIONS[_id].commission;
   }
 
   /**
     * @dev Update collection commission
   */
-  function _updateCollectionCommission(uint256 _id, uint8 _commission) internal checkCollection(_id) {
+  function _updateCollectionCommission(uint256 _id, uint8 _commission) public checkCollection(_id) {
     COLLECTIONS[_id].commission = _commission;
   }
 
   /**
     * @dev Get collection owner
   */
-  function _getCollectionOwner(uint256 _id) internal view checkCollection(_id) returns (address) {
+  function _getCollectionOwner(uint256 _id) public view checkCollection(_id) returns (address) {
     return COLLECTIONS[_id].owner;
   }
 
   /**
     * @dev Update collection owner
   */
-  function _updateCollectionOwner(uint256 _id, address _owner) internal checkCollection(_id) {
+  function _updateCollectionOwner(uint256 _id, address _owner) public checkCollection(_id) {
     COLLECTIONS[_id].owner = _owner;
   }
 
   /**
-    * @dev Get collectiton type
+    * @dev Get collection type
   */
-  function _getCollectitonType(uint256 _id) internal view checkCollection(_id) returns (COLLECTION_TYPE) {
-    return COLLECTIONS[_id].collectitonType;
+  function _getCollectionType(uint256 _id) public view checkCollection(_id) returns (COLLECTION_TYPE) {
+    return COLLECTIONS[_id].collectionType;
   }
 
   /**
-    * @dev Update collectiton type
+    * @dev Update collection type
   */
-  function _updateCollectitonType(uint256 _id, COLLECTION_TYPE _collectitonType) internal checkCollection(_id) {
-    COLLECTIONS[_id].collectitonType = _collectitonType;
+  function _updateCollectionType(uint256 _id, COLLECTION_TYPE _collectionType) public checkCollection(_id) {
+    COLLECTIONS[_id].collectionType = _collectionType;
   }
 
   /**
-    * @dev Get collectiton active boolean
+    * @dev Get collection active boolean
   */
-  function _getCollectionActive(uint256 _id) internal view checkCollection(_id) returns (bool) {
+  function _getCollectionActive(uint256 _id) public view checkCollection(_id) returns (bool) {
     return COLLECTIONS[_id].active;
   }
 
   /**
     * @dev Update collectiton active boolean
   */
-  function _updateCollectionActive(uint256 _id, bool _active) internal checkCollection(_id) {
+  function _updateCollectionActive(uint256 _id, bool _active) public checkCollection(_id) {
     COLLECTIONS[_id].active = _active;
   }
 
   /**
     * @dev Deactivate collection
   */
-  function _deactivateCollection(uint256 _id) internal checkCollection(_id) {
+  function _deactivateCollection(uint256 _id) public checkCollection(_id) {
     _removeCollectionId(_id);
     _updateCollectionActive(_id, false);
   }
@@ -449,10 +415,9 @@ contract MarketCollection is MarketItem {
   /**
     * @dev Remove collection
   */
-  function _removeCollection(uint256 _id) checkCollection(_id) internal {
+  function _removeCollection(uint256 _id) checkCollection(_id) public {
     _removeCollectionId(_id);
     _removeCollectionOwner(COLLECTIONS[_id].owner);
-    _removeCollectionItem(_id);
     delete COLLECTIONS[_id];
   }
 
@@ -465,96 +430,80 @@ contract MarketCollection is MarketItem {
   /**
     * @dev Add a new active collection
   */
-  function _addActiveCollectionId(uint256 _id) internal {
+  function _addActiveCollectionId(uint256 _id) public {
     COLLECTION_IDS.active.push(_id);
   }
 
   /**
     * @dev Get active collection ids
   */
-  function _getActiveCollectionIds() internal view returns (uint256[] memory) {
+  function _getActiveCollectionIds() public view returns (uint256[] memory) {
     return COLLECTION_IDS.active;
   }
 
   /**
     * @dev Add a new local collection
   */
-  function _addLocalCollectionId(uint256 _id) internal {
+  function _addLocalCollectionId(uint256 _id) public {
     COLLECTION_IDS.local.push(_id);
   }
 
   /**
     * @dev Get local collection ids
   */
-  function _getLocalCollectionIds() internal view returns (uint256[] memory) {
+  function _getLocalCollectionIds() public view returns (uint256[] memory) {
     return COLLECTION_IDS.local;
-  }
-
-  /**
-    * @dev Add a new direct collection
-  */
-  function _addDirectCollectionId(uint256 _id) internal {
-    COLLECTION_IDS.direct.push(_id);
-  }
-
-  /**
-    * @dev Get direct collection ids
-  */
-  function _getDirectCollectionIds() internal view returns (uint256[] memory) {
-    return COLLECTION_IDS.direct;
   }
 
   /**
     * @dev Add a new verified collection
   */
-  function _addVerifiedCollectionId(uint256 _id) internal {
+  function _addVerifiedCollectionId(uint256 _id) public {
     COLLECTION_IDS.verified.push(_id);
   }
 
   /**
     * @dev Get verified collection ids
   */
-  function _getVerifiedCollectionIds() internal view returns (uint256[] memory) {
+  function _getVerifiedCollectionIds() public view returns (uint256[] memory) {
     return COLLECTION_IDS.verified;
   }
 
   /**
     * @dev Add a new unverified collection
   */
-  function _addUnverifiedCollectionId(uint256 _id) internal {
+  function _addUnverifiedCollectionId(uint256 _id) public {
     COLLECTION_IDS.unverified.push(_id);
   }
 
   /**
     * @dev Get unverified collection ids
   */
-  function _getUnverifiedCollectionIds() internal view returns (uint256[] memory) {
+  function _getUnverifiedCollectionIds() public view returns (uint256[] memory) {
     return COLLECTION_IDS.unverified;
   }
 
   /**
     * @dev Get collection ids
   */
-  function _getCollectionIds() internal view returns (CollectionIdDS memory) {
+  function _getCollectionIds() public view returns (CollectionIdDS memory) {
     return COLLECTION_IDS;
   }
 
   /**
     * @dev Remove collection id
   */
-  function _removeCollectionId(uint256 _id) internal checkCollection(_id) {
+  function _removeCollectionId(uint256 _id) public checkCollection(_id) {
     // COLLECTION_IDS.active = data;
     COLLECTION_IDS.active = _removeSpecificCollectionId(_id, COLLECTION_IDS.active);
 
     // remove from collection type specific array
-    COLLECTION_TYPE collectitonType = COLLECTIONS[_id].collectitonType;
-    if (collectitonType == COLLECTION_TYPE.local) {
+    COLLECTION_TYPE collectionType = COLLECTIONS[_id].collectionType;
+    if (collectionType == COLLECTION_TYPE.local) {
       COLLECTION_IDS.local = _removeSpecificCollectionId(_id, COLLECTION_IDS.local);
-    } else if (collectitonType == COLLECTION_TYPE.direct) {
-      COLLECTION_IDS.direct = _removeSpecificCollectionId(_id, COLLECTION_IDS.direct);
-    } else if (collectitonType == COLLECTION_TYPE.verified) {
+    } else if (collectionType == COLLECTION_TYPE.verified) {
       COLLECTION_IDS.verified = _removeSpecificCollectionId(_id, COLLECTION_IDS.verified);
-    } else if (collectitonType == COLLECTION_TYPE.unverified) {
+    } else if (collectionType == COLLECTION_TYPE.unverified) {
       COLLECTION_IDS.unverified = _removeSpecificCollectionId(_id, COLLECTION_IDS.unverified);
     }
   }
@@ -585,21 +534,21 @@ contract MarketCollection is MarketItem {
   /**
     * @dev Add a new owner (if necessary) and add collection id passed in
   */
-  function _addCollectionForOwner(address _owner, uint256 _id) internal {
+  function _addCollectionForOwner(address _owner, uint256 _id) public {
     COLLECTION_OWNERS[_owner].push(_id);
   }
 
   /**
     * @dev Get collections for owner
   */
-  function _getCollectionsForOwner(address _owner) internal view returns (uint256[] memory) {
+  function _getCollectionsForOwner(address _owner) public view returns (uint256[] memory) {
     return COLLECTION_OWNERS[_owner];
   }
 
   /**
     * @dev Remove a collection for owner
   */
-  function _removeCollectionForOwner(address _owner, uint256 _id) internal {
+  function _removeCollectionForOwner(address _owner, uint256 _id) public {
     uint256 arrLength = COLLECTION_OWNERS[_owner].length - 1;
     uint256[] memory data = new uint256[](arrLength);
     uint8 dataCounter = 0;
@@ -615,51 +564,35 @@ contract MarketCollection is MarketItem {
   /**
     * @dev Remove the collection owner
   */
-  function _removeCollectionOwner(address _owner) internal {
+  function _removeCollectionOwner(address _owner) public {
     delete COLLECTION_OWNERS[_owner];
   }
 
 
   /** 
     *****************************************************
-    *********** COLLECTION_ITEMS Functions *************
+    *********** COLLECTION_CONTRACTS Functions *************
     *****************************************************
   */
   /**
-    * @dev Add a new collection id (if necessary) and add item id to the array
+    * @dev Assign a contract address to a collection
   */
-  function _addItemInCollection(uint256 _id, uint256 _itemId) internal {
-    COLLECTION_ITEMS[_id].push(_itemId);
+  function _assignContractToCollection(address _contract, uint256 _id) public {
+    COLLECTION_CONTRACTS[_contract] = _id;
   }
 
   /**
-    * @dev Get item ids for the given collection
+    * @dev Get collection for given contract address
   */
-  function _getItemsInCollection(uint256 _id) internal view returns (uint256[] memory) {
-    return COLLECTION_ITEMS[_id];
+  function _getCllectionForContract(address _contract) public view returns (uint256) {
+    return COLLECTION_CONTRACTS[_contract];
   }
 
   /**
-    * @dev Remove an item in collection
+    * @dev Remove collection for given contract address
   */
-  function _removeItemInCollection(uint256 _id, uint256 _itemId) internal {
-    uint256 arrLength = COLLECTION_ITEMS[_id].length - 1;
-    uint256[] memory data = new uint256[](arrLength);
-    uint8 dataCounter = 0;
-    for (uint256 i = 0; i < COLLECTION_ITEMS[_id].length; i++) {
-      if (COLLECTION_ITEMS[_id][i] != _itemId) {
-        data[dataCounter] = COLLECTION_ITEMS[_id][i];
-        dataCounter++;
-      }
-    }
-    COLLECTION_ITEMS[_id] = data;
-  }
-
-  /**
-    * @dev Remove the collection item
-  */
-  function _removeCollectionItem(uint256 _id) internal {
-    delete COLLECTION_ITEMS[_id];
+  function _removeContractForCollection(address _contract) public {
+    delete COLLECTION_CONTRACTS[_contract];
   }
 
 }

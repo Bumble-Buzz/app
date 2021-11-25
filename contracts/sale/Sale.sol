@@ -196,13 +196,6 @@ contract Sale is Direct, Immediate, Auction {
     * @dev Get direct sales for user
   */
   function _getDirectSalesForUser(address _id) internal view returns (uint256[] memory) {
-    // SaleUserDS memory sale = SaleUserDS({
-    //   id: _id,
-    //   direct: _getDirectSaleItemIds(_id),
-    //   immediate: new uint256[](0),
-    //   auction: new uint256[](0)
-    // });
-    // return sale;
     return _getDirectSaleItemIds(_id);
   }
 

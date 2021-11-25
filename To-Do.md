@@ -4,6 +4,9 @@ Things left to do:
     - Use one specific version in the contracts, not a range (0.8.4)
     - Remove `import "hardhat/console.sol";` from all contracts
     - Confirm: only 2 types of items, local and not-local
+    - Verify contractAddress passed in is correct
+    - How to determine contractAddress is local/varified/unvarified ?
+    - Create `transferLocalMarketSale` when price is 0, transfer in one transaction?
     - Ensure openzeppelin access control is used
         - Main admin which can control all roles in contracts
         - Each collection owner is an admin who can add/remove roles

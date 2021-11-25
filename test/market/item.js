@@ -7,6 +7,7 @@ const { ethers } = require("hardhat");
 // global variables
 let ACCOUNTS = [];
 let CONTRACT;
+const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 // global functions
 const _doesArrayInclude = (_array, _identifier = {}) => {
@@ -19,7 +20,7 @@ const _doesArrayEqual = (_array, expectedArray = []) => {
   return _(_array).differenceWith(expectedArray, _.isEqual).isEmpty();
 };
 
-describe("AvaxTrade - MarketItem", () => {
+describe("AvaxTrade - Item", () => {
   before(async () => {
     ACCOUNTS = await ethers.getSigners();
   });
@@ -161,7 +162,6 @@ describe("AvaxTrade - MarketItem", () => {
     //   uint256 price; // price of the item
     //   uint8 commission; // in percentage
     //   address creator; // original creator of the item
-    //   SALE_TYPE saleType; // type of the sale for the item
     //   bool sold;
     //   bool active;
     // }
@@ -185,8 +185,8 @@ describe("AvaxTrade - MarketItem", () => {
       expect(_doesArrayInclude(itemIds, ethers.BigNumber.from('1'))).to.be.true;
     });
     it('add local item', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._addLocalItem(
-        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 2, ACCOUNTS[3].address, 0
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 2, ACCOUNTS[3].address
       );
       const itemIds = await CONTRACT.connect(ACCOUNTS[0])._getItemIds();
       expect(itemIds).to.be.an('array').that.is.not.empty;
@@ -201,17 +201,16 @@ describe("AvaxTrade - MarketItem", () => {
       expect(await CONTRACT.connect(ACCOUNTS[0])._getItemTokenId(1)).to.be.equal(2);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getItemContractAddress(1)).to.be.equal(ACCOUNTS[1].address);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getItemSeller(1)).to.be.equal(ACCOUNTS[2].address);
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemBuyer(1)).to.be.equal('0x0000000000000000000000000000000000000000');
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemBuyer(1)).to.be.equal(EMPTY_ADDRESS);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getItemPrice(1)).to.be.equal(123);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getItemCommission(1)).to.be.equal(2);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getItemCreator(1)).to.be.equal(ACCOUNTS[3].address);
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemSaleType(1)).to.be.equal(0);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getItemSold(1)).to.be.equal(false);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getItemActive(1)).to.be.equal(true);
     });
     it('add direct item', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._addDirectItem(
-        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 1
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, ACCOUNTS[3].address, 123, 0, EMPTY_ADDRESS
       );
       const itemIds = await CONTRACT.connect(ACCOUNTS[0])._getItemIds();
       expect(itemIds).to.be.an('array').that.is.not.empty;
@@ -228,17 +227,16 @@ describe("AvaxTrade - MarketItem", () => {
       expect(item.tokenId).to.be.equal(2);
       expect(item.contractAddress).to.be.equal(ACCOUNTS[1].address);
       expect(item.seller).to.be.equal(ACCOUNTS[2].address);
-      expect(item.buyer).to.be.equal('0x0000000000000000000000000000000000000000');
+      expect(item.buyer).to.be.equal(ACCOUNTS[3].address);
       expect(item.price).to.be.equal(123);
       expect(item.commission).to.be.equal(0);
-      expect(item.creator).to.be.equal('0x0000000000000000000000000000000000000000');
-      expect(item.saleType).to.be.equal(1);
+      expect(item.creator).to.be.equal(EMPTY_ADDRESS);
       expect(item.sold).to.be.equal(false);
       expect(item.active).to.be.equal(true);
     });
     it('add verified item', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._addVerifiedItem(
-        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 2
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
       );
       const itemIds = await CONTRACT.connect(ACCOUNTS[0])._getItemIds();
       expect(itemIds).to.be.an('array').that.is.not.empty;
@@ -255,17 +253,16 @@ describe("AvaxTrade - MarketItem", () => {
       expect(item.tokenId).to.be.equal(2);
       expect(item.contractAddress).to.be.equal(ACCOUNTS[1].address);
       expect(item.seller).to.be.equal(ACCOUNTS[2].address);
-      expect(item.buyer).to.be.equal('0x0000000000000000000000000000000000000000');
+      expect(item.buyer).to.be.equal(EMPTY_ADDRESS);
       expect(item.price).to.be.equal(123);
       expect(item.commission).to.be.equal(0);
-      expect(item.creator).to.be.equal('0x0000000000000000000000000000000000000000');
-      expect(item.saleType).to.be.equal(2);
+      expect(item.creator).to.be.equal(EMPTY_ADDRESS);
       expect(item.sold).to.be.equal(false);
       expect(item.active).to.be.equal(true);
     });
     it('add unverified item', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._addUnverifiedItem(
-        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 0
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
       );
       const itemIds = await CONTRACT.connect(ACCOUNTS[0])._getItemIds();
       expect(itemIds).to.be.an('array').that.is.not.empty;
@@ -282,27 +279,38 @@ describe("AvaxTrade - MarketItem", () => {
       expect(item.tokenId).to.be.equal(2);
       expect(item.contractAddress).to.be.equal(ACCOUNTS[1].address);
       expect(item.seller).to.be.equal(ACCOUNTS[2].address);
-      expect(item.buyer).to.be.equal('0x0000000000000000000000000000000000000000');
+      expect(item.buyer).to.be.equal(EMPTY_ADDRESS);
       expect(item.price).to.be.equal(123);
       expect(item.commission).to.be.equal(0);
-      expect(item.creator).to.be.equal('0x0000000000000000000000000000000000000000');
-      expect(item.saleType).to.be.equal(0);
+      expect(item.creator).to.be.equal(EMPTY_ADDRESS);
       expect(item.sold).to.be.equal(false);
       expect(item.active).to.be.equal(true);
     });
     it('add multiple items - same user', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._addLocalItem(
-        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 2, ACCOUNTS[3].address, 0
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 2, ACCOUNTS[3].address
       );
-      await CONTRACT.connect(ACCOUNTS[0])._addVerifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 0);
-      await CONTRACT.connect(ACCOUNTS[0])._addVerifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 0);
-      await CONTRACT.connect(ACCOUNTS[0])._addVerifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 0);
-      await CONTRACT.connect(ACCOUNTS[0])._addLocalItem(
-        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 2, ACCOUNTS[3].address, 0
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
       );
-      await CONTRACT.connect(ACCOUNTS[0])._addUnverifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 0);
-      await CONTRACT.connect(ACCOUNTS[0])._addUnverifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 0);
-      await CONTRACT.connect(ACCOUNTS[0])._addVerifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 0);
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 2, ACCOUNTS[3].address
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      );
 
       const itemIds = await CONTRACT.connect(ACCOUNTS[0])._getItemIds();
       expect(itemIds).to.be.an('array').that.is.not.empty;
@@ -337,18 +345,30 @@ describe("AvaxTrade - MarketItem", () => {
       expect((await CONTRACT.connect(ACCOUNTS[0])._getItem(8)).id).to.be.equal(8);
     });
     it('add multiple items - different users', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._addLocalItem(
-        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 2, ACCOUNTS[3].address, 0
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 2, ACCOUNTS[3].address
       );
-      await CONTRACT.connect(ACCOUNTS[0])._addVerifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[4].address, 123, 0);
-      await CONTRACT.connect(ACCOUNTS[0])._addVerifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[4].address, 123, 0);
-      await CONTRACT.connect(ACCOUNTS[0])._addVerifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[5].address, 123, 0);
-      await CONTRACT.connect(ACCOUNTS[0])._addLocalItem(
-        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 2, ACCOUNTS[3].address, 0
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[4].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
       );
-      await CONTRACT.connect(ACCOUNTS[0])._addUnverifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[6].address, 123, 0);
-      await CONTRACT.connect(ACCOUNTS[0])._addUnverifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[4].address, 123, 0);
-      await CONTRACT.connect(ACCOUNTS[0])._addVerifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[6].address, 123, 0);
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[4].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[5].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 2, ACCOUNTS[3].address
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[6].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[4].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[6].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      );
 
       const itemIds = await CONTRACT.connect(ACCOUNTS[0])._getItemIds();
       expect(itemIds).to.be.an('array').that.is.not.empty;
@@ -395,11 +415,15 @@ describe("AvaxTrade - MarketItem", () => {
       expect((await CONTRACT.connect(ACCOUNTS[0])._getItem(8)).seller).to.be.equal(ACCOUNTS[6].address);
     });
     it('deactivate item', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._addLocalItem(
-        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 2, ACCOUNTS[3].address, 0
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 2, ACCOUNTS[3].address
       );
-      await CONTRACT.connect(ACCOUNTS[0])._addVerifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 0);
-      await CONTRACT.connect(ACCOUNTS[0])._addUnverifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 0);
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      );
 
       let itemIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getItemIdPointer();
       expect(itemIdPointer).to.be.equal(3);
@@ -432,11 +456,15 @@ describe("AvaxTrade - MarketItem", () => {
       expect(_doesArrayInclude(itemOwner, ethers.BigNumber.from('2'))).to.be.true;
     });
     it('deactivate item', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._addLocalItem(
-        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 2, ACCOUNTS[3].address, 0
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 2, ACCOUNTS[3].address
       );
-      await CONTRACT.connect(ACCOUNTS[0])._addVerifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 0);
-      await CONTRACT.connect(ACCOUNTS[0])._addUnverifiedItem(1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 0);
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      );
 
       let itemIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getItemIdPointer();
       expect(itemIdPointer).to.be.equal(3);
@@ -472,8 +500,8 @@ describe("AvaxTrade - MarketItem", () => {
 
   describe('item properties', async () => {
     beforeEach(async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._addLocalItem(
-        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, 123, 2, ACCOUNTS[3].address, 0
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 2, ACCOUNTS[3].address
       );
     });
 
@@ -510,7 +538,7 @@ describe("AvaxTrade - MarketItem", () => {
     });
 
     it('get buyer', async () => {
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemBuyer(1)).to.be.equal('0x0000000000000000000000000000000000000000');
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemBuyer(1)).to.be.equal(EMPTY_ADDRESS);
     });
     it('update buyer', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._updateItemBuyer(1, ACCOUNTS[5].address);
@@ -539,14 +567,6 @@ describe("AvaxTrade - MarketItem", () => {
     it('update creator', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._updateItemCreator(1, ACCOUNTS[5].address);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getItemCreator(1)).to.be.equal(ACCOUNTS[5].address);
-    });
-
-    it('get sale type', async () => {
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemSaleType(1)).to.be.equal(0);
-    });
-    it('update sale type', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._updateItemSaleType(1, 2);
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemSaleType(1)).to.be.equal(2);
     });
 
     it('get sold boolean', async () => {
