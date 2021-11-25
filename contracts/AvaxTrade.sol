@@ -82,91 +82,6 @@ contract AvaxTrade is Market, Bank, Sale {
   }
 
   /**
-    * @dev Create local market sale
-    * todo the `_commission` and `_creator` can not be passed in. Need to track this upon creation of nft
-    *       and then use it here 
-  */
-  function createLocalMarketSale(
-    uint256 _tokenId, address _contractAddress, uint256 _price, SALE_TYPE_2 _saleType
-  ) external payable {
-    // @todo deal with these inputs
-    uint8 commission = 123; // fetch commission from nft contract
-    address creator = address(0); // fetch creator from nft contract
-    uint256 itemId = _addItemToCollection2(
-      _tokenId,
-      _contractAddress,
-      msg.sender,
-      address(0),
-      _price,
-      commission,
-      creator
-    );
-    _createSale(itemId, msg.sender, _saleType);
-    // take care of balances
-    // transfer nft to market place
-  }
-
-  /**
-    * @dev Create direct market sale
-  */
-  function createDirectMarketSale(
-    uint256 _tokenId, address _contractAddress, address _buyer, uint256 _price
-  ) external payable {
-    uint256 itemId = _addItemToCollection2(
-      _tokenId,
-      _contractAddress,
-      msg.sender,
-      _buyer,
-      _price,
-      0,
-      address(0)
-    );
-    _createSale(itemId, msg.sender, SALE_TYPE_2.direct);
-    // take care of balances
-    // transfer nft to market place
-  }
-
-  /**
-    * @dev Create verified market sale
-  */
-  function createVerifiedMarketSale(
-    uint256 _tokenId, address _contractAddress, uint256 _price, SALE_TYPE_2 _saleType
-  ) external payable {
-    uint256 itemId = _addItemToCollection2(
-      _tokenId,
-      _contractAddress,
-      msg.sender,
-      address(0),
-      _price,
-      0,
-      address(0)
-    );
-    _createSale(itemId, msg.sender, _saleType);
-    // take care of balances
-    // transfer nft to market place
-  }
-
-  /**
-    * @dev Create unverified market sale
-  */
-  function createUnverifiedMarketSale(
-    uint256 _tokenId, address _contractAddress, uint256 _price, SALE_TYPE_2 _saleType
-  ) external payable {
-    uint256 itemId = _addItemToCollection2(
-      _tokenId,
-      _contractAddress,
-      msg.sender,
-      address(0),
-      _price,
-      0,
-      address(0)
-    );
-    _createSale(itemId, msg.sender, _saleType);
-    // take care of balances
-    // transfer nft to market place
-  }
-
-  /**
     * @dev Cancel market item from sale
   */
   function cancelMarketSale(uint256 _itemId) public {
@@ -177,5 +92,90 @@ contract AvaxTrade is Market, Bank, Sale {
   */
   function completeMarketSale(uint256 _collectionId, uint256 _tokenId) public {
   }
+
+  // /**
+  //   * @dev Create local market sale
+  //   * todo the `_commission` and `_creator` can not be passed in. Need to track this upon creation of nft
+  //   *       and then use it here 
+  // */
+  // function createLocalMarketSale(
+  //   uint256 _tokenId, address _contractAddress, uint256 _price, SALE_TYPE_2 _saleType
+  // ) external payable {
+  //   // @todo deal with these inputs
+  //   uint8 commission = 123; // fetch commission from nft contract
+  //   address creator = address(0); // fetch creator from nft contract
+  //   uint256 itemId = _addItemToCollection2(
+  //     _tokenId,
+  //     _contractAddress,
+  //     msg.sender,
+  //     address(0),
+  //     _price,
+  //     commission,
+  //     creator
+  //   );
+  //   _createSale(itemId, msg.sender, _saleType);
+  //   // take care of balances
+  //   // transfer nft to market place
+  // }
+
+  // /**
+  //   * @dev Create direct market sale
+  // */
+  // function createDirectMarketSale(
+  //   uint256 _tokenId, address _contractAddress, address _buyer, uint256 _price
+  // ) external payable {
+  //   uint256 itemId = _addItemToCollection2(
+  //     _tokenId,
+  //     _contractAddress,
+  //     msg.sender,
+  //     _buyer,
+  //     _price,
+  //     0,
+  //     address(0)
+  //   );
+  //   _createSale(itemId, msg.sender, SALE_TYPE_2.direct);
+  //   // take care of balances
+  //   // transfer nft to market place
+  // }
+
+  // /**
+  //   * @dev Create verified market sale
+  // */
+  // function createVerifiedMarketSale(
+  //   uint256 _tokenId, address _contractAddress, uint256 _price, SALE_TYPE_2 _saleType
+  // ) external payable {
+  //   uint256 itemId = _addItemToCollection2(
+  //     _tokenId,
+  //     _contractAddress,
+  //     msg.sender,
+  //     address(0),
+  //     _price,
+  //     0,
+  //     address(0)
+  //   );
+  //   _createSale(itemId, msg.sender, _saleType);
+  //   // take care of balances
+  //   // transfer nft to market place
+  // }
+
+  // /**
+  //   * @dev Create unverified market sale
+  // */
+  // function createUnverifiedMarketSale(
+  //   uint256 _tokenId, address _contractAddress, uint256 _price, SALE_TYPE_2 _saleType
+  // ) external payable {
+  //   uint256 itemId = _addItemToCollection2(
+  //     _tokenId,
+  //     _contractAddress,
+  //     msg.sender,
+  //     address(0),
+  //     _price,
+  //     0,
+  //     address(0)
+  //   );
+  //   _createSale(itemId, msg.sender, _saleType);
+  //   // take care of balances
+  //   // transfer nft to market place
+  // }
 
 }

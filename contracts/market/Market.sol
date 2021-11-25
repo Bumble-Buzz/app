@@ -34,7 +34,7 @@ contract Market is Collection, Item {
   */
   function _addItemToCollection(
     uint256 _tokenId, address _contractAddress, address _seller, address _buyer, uint256 _price
-  ) internal returns (uint256) {
+  ) public returns (uint256) {
     uint256 collectionId = _getCllectionForContract(_contractAddress);
     if (collectionId == 0) {
       // this means this is an unvarified item, so we will use the unvarified collection
@@ -66,7 +66,7 @@ contract Market is Collection, Item {
   /**
     * @dev Get all item ids in collection
   */
-  function _getItemsInCollection(uint256 _collectionId) internal view returns (ItemDS[] memory) {
+  function _getItemsInCollection(uint256 _collectionId) public view returns (ItemDS[] memory) {
     uint256[] memory itemsIds = _getItemIdsInCollection(_collectionId);
     return _getItems(itemsIds);
   }
@@ -74,38 +74,9 @@ contract Market is Collection, Item {
   /**
     * @dev Mark item sold in collection
   */
-  function _markItemSoldInCollection(uint256 _id, uint256 _itemId) internal {
+  function _markItemSoldInCollection(uint256 _id, uint256 _itemId) public {
     _markItemSold(_itemId);
     _removeItemIdInCollection(_id, _itemId);
-  }
-
-
-
-
-
-  /**
-    * @dev Add item to collection
-  */
-  function _addItemToCollection2(
-    uint256 _tokenId, address _contractAddress, address _seller, address _buyer, uint256 _price, uint8 _commission, address _creator
-  ) internal returns (uint256) {
-    uint256 collectionId = _getCllectionForContract(_contractAddress);
-    if (collectionId == 0) {
-      // this means this is an unvarified item, so we will use the unvarified collection
-      collectionId = 1; // todo use some enum / global variable instead of a number
-    }
-    uint256 itemId = _addItem(
-                        collectionId,
-                        _tokenId,
-                        _contractAddress,
-                        _seller,
-                        _buyer,
-                        _price,
-                        _commission,
-                        _creator
-                      );
-    _addItemIdInCollection(collectionId, itemId);
-    return itemId;
   }
 
 
@@ -117,21 +88,21 @@ contract Market is Collection, Item {
   /**
     * @dev Add a new collection id (if necessary) and add item id to the array
   */
-  function _addItemIdInCollection(uint256 _id, uint256 _itemId) internal {
+  function _addItemIdInCollection(uint256 _id, uint256 _itemId) public {
     COLLECTION_ITEMS[_id].push(_itemId);
   }
 
   /**
     * @dev Get item ids for the given collection
   */
-  function _getItemIdsInCollection(uint256 _id) internal view returns (uint256[] memory) {
+  function _getItemIdsInCollection(uint256 _id) public view returns (uint256[] memory) {
     return COLLECTION_ITEMS[_id];
   }
 
   /**
     * @dev Remove an item in collection
   */
-  function _removeItemIdInCollection(uint256 _id, uint256 _itemId) internal {
+  function _removeItemIdInCollection(uint256 _id, uint256 _itemId) public {
     uint256 arrLength = COLLECTION_ITEMS[_id].length - 1;
     uint256[] memory data = new uint256[](arrLength);
     uint8 dataCounter = 0;
@@ -147,7 +118,7 @@ contract Market is Collection, Item {
   /**
     * @dev Remove the collection item
   */
-  function _removeCollectionItem(uint256 _id) internal {
+  function _removeCollectionItem(uint256 _id) public {
     delete COLLECTION_ITEMS[_id];
   }
 

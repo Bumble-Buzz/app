@@ -37,6 +37,9 @@ describe("AvaxTrade - Market", () => {
     assert.notEqual(address, 0x0);
   });
 
+  describe('Main functions', async () => {
+  });
+
   describe('Collection items', async () => {
     // mapping(uint256 => uint256[]) private COLLECTION_ITEMS;
 
