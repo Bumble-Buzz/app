@@ -449,6 +449,14 @@ contract Item {
   }
 
   /**
+    * @dev Activate item
+  */
+  function _activateItem(uint256 _id) internal checkItem(_id) {
+    _addItemId(_id);
+    _updateItemActive(_id, true);
+  }
+
+  /**
     * @dev Deactivate item
   */
   function _deactivateItem(uint256 _id) internal checkItem(_id) {

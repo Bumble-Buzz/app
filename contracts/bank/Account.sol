@@ -16,8 +16,8 @@ contract Account {
   struct AccountDS {
     address id; // owner of these accounts
     uint256 general; // any general reward balance
-    uint256 commission; // commission reward balance from the item
-    uint256 reflection; // reflection reward balance from the collection
+    uint256 nftCommission; // commission reward balance from the item
+    uint256 collectionReflection; // reflection reward balance from the collection
     uint256 collectionCommission; // commission reward balance from the collection
   }
 
@@ -80,14 +80,29 @@ contract Account {
     * @dev Update account
   */
   function _updateAccount(
-    address _id, uint256 _general, uint256 _commission, uint256 _reflection, uint256 _collectionCommission
+    address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionReflection, uint256 _collectionCommission
   ) internal checkAccount(_id) {
     ACCOUNTS[_id] = AccountDS({
       id: _id,
       general: _general,
-      commission: _commission,
-      reflection: _reflection,
+      nftCommission: _nftCommission,
+      collectionReflection: _collectionReflection,
       collectionCommission: _collectionCommission
+    });
+  }
+
+  /**
+    * @dev Increase account balance by given amounts
+  */
+  function _incrementAccountBalance(
+    address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionReflection, uint256 _collectionCommission
+  ) internal checkAccount(_id) {
+    ACCOUNTS[_id] = AccountDS({
+      id: _id,
+      general: _getGeneralAccount(_id) + _general,
+      nftCommission: _getNftCommissionAccount(_id) + _nftCommission,
+      collectionReflection: _getCollectionReflectionAccount(_id) + _collectionReflection,
+      collectionCommission: _getCollectionCommissionAccount(_id) + _collectionCommission
     });
   }
 
@@ -106,31 +121,31 @@ contract Account {
   }
 
   /**
-    * @dev Get commission account
+    * @dev Get nft commission account
   */
-  function _getCommissionAccount(address _id) internal view checkAccount(_id) returns (uint256) {
-    return ACCOUNTS[_id].commission;
+  function _getNftCommissionAccount(address _id) internal view checkAccount(_id) returns (uint256) {
+    return ACCOUNTS[_id].nftCommission;
   }
 
   /**
-    * @dev Update commission account
+    * @dev Update nft commission account
   */
-  function _updateCommissionAccount(address _id, uint256 _commission) internal checkAccount(_id) {
-    ACCOUNTS[_id].commission = _commission;
+  function _updateNftCommissionAccount(address _id, uint256 _nftCommission) internal checkAccount(_id) {
+    ACCOUNTS[_id].nftCommission = _nftCommission;
   }
 
   /**
-    * @dev Get reflection account
+    * @dev Get collection reflection account
   */
-  function _getReflectionAccount(address _id) internal view checkAccount(_id) returns (uint256) {
-    return ACCOUNTS[_id].reflection;
+  function _getCollectionReflectionAccount(address _id) internal view checkAccount(_id) returns (uint256) {
+    return ACCOUNTS[_id].collectionReflection;
   }
 
   /**
-    * @dev Update reflection account
+    * @dev Update collection reflection account
   */
-  function _updateReflectionAccount(address _id, uint256 _reflection) internal checkAccount(_id) {
-    ACCOUNTS[_id].reflection = _reflection;
+  function _updateCollectionReflectionAccount(address _id, uint256 _collectionReflection) internal checkAccount(_id) {
+    ACCOUNTS[_id].collectionReflection = _collectionReflection;
   }
 
   /**

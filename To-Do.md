@@ -13,6 +13,9 @@ Things left to do:
     - Monetary
         - Add option for anyone to donate funds to the contract
         - Dividends
+    - Cancel sales
+        - Only able to cancel direct and immediate sale types
+        - Auctions can not be cancelled!
     - Address all `@todo` in the code
 - Front-end dapp
 - Social media

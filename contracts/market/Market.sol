@@ -9,12 +9,46 @@ import "hardhat/console.sol";
 
 contract Market is Collection, Item {
 
+  // modifiers
+  modifier checkCollectionItem(uint256 _id) {
+    require(_collectionItemExists(_id), "The collection item does not exist");
+    _;
+  }
+  modifier checkCollectionItemId(uint256 _id, uint256 _itemId) {
+    require(_collectionItemIdExists(_id, _itemId), "The collection item id does not exist");
+    _;
+  }
+
   // enums
 
   // data structures
 
   // state variables
   mapping(uint256 => uint256[]) private COLLECTION_ITEMS; // mapping collection id to list of item ids
+
+
+  /**
+    * @dev Check if collection item exists
+  */
+  function _collectionItemExists(uint256 _id) private view returns (bool) {
+    if (COLLECTION_ITEMS[_id].length > 0) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+    * @dev Check if collection item id exists
+  */
+  function _collectionItemIdExists(uint256 _id, uint256 _itemId) private view returns (bool) {
+    uint256[] memory  collectionItem = COLLECTION_ITEMS[_id];
+    for (uint256 i = 0; i < collectionItem.length; i++) {
+      if (collectionItem[i] == _itemId) {
+        return true;
+      }
+    }
+    return false;
+  }
 
 
   /** 
@@ -66,17 +100,112 @@ contract Market is Collection, Item {
   /**
     * @dev Get all item ids in collection
   */
-  function _getItemsInCollection(uint256 _collectionId) public view returns (ItemDS[] memory) {
-    uint256[] memory itemsIds = _getItemIdsInCollection(_collectionId);
+  function _getItemsInCollection(uint256 _id) public view checkCollectionItem(_id) returns (ItemDS[] memory) {
+    uint256[] memory itemsIds = _getItemIdsInCollection(_id);
     return _getItems(itemsIds);
+  }
+
+  /**
+    * @dev Cancel item that is currently on sale
+  */
+  function _cancelItemInCollection(uint256 _itemId) public {
+    uint256 collectionId = _getItemCollectionId(_itemId);
+    require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
+
+    _deactivateItem(_itemId);
+    _removeItemIdInCollection(collectionId, _itemId);
   }
 
   /**
     * @dev Mark item sold in collection
   */
-  function _markItemSoldInCollection(uint256 _id, uint256 _itemId) public {
+  function _markItemSoldInCollection(uint256 _itemId) public {
+    uint256 collectionId = _getItemCollectionId(_itemId);
+    require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
+
     _markItemSold(_itemId);
-    _removeItemIdInCollection(_id, _itemId);
+    _removeItemIdInCollection(collectionId, _itemId);
+  }
+
+  /**
+    * @dev Get owner of collection
+  */
+  function _getOwnerOfCollection(uint256 _itemId) public view returns (address) {
+    uint256 collectionId = _getItemCollectionId(_itemId);
+    require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
+
+    return _getCollectionOwner(collectionId);
+  }
+
+  /**
+    * @dev Get creator of item
+  */
+  function _getCreatorOfItem(uint256 _itemId) public view returns (address) {
+    uint256 collectionId = _getItemCollectionId(_itemId);
+    require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
+
+    return _getItemCreator(_itemId);
+  }
+
+  /**
+    * @dev Calculate nft commission reward
+  */
+  function _calculateNftCommissionReward(uint256 _itemId, uint256 _price) public view returns (uint256) {
+    uint256 collectionId = _getItemCollectionId(_itemId);
+    require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
+
+    uint8 commission = _getItemCommission(_itemId);
+    if (commission > 0) {
+      uint256 commissionReward = (_price * commission / 100);
+      return commissionReward;
+    }
+    return 0;
+  }
+
+  /**
+    * @dev Calculate collection reflection reward
+  */
+  function _calculateCollectionReflectionReward(uint256 _itemId, uint256 _price) public returns (uint256) {
+    uint256 collectionId = _getItemCollectionId(_itemId);
+    require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
+
+    uint8 reflection = _getCollectionReflection(collectionId);
+    if (reflection > 0) {
+      uint256 reflectionReward = (_price * reflection / 100);
+      uint256 reflectionRewardPerItem = reflectionReward / _getCollectionTotalSupply(collectionId);
+      _updateCollectionVault(collectionId, reflectionRewardPerItem);
+      return reflectionReward;
+    }
+    return 0;
+  }
+
+  /**
+    * @dev Claim collection reflection reward
+  */
+  function _claimCollectionReflectionReward(uint256 _itemId) public returns (uint256) {
+    uint256 collectionId = _getItemCollectionId(_itemId);
+    require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
+
+    uint256 itemTokenId = _getItemTokenId(_itemId);
+    uint256 vaultIndex = itemTokenId - 1;
+    uint256 collectionTokenVault = _getCollectionVaultIndex(collectionId, vaultIndex);
+    _updateCollectionVaultIndex(collectionId, vaultIndex, 0);
+    return collectionTokenVault;
+  }
+
+  /**
+    * @dev Calculate collection commission reward
+  */
+  function _calculateCollectionCommissionReward(uint256 _itemId, uint256 _price) public view returns (uint256) {
+    uint256 collectionId = _getItemCollectionId(_itemId);
+    require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
+
+    uint8 commission = _getCollectionCommission(collectionId);
+    if (commission > 0) {
+      uint256 commissionReward = (_price * commission / 100);
+      return commissionReward;
+    }
+    return 0;
   }
 
 

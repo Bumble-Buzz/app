@@ -126,6 +126,15 @@ contract Bank is Account, Vault {
   }
 
   /**
+    * @dev Increment bank account balances with given amounts 
+  */
+  function _incrementBankAccount(
+    address _id, uint256 _general, uint256 _commission, uint256 _reflection, uint256 _collectionCommission
+  ) internal checkBank(_id) {
+    _incrementAccountBalance(_id, _general, _commission, _reflection, _collectionCommission);
+  }
+
+  /**
     * @dev Update bank vault
   */
   function _updateBankVault(

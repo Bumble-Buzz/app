@@ -33,8 +33,8 @@ contract AvaxTrade is Market, Bank, Sale {
   struct BalanceSheet {
     uint256 totalFunds; // total funds in contract before deductions
     uint256 general; // outstanding general reward balance
-    uint256 commission; // outstanding commission reward balance from the item
-    uint256 reflection; // outstanding reflection reward balance from the collection
+    uint256 nftCommission; // outstanding commission reward balance from the item
+    uint256 collectionReflection; // outstanding reflection reward balance from the collection
     uint256 collectionCommission; // outstanding commission reward balance from the collection
     uint256 reward; // outstanding reward balance, used to give incentives
     uint256 vault;  // outstanding vault balance
@@ -43,7 +43,7 @@ contract AvaxTrade is Market, Bank, Sale {
 
   // state variables
   uint256 private LISTING_PRICE = 0.0 ether; // price to list item in marketplace
-  uint8 private COMMISSION = 2; // commission rate charged upon every sale, in percentage
+  uint8 private MARKETPLACE_COMMISSION = 2; // commission rate charged upon every sale, in percentage
 
   // monetary
   BalanceSheet private CONTRACT_BANK;
@@ -63,7 +63,7 @@ contract AvaxTrade is Market, Bank, Sale {
   */
   function createMarketSale(
     uint256 _tokenId, address _contractAddress, address _buyer, uint256 _price, SALE_TYPE_2 _saleType
-  ) external payable {
+  ) external {
     address buyer = address(0);
     if (_saleType == SALE_TYPE_2.direct) {
       // only use passed in buyer param when it is a direct sale
@@ -84,14 +84,59 @@ contract AvaxTrade is Market, Bank, Sale {
   /**
     * @dev Cancel market item from sale
   */
-  function cancelMarketSale(uint256 _itemId) public {
+  function cancelMarketSale(uint256 _itemId) external {
+    _cancelItemInCollection(_itemId);
+    _removeSale(_itemId, msg.sender);
+    // take care of balances
+    // transfer nft back to to owner
   }
 
   /**
     * @dev Remove market item from sale. For a varified collection
   */
-  function completeMarketSale(uint256 _collectionId, uint256 _tokenId) public {
+  function completeMarketSale(uint256 _itemId) external payable {
+    _markItemSoldInCollection(_itemId);
+    _removeSale(_itemId, msg.sender);
+  
+    // take care of balances
+    uint256 remainingBalance = msg.value;
+
+    // deduct marketplace 2% commission
+      uint256 marketplaceReward = (remainingBalance * MARKETPLACE_COMMISSION / 100);
+    remainingBalance = remainingBalance - marketplaceReward;
+    _incrementBankAccount(address(this), marketplaceReward, 0, 0, 0);
+
+    // deduct nft commission, if applicable
+    uint256 nftCommissionReward = _calculateNftCommissionReward(_itemId, remainingBalance);
+    if (nftCommissionReward > 0) {
+      remainingBalance = remainingBalance - nftCommissionReward;
+
+      address itemCreator = _getCreatorOfItem(_itemId);
+      _addBank(itemCreator); // this is okay even if bank account already exists
+      _incrementBankAccount(itemCreator, 0, nftCommissionReward, 0, 0);
+    }
+
+    // deduct collection reflection rewards, if applicable
+    uint256 reflectionReward = _calculateCollectionReflectionReward(_itemId, remainingBalance);
+    if (reflectionReward > 0) {
+      remainingBalance = remainingBalance - reflectionReward;
+    }
+
+    // deduct collection commission rewards, if applicable
+    uint256 commissionReward = _calculateCollectionCommissionReward(_itemId, remainingBalance);
+    if (commissionReward > 0) {
+      remainingBalance = remainingBalance - commissionReward;
+
+      address collectionOwner = _getOwnerOfCollection(_itemId);
+      _addBank(collectionOwner); // this is okay even if bank account already exists
+      _incrementBankAccount(collectionOwner, 0, 0, 0, commissionReward);
+    }
+
+    // transfer nft back to to owner
   }
+
+
+
 
   // /**
   //   * @dev Create local market sale

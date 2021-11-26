@@ -30,11 +30,23 @@ contract Collection {
   enum COLLECTION_TYPE { local, verified, unverified }
 
   // data structures
+  /**
+    * @dev for the `vault` attribute
+    *   Each array element represents balance of the corrosponding token id
+    *   Examples:
+    *     tokenId 1  -> vault[0]
+    *     tokenId 5  -> vault[4]
+    *     tokenId 11 -> vault[10]
+    *     tokenId 25 -> vault[24]
+  */
   struct CollectionDS {
     uint256 id; // unique collection id
     string name; // collection name
+    // todo remove tokenUri, don't think we need it
     string tokenUri; // unique token uri of the collection
     address contractAddress; // contract address of the collection
+    uint256 totalSupply; // total supply of items in this collection
+    uint256[] vault; // vault keeps track of balance owed for each token id holder
     uint8 reflection; // in percentage
     uint8 commission; // in percentage
     address owner; // owner of the collection
@@ -46,6 +58,12 @@ contract Collection {
     uint256[] local;
     uint256[] verified;
     uint256[] unverified;
+  }
+  struct CollectionVaultDS {
+    uint256 id;
+    uint256 itemId;
+    uint256 balance;
+    uint256[] vault;
   }
 
   // state variables
@@ -66,7 +84,7 @@ contract Collection {
 
   mapping(address => uint256[]) private COLLECTION_OWNERS; // mapping collection owner to collection ids
   mapping(address => uint256) private COLLECTION_CONTRACTS; // mapping contract addresses to a collection id
-
+  mapping(uint256 => CollectionVaultDS[]) private COLLECTION_VAULTS; // mapping collection id to the collection vault
 
 
   /**
@@ -140,6 +158,8 @@ contract Collection {
       name: _name,
       tokenUri: _tokenUri,
       contractAddress: _contractAddress,
+      totalSupply: 0,
+      vault: new uint256[](0),
       reflection: 0,
       commission: 0,
       owner: address(this),
@@ -157,7 +177,7 @@ contract Collection {
     * @dev Create verified collection
   */
   function _createVerifiedCollection(
-    string memory _name, string memory _tokenUri, address _contractAddress, uint8 _reflection, uint8 _commission, address _owner
+    string memory _name, string memory _tokenUri, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission, address _owner
   ) internal {
     COLLECTION_ID_POINTER.increment();
     uint256 id = COLLECTION_ID_POINTER.current();
@@ -166,6 +186,8 @@ contract Collection {
       name: _name,
       tokenUri: _tokenUri,
       contractAddress: _contractAddress,
+      totalSupply: _totalSupply,
+      vault: new uint256[](_totalSupply),
       reflection: _reflection,
       commission: _commission,
       owner: _owner,
@@ -190,6 +212,8 @@ contract Collection {
       name: _name,
       tokenUri: '',
       contractAddress: address(0),
+      totalSupply: 0,
+      vault: new uint256[](0),
       reflection: 0,
       commission: 0,
       owner: address(this),
@@ -274,13 +298,16 @@ contract Collection {
     uint256 _id, string memory _name, string memory _tokenUri, address _contractAddress, uint8 _reflection, uint8 _commission,
     address _owner, bool _active
   ) internal checkCollection(_id) {
-    // preserve the collection type. Must not allow to update collection type
+    // Preserve some values which were initialized when collection was created
     COLLECTION_TYPE collectionType = COLLECTIONS[_id].collectionType;
+    uint256 totalSupply = COLLECTIONS[_id].totalSupply;
     COLLECTIONS[_id] = CollectionDS({
       id: _id,
       name: _name,
       tokenUri: _tokenUri,
       contractAddress: _contractAddress,
+      totalSupply: totalSupply,
+      vault: new uint256[](totalSupply),
       reflection: _reflection,
       commission: _commission,
       owner: _owner,
@@ -332,6 +359,49 @@ contract Collection {
   */
   function _updateCollectionContractAddress(uint256 _id, address _contractAddress) internal checkCollection(_id) {
     COLLECTIONS[_id].contractAddress = _contractAddress;
+  }
+
+  /**
+    * @dev Get total supply
+  */
+  function _getCollectionTotalSupply(uint256 _id) internal view checkCollection(_id) returns (uint256) {
+    return COLLECTIONS[_id].totalSupply;
+  }
+
+  /**
+    * @dev Get vault
+  */
+  function _getCollectionVault(uint256 _id) internal view checkCollection(_id) returns (uint256[] memory) {
+    return COLLECTIONS[_id].vault;
+  }
+
+  /**
+    * @dev Update collection vault
+      @param _id : collection id
+      @param _rewardPerItem : reward needs to be allocated to each item in this collection
+  */
+  function _updateCollectionVault(uint256 _id, uint256 _rewardPerItem) internal checkCollection(_id) {
+    for (uint256 i = 0; i < COLLECTIONS[_id].vault.length; i++) {
+      uint256 currentValue = COLLECTIONS[_id].vault[i];
+      COLLECTIONS[_id].vault[i] = currentValue + _rewardPerItem;
+    }
+  }
+
+  /**
+    * @dev Get vault index
+  */
+  function _getCollectionVaultIndex(uint256 _id, uint256 _index) internal view checkCollection(_id) returns (uint256) {
+    return COLLECTIONS[_id].vault[_index];
+  }
+
+  /**
+    * @dev Update collection vault index
+      @param _id : collection id
+      @param _index : specific vault index to update
+      @param _reward : reward for one vault index
+  */
+  function _updateCollectionVaultIndex(uint256 _id, uint256 _index, uint256 _reward) internal checkCollection(_id) {
+    COLLECTIONS[_id].vault[_index] = _reward;
   }
 
   /**
