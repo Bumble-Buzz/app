@@ -12,6 +12,10 @@ contract Item {
     require(_itemExists(_id), "The item does not exist");
     _;
   }
+  modifier checkSellerIsOwner(uint256 _id, address _owner) {
+    require(_isSellerOwner(_id, _owner), "The item does not exist");
+    _;
+  }
 
   /**
     * Note All calculations using percentages will truncate any decimals.
@@ -63,6 +67,16 @@ contract Item {
   */
   function _itemExists(uint256 _id) private view returns (bool) {
     if (ITEMS[_id].id != 0) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+    * @dev Check if user is the owner
+  */
+  function _isSellerOwner(uint256 _id, address _owner) private view returns (bool) {
+    if (ITEMS[_id].seller == _owner) {
       return true;
     }
     return false;

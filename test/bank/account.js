@@ -40,7 +40,6 @@ describe("AvaxTrade - Account", () => {
     //   address id; // owner of these accounts
     //   uint256 general; // any general reward balance
     //   uint256 commission; // commission reward balance from the item
-    //   uint256 reflection; // reflection reward balance from the collection
     //   uint256 collectionCommission; // commission reward balance from the collection
     // }
 
@@ -60,7 +59,6 @@ describe("AvaxTrade - Account", () => {
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
       expect(account.general).to.be.equal(0);
       expect(account.nftCommission).to.be.equal(0);
-      expect(account.collectionReflection).to.be.equal(0);
       expect(account.collectionCommission).to.be.equal(0);
     });
     it('add multiple same accounts', async () => {
@@ -71,7 +69,6 @@ describe("AvaxTrade - Account", () => {
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
       expect(account.general).to.be.equal(0);
       expect(account.nftCommission).to.be.equal(0);
-      expect(account.collectionReflection).to.be.equal(0);
       expect(account.collectionCommission).to.be.equal(0);
     });
     it('add multiple different accounts', async () => {
@@ -82,14 +79,12 @@ describe("AvaxTrade - Account", () => {
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
       expect(account.general).to.be.equal(0);
       expect(account.nftCommission).to.be.equal(0);
-      expect(account.collectionReflection).to.be.equal(0);
       expect(account.collectionCommission).to.be.equal(0);
 
       account = await CONTRACT.connect(ACCOUNTS[0])._getAccount(ACCOUNTS[2].address);
       expect(account.id).to.be.equal(ACCOUNTS[2].address);
       expect(account.general).to.be.equal(0);
       expect(account.nftCommission).to.be.equal(0);
-      expect(account.collectionReflection).to.be.equal(0);
       expect(account.collectionCommission).to.be.equal(0);
 
       const accounts = await CONTRACT.connect(ACCOUNTS[0])._getAccounts([ACCOUNTS[1].address, ACCOUNTS[2].address]);
@@ -98,13 +93,11 @@ describe("AvaxTrade - Account", () => {
       expect(accounts[0].id).to.be.equal(ACCOUNTS[1].address);
       expect(accounts[0].general).to.be.equal(0);
       expect(accounts[0].nftCommission).to.be.equal(0);
-      expect(accounts[0].collectionReflection).to.be.equal(0);
       expect(accounts[0].collectionCommission).to.be.equal(0);
 
       expect(accounts[1].id).to.be.equal(ACCOUNTS[2].address);
       expect(accounts[1].general).to.be.equal(0);
       expect(accounts[1].nftCommission).to.be.equal(0);
-      expect(accounts[1].collectionReflection).to.be.equal(0);
       expect(accounts[1].collectionCommission).to.be.equal(0);
     });
 
@@ -115,16 +108,14 @@ describe("AvaxTrade - Account", () => {
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
       expect(account.general).to.be.equal(0);
       expect(account.nftCommission).to.be.equal(0);
-      expect(account.collectionReflection).to.be.equal(0);
       expect(account.collectionCommission).to.be.equal(0);
 
-      await CONTRACT.connect(ACCOUNTS[0])._updateAccount(ACCOUNTS[1].address, 1, 2, 3, 4);
+      await CONTRACT.connect(ACCOUNTS[0])._updateAccount(ACCOUNTS[1].address, 1, 2, 4);
 
       account = await CONTRACT.connect(ACCOUNTS[0])._getAccount(ACCOUNTS[1].address);
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
       expect(account.general).to.be.equal(1);
       expect(account.nftCommission).to.be.equal(2);
-      expect(account.collectionReflection).to.be.equal(3);
       expect(account.collectionCommission).to.be.equal(4);
     });
     it('update one account out of many', async () => {
@@ -132,13 +123,12 @@ describe("AvaxTrade - Account", () => {
       await CONTRACT.connect(ACCOUNTS[0])._addAccount(ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._addAccount(ACCOUNTS[3].address);
 
-      await CONTRACT.connect(ACCOUNTS[0])._updateAccount(ACCOUNTS[1].address, 1, 2, 3, 4);
+      await CONTRACT.connect(ACCOUNTS[0])._updateAccount(ACCOUNTS[1].address, 1, 2, 4);
 
       const account = await CONTRACT.connect(ACCOUNTS[0])._getAccount(ACCOUNTS[1].address);
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
       expect(account.general).to.be.equal(1);
       expect(account.nftCommission).to.be.equal(2);
-      expect(account.collectionReflection).to.be.equal(3);
       expect(account.collectionCommission).to.be.equal(4);
 
       const accounts = await CONTRACT.connect(ACCOUNTS[0])._getAccounts(
@@ -149,30 +139,26 @@ describe("AvaxTrade - Account", () => {
       expect(accounts[0].id).to.be.equal(ACCOUNTS[1].address);
       expect(accounts[0].general).to.be.equal(1);
       expect(accounts[0].nftCommission).to.be.equal(2);
-      expect(accounts[0].collectionReflection).to.be.equal(3);
       expect(accounts[0].collectionCommission).to.be.equal(4);
 
       expect(accounts[1].id).to.be.equal(ACCOUNTS[2].address);
       expect(accounts[1].general).to.be.equal(0);
       expect(accounts[1].nftCommission).to.be.equal(0);
-      expect(accounts[1].collectionReflection).to.be.equal(0);
       expect(accounts[1].collectionCommission).to.be.equal(0);
 
       expect(accounts[2].id).to.be.equal(ACCOUNTS[3].address);
       expect(accounts[2].general).to.be.equal(0);
       expect(accounts[2].nftCommission).to.be.equal(0);
-      expect(accounts[2].collectionReflection).to.be.equal(0);
       expect(accounts[2].collectionCommission).to.be.equal(0);
     });
     it('update account then add same account', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._addAccount(ACCOUNTS[1].address);
-      await CONTRACT.connect(ACCOUNTS[0])._updateAccount(ACCOUNTS[1].address, 1, 2, 3, 4);
+      await CONTRACT.connect(ACCOUNTS[0])._updateAccount(ACCOUNTS[1].address, 1, 2, 4);
 
       let account = await CONTRACT.connect(ACCOUNTS[0])._getAccount(ACCOUNTS[1].address);
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
       expect(account.general).to.be.equal(1);
       expect(account.nftCommission).to.be.equal(2);
-      expect(account.collectionReflection).to.be.equal(3);
       expect(account.collectionCommission).to.be.equal(4);
 
       await CONTRACT.connect(ACCOUNTS[0])._addAccount(ACCOUNTS[1].address);
@@ -181,8 +167,67 @@ describe("AvaxTrade - Account", () => {
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
       expect(account.general).to.be.equal(1);
       expect(account.nftCommission).to.be.equal(2);
-      expect(account.collectionReflection).to.be.equal(3);
       expect(account.collectionCommission).to.be.equal(4);
+    });
+
+    it('increment account', async () => {
+      await CONTRACT.connect(ACCOUNTS[0])._addAccount(ACCOUNTS[1].address);
+
+      let account = await CONTRACT.connect(ACCOUNTS[0])._getAccount(ACCOUNTS[1].address);
+      expect(account.id).to.be.equal(ACCOUNTS[1].address);
+      expect(account.general).to.be.equal(0);
+      expect(account.nftCommission).to.be.equal(0);
+      expect(account.collectionCommission).to.be.equal(0);
+
+      await CONTRACT.connect(ACCOUNTS[0])._incrementAccountBalance(ACCOUNTS[1].address, 1, 2, 4);
+
+      account = await CONTRACT.connect(ACCOUNTS[0])._getAccount(ACCOUNTS[1].address);
+      expect(account.id).to.be.equal(ACCOUNTS[1].address);
+      expect(account.general).to.be.equal(1);
+      expect(account.nftCommission).to.be.equal(2);
+      expect(account.collectionCommission).to.be.equal(4);
+
+      await CONTRACT.connect(ACCOUNTS[0])._incrementAccountBalance(ACCOUNTS[1].address, 3, 3, 3);
+
+      account = await CONTRACT.connect(ACCOUNTS[0])._getAccount(ACCOUNTS[1].address);
+      expect(account.id).to.be.equal(ACCOUNTS[1].address);
+      expect(account.general).to.be.equal(4);
+      expect(account.nftCommission).to.be.equal(5);
+      expect(account.collectionCommission).to.be.equal(7);
+    });
+    it('increment one account out of many', async () => {
+      await CONTRACT.connect(ACCOUNTS[0])._addAccount(ACCOUNTS[1].address);
+      await CONTRACT.connect(ACCOUNTS[0])._addAccount(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._addAccount(ACCOUNTS[3].address);
+
+      await CONTRACT.connect(ACCOUNTS[0])._updateAccount(ACCOUNTS[1].address, 1, 2, 4);
+      await CONTRACT.connect(ACCOUNTS[0])._incrementAccountBalance(ACCOUNTS[1].address, 5, 4, 2);
+
+      const account = await CONTRACT.connect(ACCOUNTS[0])._getAccount(ACCOUNTS[1].address);
+      expect(account.id).to.be.equal(ACCOUNTS[1].address);
+      expect(account.general).to.be.equal(6);
+      expect(account.nftCommission).to.be.equal(6);
+      expect(account.collectionCommission).to.be.equal(6);
+
+      const accounts = await CONTRACT.connect(ACCOUNTS[0])._getAccounts(
+        [ACCOUNTS[1].address, ACCOUNTS[2].address, ACCOUNTS[3].address]
+      );
+      expect(accounts.length).to.be.equal(3);
+
+      expect(accounts[0].id).to.be.equal(ACCOUNTS[1].address);
+      expect(accounts[0].general).to.be.equal(6);
+      expect(accounts[0].nftCommission).to.be.equal(6);
+      expect(accounts[0].collectionCommission).to.be.equal(6);
+
+      expect(accounts[1].id).to.be.equal(ACCOUNTS[2].address);
+      expect(accounts[1].general).to.be.equal(0);
+      expect(accounts[1].nftCommission).to.be.equal(0);
+      expect(accounts[1].collectionCommission).to.be.equal(0);
+
+      expect(accounts[2].id).to.be.equal(ACCOUNTS[3].address);
+      expect(accounts[2].general).to.be.equal(0);
+      expect(accounts[2].nftCommission).to.be.equal(0);
+      expect(accounts[2].collectionCommission).to.be.equal(0);
     });
 
     it('nullify account', async () => {
@@ -192,16 +237,14 @@ describe("AvaxTrade - Account", () => {
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
       expect(account.general).to.be.equal(0);
       expect(account.nftCommission).to.be.equal(0);
-      expect(account.collectionReflection).to.be.equal(0);
       expect(account.collectionCommission).to.be.equal(0);
 
-      await CONTRACT.connect(ACCOUNTS[0])._updateAccount(ACCOUNTS[1].address, 1, 2, 3, 4);
+      await CONTRACT.connect(ACCOUNTS[0])._updateAccount(ACCOUNTS[1].address, 1, 2, 4);
 
       account = await CONTRACT.connect(ACCOUNTS[0])._getAccount(ACCOUNTS[1].address);
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
       expect(account.general).to.be.equal(1);
       expect(account.nftCommission).to.be.equal(2);
-      expect(account.collectionReflection).to.be.equal(3);
       expect(account.collectionCommission).to.be.equal(4);
 
       await CONTRACT.connect(ACCOUNTS[0])._nullifyAccount(ACCOUNTS[1].address);
@@ -210,7 +253,6 @@ describe("AvaxTrade - Account", () => {
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
       expect(account.general).to.be.equal(0);
       expect(account.nftCommission).to.be.equal(0);
-      expect(account.collectionReflection).to.be.equal(0);
       expect(account.collectionCommission).to.be.equal(0);
     });
 
@@ -221,7 +263,6 @@ describe("AvaxTrade - Account", () => {
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
       expect(account.general).to.be.equal(0);
       expect(account.nftCommission).to.be.equal(0);
-      expect(account.collectionReflection).to.be.equal(0);
       expect(account.collectionCommission).to.be.equal(0);
 
       await CONTRACT.connect(ACCOUNTS[0])._removeAccount(ACCOUNTS[1].address);
@@ -250,14 +291,6 @@ describe("AvaxTrade - Account", () => {
     it('update commission account', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._updateNftCommissionAccount(ACCOUNTS[1].address, 1);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getNftCommissionAccount(ACCOUNTS[1].address)).to.be.equal(1);
-    });
-
-    it('get reflection account', async () => {
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionReflectionAccount(ACCOUNTS[1].address)).to.be.equal(0);
-    });
-    it('update reflection account', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._updateCollectionReflectionAccount(ACCOUNTS[1].address, 1);
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionReflectionAccount(ACCOUNTS[1].address)).to.be.equal(1);
     });
 
     it('get collection commission account', async () => {

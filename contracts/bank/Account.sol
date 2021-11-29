@@ -17,7 +17,6 @@ contract Account {
     address id; // owner of these accounts
     uint256 general; // any general reward balance
     uint256 nftCommission; // commission reward balance from the item
-    uint256 collectionReflection; // reflection reward balance from the collection
     uint256 collectionCommission; // commission reward balance from the collection
   }
 
@@ -80,13 +79,12 @@ contract Account {
     * @dev Update account
   */
   function _updateAccount(
-    address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionReflection, uint256 _collectionCommission
+    address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionCommission
   ) internal checkAccount(_id) {
     ACCOUNTS[_id] = AccountDS({
       id: _id,
       general: _general,
       nftCommission: _nftCommission,
-      collectionReflection: _collectionReflection,
       collectionCommission: _collectionCommission
     });
   }
@@ -95,13 +93,12 @@ contract Account {
     * @dev Increase account balance by given amounts
   */
   function _incrementAccountBalance(
-    address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionReflection, uint256 _collectionCommission
+    address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionCommission
   ) internal checkAccount(_id) {
     ACCOUNTS[_id] = AccountDS({
       id: _id,
       general: _getGeneralAccount(_id) + _general,
       nftCommission: _getNftCommissionAccount(_id) + _nftCommission,
-      collectionReflection: _getCollectionReflectionAccount(_id) + _collectionReflection,
       collectionCommission: _getCollectionCommissionAccount(_id) + _collectionCommission
     });
   }
@@ -135,20 +132,6 @@ contract Account {
   }
 
   /**
-    * @dev Get collection reflection account
-  */
-  function _getCollectionReflectionAccount(address _id) internal view checkAccount(_id) returns (uint256) {
-    return ACCOUNTS[_id].collectionReflection;
-  }
-
-  /**
-    * @dev Update collection reflection account
-  */
-  function _updateCollectionReflectionAccount(address _id, uint256 _collectionReflection) internal checkAccount(_id) {
-    ACCOUNTS[_id].collectionReflection = _collectionReflection;
-  }
-
-  /**
     * @dev Get collection commission account
   */
   function _getCollectionCommissionAccount(address _id) internal view checkAccount(_id) returns (uint256) {
@@ -166,7 +149,7 @@ contract Account {
     * @dev Nullify account
   */
   function _nullifyAccount(address _id) internal checkAccount(_id) {
-    _updateAccount(_id, 0, 0, 0, 0);
+    _updateAccount(_id, 0, 0, 0);
   }
 
   /**

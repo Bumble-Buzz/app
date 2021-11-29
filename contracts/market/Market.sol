@@ -79,6 +79,7 @@ contract Market is Collection, Item {
     address creator = address(0);
     COLLECTION_TYPE collectionType = _getCollectionType(collectionId);
     if (collectionType == COLLECTION_TYPE.local) {
+      // todo fetch this information from the local nvt contract
       commission = 2; // fetch commission from nft contract
       creator = address(0); // fetch creator from nft contract
     }
@@ -108,7 +109,7 @@ contract Market is Collection, Item {
   /**
     * @dev Cancel item that is currently on sale
   */
-  function _cancelItemInCollection(uint256 _itemId) public {
+  function _cancelItemInCollection(uint256 _itemId, address _owner) public checkSellerIsOwner(_itemId,_owner) {
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
 
@@ -163,6 +164,21 @@ contract Market is Collection, Item {
   }
 
   /**
+    * @dev Calculate collection commission reward
+  */
+  function _calculateCollectionCommissionReward(uint256 _itemId, uint256 _price) public view returns (uint256) {
+    uint256 collectionId = _getItemCollectionId(_itemId);
+    require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
+
+    uint8 commission = _getCollectionCommission(collectionId);
+    if (commission > 0) {
+      uint256 commissionReward = (_price * commission / 100);
+      return commissionReward;
+    }
+    return 0;
+  }
+
+  /**
     * @dev Calculate collection reflection reward
   */
   function _calculateCollectionReflectionReward(uint256 _itemId, uint256 _price) public returns (uint256) {
@@ -173,7 +189,7 @@ contract Market is Collection, Item {
     if (reflection > 0) {
       uint256 reflectionReward = (_price * reflection / 100);
       uint256 reflectionRewardPerItem = reflectionReward / _getCollectionTotalSupply(collectionId);
-      _updateCollectionVault(collectionId, reflectionRewardPerItem);
+      _updateCollectionReflectionVault(collectionId, reflectionRewardPerItem);
       return reflectionReward;
     }
     return 0;
@@ -188,22 +204,25 @@ contract Market is Collection, Item {
 
     uint256 itemTokenId = _getItemTokenId(_itemId);
     uint256 vaultIndex = itemTokenId - 1;
-    uint256 collectionTokenVault = _getCollectionVaultIndex(collectionId, vaultIndex);
-    _updateCollectionVaultIndex(collectionId, vaultIndex, 0);
+    uint256 collectionTokenVault = _getCollectionReflectionVaultIndex(collectionId, vaultIndex);
+    _updateCollectionReflectionVaultIndex(collectionId, vaultIndex, 0);
     return collectionTokenVault;
   }
 
   /**
-    * @dev Calculate collection commission reward
+    * @dev Calculate collection incentive reward
   */
-  function _calculateCollectionCommissionReward(uint256 _itemId, uint256 _price) public view returns (uint256) {
+  function _calculateCollectionIncentiveReward(uint256 _itemId) public returns (uint256) {
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
 
-    uint8 commission = _getCollectionCommission(collectionId);
-    if (commission > 0) {
-      uint256 commissionReward = (_price * commission / 100);
-      return commissionReward;
+    uint8 incentive = _getCollectionIncentive(collectionId);
+    if (incentive > 0) {
+      uint256 incentiveVault = _getCollectionIncentiveVault(collectionId);
+      uint256 incentiveReward = (incentiveVault * incentive / 100);
+      uint256 newIncentiveVault = incentiveVault - incentiveReward;
+      _updateCollectionIncentiveVault(collectionId, newIncentiveVault);
+      return incentiveReward;
     }
     return 0;
   }

@@ -110,9 +110,9 @@ contract Bank is Account, Vault {
     * @dev Update bank 
   */
   function _updateBank(
-    address _id, uint256 _general, uint256 _commission, uint256 _reflection, uint256 _collectionCommission, uint256 _balance
+    address _id, uint256 _general, uint256 _commission, uint256 _collectionCommission, uint256 _balance
   ) internal checkBank(_id) {
-    _updateBankAccount(_id, _general, _commission, _reflection, _collectionCommission);
+    _updateBankAccount(_id, _general, _commission, _collectionCommission);
     _updateBankVault(_id, _balance);
   }
 
@@ -120,18 +120,18 @@ contract Bank is Account, Vault {
     * @dev Update bank account
   */
   function _updateBankAccount(
-    address _id, uint256 _general, uint256 _commission, uint256 _reflection, uint256 _collectionCommission
+    address _id, uint256 _general, uint256 _commission, uint256 _collectionCommission
   ) internal checkBank(_id) {
-    _updateAccount(_id, _general, _commission, _reflection, _collectionCommission);
+    _updateAccount(_id, _general, _commission, _collectionCommission);
   }
 
   /**
     * @dev Increment bank account balances with given amounts 
   */
   function _incrementBankAccount(
-    address _id, uint256 _general, uint256 _commission, uint256 _reflection, uint256 _collectionCommission
+    address _id, uint256 _general, uint256 _commission, uint256 _collectionCommission
   ) internal checkBank(_id) {
-    _incrementAccountBalance(_id, _general, _commission, _reflection, _collectionCommission);
+    _incrementAccountBalance(_id, _general, _commission, _collectionCommission);
   }
 
   /**
@@ -147,7 +147,7 @@ contract Bank is Account, Vault {
     * @dev Nullify bank
   */
   function _nullifyBank(address _id) internal checkBank(_id) {
-    _updateBankAccount(_id, 0, 0, 0, 0);
+    _updateBankAccount(_id, 0, 0, 0);
     _updateBankVault(_id, 0);
   }
 
@@ -158,6 +158,39 @@ contract Bank is Account, Vault {
     _removeBankOwner(_id);
     _removeAccount(_id);
     _removeVault(_id);
+  }
+
+
+  /** 
+    *****************************************************
+    **************** Withdraw Functions *****************
+    *****************************************************
+  */
+  /**
+    * @dev Claim account general reward for this user
+  */
+  function _claimAccountGeneralReward(address _id) internal returns (uint256) {
+    uint256 reward = _getGeneralAccount(_id);
+    _updateGeneralAccount(_id, 0);
+    return reward;
+  }
+
+  /**
+    * @dev Claim account nft commission reward for this user
+  */
+  function _claimAccountNftCommissionReward(address _id) internal returns (uint256) {
+    uint256 reward = _getNftCommissionAccount(_id);
+    _updateNftCommissionAccount(_id, 0);
+    return reward;
+  }
+
+  /**
+    * @dev Claim account collection commission reward for this user
+  */
+  function _claimAccountCollectionCommissionReward(address _id) internal returns (uint256) {
+    uint256 reward = _getCollectionCommissionAccount(_id);
+    _updateCollectionCommissionAccount(_id, 0);
+    return reward;
   }
 
 

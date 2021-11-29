@@ -16,6 +16,7 @@ Things left to do:
     - Cancel sales
         - Only able to cancel direct and immediate sale types
         - Auctions can not be cancelled!
+    - Make all error messages unique
     - Address all `@todo` in the code
 - Front-end dapp
 - Social media

@@ -13,7 +13,7 @@ import "./sale/Sale.sol";
 import "hardhat/console.sol";
 
 
-contract AvaxTrade is Market, Bank, Sale {
+contract AvaxTrade is Market, Bank, Sale, Ownable {
   using Counters for Counters.Counter;
 
   /**
@@ -30,7 +30,7 @@ contract AvaxTrade is Market, Bank, Sale {
   // enums
 
   // data structures
-  struct BalanceSheet {
+  struct BalanceSheetDS {
     uint256 totalFunds; // total funds in contract before deductions
     uint256 general; // outstanding general reward balance
     uint256 nftCommission; // outstanding commission reward balance from the item
@@ -46,11 +46,11 @@ contract AvaxTrade is Market, Bank, Sale {
   uint8 private MARKETPLACE_COMMISSION = 2; // commission rate charged upon every sale, in percentage
 
   // monetary
-  BalanceSheet private CONTRACT_BANK;
+  BalanceSheetDS private BALANCE_SHEET;
 
 
   constructor() {
-    CONTRACT_BANK = BalanceSheet(0, 0, 0, 0, 0, 0, 0, 0);
+    BALANCE_SHEET = BalanceSheetDS(0, 0, 0, 0, 0, 0, 0, 0);
 
     // create collections
     _createUnvariviedCollection('Unverified');
@@ -58,6 +58,13 @@ contract AvaxTrade is Market, Bank, Sale {
     // _createLocalCollection('Local', '', address(0));
   }
 
+
+
+  /** 
+    *****************************************************
+    ****************** Main Functions *******************
+    *****************************************************
+  */
   /**
     * @dev Create market sale
   */
@@ -85,7 +92,7 @@ contract AvaxTrade is Market, Bank, Sale {
     * @dev Cancel market item from sale
   */
   function cancelMarketSale(uint256 _itemId) external {
-    _cancelItemInCollection(_itemId);
+    _cancelItemInCollection(_itemId, msg.sender);
     _removeSale(_itemId, msg.sender);
     // take care of balances
     // transfer nft back to to owner
@@ -102,9 +109,9 @@ contract AvaxTrade is Market, Bank, Sale {
     uint256 remainingBalance = msg.value;
 
     // deduct marketplace 2% commission
-      uint256 marketplaceReward = (remainingBalance * MARKETPLACE_COMMISSION / 100);
+    uint256 marketplaceReward = (remainingBalance * MARKETPLACE_COMMISSION / 100);
     remainingBalance = remainingBalance - marketplaceReward;
-    _incrementBankAccount(address(this), marketplaceReward, 0, 0, 0);
+    _incrementBankAccount(address(this), marketplaceReward, 0, 0);
 
     // deduct nft commission, if applicable
     uint256 nftCommissionReward = _calculateNftCommissionReward(_itemId, remainingBalance);
@@ -113,114 +120,94 @@ contract AvaxTrade is Market, Bank, Sale {
 
       address itemCreator = _getCreatorOfItem(_itemId);
       _addBank(itemCreator); // this is okay even if bank account already exists
-      _incrementBankAccount(itemCreator, 0, nftCommissionReward, 0, 0);
+      _incrementBankAccount(itemCreator, 0, nftCommissionReward, 0);
     }
 
     // deduct collection reflection rewards, if applicable
-    uint256 reflectionReward = _calculateCollectionReflectionReward(_itemId, remainingBalance);
-    if (reflectionReward > 0) {
-      remainingBalance = remainingBalance - reflectionReward;
+    uint256 collectionReflectionReward = _calculateCollectionReflectionReward(_itemId, remainingBalance);
+    if (collectionReflectionReward > 0) {
+      remainingBalance = remainingBalance - collectionReflectionReward;
     }
 
     // deduct collection commission rewards, if applicable
-    uint256 commissionReward = _calculateCollectionCommissionReward(_itemId, remainingBalance);
-    if (commissionReward > 0) {
-      remainingBalance = remainingBalance - commissionReward;
+    uint256 collectionCommissionReward = _calculateCollectionCommissionReward(_itemId, remainingBalance);
+    if (collectionCommissionReward > 0) {
+      remainingBalance = remainingBalance - collectionCommissionReward;
 
       address collectionOwner = _getOwnerOfCollection(_itemId);
       _addBank(collectionOwner); // this is okay even if bank account already exists
-      _incrementBankAccount(collectionOwner, 0, 0, 0, commissionReward);
+      _incrementBankAccount(collectionOwner, 0, 0, collectionCommissionReward);
     }
+    
+    // add collection incentive rewards, if applicable
+    uint256 calculateCollectionIncentiveReward = _calculateCollectionIncentiveReward(_itemId);
+    if (calculateCollectionIncentiveReward > 0) {
+      remainingBalance = remainingBalance + calculateCollectionIncentiveReward;
+    }
+    
+    // add marketplace incentive rewards, if applicable
+    // todo add marketplace incentive rewards to remainingBalance
 
     // transfer nft back to to owner
   }
 
 
+  /** 
+    *****************************************************
+    ***************** Reward Functions ******************
+    *****************************************************
+  */
+  /**
+    * @dev Claim nft commission reward for this user
+  */
+  function claimNftCommissionReward() public payable returns (uint256) {
+    uint256 reward = _claimAccountNftCommissionReward(msg.sender);
+    // todo ensure this is a safe way to transfer funds
+    ( bool success, ) = payable(msg.sender).call{ value: reward }("");
+    require(success, "Nft commission reward transfer to user was unccessfull");
+    return reward;
+  }
+
+  /**
+    * @dev Claim collection reflection reward for this user
+  */
+  function claimCollectionReflectionReward(uint256 _itemId) public payable returns (uint256) {
+    uint256 reward = _claimCollectionReflectionReward(_itemId);
+    // todo use itemId to get tokenId, use tokeId to get owner from nft contract
+    address owner = address(0);
+    // todo ensure this is a safe way to transfer funds
+    ( bool success, ) = payable(owner).call{ value: reward }("");
+    require(success, "Collection reflection reward transfer to user was unccessfull");
+    return reward;
+  }
+
+  /**
+    * @dev Claim collection commission reward for this user
+  */
+  function claimCollectionCommissionReward() public payable returns (uint256) {
+    uint256 reward = _claimAccountCollectionCommissionReward(msg.sender);
+    // todo ensure this is a safe way to transfer funds
+    ( bool success, ) = payable(msg.sender).call{ value: reward }("");
+    require(success, "Collection commission reward transfer to user was unccessfull");
+    return reward;
+  }
+
+  /**
+    * @dev Claim all rewards for this user
+  */
+  function claimAllRewards(uint256 _itemId) external payable returns (uint256) {
+    uint256 reward = 0;
+    reward += claimNftCommissionReward();
+    reward += claimCollectionReflectionReward(_itemId);
+    reward += claimCollectionCommissionReward();
+    return reward;
+  }
 
 
-  // /**
-  //   * @dev Create local market sale
-  //   * todo the `_commission` and `_creator` can not be passed in. Need to track this upon creation of nft
-  //   *       and then use it here 
-  // */
-  // function createLocalMarketSale(
-  //   uint256 _tokenId, address _contractAddress, uint256 _price, SALE_TYPE_2 _saleType
-  // ) external payable {
-  //   // @todo deal with these inputs
-  //   uint8 commission = 123; // fetch commission from nft contract
-  //   address creator = address(0); // fetch creator from nft contract
-  //   uint256 itemId = _addItemToCollection2(
-  //     _tokenId,
-  //     _contractAddress,
-  //     msg.sender,
-  //     address(0),
-  //     _price,
-  //     commission,
-  //     creator
-  //   );
-  //   _createSale(itemId, msg.sender, _saleType);
-  //   // take care of balances
-  //   // transfer nft to market place
-  // }
-
-  // /**
-  //   * @dev Create direct market sale
-  // */
-  // function createDirectMarketSale(
-  //   uint256 _tokenId, address _contractAddress, address _buyer, uint256 _price
-  // ) external payable {
-  //   uint256 itemId = _addItemToCollection2(
-  //     _tokenId,
-  //     _contractAddress,
-  //     msg.sender,
-  //     _buyer,
-  //     _price,
-  //     0,
-  //     address(0)
-  //   );
-  //   _createSale(itemId, msg.sender, SALE_TYPE_2.direct);
-  //   // take care of balances
-  //   // transfer nft to market place
-  // }
-
-  // /**
-  //   * @dev Create verified market sale
-  // */
-  // function createVerifiedMarketSale(
-  //   uint256 _tokenId, address _contractAddress, uint256 _price, SALE_TYPE_2 _saleType
-  // ) external payable {
-  //   uint256 itemId = _addItemToCollection2(
-  //     _tokenId,
-  //     _contractAddress,
-  //     msg.sender,
-  //     address(0),
-  //     _price,
-  //     0,
-  //     address(0)
-  //   );
-  //   _createSale(itemId, msg.sender, _saleType);
-  //   // take care of balances
-  //   // transfer nft to market place
-  // }
-
-  // /**
-  //   * @dev Create unverified market sale
-  // */
-  // function createUnverifiedMarketSale(
-  //   uint256 _tokenId, address _contractAddress, uint256 _price, SALE_TYPE_2 _saleType
-  // ) external payable {
-  //   uint256 itemId = _addItemToCollection2(
-  //     _tokenId,
-  //     _contractAddress,
-  //     msg.sender,
-  //     address(0),
-  //     _price,
-  //     0,
-  //     address(0)
-  //   );
-  //   _createSale(itemId, msg.sender, _saleType);
-  //   // take care of balances
-  //   // transfer nft to market place
-  // }
+  /** 
+    *****************************************************
+    ************** Expose Child Functions ***************
+    *****************************************************
+  */
 
 }
