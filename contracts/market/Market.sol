@@ -69,7 +69,7 @@ contract Market is Collection, Item {
   */
   function _addItemToCollection(
     uint256 _tokenId, address _contractAddress, address _seller, address _buyer, uint256 _price
-  ) public returns (uint256) {
+  ) internal returns (uint256) {
     uint256 collectionId = _getCllectionForContract(_contractAddress);
     if (collectionId == 0) {
       // this means this is an unvarified item, so we will use the unvarified collection
@@ -102,7 +102,7 @@ contract Market is Collection, Item {
   /**
     * @dev Get all item ids in collection
   */
-  function _getItemsInCollection(uint256 _id) public view checkCollection(_id) returns (ItemDS[] memory) {
+  function _getItemsInCollection(uint256 _id) internal view checkCollection(_id) returns (ItemDS[] memory) {
     uint256[] memory itemsIds = _getItemIdsInCollection(_id);
     return _getItems(itemsIds);
   }
@@ -110,7 +110,7 @@ contract Market is Collection, Item {
   /**
     * @dev Get item id given token id and contract address
   */
-  function _getItemId(uint256 _tokenId, address _contractAddress, address _owner) public view returns (uint256) {
+  function _getItemId(uint256 _tokenId, address _contractAddress, address _owner) internal view returns (uint256) {
     uint256[] memory itemIds = _getItemsForOwner(_owner);
     uint256 itemId = 0;
     for (uint256 i = 0; i < itemIds.length; i++) {
@@ -126,14 +126,14 @@ contract Market is Collection, Item {
   /**
     * @dev Get owner of collection
   */
-  function _getOwnerOfCollection(uint256 _collectionId) public view checkCollection(_collectionId) returns (address) {
+  function _getOwnerOfCollection(uint256 _collectionId) internal view checkCollection(_collectionId) returns (address) {
     return _getCollectionOwner(_collectionId);
   }
 
   /**
     * @dev Get owner of collection for this item
   */
-  function _getOwnerOfItemCollection(uint256 _itemId) public view returns (address) {
+  function _getOwnerOfItemCollection(uint256 _itemId) internal view returns (address) {
     uint256 collectionId = _getItemCollectionId(_itemId);
     _doesCollectionExist(collectionId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
@@ -144,14 +144,14 @@ contract Market is Collection, Item {
   /**
     * @dev Get creator of this item
   */
-  function _getCreatorOfItem(uint256 _itemId) public view checkItem(_itemId) returns (address) {
+  function _getCreatorOfItem(uint256 _itemId) internal view checkItem(_itemId) returns (address) {
     return _getItemCreator(_itemId);
   }
 
   /**
     * @dev Cancel item that is currently on sale
   */
-  function _cancelItemInCollection(uint256 _itemId) public {
+  function _cancelItemInCollection(uint256 _itemId) internal {
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
 
@@ -162,7 +162,7 @@ contract Market is Collection, Item {
   /**
     * @dev Mark item sold in collection
   */
-  function _markItemSoldInCollection(uint256 _itemId) public {
+  function _markItemSoldInCollection(uint256 _itemId) internal {
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
 
@@ -173,7 +173,7 @@ contract Market is Collection, Item {
   /**
     * @dev Calculate nft commission reward
   */
-  function _calculateNftCommissionReward(uint256 _itemId, uint256 _price) public view returns (uint256) {
+  function _calculateNftCommissionReward(uint256 _itemId, uint256 _price) internal view returns (uint256) {
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
 
@@ -188,7 +188,7 @@ contract Market is Collection, Item {
   /**
     * @dev Calculate collection commission reward
   */
-  function _calculateCollectionCommissionReward(uint256 _itemId, uint256 _price) public view returns (uint256) {
+  function _calculateCollectionCommissionReward(uint256 _itemId, uint256 _price) internal view returns (uint256) {
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
 
@@ -203,7 +203,7 @@ contract Market is Collection, Item {
   /**
     * @dev Calculate collection reflection reward
   */
-  function _calculateCollectionReflectionReward(uint256 _itemId, uint256 _price) public view returns (uint256) {
+  function _calculateCollectionReflectionReward(uint256 _itemId, uint256 _price) internal view returns (uint256) {
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
 
@@ -218,7 +218,7 @@ contract Market is Collection, Item {
   /**
     * @dev Distribute collection reflection reward
   */
-  function _distributeCollectionReflectionReward(uint256 _itemId, uint256 _reflectionReward) public {
+  function _distributeCollectionReflectionReward(uint256 _itemId, uint256 _reflectionReward) internal {
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
 
@@ -236,7 +236,7 @@ contract Market is Collection, Item {
   /**
     * @dev Claim collection reflection reward
   */
-  function _claimCollectionReflectionReward(uint256 _tokenId, address _contractAddress) public view returns (uint256) {
+  function _claimCollectionReflectionReward(uint256 _tokenId, address _contractAddress) internal view returns (uint256) {
     uint256 collectionId = _getCllectionForContract(_contractAddress);
     if (collectionId == 0) {
       collectionId = UNVERIFIED_COLLECTION_ID;
@@ -253,7 +253,7 @@ contract Market is Collection, Item {
   /**
     * @dev Update collection reflection reward for item from vault
   */
-  function _updateCollectionReflectionReward(uint256 _tokenId, address _contractAddress, uint256 _newVal) public {
+  function _updateCollectionReflectionReward(uint256 _tokenId, address _contractAddress, uint256 _newVal) internal {
     uint256 collectionId = _getCllectionForContract(_contractAddress);
     if (collectionId == 0) {
       collectionId = UNVERIFIED_COLLECTION_ID;
@@ -270,7 +270,7 @@ contract Market is Collection, Item {
   /**
     * @dev Set collection incentive percentage
   */
-  function _setCollectionIncentive(uint256 _collectionId, uint8 _incentive) public checkCollection(_collectionId) {
+  function _setCollectionIncentive(uint256 _collectionId, uint8 _incentive) internal checkCollection(_collectionId) {
     COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
     if (collectionType == COLLECTION_TYPE.verified) {
       _updateCollectionIncentive(_collectionId, _incentive);
@@ -280,7 +280,7 @@ contract Market is Collection, Item {
   /**
     * @dev Calculate collection incentive reward
   */
-  function _calculateCollectionIncentiveReward(uint256 _itemId) public view returns (uint256) {
+  function _calculateCollectionIncentiveReward(uint256 _itemId) internal view returns (uint256) {
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
 
@@ -296,7 +296,7 @@ contract Market is Collection, Item {
   /**
     * @dev Increase collection incentive reward
   */
-  function _increaseCollectionIncentiveReward(uint256 _collectionId, uint256 _value) public checkCollection(_collectionId) {
+  function _increaseCollectionIncentiveReward(uint256 _collectionId, uint256 _value) internal checkCollection(_collectionId) {
     COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
     if (collectionType == COLLECTION_TYPE.verified) {
       uint256 incentiveVault = _getCollectionIncentiveVault(_collectionId);
@@ -308,7 +308,7 @@ contract Market is Collection, Item {
   /**
     * @dev Decrease collection incentive reward
   */
-  function _decreaseCollectionIncentiveReward(uint256 _collectionId, uint256 _value) public checkCollection(_collectionId) {
+  function _decreaseCollectionIncentiveReward(uint256 _collectionId, uint256 _value) internal checkCollection(_collectionId) {
     COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
     if (collectionType == COLLECTION_TYPE.verified) {
       uint256 incentiveVault = _getCollectionIncentiveVault(_collectionId);
@@ -328,21 +328,21 @@ contract Market is Collection, Item {
   /**
     * @dev Add a new collection id (if necessary) and add item id to the array
   */
-  function _addItemIdInCollection(uint256 _id, uint256 _itemId) public {
+  function _addItemIdInCollection(uint256 _id, uint256 _itemId) internal {
     COLLECTION_ITEMS[_id].push(_itemId);
   }
 
   /**
     * @dev Get item ids for the given collection
   */
-  function _getItemIdsInCollection(uint256 _id) public view returns (uint256[] memory) {
+  function _getItemIdsInCollection(uint256 _id) internal view returns (uint256[] memory) {
     return COLLECTION_ITEMS[_id];
   }
 
   /**
     * @dev Remove an item in collection
   */
-  function _removeItemIdInCollection(uint256 _id, uint256 _itemId) public {
+  function _removeItemIdInCollection(uint256 _id, uint256 _itemId) internal {
     uint256 arrLength = COLLECTION_ITEMS[_id].length - 1;
     uint256[] memory data = new uint256[](arrLength);
     uint8 dataCounter = 0;
@@ -358,7 +358,7 @@ contract Market is Collection, Item {
   /**
     * @dev Remove the collection item
   */
-  function _removeCollectionItem(uint256 _id) public {
+  function _removeCollectionItem(uint256 _id) internal {
     delete COLLECTION_ITEMS[_id];
   }
 

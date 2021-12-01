@@ -230,7 +230,7 @@ contract Collection {
     _addActiveCollectionId(id);
     _addUnverifiedCollectionId(id);
     _addCollectionForOwner(address(this), id);
-    _assignContractToCollection(address(0), id);
+    _assignContractToCollection(address(0), id); // todo dont think we need this, better to remove?
   }
 
   /**
