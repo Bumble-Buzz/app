@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.4;
 
+import '@openzeppelin/contracts/access/Ownable.sol';
 import './Cookie.sol';
 
-contract Bakery {
+contract Bakery is Ownable {
 
   // index of created contracts
   address[] private contracts;
@@ -17,6 +18,14 @@ contract Bakery {
     return contracts;
   }
 
+  function myOwner() public view returns (address) {
+    return owner();
+  }
+
+  function myAddress() public view returns (address) {
+    return address(this);
+  }
+
   // deploy a new contract
   function newCookie() public returns (address newContract) {
     Cookie c = new Cookie();
@@ -24,9 +33,16 @@ contract Bakery {
     return address(c);
   }
 
-  function callCookieFunc() public view returns (string memory flavor) {
-    Cookie c = Cookie(contracts[0]);
-    return c.getFlavor();
+  function cookieAddress() public view returns (address) {
+    return Cookie(contracts[0]).myAddress();
+  }
+
+  function cookieFlavor() public view returns (string memory flavor) {
+    return Cookie(contracts[0]).getFlavor();
+  }
+
+  function cookieOwner() public view returns (address) {
+    return Cookie(contracts[0]).getOwner();
   }
 
 }
