@@ -672,13 +672,13 @@ describe("AvaxTrade - Collection", () => {
       expect(vault[1]).to.be.equal(0);
       expect(vault[5]).to.be.equal(0);
       expect(vault[99]).to.be.equal(0);
-      await CONTRACT.connect(ACCOUNTS[0])._updateCollectionReflectionVault(2, 5);
+      await CONTRACT.connect(ACCOUNTS[0])._increaseCollectionReflectionVault(2, 5);
       vault = await CONTRACT.connect(ACCOUNTS[0])._getCollectionReflectionVault(2);
       expect(vault[0]).to.be.equal(5);
       expect(vault[1]).to.be.equal(5);
       expect(vault[5]).to.be.equal(5);
       expect(vault[99]).to.be.equal(5);
-      await CONTRACT.connect(ACCOUNTS[0])._updateCollectionReflectionVault(2, 2);
+      await CONTRACT.connect(ACCOUNTS[0])._increaseCollectionReflectionVault(2, 2);
       vault = await CONTRACT.connect(ACCOUNTS[0])._getCollectionReflectionVault(2);
       expect(vault[0]).to.be.equal(7);
       expect(vault[1]).to.be.equal(7);
@@ -691,7 +691,7 @@ describe("AvaxTrade - Collection", () => {
       expect(vault[1]).to.be.equal(0);
       expect(vault[5]).to.be.equal(0);
       expect(vault[99]).to.be.equal(0);
-      await CONTRACT.connect(ACCOUNTS[0])._updateCollectionReflectionVault(2, 5);
+      await CONTRACT.connect(ACCOUNTS[0])._increaseCollectionReflectionVault(2, 5);
       vault = await CONTRACT.connect(ACCOUNTS[0])._getCollectionReflectionVault(2);
       expect(vault[0]).to.be.equal(5);
       expect(vault[1]).to.be.equal(5);

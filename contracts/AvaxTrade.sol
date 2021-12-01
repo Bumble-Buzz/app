@@ -53,7 +53,7 @@ contract AvaxTrade is Market, Bank, Sale, Ownable {
     BALANCE_SHEET = BalanceSheetDS(0, 0, 0, 0, 0, 0, 0, 0);
 
     // create collections
-    _createUnvariviedCollection('Unverified');
+    createUnvariviedCollection('Unverified');
     // @todo we should already know the contract address of the local collection
     // _createLocalCollection('Local', '', address(0));
   }
@@ -91,17 +91,24 @@ contract AvaxTrade is Market, Bank, Sale, Ownable {
   /**
     * @dev Cancel market item from sale
   */
-  function cancelMarketSale(uint256 _itemId) external {
-    _cancelItemInCollection(_itemId, msg.sender);
-    _removeSale(_itemId, msg.sender);
+  function cancelMarketSale(uint256 _tokenId, address _contractAddress) external payable {
+    uint256 itemId = _getItemId(_tokenId, _contractAddress, msg.sender);
+    _cancelItemInCollection(itemId);
+    _removeSale(itemId, msg.sender);
+
     // take care of balances
     // transfer nft back to to owner
+    // todo make a call to the given contractAddress, use tokenId & owner to ensure this is the owner of this nft
+    // todo transfer nft back to the owner
   }
 
   /**
     * @dev Remove market item from sale. For a varified collection
   */
   function completeMarketSale(uint256 _itemId) external payable {
+    // general require statements here
+    // todo ensure msg.value >= listed sale price
+
     _markItemSoldInCollection(_itemId);
     _removeSale(_itemId, msg.sender);
   
@@ -126,6 +133,7 @@ contract AvaxTrade is Market, Bank, Sale, Ownable {
     // deduct collection reflection rewards, if applicable
     uint256 collectionReflectionReward = _calculateCollectionReflectionReward(_itemId, remainingBalance);
     if (collectionReflectionReward > 0) {
+      _distributeCollectionReflectionReward(_itemId, collectionReflectionReward);
       remainingBalance = remainingBalance - collectionReflectionReward;
     }
 
@@ -134,7 +142,7 @@ contract AvaxTrade is Market, Bank, Sale, Ownable {
     if (collectionCommissionReward > 0) {
       remainingBalance = remainingBalance - collectionCommissionReward;
 
-      address collectionOwner = _getOwnerOfCollection(_itemId);
+      address collectionOwner = _getOwnerOfItemCollection(_itemId);
       _addBank(collectionOwner); // this is okay even if bank account already exists
       _incrementBankAccount(collectionOwner, 0, 0, collectionCommissionReward);
     }
@@ -171,10 +179,11 @@ contract AvaxTrade is Market, Bank, Sale, Ownable {
   /**
     * @dev Claim collection reflection reward for this user
   */
-  function claimCollectionReflectionReward(uint256 _itemId) public payable returns (uint256) {
-    uint256 reward = _claimCollectionReflectionReward(_itemId);
-    // todo use itemId to get tokenId, use tokeId to get owner from nft contract
-    address owner = address(0);
+  function claimCollectionReflectionReward(uint256 _tokenId, address _contractAddress) public returns (uint256) {
+    uint256 reward = _claimCollectionReflectionReward(_tokenId, _contractAddress);
+    _updateCollectionReflectionReward(_tokenId, _contractAddress, 0);
+    // todo use tokeId to check the owner from nft contract. Compare with this owner
+    address owner = msg.sender;
     // todo ensure this is a safe way to transfer funds
     ( bool success, ) = payable(owner).call{ value: reward }("");
     require(success, "Collection reflection reward transfer to user was unccessfull");
@@ -195,10 +204,10 @@ contract AvaxTrade is Market, Bank, Sale, Ownable {
   /**
     * @dev Claim all rewards for this user
   */
-  function claimAllRewards(uint256 _itemId) external payable returns (uint256) {
+  function claimAllRewards(uint256 _tokenId, address _contractAddress) external payable returns (uint256) {
     uint256 reward = 0;
     reward += claimNftCommissionReward();
-    reward += claimCollectionReflectionReward(_itemId);
+    reward += claimCollectionReflectionReward(_tokenId, _contractAddress);
     reward += claimCollectionCommissionReward();
     return reward;
   }
@@ -209,5 +218,43 @@ contract AvaxTrade is Market, Bank, Sale, Ownable {
     ************** Expose Child Functions ***************
     *****************************************************
   */
+
+  // Collection.sol
+  /**
+    * @dev Create local collection
+  */
+  function createLocalCollection(string memory _name, address _contractAddress) public {
+    _createLocalCollection(_name, _contractAddress);
+  }
+
+  /**
+    * @dev Create verified collection
+  */
+  function createVerifiedCollection(
+    string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission, address _owner
+  ) public {
+    _createVerifiedCollection(_name, _contractAddress, _totalSupply, _reflection, _commission, _owner);
+  }
+
+  /**
+    * @dev Create unvarivied collection
+  */
+  function createUnvariviedCollection(string memory _name) public {
+    _createUnvariviedCollection(_name);
+  }
+  /**
+    * @dev Get collection
+  */
+  function getCollection(uint256 _collectionId) external view returns (CollectionDS memory) {
+    return _getCollection(_collectionId);
+  }
+
+  // Item.sol
+  /**
+    * @dev Get item
+  */
+  function getItem(uint256 _itemId) external view returns (ItemDS memory) {
+    return _getItem(_itemId);
+  }
 
 }

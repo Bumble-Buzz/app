@@ -79,6 +79,8 @@ contract Collection {
   mapping(address => uint256[]) private COLLECTION_OWNERS; // mapping collection owner to collection ids
   mapping(address => uint256) private COLLECTION_CONTRACTS; // mapping contract addresses to a collection id
 
+  uint8 internal UNVERIFIED_COLLECTION_ID = 1; // collection id `1` is always the unverified collection
+
 
   /**
     * @dev Check if item exists
@@ -88,6 +90,13 @@ contract Collection {
       return true;
     }
     return false;
+  }
+
+  /**
+    * @dev Does collection exist
+  */
+  function _doesCollectionExist(uint256 _id) internal view returns (bool) {
+    return _collectionExists(_id);
   }
 
 
@@ -173,6 +182,7 @@ contract Collection {
   function _createVerifiedCollection(
     string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission, address _owner
   ) internal {
+    // todo require _totalSupply to be > 0
     COLLECTION_ID_POINTER.increment();
     uint256 id = COLLECTION_ID_POINTER.current();
     COLLECTIONS[id] = CollectionDS({
@@ -401,11 +411,11 @@ contract Collection {
   }
 
   /**
-    * @dev Update collection reflection vault
+    * @dev Increase collection reflection vault
       @param _id : collection id
       @param _rewardPerItem : reward needs to be allocated to each item in this collection
   */
-  function _updateCollectionReflectionVault(uint256 _id, uint256 _rewardPerItem) internal checkCollection(_id) {
+  function _increaseCollectionReflectionVault(uint256 _id, uint256 _rewardPerItem) internal checkCollection(_id) {
     for (uint256 i = 0; i < COLLECTIONS[_id].reflectionVault.length; i++) {
       uint256 currentValue = COLLECTIONS[_id].reflectionVault[i];
       COLLECTIONS[_id].reflectionVault[i] = currentValue + _rewardPerItem;
@@ -423,10 +433,10 @@ contract Collection {
     * @dev Update collection reflection vault index
       @param _id : collection id
       @param _index : specific vault index to update
-      @param _reward : reward for one vault index
+      @param _newVal : new value for a single vault index
   */
-  function _updateCollectionReflectionVaultIndex(uint256 _id, uint256 _index, uint256 _reward) internal checkCollection(_id) {
-    COLLECTIONS[_id].reflectionVault[_index] = _reward;
+  function _updateCollectionReflectionVaultIndex(uint256 _id, uint256 _index, uint256 _newVal) internal checkCollection(_id) {
+    COLLECTIONS[_id].reflectionVault[_index] = _newVal;
   }
 
   /**
@@ -483,6 +493,22 @@ contract Collection {
   */
   function _updateCollectionActive(uint256 _id, bool _active) internal checkCollection(_id) {
     COLLECTIONS[_id].active = _active;
+  }
+
+  /**
+    * @dev Activate collection
+  */
+  function _activateCollection(uint256 _id) internal checkCollection(_id) {
+    _addActiveCollectionId(_id);
+    COLLECTION_TYPE collectionType = COLLECTIONS[_id].collectionType;
+    if (collectionType == COLLECTION_TYPE.local) {
+      _addLocalCollectionId(_id);
+    } else if (collectionType == COLLECTION_TYPE.verified) {
+      _addVerifiedCollectionId(_id);
+    } else if (collectionType == COLLECTION_TYPE.unverified) {
+      _addUnverifiedCollectionId(_id);
+    }
+    _updateCollectionActive(_id, true);
   }
 
   /**

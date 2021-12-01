@@ -13,7 +13,7 @@ contract Item {
     _;
   }
   modifier checkSellerIsOwner(uint256 _id, address _owner) {
-    require(_isSellerOwner(_id, _owner), "The item does not exist");
+    require(_isSellerOwner(_id, _owner), "This user is not the owner of the item");
     _;
   }
 
@@ -73,6 +73,13 @@ contract Item {
   }
 
   /**
+    * @dev Does item exist
+  */
+  function _doesItemExist(uint256 _id) internal view returns (bool) {
+    return _itemExists(_id);
+  }
+
+  /**
     * @dev Check if user is the owner
   */
   function _isSellerOwner(uint256 _id, address _owner) private view returns (bool) {
@@ -80,6 +87,13 @@ contract Item {
       return true;
     }
     return false;
+  }
+
+  /**
+    * @dev Does item exist
+  */
+  function _isSellerTheOwner(uint256 _id, address _owner) internal view returns (bool) {
+    return _isSellerOwner(_id, _owner);
   }
 
 
@@ -459,7 +473,7 @@ contract Item {
   */
   function _markItemSold(uint256 _id) internal checkItem(_id) {
     _removeItemId(_id);
-    _updateItemSold(_id, false);
+    _updateItemSold(_id, true);
   }
 
   /**

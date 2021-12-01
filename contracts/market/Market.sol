@@ -39,6 +39,7 @@ contract Market is Collection, Item {
 
   /**
     * @dev Check if collection item id exists
+    * todo is this redundant? do we really need this check?
   */
   function _collectionItemIdExists(uint256 _id, uint256 _itemId) private view returns (bool) {
     uint256[] memory  collectionItem = COLLECTION_ITEMS[_id];
@@ -72,7 +73,7 @@ contract Market is Collection, Item {
     uint256 collectionId = _getCllectionForContract(_contractAddress);
     if (collectionId == 0) {
       // this means this is an unvarified item, so we will use the unvarified collection
-      collectionId = 1; // todo use some enum / global variable instead of a number
+      collectionId = UNVERIFIED_COLLECTION_ID;
     }
 
     uint8 commission = 0;
@@ -81,7 +82,7 @@ contract Market is Collection, Item {
     if (collectionType == COLLECTION_TYPE.local) {
       // todo fetch this information from the local nvt contract
       commission = 2; // fetch commission from nft contract
-      creator = address(0); // fetch creator from nft contract
+      creator = address(this); // fetch creator from nft contract
     }
 
     uint256 itemId = _addItem(
@@ -101,15 +102,56 @@ contract Market is Collection, Item {
   /**
     * @dev Get all item ids in collection
   */
-  function _getItemsInCollection(uint256 _id) public view checkCollectionItem(_id) returns (ItemDS[] memory) {
+  function _getItemsInCollection(uint256 _id) public view checkCollection(_id) returns (ItemDS[] memory) {
     uint256[] memory itemsIds = _getItemIdsInCollection(_id);
     return _getItems(itemsIds);
   }
 
   /**
+    * @dev Get item id given token id and contract address
+  */
+  function _getItemId(uint256 _tokenId, address _contractAddress, address _owner) public view returns (uint256) {
+    uint256[] memory itemIds = _getItemsForOwner(_owner);
+    uint256 itemId = 0;
+    for (uint256 i = 0; i < itemIds.length; i++) {
+      if (_getItemTokenId(itemIds[i]) == _tokenId && _getItemContractAddress(itemIds[i]) == _contractAddress) {
+        itemId = itemIds[i];
+      }
+    }
+    require(_doesItemExist(itemId), "The item does not exist");
+    require(_isSellerTheOwner(itemId, _owner), "This user is not the owner of the item");
+    return itemId;
+  }
+
+  /**
+    * @dev Get owner of collection
+  */
+  function _getOwnerOfCollection(uint256 _collectionId) public view checkCollection(_collectionId) returns (address) {
+    return _getCollectionOwner(_collectionId);
+  }
+
+  /**
+    * @dev Get owner of collection for this item
+  */
+  function _getOwnerOfItemCollection(uint256 _itemId) public view returns (address) {
+    uint256 collectionId = _getItemCollectionId(_itemId);
+    _doesCollectionExist(collectionId);
+    require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
+
+    return _getCollectionOwner(collectionId);
+  }
+
+  /**
+    * @dev Get creator of this item
+  */
+  function _getCreatorOfItem(uint256 _itemId) public view checkItem(_itemId) returns (address) {
+    return _getItemCreator(_itemId);
+  }
+
+  /**
     * @dev Cancel item that is currently on sale
   */
-  function _cancelItemInCollection(uint256 _itemId, address _owner) public checkSellerIsOwner(_itemId,_owner) {
+  function _cancelItemInCollection(uint256 _itemId) public {
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
 
@@ -126,26 +168,6 @@ contract Market is Collection, Item {
 
     _markItemSold(_itemId);
     _removeItemIdInCollection(collectionId, _itemId);
-  }
-
-  /**
-    * @dev Get owner of collection
-  */
-  function _getOwnerOfCollection(uint256 _itemId) public view returns (address) {
-    uint256 collectionId = _getItemCollectionId(_itemId);
-    require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
-
-    return _getCollectionOwner(collectionId);
-  }
-
-  /**
-    * @dev Get creator of item
-  */
-  function _getCreatorOfItem(uint256 _itemId) public view returns (address) {
-    uint256 collectionId = _getItemCollectionId(_itemId);
-    require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
-
-    return _getItemCreator(_itemId);
   }
 
   /**
@@ -181,38 +203,84 @@ contract Market is Collection, Item {
   /**
     * @dev Calculate collection reflection reward
   */
-  function _calculateCollectionReflectionReward(uint256 _itemId, uint256 _price) public returns (uint256) {
+  function _calculateCollectionReflectionReward(uint256 _itemId, uint256 _price) public view returns (uint256) {
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
 
     uint8 reflection = _getCollectionReflection(collectionId);
     if (reflection > 0) {
       uint256 reflectionReward = (_price * reflection / 100);
-      uint256 reflectionRewardPerItem = reflectionReward / _getCollectionTotalSupply(collectionId);
-      _updateCollectionReflectionVault(collectionId, reflectionRewardPerItem);
       return reflectionReward;
     }
     return 0;
   }
 
   /**
-    * @dev Claim collection reflection reward
+    * @dev Distribute collection reflection reward
   */
-  function _claimCollectionReflectionReward(uint256 _itemId) public returns (uint256) {
+  function _distributeCollectionReflectionReward(uint256 _itemId, uint256 _reflectionReward) public {
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
 
-    uint256 itemTokenId = _getItemTokenId(_itemId);
-    uint256 vaultIndex = itemTokenId - 1;
-    uint256 collectionTokenVault = _getCollectionReflectionVaultIndex(collectionId, vaultIndex);
-    _updateCollectionReflectionVaultIndex(collectionId, vaultIndex, 0);
-    return collectionTokenVault;
+    if (collectionId == 0) {
+      collectionId = UNVERIFIED_COLLECTION_ID;
+    }
+    COLLECTION_TYPE collectionType = _getCollectionType(collectionId);
+    if (collectionType == COLLECTION_TYPE.verified) {
+      uint256 totalSupply = _getCollectionTotalSupply(collectionId);
+      uint256 reflectionRewardPerItem = _reflectionReward / totalSupply;
+      _increaseCollectionReflectionVault(collectionId, reflectionRewardPerItem);
+    }
+  }
+
+  /**
+    * @dev Claim collection reflection reward
+  */
+  function _claimCollectionReflectionReward(uint256 _tokenId, address _contractAddress) public view returns (uint256) {
+    uint256 collectionId = _getCllectionForContract(_contractAddress);
+    if (collectionId == 0) {
+      collectionId = UNVERIFIED_COLLECTION_ID;
+    }
+    COLLECTION_TYPE collectionType = _getCollectionType(collectionId);
+    if (collectionType != COLLECTION_TYPE.verified) {
+      revert("This NFT can not collect reflection rewards");
+    }
+
+    uint256 vaultIndex = _tokenId - 1;
+    return _getCollectionReflectionVaultIndex(collectionId, vaultIndex);
+  }
+
+  /**
+    * @dev Update collection reflection reward for item from vault
+  */
+  function _updateCollectionReflectionReward(uint256 _tokenId, address _contractAddress, uint256 _newVal) public {
+    uint256 collectionId = _getCllectionForContract(_contractAddress);
+    if (collectionId == 0) {
+      collectionId = UNVERIFIED_COLLECTION_ID;
+    }
+    COLLECTION_TYPE collectionType = _getCollectionType(collectionId);
+    if (collectionType != COLLECTION_TYPE.verified) {
+      revert("This NFT can not deduct reflection rewards");
+    }
+
+    uint256 vaultIndex = _tokenId - 1;
+    _updateCollectionReflectionVaultIndex(collectionId, vaultIndex, _newVal);
+  }
+
+  /**
+    * @dev Set collection incentive percentage
+  */
+  function _setCollectionIncentive(uint256 _collectionId, uint8 _incentive) public checkCollection(_collectionId) {
+    COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
+    if (collectionType == COLLECTION_TYPE.verified) {
+      _updateCollectionIncentive(_collectionId, _incentive);
+    }
   }
 
   /**
     * @dev Calculate collection incentive reward
   */
-  function _calculateCollectionIncentiveReward(uint256 _itemId) public returns (uint256) {
+  function _calculateCollectionIncentiveReward(uint256 _itemId) public view returns (uint256) {
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
 
@@ -220,11 +288,35 @@ contract Market is Collection, Item {
     if (incentive > 0) {
       uint256 incentiveVault = _getCollectionIncentiveVault(collectionId);
       uint256 incentiveReward = (incentiveVault * incentive / 100);
-      uint256 newIncentiveVault = incentiveVault - incentiveReward;
-      _updateCollectionIncentiveVault(collectionId, newIncentiveVault);
       return incentiveReward;
     }
     return 0;
+  }
+
+  /**
+    * @dev Increase collection incentive reward
+  */
+  function _increaseCollectionIncentiveReward(uint256 _collectionId, uint256 _value) public checkCollection(_collectionId) {
+    COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
+    if (collectionType == COLLECTION_TYPE.verified) {
+      uint256 incentiveVault = _getCollectionIncentiveVault(_collectionId);
+      uint256 newIncentiveVault = incentiveVault + _value;
+      _updateCollectionIncentiveVault(_collectionId, newIncentiveVault);
+    }
+  }
+
+  /**
+    * @dev Decrease collection incentive reward
+  */
+  function _decreaseCollectionIncentiveReward(uint256 _collectionId, uint256 _value) public checkCollection(_collectionId) {
+    COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
+    if (collectionType == COLLECTION_TYPE.verified) {
+      uint256 incentiveVault = _getCollectionIncentiveVault(_collectionId);
+      if (incentiveVault > 0) {
+        uint256 newIncentiveVault = incentiveVault - _value;
+        _updateCollectionIncentiveVault(_collectionId, newIncentiveVault);
+      }
+    }
   }
 
 
