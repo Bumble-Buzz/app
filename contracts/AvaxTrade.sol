@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 // import "./User.sol";
-import "./market/CollectionItem.sol";
+import "./collectionItem/CollectionItem.sol";
 import "./bank/Bank.sol";
 import "./sale/Sale.sol";
 
