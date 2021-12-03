@@ -74,6 +74,13 @@ contract AvaxTrade is Ownable, Sale, Bank {
     CONTRACTS.collectionItem = address(collectionItem);
   }
 
+  /**
+    * @dev Calculate percent change
+  */
+  function _calculatePercentChange(uint256 _value, uint8 _percent) private pure returns (uint256) {
+    return (_value * _percent / 100);
+  }
+
 
 
   /** 
@@ -176,6 +183,8 @@ contract AvaxTrade is Ownable, Sale, Bank {
     // todo ensure msg.value >= listed sale price
 
     // uint256 itemId = CollectionItem(CONTRACTS.collectionItem)._getItemId(_tokenId, _contractAddress, msg.sender);
+    uint256 collectionId = CollectionItem(CONTRACTS.collectionItem).getItemCollectionId(itemId);
+    Collection.COLLECTION_TYPE collectionType = CollectionItem(CONTRACTS.collectionItem).getCollectionType(collectionId);
 
     CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(_tokenId, _contractAddress, _owner);
     _removeSale(itemId, _owner);
@@ -188,39 +197,63 @@ contract AvaxTrade is Ownable, Sale, Bank {
     remainingBalance = remainingBalance - marketplaceReward;
     _incrementBankAccount(owner(), marketplaceReward, 0, 0);
 
-    // deduct nft commission, if applicable
-    uint256 nftCommissionReward = CollectionItem(CONTRACTS.collectionItem).getNftCommissionReward(_tokenId, _contractAddress, _owner, remainingBalance);
-    if (nftCommissionReward > 0) {
-      remainingBalance = remainingBalance - nftCommissionReward;
+    if (collectionType == Collection.COLLECTION_TYPE.local) {
+      console.log('local');
 
-      address itemCreator = CollectionItem(CONTRACTS.collectionItem)._getCreatorOfItem(itemId);
-      _addBank(itemCreator); // this is okay even if bank account already exists
-      _incrementBankAccount(itemCreator, 0, nftCommissionReward, 0);
-    }
+      // deduct nft commission, if applicable
+      uint8 itemCommission = CollectionItem(CONTRACTS.collectionItem).getItemCommission(itemId);
+      uint256 nftCommissionReward = _calculatePercentChange(remainingBalance, itemCommission);
+      // uint256 nftCommissionReward = CollectionItem(CONTRACTS.collectionItem).getNftCommissionReward(_tokenId, _contractAddress, _owner, remainingBalance);
+      if (nftCommissionReward > 0) {
+        remainingBalance = remainingBalance - nftCommissionReward;
 
-    // deduct collection reflection rewards, if applicable
-    CollectionItem(CONTRACTS.collectionItem).handleReflectionRewards(_tokenId, _contractAddress, _owner, remainingBalance);
-    uint256 collectionReflectionReward = CollectionItem(CONTRACTS.collectionItem).getCollectionReflectionReward(_tokenId, _contractAddress, _owner, remainingBalance);
-    if (collectionReflectionReward > 0) {
-      // CollectionItem(CONTRACTS.collectionItem)._distributeCollectionReflectionReward(itemId, collectionReflectionReward);
-      remainingBalance = remainingBalance - collectionReflectionReward;
-    }
+        address itemCreator = CollectionItem(CONTRACTS.collectionItem)._getCreatorOfItem(itemId);
+        _addBank(itemCreator); // this is okay even if bank account already exists
+        _incrementBankAccount(itemCreator, 0, nftCommissionReward, 0);
+      }
 
-    // deduct collection commission rewards, if applicable
-    uint256 collectionCommissionReward = CollectionItem(CONTRACTS.collectionItem).getCollectionCommissionReward(_tokenId, _contractAddress, _owner, remainingBalance);
-    if (collectionCommissionReward > 0) {
-      remainingBalance = remainingBalance - collectionCommissionReward;
+    } else if (collectionType == Collection.COLLECTION_TYPE.verified) {
+      console.log('verified');
 
-      address collectionOwner = CollectionItem(CONTRACTS.collectionItem)._getOwnerOfItemCollection(itemId);
-      _addBank(collectionOwner); // this is okay even if bank account already exists
-      _incrementBankAccount(collectionOwner, 0, 0, collectionCommissionReward);
-    }
+      // deduct collection reflection rewards, if applicable
+      uint8 collectionReflection = CollectionItem(CONTRACTS.collectionItem).getCollectionReflection(collectionId);
+      uint256 collectionReflectionReward = _calculatePercentChange(remainingBalance, collectionReflection);
+      // CollectionItem(CONTRACTS.collectionItem).handleReflectionRewards(_tokenId, _contractAddress, _owner, remainingBalance);
+      // uint256 collectionReflectionReward = CollectionItem(CONTRACTS.collectionItem).getCollectionReflectionReward(_tokenId, _contractAddress, _owner, remainingBalance);
+      if (collectionReflectionReward > 0) {
+        remainingBalance = remainingBalance - collectionReflectionReward;
+
+        CollectionItem(CONTRACTS.collectionItem).distributeCollectionReflectionReward(collectionId, collectionReflectionReward);
+      }
+
+      // deduct collection commission rewards, if applicable
+      uint8 collectionCommission = CollectionItem(CONTRACTS.collectionItem).getCollectionCommission(collectionId);
+      uint256 collectionCommissionReward = _calculatePercentChange(remainingBalance, collectionCommission);
+      // uint256 collectionCommissionReward = CollectionItem(CONTRACTS.collectionItem).getCollectionCommissionReward(_tokenId, _contractAddress, _owner, remainingBalance);
+      if (collectionCommissionReward > 0) {
+        remainingBalance = remainingBalance - collectionCommissionReward;
+
+        address collectionOwner = CollectionItem(CONTRACTS.collectionItem)._getOwnerOfItemCollection(itemId);
+        _addBank(collectionOwner); // this is okay even if bank account already exists
+        _incrementBankAccount(collectionOwner, 0, 0, collectionCommissionReward);
+      }
     
-    // add collection incentive rewards, if applicable
-    CollectionItem(CONTRACTS.collectionItem).handleIncentiveRewards(_tokenId, _contractAddress, _owner);
-    uint256 collectionIncentiveReward = CollectionItem(CONTRACTS.collectionItem).getCollectionIncentiveReward(_tokenId, _contractAddress, _owner);
-    if (collectionIncentiveReward > 0) {
-      remainingBalance = remainingBalance + collectionIncentiveReward;
+      // add collection incentive rewards, if applicable
+      uint8 collectionIncentive = CollectionItem(CONTRACTS.collectionItem).getCollectionIncentive(collectionId);
+      uint256 collectionIncentiveVault = CollectionItem(CONTRACTS.collectionItem).getCollectionIncentiveVault(collectionId);
+      uint256 collectionIncentiveReward = _calculatePercentChange(collectionIncentiveVault, collectionIncentive);
+      // CollectionItem(CONTRACTS.collectionItem).handleIncentiveRewards(_tokenId, _contractAddress, _owner);
+      // uint256 collectionIncentiveReward = CollectionItem(CONTRACTS.collectionItem).getCollectionIncentiveReward(_tokenId, _contractAddress, _owner);
+      if (collectionIncentiveReward > 0) {
+        remainingBalance = remainingBalance + collectionIncentiveReward;
+
+        CollectionItem(CONTRACTS.collectionItem)._updateCollectionIncentiveReward(collectionId, collectionIncentiveReward, false);
+      }
+
+    } else if (collectionType == Collection.COLLECTION_TYPE.unverified) {
+      console.log('unverified');
+    } else {
+      revert("Invalid collection type");
     }
     
     // add marketplace incentive rewards, if applicable

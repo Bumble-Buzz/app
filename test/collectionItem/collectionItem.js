@@ -406,7 +406,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(ethers.utils.formatEther(result)).to.be.equal('0.0');
 
       // distribute 2 ether among 100 users once
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
 
       const item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(item.collectionId);
@@ -433,8 +433,8 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(ethers.utils.formatEther(result)).to.be.equal('0.0');
 
       // distribute 2 ether among 100 users twice
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
 
       const item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(item.collectionId);
@@ -476,7 +476,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(ethers.utils.formatEther(result)).to.be.equal('0.0');
 
       // distribute 2 ether among 100 users once
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
 
       const item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(item.collectionId);
@@ -511,7 +511,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(ethers.utils.formatEther(result)).to.be.equal('0.0');
 
       // distribute 2 ether among 100 users once
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
 
       const item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(item.collectionId);
@@ -900,7 +900,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(ethers.utils.formatEther(result)).to.be.equal('0.0');
 
       // distribute 2 ether among 100 users once
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
 
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(2);
       expect(collection.name).to.be.equal('collection name');
@@ -926,8 +926,8 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(ethers.utils.formatEther(result)).to.be.equal('0.0');
 
       // distribute 2 ether among 100 users twice
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
 
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(2);
       expect(collection.name).to.be.equal('collection name');
@@ -968,7 +968,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(ethers.utils.formatEther(result)).to.be.equal('0.0');
 
       // distribute 2 ether among 100 users once
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
 
       const item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(item.collectionId);
@@ -1003,7 +1003,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(ethers.utils.formatEther(result)).to.be.equal('0.0');
 
       // distribute 2 ether among 100 users once
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
 
       const item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(item.collectionId);
@@ -1392,7 +1392,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(ethers.utils.formatEther(result)).to.be.equal('2.0');
 
       // distribute 2 ether among 100 users once
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
 
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(2);
       expect(collection.name).to.be.equal('collection name');
@@ -1430,8 +1430,8 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(ethers.utils.formatEther(result)).to.be.equal('2.0');
 
       // distribute 2 ether among 100 users twice
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
 
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(2);
       expect(collection.name).to.be.equal('collection name');
@@ -1484,7 +1484,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(ethers.utils.formatEther(result)).to.be.equal('2.0');
 
       // distribute 2 ether among 100 users once
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
 
       const item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(item.collectionId);
@@ -1524,7 +1524,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(ethers.utils.formatEther(result)).to.be.equal('2.0');
 
       // distribute 2 ether among 100 users once
-      await CONTRACT.connect(ACCOUNTS[0])._distributeCollectionReflectionReward(itemId, result);
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(itemId, result);
 
       const item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(item.collectionId);

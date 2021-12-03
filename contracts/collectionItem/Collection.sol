@@ -14,6 +14,10 @@ contract Collection {
     require(_collectionExists(_id), "The collection does not exist");
     _;
   }
+  modifier onlyCollectionOwner(uint256 _id, address _owner) {
+    require(_isCollectionOwner(_id, _owner), "User is not the owner of this collection");
+    _;
+  }
 
   /**
     * Note All calculations using percentages will truncate any decimals.
@@ -30,15 +34,6 @@ contract Collection {
   enum COLLECTION_TYPE { local, verified, unverified }
 
   // data structures
-  /**
-    * @dev for the `reflectionVault` attribute
-    *   Each array element represents balance of the corrosponding token id
-    *   Examples:
-    *     tokenId 1  -> reflectionVault[0]
-    *     tokenId 5  -> reflectionVault[4]
-    *     tokenId 11 -> reflectionVault[10]
-    *     tokenId 25 -> reflectionVault[24]
-  */
   struct CollectionDS {
     uint256 id; // unique collection id
     string name; // collection name
@@ -47,7 +42,6 @@ contract Collection {
     uint8 reflection; // in percentage
     uint8 commission; // in percentage
     uint8 incentive; // in percentage
-    uint256[] reflectionVault; // keeps track of balance owed for each token id holder
     uint256 incentiveVault; // keeps track of balance used to give upon completion of market sale
     address owner; // owner of the collection
     COLLECTION_TYPE collectionType; // type of the collection
@@ -76,6 +70,17 @@ contract Collection {
   CollectionIdDS private COLLECTION_IDS; // Track important info for all collections
   mapping(uint256 => CollectionDS) private COLLECTIONS; // mapping collection id to collection
 
+  /**
+    * @dev for the `COLLECTION_REFLECTION_VAULT` attribute
+    *   Each array element represents balance of the corrosponding token id
+    *   Examples:
+    *     tokenId 1  -> COLLECTION_REFLECTION_VAULT[0]
+    *     tokenId 5  -> COLLECTION_REFLECTION_VAULT[4]
+    *     tokenId 11 -> COLLECTION_REFLECTION_VAULT[10]
+    *     tokenId 25 -> COLLECTION_REFLECTION_VAULT[24]
+  */
+  mapping(uint256 => uint256[]) private COLLECTION_REFLECTION_VAULT; // mapping collection id to item token ids
+
   mapping(address => uint256[]) private COLLECTION_OWNERS; // mapping collection owner to collection ids
   mapping(address => uint256) private COLLECTION_CONTRACTS; // mapping contract addresses to a collection id
 
@@ -97,6 +102,16 @@ contract Collection {
   */
   function _doesCollectionExist(uint256 _id) internal view returns (bool) {
     return _collectionExists(_id);
+  }
+
+  /**
+    * @dev Check if item exists
+  */
+  function _isCollectionOwner(uint256 _id, address _owner) internal view returns (bool) {
+    if (COLLECTIONS[_id].owner == _owner) {
+      return true;
+    }
+    return false;
   }
 
 
@@ -163,7 +178,6 @@ contract Collection {
       reflection: 0,
       commission: 0,
       incentive: 0,
-      reflectionVault: new uint256[](0),
       incentiveVault: 0,
       owner: address(this),
       collectionType: COLLECTION_TYPE.local,
@@ -193,7 +207,6 @@ contract Collection {
       reflection: _reflection,
       commission: _commission,
       incentive: 0,
-      reflectionVault: new uint256[](_totalSupply),
       incentiveVault: 0,
       owner: _owner,
       collectionType: COLLECTION_TYPE.verified,
@@ -204,6 +217,7 @@ contract Collection {
     _addVerifiedCollectionId(id);
     _addCollectionForOwner(_owner, id);
     _assignContractToCollection(_contractAddress, id);
+    _addCollectionReflectionVault(id, _totalSupply);
   }
 
   /**
@@ -220,7 +234,6 @@ contract Collection {
       reflection: 0,
       commission: 0,
       incentive: 0,
-      reflectionVault: new uint256[](0),
       incentiveVault: 0,
       owner: address(this),
       collectionType: COLLECTION_TYPE.unverified,
@@ -301,28 +314,26 @@ contract Collection {
     * @dev Update collection
   */
   function _updateCollection(
-    uint256 _id, string memory _name, address _contractAddress, uint8 _reflection, uint8 _commission,
-    address _owner, bool _active
+    uint256 _id, string memory _name, address _contractAddress, uint8 _reflection, uint8 _commission, uint8 _incentive, address _owner
   ) internal checkCollection(_id) {
-    // Preserve some values which were initialized when collection was created
-    COLLECTION_TYPE collectionType = COLLECTIONS[_id].collectionType;
-    uint256 totalSupply = COLLECTIONS[_id].totalSupply;
-    COLLECTIONS[_id] = CollectionDS({
-      id: _id,
-      name: _name,
-      contractAddress: _contractAddress,
-      totalSupply: totalSupply,
-      reflection: _reflection,
-      commission: _commission,
-      incentive: 0,
-      reflectionVault: new uint256[](totalSupply),
-      incentiveVault: 0,
-      owner: _owner,
-      collectionType: collectionType,
-      active: _active
-    });
-    if (!_active) {
-      _removeCollectionId(_id);
+
+    COLLECTIONS[_id].name = _name;
+    COLLECTIONS[_id].reflection = _reflection;
+    COLLECTIONS[_id].commission = _commission;
+    COLLECTIONS[_id].incentive = _incentive;
+
+    // if owner is different, add it to the list, delete the old one
+    if (COLLECTIONS[_id].owner != _owner) {
+      _removeCollectionForOwner(COLLECTIONS[_id].owner, _id);
+      COLLECTIONS[_id].owner = _owner;
+      _addCollectionForOwner(_owner, _id);
+    }
+
+    // if contractAddress is different, add it to the list, delete the old one
+    if (COLLECTIONS[_id].contractAddress != _contractAddress) {
+      _removeContractForCollection(_contractAddress);
+      COLLECTIONS[_id].contractAddress = _contractAddress;
+      _assignContractToCollection(_contractAddress, _id);
     }
   }
 
@@ -401,42 +412,6 @@ contract Collection {
   */
   function _updateCollectionIncentive(uint256 _id, uint8 _incentive) internal checkCollection(_id) {
     COLLECTIONS[_id].incentive = _incentive;
-  }
-
-  /**
-    * @dev Get collection reflection vault
-  */
-  function _getCollectionReflectionVault(uint256 _id) internal view checkCollection(_id) returns (uint256[] memory) {
-    return COLLECTIONS[_id].reflectionVault;
-  }
-
-  /**
-    * @dev Increase collection reflection vault
-      @param _id : collection id
-      @param _rewardPerItem : reward needs to be allocated to each item in this collection
-  */
-  function _increaseCollectionReflectionVault(uint256 _id, uint256 _rewardPerItem) internal checkCollection(_id) {
-    for (uint256 i = 0; i < COLLECTIONS[_id].reflectionVault.length; i++) {
-      uint256 currentValue = COLLECTIONS[_id].reflectionVault[i];
-      COLLECTIONS[_id].reflectionVault[i] = currentValue + _rewardPerItem;
-    }
-  }
-
-  /**
-    * @dev Get collection reflection vault index
-  */
-  function _getCollectionReflectionVaultIndex(uint256 _id, uint256 _index) internal view checkCollection(_id) returns (uint256) {
-    return COLLECTIONS[_id].reflectionVault[_index];
-  }
-
-  /**
-    * @dev Update collection reflection vault index
-      @param _id : collection id
-      @param _index : specific vault index to update
-      @param _newVal : new value for a single vault index
-  */
-  function _updateCollectionReflectionVaultIndex(uint256 _id, uint256 _index, uint256 _newVal) internal checkCollection(_id) {
-    COLLECTIONS[_id].reflectionVault[_index] = _newVal;
   }
 
   /**
@@ -673,6 +648,71 @@ contract Collection {
   */
   function _removeCollectionOwner(address _owner) internal {
     delete COLLECTION_OWNERS[_owner];
+  }
+
+
+  /** 
+    *****************************************************
+    ****** COLLECTION_REFLECTION_VAULT Functions ********
+    *****************************************************
+  */
+  /**
+    * @dev Add a collection reflection vault for the given collection
+  */
+  function _addCollectionReflectionVault(uint256 _id, uint256 _totalSupply) internal {
+    COLLECTION_REFLECTION_VAULT[_id] = new uint256[](_totalSupply);
+  }
+
+  /**
+    * @dev Get collection reflection vault
+  */
+  function _getCollectionReflectionVault(uint256 _id) internal view checkCollection(_id) returns (uint256[] memory) {
+    return COLLECTION_REFLECTION_VAULT[_id];
+  }
+
+  /**
+    * @dev Increase collection reflection vault
+      @param _id : collection id
+      @param _rewardPerItem : reward needs to be allocated to each item in this collection
+  */
+  function _increaseCollectionReflectionVault(uint256 _id, uint256 _rewardPerItem) internal checkCollection(_id) {
+    uint256[] memory vault = COLLECTION_REFLECTION_VAULT[_id];
+    for (uint256 i = 0; i < vault.length; i++) {
+      uint256 currentValue = vault[i];
+      vault[i] = currentValue + _rewardPerItem;
+    }
+    COLLECTION_REFLECTION_VAULT[_id] = vault;
+  }
+
+  /**
+    * @dev Get collection reflection vault index
+  */
+  function _getCollectionReflectionVaultIndex(uint256 _id, uint256 _index) internal view checkCollection(_id) returns (uint256) {
+    return COLLECTION_REFLECTION_VAULT[_id][_index];
+  }
+
+  /**
+    * @dev Update collection reflection vault index
+      @param _id : collection id
+      @param _index : specific vault index to update
+      @param _newVal : new value for a single vault index
+  */
+  function _updateCollectionReflectionVaultIndex(uint256 _id, uint256 _index, uint256 _newVal) internal checkCollection(_id) {
+    COLLECTION_REFLECTION_VAULT[_id][_index] = _newVal;
+  }
+  /**
+    * @dev Nullify all collection reflection rewards for the given collection id
+  */
+  function _nullifyCollectionReflectionVault(uint256 _id) internal {
+    uint256 vaultLength = COLLECTION_REFLECTION_VAULT[_id].length;
+    COLLECTION_REFLECTION_VAULT[_id] = new uint256[](vaultLength);
+  }
+
+  /**
+    * @dev Remove the collection reflection vault
+  */
+  function _removeCollectionReflectionVault(uint256 _id) internal {
+    delete COLLECTION_REFLECTION_VAULT[_id];
   }
 
 
