@@ -170,24 +170,24 @@ contract CollectionItem is Collection, Item, Ownable {
   //   }
   // }
 
-  /**
-    * @dev Handle collection reflection token reward
-  */
-  function claimReflectionTokenReward(uint256 _tokenId, address _contractAddress) public onlyOwner() returns (uint256) {
-    // todo caller must be admin or collection owner
+  // /**
+  //   * @dev Handle collection reflection token reward
+  // */
+  // function claimReflectionTokenReward(uint256 _tokenId, address _contractAddress) public onlyOwner() returns (uint256) {
+  //   // todo caller must be admin or collection owner
 
-    uint256 reward = getCollectionReflectionTokenReward(_tokenId, _contractAddress);
-    if (reward > 0) {
-      _updateCollectionReflectionTokenReward(_tokenId, _contractAddress, 0);
+  //   uint256 reward = getCollectionReflectionTokenReward(_tokenId, _contractAddress);
+  //   if (reward > 0) {
+  //     _updateCollectionReflectionTokenReward(_tokenId, _contractAddress, 0);
 
-      // todo use tokeId to check the owner from nft contract. Compare with this owner
-      address owner = msg.sender;
-      // todo ensure this is a safe way to transfer funds
-      ( bool success, ) = payable(owner).call{ value: reward }("");
-      require(success, "Collection reflection reward transfer to user was unccessfull");
-    }
-    return reward;
-  }
+  //     // todo use tokeId to check the owner from nft contract. Compare with this owner
+  //     address owner = msg.sender;
+  //     // todo ensure this is a safe way to transfer funds
+  //     ( bool success, ) = payable(owner).call{ value: reward }("");
+  //     require(success, "Collection reflection reward transfer to user was unccessfull");
+  //   }
+  //   return reward;
+  // }
 
   // /**
   //   * @dev Calculate nft commission reward
@@ -221,100 +221,100 @@ contract CollectionItem is Collection, Item, Ownable {
   //   return _calculatePercentChange(_price, percent);
   // }
 
-  /**
-    * @dev Distribute collection reflection reward
-  */
-  function distributeCollectionReflectionReward(uint256 _collectionId, uint256 _reflectionReward) public {
-    // uint256 collectionId = _getItemCollectionId(_itemId);
-    // require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
+  // /**
+  //   * @dev Distribute collection reflection reward
+  // */
+  // function distributeCollectionReflectionReward(uint256 _collectionId, uint256 _reflectionReward) public {
+  //   // uint256 collectionId = _getItemCollectionId(_itemId);
+  //   // require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
 
-    // if (collectionId == 0) {
-    //   collectionId = UNVERIFIED_COLLECTION_ID;
-    // }
-    COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
-    if (collectionType == COLLECTION_TYPE.verified) {
-      uint256 totalSupply = _getCollectionTotalSupply(_collectionId);
-      uint256 reflectionRewardPerItem = _reflectionReward / totalSupply;
-      _increaseCollectionReflectionVault(_collectionId, reflectionRewardPerItem);
-    }
-  }
+  //   // if (collectionId == 0) {
+  //   //   collectionId = UNVERIFIED_COLLECTION_ID;
+  //   // }
+  //   COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
+  //   if (collectionType == COLLECTION_TYPE.verified) {
+  //     uint256 totalSupply = _getCollectionTotalSupply(_collectionId);
+  //     uint256 reflectionRewardPerItem = _reflectionReward / totalSupply;
+  //     _increaseCollectionReflectionVault(_collectionId, reflectionRewardPerItem);
+  //   }
+  // }
 
-  /**
-    * @dev Get collection reflection token reward
-  */
-  function getCollectionReflectionTokenReward(uint256 _tokenId, address _contractAddress) public view returns (uint256) {
-    uint256 collectionId = _getCllectionForContract(_contractAddress);
-    if (collectionId == 0) {
-      collectionId = UNVERIFIED_COLLECTION_ID;
-    }
-    COLLECTION_TYPE collectionType = _getCollectionType(collectionId);
-    if (collectionType != COLLECTION_TYPE.verified) {
-      revert("This NFT can not collect reflection rewards");
-    }
+  // /**
+  //   * @dev Get collection reflection token reward
+  // */
+  // function getCollectionReflectionTokenReward(uint256 _tokenId, address _contractAddress) public view returns (uint256) {
+  //   uint256 collectionId = _getCllectionForContract(_contractAddress);
+  //   if (collectionId == 0) {
+  //     collectionId = UNVERIFIED_COLLECTION_ID;
+  //   }
+  //   COLLECTION_TYPE collectionType = _getCollectionType(collectionId);
+  //   if (collectionType != COLLECTION_TYPE.verified) {
+  //     revert("This NFT can not collect reflection rewards");
+  //   }
 
-    uint256 vaultIndex = _tokenId - 1;
-    return _getCollectionReflectionVaultIndex(collectionId, vaultIndex);
-  }
+  //   uint256 vaultIndex = _tokenId - 1;
+  //   return _getCollectionReflectionVaultIndex(collectionId, vaultIndex);
+  // }
 
-  /**
-    * @dev Update collection reflection reward for item from vault
-    * @custom:return-type private
-  */
-  function _updateCollectionReflectionTokenReward(uint256 _tokenId, address _contractAddress, uint256 _newVal) public onlyOwner() {
-    uint256 collectionId = _getCllectionForContract(_contractAddress);
-    if (collectionId == 0) {
-      collectionId = UNVERIFIED_COLLECTION_ID;
-    }
-    COLLECTION_TYPE collectionType = _getCollectionType(collectionId);
-    if (collectionType != COLLECTION_TYPE.verified) {
-      revert("This NFT can not deduct reflection rewards");
-    }
+  // /**
+  //   * @dev Update collection reflection reward for item from vault
+  //   * @custom:return-type private
+  // */
+  // function _updateCollectionReflectionTokenReward(uint256 _tokenId, address _contractAddress, uint256 _newVal) public onlyOwner() {
+  //   uint256 collectionId = _getCllectionForContract(_contractAddress);
+  //   if (collectionId == 0) {
+  //     collectionId = UNVERIFIED_COLLECTION_ID;
+  //   }
+  //   COLLECTION_TYPE collectionType = _getCollectionType(collectionId);
+  //   if (collectionType != COLLECTION_TYPE.verified) {
+  //     revert("This NFT can not deduct reflection rewards");
+  //   }
 
-    uint256 vaultIndex = _tokenId - 1;
-    _updateCollectionReflectionVaultIndex(collectionId, vaultIndex, _newVal);
-  }
+  //   uint256 vaultIndex = _tokenId - 1;
+  //   _updateCollectionReflectionVaultIndex(collectionId, vaultIndex, _newVal);
+  // }
 
-  /**
-    * @dev Set collection incentive percentage
-  */
-  function _setCollectionIncentive(uint256 _collectionId, uint8 _incentive) public checkCollection(_collectionId) {
-    COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
-    if (collectionType == COLLECTION_TYPE.verified) {
-      _updateCollectionIncentive(_collectionId, _incentive);
-    }
-  }
+  // /**
+  //   * @dev Set collection incentive percentage
+  // */
+  // function _setCollectionIncentive(uint256 _collectionId, uint8 _incentive) public checkCollection(_collectionId) {
+  //   COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
+  //   if (collectionType == COLLECTION_TYPE.verified) {
+  //     _updateCollectionIncentive(_collectionId, _incentive);
+  //   }
+  // }
 
-  /**
-    * @dev Calculate collection incentive reward
-  */
-  function getCollectionIncentiveReward(uint256 _tokenId, address _contractAddress, address _owner) public view returns (uint256) {
-    uint256 itemId = _getItemId(_tokenId, _contractAddress, _owner);
-    uint256 collectionId = _getItemCollectionId(itemId);
+  // /**
+  //   * @dev Calculate collection incentive reward
+  // */
+  // function getCollectionIncentiveReward(uint256 _tokenId, address _contractAddress, address _owner) public view returns (uint256) {
+  //   uint256 itemId = _getItemId(_tokenId, _contractAddress, _owner);
+  //   uint256 collectionId = _getItemCollectionId(itemId);
 
-    uint256 incentiveVault = _getCollectionIncentiveVault(collectionId);
-    uint8 percent = _getCollectionIncentive(collectionId);
-    return _calculatePercentChange(incentiveVault, percent);
-  }
+  //   uint256 incentiveVault = _getCollectionIncentiveVault(collectionId);
+  //   uint8 percent = _getCollectionIncentive(collectionId);
+  //   return _calculatePercentChange(incentiveVault, percent);
+  // }
 
-  /**
-    * @dev Update collection incentive reward
-  */
-  function _updateCollectionIncentiveReward(uint256 _collectionId, uint256 _value, bool _increase) public checkCollection(_collectionId) {
-    // todo caller must be admin or collection owner
+  // /**
+  //   * @dev Update collection incentive reward
+  // */
+  // function _updateCollectionIncentiveReward(uint256 _collectionId, uint256 _value, bool _increase) public checkCollection(_collectionId) {
+  //   // todo caller must be admin or collection owner
 
-    COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
-    if (collectionType == COLLECTION_TYPE.verified) {
-      uint256 incentiveVault = _getCollectionIncentiveVault(_collectionId);
-      if (_increase) {
-        uint256 newIncentiveVault = incentiveVault + _value;
-        _updateCollectionIncentiveVault(_collectionId, newIncentiveVault);
-      } else {
-        require(incentiveVault > _value, "Passed in value must be greater than vault balance");
-        uint256 newIncentiveVault = incentiveVault - _value;
-        _updateCollectionIncentiveVault(_collectionId, newIncentiveVault);
-      }
-    }
-  }
+  //   COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
+  //   if (collectionType == COLLECTION_TYPE.verified) {
+  //     uint256 incentiveVault = _getCollectionIncentiveVault(_collectionId);
+  //     if (_increase) {
+  //       uint256 newIncentiveVault = incentiveVault + _value;
+  //       _updateCollectionIncentiveVault(_collectionId, newIncentiveVault);
+  //     } else {
+  //       require(incentiveVault > _value, "Passed in value must be greater than vault balance");
+  //       uint256 newIncentiveVault = incentiveVault - _value;
+  //       _updateCollectionIncentiveVault(_collectionId, newIncentiveVault);
+  //     }
+  //   }
+  // }
 
   // /**
   //   * @dev Increase collection incentive reward
@@ -344,35 +344,35 @@ contract CollectionItem is Collection, Item, Ownable {
   //   }
   // }
 
-  /**
-    * @dev Deposit funds into the inventive vault
-  */
-  function depositCollectionIncentiveVault(uint256 _collectionId) public payable checkCollection(_collectionId) {
-    // todo check if msg.sender is the owner of this collection
+  // /**
+  //   * @dev Deposit funds into the inventive vault
+  // */
+  // function depositCollectionIncentiveVault(uint256 _collectionId) public payable checkCollection(_collectionId) {
+  //   // todo check if msg.sender is the owner of this collection
 
-    _updateCollectionIncentiveReward(_collectionId, msg.value, true);
-  }
+  //   // _updateCollectionIncentiveReward(_collectionId, msg.value, true);
+  // }
 
-  /**
-    * @dev Withdraw funds from the inventive vault
-  */
-  function withdrawCollectionIncentiveVault(uint256 _collectionId, uint256 _value) public returns (uint256) {
-    // todo check if msg.sender is the owner of this collection
+  // /**
+  //   * @dev Withdraw funds from the inventive vault
+  // */
+  // function withdrawCollectionIncentiveVault(uint256 _collectionId, uint256 _value) public returns (uint256) {
+  //   // todo check if msg.sender is the owner of this collection
 
-    uint256 initialVaultState = _getCollectionIncentiveVault(_collectionId);
-    _updateCollectionIncentiveReward(_collectionId, _value, false);
-    uint256 afterVaultState = _getCollectionIncentiveVault(_collectionId);
+  //   // uint256 initialVaultState = _getCollectionIncentiveVault(_collectionId);
+  //   // _updateCollectionIncentiveReward(_collectionId, _value, false);
+  //   // uint256 afterVaultState = _getCollectionIncentiveVault(_collectionId);
 
-    if ((initialVaultState - _value) == afterVaultState) {
-      // todo use tokeId to check the owner from nft contract. Compare with this owner
-      address owner = msg.sender;
-      // todo ensure this is a safe way to transfer funds
-      ( bool success, ) = payable(owner).call{ value: _value }("");
-      require(success, "Collection incentive vault transfer was unccessfull");
-    }
-    return _value;
-    // todo 
-  }
+  //   // if ((initialVaultState - _value) == afterVaultState) {
+  //     // todo use tokeId to check the owner from nft contract. Compare with this owner
+  //     address owner = msg.sender;
+  //     // todo ensure this is a safe way to transfer funds
+  //     ( bool success, ) = payable(owner).call{ value: _value }("");
+  //     require(success, "Collection incentive vault transfer was unccessfull");
+  //   // }
+  //   return _value;
+  //   // todo 
+  // }
 
 
   /** 
@@ -485,6 +485,7 @@ contract CollectionItem is Collection, Item, Ownable {
     * @dev Create local collection
   */
   function createLocalCollection(string memory _name, address _contractAddress) public onlyOwner() {
+    // todo owner of this collection should be admin (me)
     // todo update so local address can be passed in
     _createLocalCollection(_name, _contractAddress);
   }
@@ -502,8 +503,50 @@ contract CollectionItem is Collection, Item, Ownable {
     * @dev Create unvarivied collection
   */
   function createUnvariviedCollection(string memory _name) public onlyOwner() {
+    // todo owner of this collection should be admin (me)
     // todo update so local address can be passed in
     _createUnvariviedCollection(_name);
+  }
+
+  /**
+    * @dev Update collection
+  */
+  function updateCollection(
+    uint256 _id, string memory _name, address _contractAddress, uint8 _reflection, uint8 _commission,
+    uint8 _incentive, address _owner
+  ) external {
+    // todo if collectionType == unverified / local, only admin can update
+    // todo if collectionType == verified, only collection owner can update
+
+    return _updateCollection(_id, _name, _contractAddress, _reflection, _commission, _incentive, _owner);
+  }
+
+  /**
+    * @dev Activate collection
+  */
+  function activateCollection(uint256 _collectionId) external onlyOwner() {
+    return _activateCollection(_collectionId);
+  }
+
+  /**
+    * @dev Deactivate collection
+  */
+  function deactivateCollection(uint256 _collectionId) external onlyOwner() {
+    return _deactivateCollection(_collectionId);
+  }
+
+  /**
+    * @dev Deactivate item
+  */
+  function activateItem(uint256 _itemId) external onlyOwner() {
+    return _activateItem(_itemId);
+  }
+
+  /**
+    * @dev Activate item
+  */
+  function deactivateItem(uint256 _itemId) external onlyOwner() {
+    return _deactivateItem(_itemId);
   }
 
   /**
@@ -528,26 +571,6 @@ contract CollectionItem is Collection, Item, Ownable {
   }
 
   /**
-    * @dev Get collection
-  */
-  function getCollectionIncentiveVault(uint256 _collectionId) external view returns (uint256) {
-    return _getCollectionIncentiveVault(_collectionId);
-  }
-
-  /**
-    * @dev Update collection
-  */
-  function updateCollection(
-    uint256 _id, string memory _name, address _contractAddress, uint8 _reflection, uint8 _commission,
-    uint8 _incentive, address _owner
-  ) external {
-    // todo if collectionType == unverified / local, only admin can update
-    // todo if collectionType == verified, only collection owner can update
-
-    return _updateCollection(_id, _name, _contractAddress, _reflection, _commission, _incentive, _owner);
-  }
-
-  /**
     * @dev Get collection commission
   */
   function getCollectionCommission(uint256 _collectionId) external view returns (uint8) {
@@ -559,20 +582,6 @@ contract CollectionItem is Collection, Item, Ownable {
   */
   function getCollectionReflection(uint256 _collectionId) external view returns (uint8) {
     return _getCollectionReflection(_collectionId);
-  }
-
-  /**
-    * @dev Activate collection
-  */
-  function activateCollection(uint256 _collectionId) external onlyOwner() {
-    return _activateCollection(_collectionId);
-  }
-
-  /**
-    * @dev Deactivate collection
-  */
-  function deactivateCollection(uint256 _collectionId) external onlyOwner() {
-    return _deactivateCollection(_collectionId);
   }
 
   /**
@@ -618,20 +627,6 @@ contract CollectionItem is Collection, Item, Ownable {
   }
 
   /**
-    * @dev Get collection reflection vault
-  */
-  function getCollectionReflectionVault(uint256 _id) external view returns (uint256[] memory) {
-    return _getCollectionReflectionVault(_id);
-  }
-
-  /**
-    * @dev Get collection reflection vault index
-  */
-  function getCollectionReflectionVaultIndex(uint256 _id, uint256 _index) external view returns (uint256) {
-    return _getCollectionReflectionVaultIndex(_id, _index);
-  }
-
-  /**
     * @dev Get collection for given contract address
   */
   function getCllectionForContract(address _contract) external view returns (uint256) {
@@ -662,23 +657,9 @@ contract CollectionItem is Collection, Item, Ownable {
   }
 
   /**
-    * @dev Deactivate item
-  */
-  function activateItem(uint256 _itemId) external onlyOwner() {
-    return _activateItem(_itemId);
-  }
-
-  /**
-    * @dev Activate item
-  */
-  function deactivateItem(uint256 _itemId) external onlyOwner() {
-    return _deactivateItem(_itemId);
-  }
-
-  /**
     * @dev Get items for owner
   */
-  function getItemsForOwner() external view onlyOwner() returns (uint256[] memory) {
+  function getItemsForOwner() external view returns (uint256[] memory) {
     return _getItemsForOwner(msg.sender);
   }
 

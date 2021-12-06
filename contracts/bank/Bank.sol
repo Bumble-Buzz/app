@@ -2,11 +2,12 @@
 pragma solidity >=0.8.4 <0.9.0;
 
 import "./Account.sol";
+import "./CollectionAccount.sol";
 import "./Vault.sol";
 import "hardhat/console.sol";
 
 
-contract Bank is Account, Vault {
+contract Bank is Account, CollectionAccount, Vault {
 
   // modifiers
   modifier checkBank(address _id) {
@@ -18,6 +19,7 @@ contract Bank is Account, Vault {
   struct BankDS {
     address id; // owner of this bank account
     AccountDS accounts; // bank accounts
+    CollectionDS collection; // collection accounts
     VaultDS vault; // bank vault
   }
 
@@ -56,6 +58,7 @@ contract Bank is Account, Vault {
     if (_isBankOwnerUnique(_id)) {
       _addBankOwner(_id);
       _addAccount(_id);
+      _addCollection(_id);
       _addVault(_id);
     }
   }
@@ -67,6 +70,7 @@ contract Bank is Account, Vault {
     BankDS memory bank = BankDS({
       id: _id,
       accounts: _getAccount(_id),
+      collection: _getCollection(_id),
       vault: _getVault(_id)
     });
     return bank;
@@ -77,6 +81,13 @@ contract Bank is Account, Vault {
   */
   function _getBankAccount(address _id) internal view checkBank(_id) returns (AccountDS memory) {
     return _getAccount(_id);
+  }
+
+  /**
+    * @dev Get bank collection account
+  */
+  function _getBankCollectionAccount(address _id) internal view checkBank(_id) returns (CollectionDS memory) {
+    return _getCollection(_id);
   }
 
   /**
@@ -99,6 +110,7 @@ contract Bank is Account, Vault {
       BankDS memory bank = BankDS({
         id: id,
         accounts: _getAccount(id),
+        collection: _getCollection(id),
         vault: _getVault(id)
       });
       banks[i] = bank;
@@ -110,9 +122,11 @@ contract Bank is Account, Vault {
     * @dev Update bank 
   */
   function _updateBank(
-    address _id, uint256 _general, uint256 _commission, uint256 _collectionCommission, uint256 _balance
+    address _id, uint256 _general, uint256 _commission, uint256 _collectionCommission,
+    uint256[] memory _reflectionVault, uint256 _incentiveVault, uint256 _balance
   ) internal checkBank(_id) {
     _updateBankAccount(_id, _general, _commission, _collectionCommission);
+    _updateCollection(_id, _reflectionVault, _incentiveVault);
     _updateBankVault(_id, _balance);
   }
 
@@ -126,12 +140,30 @@ contract Bank is Account, Vault {
   }
 
   /**
+    * @dev Update bank collection account
+  */
+  function _updateBankCollectionAccount(
+    address _id, uint256[] memory _reflectionVault, uint256 _incentiveVault
+  ) internal checkBank(_id) {
+    _updateCollection(_id, _reflectionVault, _incentiveVault);
+  }
+
+  /**
     * @dev Increment bank account balances with given amounts 
   */
   function _incrementBankAccount(
     address _id, uint256 _general, uint256 _commission, uint256 _collectionCommission
   ) internal checkBank(_id) {
     _incrementAccountBalance(_id, _general, _commission, _collectionCommission);
+  }
+
+  /**
+    * @dev Increment bank account balances with given amounts 
+  */
+  function _incrementBankCollection(
+    address _id, uint256 _rewardPerItem, uint256 _incentiveVault
+  ) internal checkBank(_id) {
+    _incrementCollectionBalance(_id, _rewardPerItem, _incentiveVault);
   }
 
   /**
@@ -148,6 +180,7 @@ contract Bank is Account, Vault {
   */
   function _nullifyBank(address _id) internal checkBank(_id) {
     _updateBankAccount(_id, 0, 0, 0);
+    _nullifyCollection(_id);
     _updateBankVault(_id, 0);
   }
 
@@ -157,6 +190,7 @@ contract Bank is Account, Vault {
   function _removeBank(address _id) internal checkBank(_id) {
     _removeBankOwner(_id);
     _removeAccount(_id);
+    _removeCollection(_id);
     _removeVault(_id);
   }
 
@@ -191,6 +225,48 @@ contract Bank is Account, Vault {
     uint256 reward = _getCollectionCommissionAccount(_id);
     _updateCollectionCommissionAccount(_id, 0);
     return reward;
+  }
+
+  /**
+    * @dev Distribute collection reflection reward
+  */
+  function _distributeCollectionReflectionReward(address _contractAddress, uint256 _totalSupply, uint256 _reflectionReward) internal {
+    uint256 reflectionRewardPerItem = _reflectionReward / _totalSupply;
+    _increaseCollectionReflectionVault(_contractAddress, reflectionRewardPerItem);
+  }
+
+  /**
+    * @dev Update collection incentive reward
+  */
+  function _updateCollectionIncentiveReward(address _contractAddress, uint256 _value, bool _increase) internal {
+    // todo caller must be admin or collection owner
+
+    uint256 incentiveVault = _getCollectionIncentiveVault(_contractAddress);
+    if (_increase) {
+      uint256 newIncentiveVault = incentiveVault + _value;
+      _updateCollectionIncentiveVault(_contractAddress, newIncentiveVault);
+    } else {
+      require(incentiveVault > _value, "Passed in value must be greater than vault balance");
+      uint256 newIncentiveVault = incentiveVault - _value;
+      _updateCollectionIncentiveVault(_contractAddress, newIncentiveVault);
+    }
+  }
+
+  /**
+    * @dev Get collection reflection token reward
+  */
+  function getCollectionReflectionTokenReward(uint256 _tokenId, address _contractAddress) public view returns (uint256) {
+    uint256 vaultIndex = _tokenId - 1;
+    return _getCollectionReflectionVaultIndex(_contractAddress, vaultIndex);
+  }
+
+  /**
+    * @dev Update collection reflection reward for item from vault
+    * @custom:return-type private
+  */
+  function _updateCollectionReflectionTokenReward(uint256 _tokenId, address _contractAddress, uint256 _newVal) public {
+    uint256 vaultIndex = _tokenId - 1;
+    _updateCollectionReflectionVaultIndex(_contractAddress, vaultIndex, _newVal);
   }
 
 
