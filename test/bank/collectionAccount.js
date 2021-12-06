@@ -323,47 +323,47 @@ describe("AvaxTrade - Collection Account", () => {
 
   });
 
-  // describe('collection properties', async () => {
-  //   beforeEach(async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0])._addCollectionAccount(ACCOUNTS[1].address);
-  //   });
+  describe('collection properties', async () => {
+    beforeEach(async () => {
+      await CONTRACT.connect(ACCOUNTS[0])._addCollectionAccount(ACCOUNTS[1].address);
+    });
 
-  //   it('get collection reflection vault', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultCollectionAccount(ACCOUNTS[2].address)
-  //       .should.be.rejectedWith('The account for this collection does not exist');
-  //   });
-  //   it('add collection reflection vault', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0])._addReflectionVaultCollectionAccount(ACCOUNTS[1].address, 100);
-  //     const result = await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
-  //     expect(result.length).to.be.equal(100);
-  //   });
-  //   it('nullify collection reflection vault', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0])._addReflectionVaultCollectionAccount(ACCOUNTS[1].address, 100);
+    it('get collection reflection vault', async () => {
+      await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultCollectionAccount(ACCOUNTS[2].address)
+        .should.be.rejectedWith('The account for this collection does not exist');
+    });
+    it('add collection reflection vault', async () => {
+      await CONTRACT.connect(ACCOUNTS[0])._addReflectionVaultCollectionAccount(ACCOUNTS[1].address, 100);
+      const result = await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(result.length).to.be.equal(100);
+    });
+    it('nullify collection reflection vault', async () => {
+      await CONTRACT.connect(ACCOUNTS[0])._addReflectionVaultCollectionAccount(ACCOUNTS[1].address, 100);
 
-  //     let result = await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
-  //     expect(result.length).to.be.equal(100);
+      let result = await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(result.length).to.be.equal(100);
 
-  //     result = await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultIndexCollectionAccount(ACCOUNTS[1].address, 5);
-  //     expect(result).to.be.equal(0);
+      result = await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultIndexCollectionAccount(ACCOUNTS[1].address, 5);
+      expect(result).to.be.equal(0);
 
-  //     await CONTRACT.connect(ACCOUNTS[0])._increaseReflectionVaultCollectionAccount(ACCOUNTS[1].address, 2);
-  //     result = await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultIndexCollectionAccount(ACCOUNTS[1].address, 5);
-  //     expect(result).to.be.equal(2);
+      await CONTRACT.connect(ACCOUNTS[0])._increaseReflectionVaultCollectionAccount(ACCOUNTS[1].address, 2);
+      result = await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultIndexCollectionAccount(ACCOUNTS[1].address, 5);
+      expect(result).to.be.equal(2);
 
-  //     await CONTRACT.connect(ACCOUNTS[0])._nullifyReflectionVaultCollectionAccount(ACCOUNTS[1].address);
-  //     result = await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultIndexCollectionAccount(ACCOUNTS[1].address, 5);
-  //     expect(result).to.be.equal(0);
-  //   });
+      await CONTRACT.connect(ACCOUNTS[0])._nullifyReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      result = await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultIndexCollectionAccount(ACCOUNTS[1].address, 5);
+      expect(result).to.be.equal(0);
+    });
 
-  //   it('get collection incentive vault', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0])._getIncentiveVaultCollectionAccount(ACCOUNTS[2].address)
-  //       .should.be.rejectedWith('The account for this collection does not exist');
-  //   });
-  //   it('update collection incentive vault', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0])._updateIncentiveVaultCollectionAccount(ACCOUNTS[1].address, 2);
-  //     const result = await CONTRACT.connect(ACCOUNTS[0])._getIncentiveVaultCollectionAccount(ACCOUNTS[1].address);
-  //     expect(result).to.be.equal(2);
-  //   });
-  // });
+    it('get collection incentive vault', async () => {
+      await CONTRACT.connect(ACCOUNTS[0])._getIncentiveVaultCollectionAccount(ACCOUNTS[2].address)
+        .should.be.rejectedWith('The account for this collection does not exist');
+    });
+    it('update collection incentive vault', async () => {
+      await CONTRACT.connect(ACCOUNTS[0])._updateIncentiveVaultCollectionAccount(ACCOUNTS[1].address, 2);
+      const result = await CONTRACT.connect(ACCOUNTS[0])._getIncentiveVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(result).to.be.equal(2);
+    });
+  });
 
 });
