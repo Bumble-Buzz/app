@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.4 <0.9.0;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
+// import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts/access/AccessControl.sol';
 
 import "./Collection.sol";
 import "./Item.sol";
@@ -9,16 +10,19 @@ import "./Item.sol";
 import "hardhat/console.sol";
 
 
-contract CollectionItem is Collection, Item, Ownable {
+contract CollectionItem is Collection, Item, AccessControl {
+
+  // Access Control
+  bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
   // modifiers
-  modifier onlyOwnerCollectionOwner(address _collectionOwner) {
-    require(
-      (owner() == _msgSender()) || (_collectionOwner == _msgSender()),
-      "Caller is not the owner or collection owner"
-    );
-    _;
-  }
+  // modifier onlyOwnerCollectionOwner(address _collectionOwner) {
+  //   require(
+  //     (owner() == _msgSender()) || (_collectionOwner == _msgSender()),
+  //     "Caller is not the owner or collection owner"
+  //   );
+  //   _;
+  // }
   modifier checkCollectionItem(uint256 _id) {
     require(_collectionItemExists(_id), "The collection item does not exist");
     _;
@@ -34,6 +38,7 @@ contract CollectionItem is Collection, Item, Ownable {
 
   // state variables
   mapping(uint256 => uint256[]) private COLLECTION_ITEMS; // mapping collection id to list of item ids
+  mapping(uint256 => bytes32) private COLLECTION_ROLES; // mapping collection id to collection role id
 
 
   /**
@@ -61,9 +66,16 @@ contract CollectionItem is Collection, Item, Ownable {
   }
 
 
-  constructor() {
+  constructor(address _admin, address _owner) {
+    // set up admin role
+    _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
+
+    // grant admin role to following accounts
+    _setupRole(ADMIN_ROLE, _admin);
+    _setupRole(ADMIN_ROLE, _owner);
+
     // create collections
-    _createUnvariviedCollection('Unverified');
+    createUnvariviedCollection('Unverified', _admin);
   }
 
   /**
@@ -91,7 +103,7 @@ contract CollectionItem is Collection, Item, Ownable {
   */
   function addItemToCollection(
     uint256 _tokenId, address _contractAddress, address _seller, address _buyer, uint256 _price
-  ) public onlyOwner() returns (uint256) {
+  ) public onlyRole(ADMIN_ROLE) returns (uint256) {
     uint256 collectionId = _getCllectionForContract(_contractAddress);
     if (collectionId == 0) {
       // this means this is an unvarified item, so we will use the unvarified collection
@@ -124,7 +136,7 @@ contract CollectionItem is Collection, Item, Ownable {
   /**
     * @dev Cancel item that is currently on sale
   */
-  function cancelItemInCollection(uint256 _tokenId, address _contractAddress, address _owner) public onlyOwner() {
+  function cancelItemInCollection(uint256 _tokenId, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) {
     uint256 itemId = _getItemId(_tokenId, _contractAddress, _owner);
     uint256 collectionId = _getItemCollectionId(itemId);
     require(_collectionItemIdExists(collectionId, itemId), "Collection or item does not exist");
@@ -136,13 +148,110 @@ contract CollectionItem is Collection, Item, Ownable {
   /**
     * @dev Mark item sold in collection
   */
-  function markItemSoldInCollection(uint256 _tokenId, address _contractAddress, address _owner) public onlyOwner() {
+  function markItemSoldInCollection(uint256 _tokenId, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) {
     uint256 itemId = _getItemId(_tokenId, _contractAddress, _owner);
     uint256 collectionId = _getItemCollectionId(itemId);
     require(_collectionItemIdExists(collectionId, itemId), "Collection or item does not exist");
 
     _markItemSold(itemId);
     _removeItemIdInCollection(collectionId, itemId);
+  }
+
+  /**
+    * @dev Create local collection
+  */
+  function createLocalCollection(string memory _name, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) {
+    // todo owner of this collection should be admin (me)
+    // todo update so local address can be passed in
+
+    _createLocalCollection(_name, _contractAddress, _owner);
+
+    // create collection role
+    uint256 id = _getCllectionForContract(_contractAddress);
+    bytes memory encodedId = abi.encodePacked(id);
+    COLLECTION_ROLES[id] = keccak256(encodedId);
+    _setRoleAdmin(COLLECTION_ROLES[id], ADMIN_ROLE);
+    _setupRole(COLLECTION_ROLES[id], _owner);
+  }
+
+  /**
+    * @dev Create verified collection
+  */
+  function createVerifiedCollection(
+    string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission, address _owner
+  ) public onlyRole(ADMIN_ROLE) {
+    _createVerifiedCollection(_name, _contractAddress, _totalSupply, _reflection, _commission, _owner);
+
+    // create collection role
+    uint256 id = _getCllectionForContract(_contractAddress);
+    bytes memory encodedId = abi.encodePacked(id);
+    COLLECTION_ROLES[id] = keccak256(encodedId);
+    _setRoleAdmin(COLLECTION_ROLES[id], ADMIN_ROLE);
+    _setupRole(COLLECTION_ROLES[id], _owner);
+  }
+
+  /**
+    * @dev Create unvarivied collection
+  */
+  function createUnvariviedCollection(string memory _name, address _owner) public onlyRole(ADMIN_ROLE) {
+    // create collection role
+    // bytes memory role = abi.encodePacked(_contractAddress);
+    // COLLECTION_ROLES[_contractAddress] = keccak256(role);
+    // _setRoleAdmin(COLLECTION_ROLES[_contractAddress], ADMIN_ROLE);
+    // _setupRole(COLLECTION_ROLES[_contractAddress], _owner);
+
+    // todo owner of this collection should be admin (me)
+    // todo update so local address can be passed in
+
+    _createUnvariviedCollection(_name, _owner);
+
+    // create collection role
+    uint256 id = UNVERIFIED_COLLECTION_ID;
+    bytes memory encodedId = abi.encodePacked(id);
+    COLLECTION_ROLES[id] = keccak256(encodedId);
+    _setRoleAdmin(COLLECTION_ROLES[id], ADMIN_ROLE);
+    _setupRole(COLLECTION_ROLES[id], _owner);
+  }
+
+  /**
+    * @dev Update collection
+  */
+  function updateCollection(
+    uint256 _id, string memory _name, address _contractAddress, uint8 _reflection, uint8 _commission,
+    uint8 _incentive, address _owner
+  ) external onlyRole(COLLECTION_ROLES[_id]) {
+    // todo if collectionType == unverified / local, only admin can update
+    // todo if collectionType == verified, only collection owner can update
+
+    return _updateCollection(_id, _name, _contractAddress, _reflection, _commission, _incentive, _owner);
+  }
+
+  /**
+    * @dev Activate collection
+  */
+  function activateCollection(uint256 _collectionId) external onlyRole(ADMIN_ROLE) {
+    return _activateCollection(_collectionId);
+  }
+
+  /**
+    * @dev Deactivate collection
+  */
+  function deactivateCollection(uint256 _collectionId) external onlyRole(ADMIN_ROLE) {
+    return _deactivateCollection(_collectionId);
+  }
+
+  /**
+    * @dev Deactivate item
+  */
+  function activateItem(uint256 _itemId) external onlyRole(ADMIN_ROLE) {
+    return _activateItem(_itemId);
+  }
+
+  /**
+    * @dev Activate item
+  */
+  function deactivateItem(uint256 _itemId) external onlyRole(ADMIN_ROLE) {
+    return _deactivateItem(_itemId);
   }
 
   // /**
@@ -425,14 +534,6 @@ contract CollectionItem is Collection, Item, Ownable {
   */
 
   /**
-    * @dev Get all item ids in collection
-  */
-  function _getItemsInCollection(uint256 _id) public view checkCollection(_id) returns (ItemDS[] memory) {
-    uint256[] memory itemsIds = _getItemIdsInCollection(_id);
-    return _getItems(itemsIds);
-  }
-
-  /**
     * @dev Get item id given token id and contract address
   */
   function _getItemId(uint256 _tokenId, address _contractAddress, address _owner) public view returns (uint256) {
@@ -446,6 +547,14 @@ contract CollectionItem is Collection, Item, Ownable {
     require(_doesItemExist(itemId), "The item does not exist");
     require(_isSellerTheOwner(itemId, _owner), "This user is not the owner of the item");
     return itemId;
+  }
+
+  /**
+    * @dev Get all item ids in collection
+  */
+  function _getItemsInCollection(uint256 _collectionId) public view checkCollection(_collectionId) returns (ItemDS[] memory) {
+    uint256[] memory itemsIds = _getItemIdsInCollection(_collectionId);
+    return _getItems(itemsIds);
   }
 
   /**
@@ -481,74 +590,6 @@ contract CollectionItem is Collection, Item, Ownable {
   */
 
   // Collection.sol
-  /**
-    * @dev Create local collection
-  */
-  function createLocalCollection(string memory _name, address _contractAddress) public onlyOwner() {
-    // todo owner of this collection should be admin (me)
-    // todo update so local address can be passed in
-    _createLocalCollection(_name, _contractAddress);
-  }
-
-  /**
-    * @dev Create verified collection
-  */
-  function createVerifiedCollection(
-    string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission, address _owner
-  ) public onlyOwner() {
-    _createVerifiedCollection(_name, _contractAddress, _totalSupply, _reflection, _commission, _owner);
-  }
-
-  /**
-    * @dev Create unvarivied collection
-  */
-  function createUnvariviedCollection(string memory _name) public onlyOwner() {
-    // todo owner of this collection should be admin (me)
-    // todo update so local address can be passed in
-    _createUnvariviedCollection(_name);
-  }
-
-  /**
-    * @dev Update collection
-  */
-  function updateCollection(
-    uint256 _id, string memory _name, address _contractAddress, uint8 _reflection, uint8 _commission,
-    uint8 _incentive, address _owner
-  ) external {
-    // todo if collectionType == unverified / local, only admin can update
-    // todo if collectionType == verified, only collection owner can update
-
-    return _updateCollection(_id, _name, _contractAddress, _reflection, _commission, _incentive, _owner);
-  }
-
-  /**
-    * @dev Activate collection
-  */
-  function activateCollection(uint256 _collectionId) external onlyOwner() {
-    return _activateCollection(_collectionId);
-  }
-
-  /**
-    * @dev Deactivate collection
-  */
-  function deactivateCollection(uint256 _collectionId) external onlyOwner() {
-    return _deactivateCollection(_collectionId);
-  }
-
-  /**
-    * @dev Deactivate item
-  */
-  function activateItem(uint256 _itemId) external onlyOwner() {
-    return _activateItem(_itemId);
-  }
-
-  /**
-    * @dev Activate item
-  */
-  function deactivateItem(uint256 _itemId) external onlyOwner() {
-    return _deactivateItem(_itemId);
-  }
-
   /**
     * @dev Get collection
   */

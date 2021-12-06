@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.4 <0.9.0;
 
-import "./Account.sol";
+import "./UserAccount.sol";
 import "./CollectionAccount.sol";
 import "./Vault.sol";
 import "hardhat/console.sol";
 
 
-contract Bank is Account, CollectionAccount, Vault {
+contract Bank is UserAccount, CollectionAccount, Vault {
 
   // modifiers
   modifier checkBank(address _id) {
@@ -18,8 +18,8 @@ contract Bank is Account, CollectionAccount, Vault {
   // data structures
   struct BankDS {
     address id; // owner of this bank account
-    AccountDS accounts; // bank accounts
-    CollectionDS collection; // collection accounts
+    UserAccountDS accounts; // bank accounts
+    CollectionAccountDS collection; // collection accounts
     VaultDS vault; // bank vault
   }
 
@@ -57,8 +57,8 @@ contract Bank is Account, CollectionAccount, Vault {
   function _addBank(address _id) internal {
     if (_isBankOwnerUnique(_id)) {
       _addBankOwner(_id);
-      _addAccount(_id);
-      _addCollection(_id);
+      _addUserAccount(_id);
+      _addCollectionAccount(_id);
       _addVault(_id);
     }
   }
@@ -69,33 +69,33 @@ contract Bank is Account, CollectionAccount, Vault {
   function _getBank(address _id) internal view checkBank(_id) returns (BankDS memory) {
     BankDS memory bank = BankDS({
       id: _id,
-      accounts: _getAccount(_id),
-      collection: _getCollection(_id),
+      accounts: _getUserAccount(_id),
+      collection: _getCollectionAccount(_id),
       vault: _getVault(_id)
     });
     return bank;
   }
 
-  /**
-    * @dev Get bank account
-  */
-  function _getBankAccount(address _id) internal view checkBank(_id) returns (AccountDS memory) {
-    return _getAccount(_id);
-  }
+  // /**
+  //   * @dev Get bank account
+  // */
+  // function _getBankAccount(address _id) internal view checkBank(_id) returns (UserAccountDS memory) {
+  //   return _getUserAccount(_id);
+  // }
 
-  /**
-    * @dev Get bank collection account
-  */
-  function _getBankCollectionAccount(address _id) internal view checkBank(_id) returns (CollectionDS memory) {
-    return _getCollection(_id);
-  }
+  // /**
+  //   * @dev Get bank collection account
+  // */
+  // function _getBankCollectionAccount(address _id) internal view checkBank(_id) returns (CollectionAccountDS memory) {
+  //   return _getCollectionAccount(_id);
+  // }
 
-  /**
-    * @dev Get bank vault
-  */
-  function _getBankVault(address _id) internal view checkBank(_id) returns (VaultDS memory) {
-    return _getVault(_id);
-  }
+  // /**
+  //   * @dev Get bank vault
+  // */
+  // function _getBankVault(address _id) internal view checkBank(_id) returns (VaultDS memory) {
+  //   return _getVault(_id);
+  // }
 
   /**
     * @dev Get banks for list of users
@@ -109,8 +109,8 @@ contract Bank is Account, CollectionAccount, Vault {
       require(_bankExists(id), "A user in the list does not own a bank");
       BankDS memory bank = BankDS({
         id: id,
-        accounts: _getAccount(id),
-        collection: _getCollection(id),
+        accounts: _getUserAccount(id),
+        collection: _getCollectionAccount(id),
         vault: _getVault(id)
       });
       banks[i] = bank;
@@ -122,66 +122,66 @@ contract Bank is Account, CollectionAccount, Vault {
     * @dev Update bank 
   */
   function _updateBank(
-    address _id, uint256 _general, uint256 _commission, uint256 _collectionCommission,
+    address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionCommission,
     uint256[] memory _reflectionVault, uint256 _incentiveVault, uint256 _balance
   ) internal checkBank(_id) {
-    _updateBankAccount(_id, _general, _commission, _collectionCommission);
-    _updateCollection(_id, _reflectionVault, _incentiveVault);
-    _updateBankVault(_id, _balance);
-  }
-
-  /**
-    * @dev Update bank account
-  */
-  function _updateBankAccount(
-    address _id, uint256 _general, uint256 _commission, uint256 _collectionCommission
-  ) internal checkBank(_id) {
-    _updateAccount(_id, _general, _commission, _collectionCommission);
-  }
-
-  /**
-    * @dev Update bank collection account
-  */
-  function _updateBankCollectionAccount(
-    address _id, uint256[] memory _reflectionVault, uint256 _incentiveVault
-  ) internal checkBank(_id) {
-    _updateCollection(_id, _reflectionVault, _incentiveVault);
-  }
-
-  /**
-    * @dev Increment bank account balances with given amounts 
-  */
-  function _incrementBankAccount(
-    address _id, uint256 _general, uint256 _commission, uint256 _collectionCommission
-  ) internal checkBank(_id) {
-    _incrementAccountBalance(_id, _general, _commission, _collectionCommission);
-  }
-
-  /**
-    * @dev Increment bank account balances with given amounts 
-  */
-  function _incrementBankCollection(
-    address _id, uint256 _rewardPerItem, uint256 _incentiveVault
-  ) internal checkBank(_id) {
-    _incrementCollectionBalance(_id, _rewardPerItem, _incentiveVault);
-  }
-
-  /**
-    * @dev Update bank vault
-  */
-  function _updateBankVault(
-    address _id, uint256 _balance
-  ) internal checkBank(_id) {
+    _updateUserAccount(_id, _general, _nftCommission, _collectionCommission);
+    _updateCollectionAccount(_id, _reflectionVault, _incentiveVault);
     _updateVault(_id, _balance);
   }
+
+  // /**
+  //   * @dev Update bank account
+  // */
+  // function _updateBankAccount(
+  //   address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionCommission
+  // ) internal checkBank(_id) {
+  //   _updateUserAccount(_id, _general, _nftCommission, _collectionCommission);
+  // }
+
+  // /**
+  //   * @dev Update bank collection account
+  // */
+  // function _updateBankCollectionAccount(
+  //   address _id, uint256[] memory _reflectionVault, uint256 _incentiveVault
+  // ) internal checkBank(_id) {
+  //   _updateCollectionAccount(_id, _reflectionVault, _incentiveVault);
+  // }
+
+  // /**
+  //   * @dev Increment bank account balances with given amounts 
+  // */
+  // function _incrementBankAccount(
+  //   address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionCommission
+  // ) internal checkBank(_id) {
+  //   _incrementUserAccount(_id, _general, _nftCommission, _collectionCommission);
+  // }
+
+  // /**
+  //   * @dev Increment bank account balances with given amounts 
+  // */
+  // function _incrementBankCollection(
+  //   address _id, uint256 _rewardPerItem, uint256 _incentiveVault
+  // ) internal checkBank(_id) {
+  //   _incrementCollectionAccount(_id, _rewardPerItem, _incentiveVault);
+  // }
+
+  // /**
+  //   * @dev Update bank vault
+  // */
+  // function _updateBankVault(
+  //   address _id, uint256 _balance
+  // ) internal checkBank(_id) {
+  //   _updateVault(_id, _balance);
+  // }
 
   /**
     * @dev Nullify bank
   */
   function _nullifyBank(address _id) internal checkBank(_id) {
-    _updateBankAccount(_id, 0, 0, 0);
-    _nullifyCollection(_id);
-    _updateBankVault(_id, 0);
+    _nullifyUserAccount(_id);
+    _nullifyCollectionAccount(_id);
+    _nullifyVault(_id);
   }
 
   /**
@@ -189,8 +189,8 @@ contract Bank is Account, CollectionAccount, Vault {
   */
   function _removeBank(address _id) internal checkBank(_id) {
     _removeBankOwner(_id);
-    _removeAccount(_id);
-    _removeCollection(_id);
+    _removeUserAccount(_id);
+    _removeCollectionAccount(_id);
     _removeVault(_id);
   }
 
@@ -204,8 +204,8 @@ contract Bank is Account, CollectionAccount, Vault {
     * @dev Claim account general reward for this user
   */
   function _claimAccountGeneralReward(address _id) internal returns (uint256) {
-    uint256 reward = _getGeneralAccount(_id);
-    _updateGeneralAccount(_id, 0);
+    uint256 reward = _getGeneralUserAccount(_id);
+    _updateGeneralUserAccount(_id, 0);
     return reward;
   }
 
@@ -213,8 +213,8 @@ contract Bank is Account, CollectionAccount, Vault {
     * @dev Claim account nft commission reward for this user
   */
   function _claimAccountNftCommissionReward(address _id) internal returns (uint256) {
-    uint256 reward = _getNftCommissionAccount(_id);
-    _updateNftCommissionAccount(_id, 0);
+    uint256 reward = _getNftCommissionUserAccount(_id);
+    _updateNftCommissionUserAccount(_id, 0);
     return reward;
   }
 
@@ -222,8 +222,8 @@ contract Bank is Account, CollectionAccount, Vault {
     * @dev Claim account collection commission reward for this user
   */
   function _claimAccountCollectionCommissionReward(address _id) internal returns (uint256) {
-    uint256 reward = _getCollectionCommissionAccount(_id);
-    _updateCollectionCommissionAccount(_id, 0);
+    uint256 reward = _getCollectionCommissionUserAccount(_id);
+    _updateCollectionCommissionUserAccount(_id, 0);
     return reward;
   }
 
@@ -232,7 +232,7 @@ contract Bank is Account, CollectionAccount, Vault {
   */
   function _distributeCollectionReflectionReward(address _contractAddress, uint256 _totalSupply, uint256 _reflectionReward) internal {
     uint256 reflectionRewardPerItem = _reflectionReward / _totalSupply;
-    _increaseCollectionReflectionVault(_contractAddress, reflectionRewardPerItem);
+    _increaseReflectionVaultCollectionAccount(_contractAddress, reflectionRewardPerItem);
   }
 
   /**
@@ -241,32 +241,32 @@ contract Bank is Account, CollectionAccount, Vault {
   function _updateCollectionIncentiveReward(address _contractAddress, uint256 _value, bool _increase) internal {
     // todo caller must be admin or collection owner
 
-    uint256 incentiveVault = _getCollectionIncentiveVault(_contractAddress);
+    uint256 incentiveVault = _getIncentiveVaultCollectionAccount(_contractAddress);
     if (_increase) {
       uint256 newIncentiveVault = incentiveVault + _value;
-      _updateCollectionIncentiveVault(_contractAddress, newIncentiveVault);
+      _updateIncentiveVaultCollectionAccount(_contractAddress, newIncentiveVault);
     } else {
       require(incentiveVault > _value, "Passed in value must be greater than vault balance");
       uint256 newIncentiveVault = incentiveVault - _value;
-      _updateCollectionIncentiveVault(_contractAddress, newIncentiveVault);
+      _updateIncentiveVaultCollectionAccount(_contractAddress, newIncentiveVault);
     }
   }
 
   /**
     * @dev Get collection reflection token reward
   */
-  function getCollectionReflectionTokenReward(uint256 _tokenId, address _contractAddress) public view returns (uint256) {
+  function getCollectionReflectionTokenReward(uint256 _tokenId, address _contractAddress) internal view returns (uint256) {
     uint256 vaultIndex = _tokenId - 1;
-    return _getCollectionReflectionVaultIndex(_contractAddress, vaultIndex);
+    return _getReflectionVaultIndexCollectionAccount(_contractAddress, vaultIndex);
   }
 
   /**
     * @dev Update collection reflection reward for item from vault
     * @custom:return-type private
   */
-  function _updateCollectionReflectionTokenReward(uint256 _tokenId, address _contractAddress, uint256 _newVal) public {
+  function _updateCollectionReflectionTokenReward(uint256 _tokenId, address _contractAddress, uint256 _newVal) internal {
     uint256 vaultIndex = _tokenId - 1;
-    _updateCollectionReflectionVaultIndex(_contractAddress, vaultIndex, _newVal);
+    _updateReflectionVaultIndexCollectionAccount(_contractAddress, vaultIndex, _newVal);
   }
 
 

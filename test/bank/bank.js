@@ -120,16 +120,12 @@ describe("AvaxTrade - Bank", () => {
       expect(_doesArrayInclude(bank.accounts, ACCOUNTS[1].address)).to.be.true;
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
 
-      const account = await CONTRACT.connect(ACCOUNTS[0])._getBankAccount(ACCOUNTS[1].address);
-      expect(account.id).to.be.equal(ACCOUNTS[1].address);
-      expect(account.general).to.be.equal(0);
-      expect(account.commission).to.be.equal(0);
-      expect(account.reflection).to.be.equal(0);
-      expect(account.collectionCommission).to.be.equal(0);
+      expect(bank.accounts.id).to.be.equal(ACCOUNTS[1].address);
+      expect(bank.accounts.general).to.be.equal(0);
+      expect(bank.accounts.collectionCommission).to.be.equal(0);
 
-      const vault = await CONTRACT.connect(ACCOUNTS[0])._getBankVault(ACCOUNTS[1].address);
-      expect(vault.id).to.be.equal(ACCOUNTS[1].address);
-      expect(vault.balance).to.be.equal(0);
+      expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
+      expect(bank.vault.balance).to.be.equal(0);
     });
     it('add multiple same banks', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._addBank(ACCOUNTS[1].address);
@@ -140,16 +136,12 @@ describe("AvaxTrade - Bank", () => {
       expect(_doesArrayInclude(bank.accounts, ACCOUNTS[1].address)).to.be.true;
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
 
-      const account = await CONTRACT.connect(ACCOUNTS[0])._getBankAccount(ACCOUNTS[1].address);
-      expect(account.id).to.be.equal(ACCOUNTS[1].address);
-      expect(account.general).to.be.equal(0);
-      expect(account.commission).to.be.equal(0);
-      expect(account.reflection).to.be.equal(0);
-      expect(account.collectionCommission).to.be.equal(0);
+      expect(bank.accounts.id).to.be.equal(ACCOUNTS[1].address);
+      expect(bank.accounts.general).to.be.equal(0);
+      expect(bank.accounts.collectionCommission).to.be.equal(0);
 
-      const vault = await CONTRACT.connect(ACCOUNTS[0])._getBankVault(ACCOUNTS[1].address);
-      expect(vault.id).to.be.equal(ACCOUNTS[1].address);
-      expect(vault.balance).to.be.equal(0);
+      expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
+      expect(bank.vault.balance).to.be.equal(0);
     });
     it('add multiple different banks', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._addBank(ACCOUNTS[1].address);
@@ -170,16 +162,12 @@ describe("AvaxTrade - Bank", () => {
 
       expect(banks[0].accounts.id).to.be.equal(ACCOUNTS[1].address);
       expect(banks[0].accounts.general).to.be.equal(0);
-      expect(banks[0].accounts.commission).to.be.equal(0);
-      expect(banks[0].accounts.reflection).to.be.equal(0);
       expect(banks[0].accounts.collectionCommission).to.be.equal(0);
       expect(banks[0].vault.id).to.be.equal(ACCOUNTS[1].address);
       expect(banks[0].vault.balance).to.be.equal(0);
 
       expect(banks[1].accounts.id).to.be.equal(ACCOUNTS[2].address);
       expect(banks[1].accounts.general).to.be.equal(0);
-      expect(banks[1].accounts.commission).to.be.equal(0);
-      expect(banks[1].accounts.reflection).to.be.equal(0);
       expect(banks[1].accounts.collectionCommission).to.be.equal(0);
       expect(banks[1].vault.id).to.be.equal(ACCOUNTS[2].address);
       expect(banks[1].vault.balance).to.be.equal(0);
@@ -194,15 +182,13 @@ describe("AvaxTrade - Bank", () => {
       expect(_doesArrayInclude(bank.accounts, ACCOUNTS[1].address)).to.be.true;
       expect(bank.accounts.id).to.be.equal(ACCOUNTS[1].address);
       expect(bank.accounts.general).to.be.equal(0);
-      expect(bank.accounts.commission).to.be.equal(0);
-      expect(bank.accounts.reflection).to.be.equal(0);
       expect(bank.accounts.collectionCommission).to.be.equal(0);
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
       expect(bank.vault.balance).to.be.equal(0);
 
-      await CONTRACT.connect(ACCOUNTS[0])._updateBank(ACCOUNTS[1].address, 1, 2, 3, 4, 5);
+      await CONTRACT.connect(ACCOUNTS[0])._updateBank(ACCOUNTS[1].address, 1, 2, 3, [1,2,3], 4, 5);
 
       bank = await CONTRACT.connect(ACCOUNTS[0])._getBank(ACCOUNTS[1].address);
 
@@ -210,75 +196,8 @@ describe("AvaxTrade - Bank", () => {
       expect(_doesArrayInclude(bank.accounts, ACCOUNTS[1].address)).to.be.true;
       expect(bank.accounts.id).to.be.equal(ACCOUNTS[1].address);
       expect(bank.accounts.general).to.be.equal(1);
-      expect(bank.accounts.commission).to.be.equal(2);
-      expect(bank.accounts.reflection).to.be.equal(3);
-      expect(bank.accounts.collectionCommission).to.be.equal(4);
-
-      expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
-      expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.vault.balance).to.be.equal(5);
-    });
-    it('update brank account', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._addBank(ACCOUNTS[1].address);
-
-      let bank = await CONTRACT.connect(ACCOUNTS[0])._getBank(ACCOUNTS[1].address);
-
-      expect(bank.id).to.be.equal(ACCOUNTS[1].address);
-      expect(_doesArrayInclude(bank.accounts, ACCOUNTS[1].address)).to.be.true;
-      expect(bank.accounts.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.accounts.general).to.be.equal(0);
-      expect(bank.accounts.commission).to.be.equal(0);
-      expect(bank.accounts.reflection).to.be.equal(0);
-      expect(bank.accounts.collectionCommission).to.be.equal(0);
-
-      expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
-      expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.vault.balance).to.be.equal(0);
-
-      await CONTRACT.connect(ACCOUNTS[0])._updateBankAccount(ACCOUNTS[1].address, 1, 2, 3, 4);
-
-      bank = await CONTRACT.connect(ACCOUNTS[0])._getBank(ACCOUNTS[1].address);
-
-      expect(bank.id).to.be.equal(ACCOUNTS[1].address);
-      expect(_doesArrayInclude(bank.accounts, ACCOUNTS[1].address)).to.be.true;
-      expect(bank.accounts.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.accounts.general).to.be.equal(1);
-      expect(bank.accounts.commission).to.be.equal(2);
-      expect(bank.accounts.reflection).to.be.equal(3);
-      expect(bank.accounts.collectionCommission).to.be.equal(4);
-
-      expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
-      expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.vault.balance).to.be.equal(0);
-    });
-    it('update brank vault', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._addBank(ACCOUNTS[1].address);
-
-      let bank = await CONTRACT.connect(ACCOUNTS[0])._getBank(ACCOUNTS[1].address);
-
-      expect(bank.id).to.be.equal(ACCOUNTS[1].address);
-      expect(_doesArrayInclude(bank.accounts, ACCOUNTS[1].address)).to.be.true;
-      expect(bank.accounts.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.accounts.general).to.be.equal(0);
-      expect(bank.accounts.commission).to.be.equal(0);
-      expect(bank.accounts.reflection).to.be.equal(0);
-      expect(bank.accounts.collectionCommission).to.be.equal(0);
-
-      expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
-      expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.vault.balance).to.be.equal(0);
-
-      await CONTRACT.connect(ACCOUNTS[0])._updateBankVault(ACCOUNTS[1].address, 5);
-
-      bank = await CONTRACT.connect(ACCOUNTS[0])._getBank(ACCOUNTS[1].address);
-
-      expect(bank.id).to.be.equal(ACCOUNTS[1].address);
-      expect(_doesArrayInclude(bank.accounts, ACCOUNTS[1].address)).to.be.true;
-      expect(bank.accounts.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.accounts.general).to.be.equal(0);
-      expect(bank.accounts.commission).to.be.equal(0);
-      expect(bank.accounts.reflection).to.be.equal(0);
-      expect(bank.accounts.collectionCommission).to.be.equal(0);
+      expect(bank.accounts.nftCommission).to.be.equal(2);
+      expect(bank.accounts.collectionCommission).to.be.equal(3);
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
@@ -289,7 +208,7 @@ describe("AvaxTrade - Bank", () => {
       await CONTRACT.connect(ACCOUNTS[0])._addBank(ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._addBank(ACCOUNTS[3].address);
 
-      await CONTRACT.connect(ACCOUNTS[0])._updateBank(ACCOUNTS[1].address, 1, 2, 3, 4, 5);
+      await CONTRACT.connect(ACCOUNTS[0])._updateBank(ACCOUNTS[1].address, 1, 2, 3, [1,2,3], 4, 5);
 
       const banks = await CONTRACT.connect(ACCOUNTS[0])._getBanks(
         [ACCOUNTS[1].address, ACCOUNTS[2].address, ACCOUNTS[3].address]
@@ -298,31 +217,26 @@ describe("AvaxTrade - Bank", () => {
 
       expect(banks[0].accounts.id).to.be.equal(ACCOUNTS[1].address);
       expect(banks[0].accounts.general).to.be.equal(1);
-      expect(banks[0].accounts.commission).to.be.equal(2);
-      expect(banks[0].accounts.reflection).to.be.equal(3);
-      expect(banks[0].accounts.collectionCommission).to.be.equal(4);
+      expect(banks[0].accounts.nftCommission).to.be.equal(2);
+      expect(banks[0].accounts.collectionCommission).to.be.equal(3);
       expect(banks[0].vault.id).to.be.equal(ACCOUNTS[1].address);
       expect(banks[0].vault.balance).to.be.equal(5);
 
       expect(banks[1].accounts.id).to.be.equal(ACCOUNTS[2].address);
       expect(banks[1].accounts.general).to.be.equal(0);
-      expect(banks[1].accounts.commission).to.be.equal(0);
-      expect(banks[1].accounts.reflection).to.be.equal(0);
       expect(banks[1].accounts.collectionCommission).to.be.equal(0);
       expect(banks[1].vault.id).to.be.equal(ACCOUNTS[2].address);
       expect(banks[1].vault.balance).to.be.equal(0);
 
       expect(banks[2].accounts.id).to.be.equal(ACCOUNTS[3].address);
       expect(banks[2].accounts.general).to.be.equal(0);
-      expect(banks[2].accounts.commission).to.be.equal(0);
-      expect(banks[2].accounts.reflection).to.be.equal(0);
       expect(banks[2].accounts.collectionCommission).to.be.equal(0);
       expect(banks[2].vault.id).to.be.equal(ACCOUNTS[3].address);
       expect(banks[2].vault.balance).to.be.equal(0);
     });
     it('update bank then add same bank', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._addBank(ACCOUNTS[1].address);
-      await CONTRACT.connect(ACCOUNTS[0])._updateBank(ACCOUNTS[1].address, 1, 2, 3, 4, 5);
+      await CONTRACT.connect(ACCOUNTS[0])._updateBank(ACCOUNTS[1].address, 1, 2, 3, [1,2,3], 4, 5);
 
       let bank = await CONTRACT.connect(ACCOUNTS[0])._getBank(ACCOUNTS[1].address);
 
@@ -330,9 +244,8 @@ describe("AvaxTrade - Bank", () => {
       expect(_doesArrayInclude(bank.accounts, ACCOUNTS[1].address)).to.be.true;
       expect(bank.accounts.id).to.be.equal(ACCOUNTS[1].address);
       expect(bank.accounts.general).to.be.equal(1);
-      expect(bank.accounts.commission).to.be.equal(2);
-      expect(bank.accounts.reflection).to.be.equal(3);
-      expect(bank.accounts.collectionCommission).to.be.equal(4);
+      expect(bank.accounts.nftCommission).to.be.equal(2);
+      expect(bank.accounts.collectionCommission).to.be.equal(3);
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
@@ -346,9 +259,8 @@ describe("AvaxTrade - Bank", () => {
       expect(_doesArrayInclude(bank.accounts, ACCOUNTS[1].address)).to.be.true;
       expect(bank.accounts.id).to.be.equal(ACCOUNTS[1].address);
       expect(bank.accounts.general).to.be.equal(1);
-      expect(bank.accounts.commission).to.be.equal(2);
-      expect(bank.accounts.reflection).to.be.equal(3);
-      expect(bank.accounts.collectionCommission).to.be.equal(4);
+      expect(bank.accounts.nftCommission).to.be.equal(2);
+      expect(bank.accounts.collectionCommission).to.be.equal(3);
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
@@ -364,15 +276,14 @@ describe("AvaxTrade - Bank", () => {
       expect(_doesArrayInclude(bank.accounts, ACCOUNTS[1].address)).to.be.true;
       expect(bank.accounts.id).to.be.equal(ACCOUNTS[1].address);
       expect(bank.accounts.general).to.be.equal(0);
-      expect(bank.accounts.commission).to.be.equal(0);
-      expect(bank.accounts.reflection).to.be.equal(0);
+      expect(bank.accounts.nftCommission).to.be.equal(0);
       expect(bank.accounts.collectionCommission).to.be.equal(0);
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
       expect(bank.vault.balance).to.be.equal(0);
 
-      await CONTRACT.connect(ACCOUNTS[0])._updateBank(ACCOUNTS[1].address, 1, 2, 3, 4, 5);
+      await CONTRACT.connect(ACCOUNTS[0])._updateBank(ACCOUNTS[1].address, 1, 2, 3, [1,2,3], 4, 5);
 
       bank = await CONTRACT.connect(ACCOUNTS[0])._getBank(ACCOUNTS[1].address);
 
@@ -380,9 +291,8 @@ describe("AvaxTrade - Bank", () => {
       expect(_doesArrayInclude(bank.accounts, ACCOUNTS[1].address)).to.be.true;
       expect(bank.accounts.id).to.be.equal(ACCOUNTS[1].address);
       expect(bank.accounts.general).to.be.equal(1);
-      expect(bank.accounts.commission).to.be.equal(2);
-      expect(bank.accounts.reflection).to.be.equal(3);
-      expect(bank.accounts.collectionCommission).to.be.equal(4);
+      expect(bank.accounts.nftCommission).to.be.equal(2);
+      expect(bank.accounts.collectionCommission).to.be.equal(3);
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
@@ -396,8 +306,7 @@ describe("AvaxTrade - Bank", () => {
       expect(_doesArrayInclude(bank.accounts, ACCOUNTS[1].address)).to.be.true;
       expect(bank.accounts.id).to.be.equal(ACCOUNTS[1].address);
       expect(bank.accounts.general).to.be.equal(0);
-      expect(bank.accounts.commission).to.be.equal(0);
-      expect(bank.accounts.reflection).to.be.equal(0);
+      expect(bank.accounts.nftCommission).to.be.equal(0);
       expect(bank.accounts.collectionCommission).to.be.equal(0);
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
@@ -414,8 +323,6 @@ describe("AvaxTrade - Bank", () => {
       expect(_doesArrayInclude(bank.accounts, ACCOUNTS[1].address)).to.be.true;
       expect(bank.accounts.id).to.be.equal(ACCOUNTS[1].address);
       expect(bank.accounts.general).to.be.equal(0);
-      expect(bank.accounts.commission).to.be.equal(0);
-      expect(bank.accounts.reflection).to.be.equal(0);
       expect(bank.accounts.collectionCommission).to.be.equal(0);
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;

@@ -155,7 +155,7 @@ contract Collection {
   /**
     * @dev Create local collection
   */
-  function _createLocalCollection(string memory _name, address _contractAddress) internal {
+  function _createLocalCollection(string memory _name, address _contractAddress, address _owner) internal {
     COLLECTION_ID_POINTER.increment();
     uint256 id = COLLECTION_ID_POINTER.current();
     COLLECTIONS[id] = CollectionDS({
@@ -166,7 +166,7 @@ contract Collection {
       reflection: 0,
       commission: 0,
       incentive: 0,
-      owner: address(this),
+      owner: _owner,
       collectionType: COLLECTION_TYPE.local,
       active: true
     });
@@ -209,7 +209,7 @@ contract Collection {
   /**
     * @dev Create unvarivied collection
   */
-  function _createUnvariviedCollection(string memory _name) internal {
+  function _createUnvariviedCollection(string memory _name, address _owner) internal {
     COLLECTION_ID_POINTER.increment();
     uint256 id = COLLECTION_ID_POINTER.current();
     COLLECTIONS[id] = CollectionDS({
@@ -220,7 +220,7 @@ contract Collection {
       reflection: 0,
       commission: 0,
       incentive: 0,
-      owner: address(this),
+      owner: _owner,
       collectionType: COLLECTION_TYPE.unverified,
       active: true
     });

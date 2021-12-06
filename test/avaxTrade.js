@@ -37,37 +37,6 @@ describe("AvaxTrade - Main", () => {
     assert.notEqual(address, 0x0);
   });
 
-  // describe('Collection reflection vault', async () => {
-  //   // mapping(uint256 => uint256[]) private COLLECTION_REFLECTION_VAULT;
-
-  //   it('get collection reflection vault', async () => {
-  //     const result = await CONTRACT.connect(ACCOUNTS[0])._getCollectionReflectionVault(1);
-  //     expect(result.length).to.be.equal(0);
-  //   });
-  //   it('add collection reflection vault', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0])._addCollectionReflectionVault(1, 100);
-  //     const result = await CONTRACT.connect(ACCOUNTS[0])._getCollectionReflectionVault(1);
-  //     expect(result.length).to.be.equal(100);
-  //   });
-  //   it('nullify collection reflection vault', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0])._addCollectionReflectionVault(1, 100);
-
-  //     let result = await CONTRACT.connect(ACCOUNTS[0])._getCollectionReflectionVault(1);
-  //     expect(result.length).to.be.equal(100);
-
-  //     result = await CONTRACT.connect(ACCOUNTS[0])._getCollectionReflectionVaultIndex(1, 5);
-  //     expect(result).to.be.equal(0);
-
-  //     await CONTRACT.connect(ACCOUNTS[0])._increaseCollectionReflectionVault(1, 2);
-  //     result = await CONTRACT.connect(ACCOUNTS[0])._getCollectionReflectionVaultIndex(1, 5);
-  //     expect(result).to.be.equal(2);
-
-  //     await CONTRACT.connect(ACCOUNTS[0])._nullifyCollectionReflectionVault(1);
-  //     result = await CONTRACT.connect(ACCOUNTS[0])._getCollectionReflectionVaultIndex(1, 5);
-  //     expect(result).to.be.equal(0);
-  //   });
-  // });
-
 
 
   // it('get collection reflection vault', async () => {

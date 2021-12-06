@@ -70,7 +70,7 @@ contract AvaxTrade is Ownable, Sale, Bank {
     // CONTRACTS.bank = address(bank);
     // Sale sale = new Sale();
     // CONTRACTS.sale = address(sale);
-    CollectionItem collectionItem = new CollectionItem();
+    CollectionItem collectionItem = new CollectionItem(owner(), address(this));
     CONTRACTS.collectionItem = address(collectionItem);
   }
 
@@ -200,7 +200,7 @@ contract AvaxTrade is Ownable, Sale, Bank {
     // deduct marketplace 2% commission
     reward = _calculatePercentChange(remainingBalance, MARKETPLACE_COMMISSION);
     remainingBalance = remainingBalance - reward;
-    _incrementBankAccount(owner(), reward, 0, 0);
+    _incrementUserAccount(owner(), reward, 0, 0);
     if (collectionType == Collection.COLLECTION_TYPE.local) {
       console.log('local');
 
@@ -212,7 +212,7 @@ contract AvaxTrade is Ownable, Sale, Bank {
 
         address itemCreator = CollectionItem(CONTRACTS.collectionItem)._getCreatorOfItem(itemId);
         _addBank(itemCreator); // this is okay even if bank account already exists
-        _incrementBankAccount(itemCreator, 0, reward, 0);
+        _incrementUserAccount(itemCreator, 0, reward, 0);
       }
 
     } else if (collectionType == Collection.COLLECTION_TYPE.verified) {
@@ -235,12 +235,12 @@ contract AvaxTrade is Ownable, Sale, Bank {
 
         address collectionOwner = collection.owner;
         _addBank(collectionOwner); // this is okay even if bank account already exists
-        _incrementBankAccount(collectionOwner, 0, 0, reward);
+        _incrementUserAccount(collectionOwner, 0, 0, reward);
       }
     
       // add collection incentive rewards, if applicable
       percent = collection.incentive;
-      uint256 collectionIncentiveVault = (_getBankCollectionAccount(collection.contractAddress)).incentiveVault;
+      uint256 collectionIncentiveVault = (_getCollectionAccount(collection.contractAddress)).incentiveVault;
       reward = _calculatePercentChange(collectionIncentiveVault, percent);
       if (reward > 0) {
         remainingBalance = remainingBalance + reward;
@@ -348,9 +348,9 @@ contract AvaxTrade is Ownable, Sale, Bank {
   function withdrawCollectionIncentiveVault(address _contractAddress, uint256 _value) public returns (uint256) {
     // todo ensure caller is authorized
 
-    uint256 initialVaultState = _getCollectionIncentiveVault(_contractAddress);
+    uint256 initialVaultState = _getIncentiveVaultCollectionAccount(_contractAddress);
     _updateCollectionIncentiveReward(_contractAddress, _value, false);
-    uint256 afterVaultState = _getCollectionIncentiveVault(_contractAddress);
+    uint256 afterVaultState = _getIncentiveVaultCollectionAccount(_contractAddress);
 
     if ((initialVaultState - _value) == afterVaultState) {
       // todo use tokeId to check the owner from nft contract. Compare with this owner
@@ -374,7 +374,7 @@ contract AvaxTrade is Ownable, Sale, Bank {
   */
   function createLocalCollection(string memory _name, address _contractAddress) public onlyOwner() {
     // todo update so local address can be passed in
-    CollectionItem(CONTRACTS.collectionItem).createLocalCollection(_name, _contractAddress);
+    CollectionItem(CONTRACTS.collectionItem).createLocalCollection(_name, _contractAddress, msg.sender);
   }
 
   /**
@@ -387,7 +387,7 @@ contract AvaxTrade is Ownable, Sale, Bank {
 
     CollectionItem(CONTRACTS.collectionItem).createVerifiedCollection(_name, _contractAddress, _totalSupply, _reflection, _commission, _owner);
     _addBank(_contractAddress); // this is okay even if bank account already exists
-    _addCollectionReflectionVault(_contractAddress, _totalSupply);
+    _addReflectionVaultCollectionAccount(_contractAddress, _totalSupply);
   }
 
   /**
@@ -395,7 +395,7 @@ contract AvaxTrade is Ownable, Sale, Bank {
   */
   function createUnvariviedCollection(string memory _name) public onlyOwner() {
     // todo update so local address can be passed in
-    CollectionItem(CONTRACTS.collectionItem).createUnvariviedCollection(_name);
+    CollectionItem(CONTRACTS.collectionItem).createUnvariviedCollection(_name, msg.sender);
   }
 
 

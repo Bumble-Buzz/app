@@ -7,26 +7,26 @@ import "hardhat/console.sol";
 contract CollectionAccount {
 
   // modifiers
-  modifier checkCollection(address _id) {
-    require(_collectionExists(_id), "The account for this collection does not exist");
+  modifier checkCollectionAccount(address _id) {
+    require(_collectionAccountExists(_id), "The account for this collection does not exist");
     _;
   }
 
   // data structures
-  struct CollectionDS {
+  struct CollectionAccountDS {
     address id; // owner of these collection accounts (contract address)
     uint256[] reflectionVault; //reflection fewards for each token id
     uint256 incentiveVault; // collection reward vault given upon completion of market sale
   }
 
-  mapping(address => CollectionDS) private COLLECTIONS; // mapping owner address to collection object
+  mapping(address => CollectionAccountDS) private COLLECTION_ACCOUNTS; // mapping owner address to collection object
 
 
   /**
     * @dev Check if user exists
   */
-  function _collectionExists(address _id) private view returns (bool) {
-    if (COLLECTIONS[_id].id != address(0)) {
+  function _collectionAccountExists(address _id) private view returns (bool) {
+    if (COLLECTION_ACCOUNTS[_id].id != address(0)) {
       return true;
     }
     return false;
@@ -48,27 +48,27 @@ contract CollectionAccount {
   /**
     * @dev Add account
   */
-  function _addCollection(address _id) internal {
-    COLLECTIONS[_id].id = _id;
+  function _addCollectionAccount(address _id) public {
+    COLLECTION_ACCOUNTS[_id].id = _id;
   }
 
   /**
     * @dev Get account of collection
   */
-  function _getCollection(address _id) internal view checkCollection(_id) returns (CollectionDS memory) {
-    return COLLECTIONS[_id];
+  function _getCollectionAccount(address _id) public view checkCollectionAccount(_id) returns (CollectionAccountDS memory) {
+    return COLLECTION_ACCOUNTS[_id];
   }
 
   /**
     * @dev Get collections for list of users
   */
-  function _getCollections(address[] memory _ids) internal view returns (CollectionDS[] memory) {
+  function _getCollectionAccounts(address[] memory _ids) public view returns (CollectionAccountDS[] memory) {
     uint256 arrLength = _ids.length;
-    CollectionDS[] memory collections = new CollectionDS[](arrLength);
+    CollectionAccountDS[] memory collections = new CollectionAccountDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
       address id = _ids[i];
-      require(_collectionExists(id), "An account in the list does not exist");
-      CollectionDS memory collection = COLLECTIONS[id];
+      require(_collectionAccountExists(id), "An account in the list does not exist");
+      CollectionAccountDS memory collection = COLLECTION_ACCOUNTS[id];
       collections[i] = collection;
     }
     return collections;
@@ -77,10 +77,10 @@ contract CollectionAccount {
   /**
     * @dev Update collection
   */
-  function _updateCollection(
+  function _updateCollectionAccount(
     address _id, uint256[] memory _reflectionVault, uint256 _incentiveVault
-  ) internal checkCollection(_id) {
-    COLLECTIONS[_id] = CollectionDS({
+  ) public checkCollectionAccount(_id) {
+    COLLECTION_ACCOUNTS[_id] = CollectionAccountDS({
       id: _id,
       reflectionVault: _reflectionVault,
       incentiveVault: _incentiveVault
@@ -90,15 +90,15 @@ contract CollectionAccount {
   /**
     * @dev Add a collection reflection vault for the given collection
   */
-  function _addCollectionReflectionVault(address _id, uint256 _totalSupply) internal {
-    COLLECTIONS[_id].reflectionVault = new uint256[](_totalSupply);
+  function _addReflectionVaultCollectionAccount(address _id, uint256 _totalSupply) public {
+    COLLECTION_ACCOUNTS[_id].reflectionVault = new uint256[](_totalSupply);
   }
 
   /**
     * @dev Get collection reflection vault
   */
-  function _getCollectionReflectionVault(address _id) internal view checkCollection(_id) returns (uint256[] memory) {
-    return COLLECTIONS[_id].reflectionVault;
+  function _getReflectionVaultCollectionAccount(address _id) public view checkCollectionAccount(_id) returns (uint256[] memory) {
+    return COLLECTION_ACCOUNTS[_id].reflectionVault;
   }
 
   /**
@@ -106,20 +106,20 @@ contract CollectionAccount {
       @param _id : collection id
       @param _rewardPerItem : reward needs to be allocated to each item in this collection
   */
-  function _increaseCollectionReflectionVault(address _id, uint256 _rewardPerItem) internal checkCollection(_id) {
-    uint256[] memory vault = COLLECTIONS[_id].reflectionVault;
+  function _increaseReflectionVaultCollectionAccount(address _id, uint256 _rewardPerItem) public checkCollectionAccount(_id) {
+    uint256[] memory vault = COLLECTION_ACCOUNTS[_id].reflectionVault;
     for (uint256 i = 0; i < vault.length; i++) {
       uint256 currentValue = vault[i];
       vault[i] = currentValue + _rewardPerItem;
     }
-    COLLECTIONS[_id].reflectionVault = vault;
+    COLLECTION_ACCOUNTS[_id].reflectionVault = vault;
   }
 
   /**
     * @dev Get collection reflection vault index
   */
-  function _getCollectionReflectionVaultIndex(address _id, uint256 _index) internal view checkCollection(_id) returns (uint256) {
-    return COLLECTIONS[_id].reflectionVault[_index];
+  function _getReflectionVaultIndexCollectionAccount(address _id, uint256 _index) public view checkCollectionAccount(_id) returns (uint256) {
+    return COLLECTION_ACCOUNTS[_id].reflectionVault[_index];
   }
 
   /**
@@ -128,53 +128,53 @@ contract CollectionAccount {
       @param _index : specific vault index to update
       @param _newVal : new value for a single vault index
   */
-  function _updateCollectionReflectionVaultIndex(address _id, uint256 _index, uint256 _newVal) internal checkCollection(_id) {
-    COLLECTIONS[_id].reflectionVault[_index] = _newVal;
+  function _updateReflectionVaultIndexCollectionAccount(address _id, uint256 _index, uint256 _newVal) public checkCollectionAccount(_id) {
+    COLLECTION_ACCOUNTS[_id].reflectionVault[_index] = _newVal;
   }
   /**
     * @dev Nullify all collection reflection rewards for the given collection id
   */
-  function _nullifyCollectionReflectionVault(address _id) internal {
-    uint256 vaultLength = COLLECTIONS[_id].reflectionVault.length;
-    COLLECTIONS[_id].reflectionVault = new uint256[](vaultLength);
+  function _nullifyReflectionVaultCollectionAccount(address _id) public {
+    uint256 vaultLength = COLLECTION_ACCOUNTS[_id].reflectionVault.length;
+    COLLECTION_ACCOUNTS[_id].reflectionVault = new uint256[](vaultLength);
   }
 
   /**
     * @dev Get collection incentive vault
   */
-  function _getCollectionIncentiveVault(address _id) internal view checkCollection(_id) returns (uint256) {
-    return COLLECTIONS[_id].incentiveVault;
+  function _getIncentiveVaultCollectionAccount(address _id) public view checkCollectionAccount(_id) returns (uint256) {
+    return COLLECTION_ACCOUNTS[_id].incentiveVault;
   }
 
   /**
     * @dev Update collection incentive vault
   */
-  function _updateCollectionIncentiveVault(address _id, uint256 _incentiveVault) internal checkCollection(_id) {
-    COLLECTIONS[_id].incentiveVault = _incentiveVault;
+  function _updateIncentiveVaultCollectionAccount(address _id, uint256 _incentiveVault) public checkCollectionAccount(_id) {
+    COLLECTION_ACCOUNTS[_id].incentiveVault = _incentiveVault;
   }
 
   /**
     * @dev Increase collection balance by given amounts
   */
-  function _incrementCollectionBalance(
+  function _incrementCollectionAccount(
     address _id, uint256 _rewardPerItem, uint256 _incentiveVault
-  ) internal checkCollection(_id) {
-    _increaseCollectionReflectionVault(_id, _rewardPerItem);
-    COLLECTIONS[_id].incentiveVault += _incentiveVault;
+  ) public checkCollectionAccount(_id) {
+    _increaseReflectionVaultCollectionAccount(_id, _rewardPerItem);
+    COLLECTION_ACCOUNTS[_id].incentiveVault += _incentiveVault;
   }
 
   /**
     * @dev Nullify collection
   */
-  function _nullifyCollection(address _id) internal checkCollection(_id) {
-    _nullifyCollectionReflectionVault(_id);
-    _updateCollectionIncentiveVault(_id, 0);
+  function _nullifyCollectionAccount(address _id) public checkCollectionAccount(_id) {
+    _nullifyReflectionVaultCollectionAccount(_id);
+    _updateIncentiveVaultCollectionAccount(_id, 0);
   }
 
   /**
     * @dev Remove collection
   */
-  function _removeCollection(address _id) internal checkCollection(_id) {
-    delete COLLECTIONS[_id];
+  function _removeCollectionAccount(address _id) public checkCollectionAccount(_id) {
+    delete COLLECTION_ACCOUNTS[_id];
   }
 }
