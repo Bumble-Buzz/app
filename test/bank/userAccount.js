@@ -24,7 +24,7 @@ describe("AvaxTrade - User Account", () => {
   });
 
   beforeEach(async () => {
-    const contractFactory = await ethers.getContractFactory("AvaxTrade");
+    const contractFactory = await ethers.getContractFactory("Bank");
     CONTRACT = await contractFactory.deploy();
     await CONTRACT.deployed();
   });

@@ -14,7 +14,8 @@ contract CollectionAccount {
 
   // data structures
   struct CollectionAccountDS {
-    address id; // owner of these collection accounts (contract address)
+    address id; // contract address of this collection account
+    // address owner; // owner of this collection account (user address)
     uint256[] reflectionVault; //reflection fewards for each token id
     uint256 incentiveVault; // collection reward vault given upon completion of market sale
   }
@@ -88,9 +89,9 @@ contract CollectionAccount {
   }
 
   /**
-    * @dev Add a collection reflection vault for the given collection
+    * @dev Initialize a collection reflection vault for the given collection
   */
-  function _addReflectionVaultCollectionAccount(address _id, uint256 _totalSupply) internal {
+  function _initReflectionVaultCollectionAccount(address _id, uint256 _totalSupply) internal {
     COLLECTION_ACCOUNTS[_id].reflectionVault = new uint256[](_totalSupply);
   }
 
@@ -119,6 +120,7 @@ contract CollectionAccount {
     * @dev Get collection reflection vault index
   */
   function _getReflectionVaultIndexCollectionAccount(address _id, uint256 _index) internal view checkCollectionAccount(_id) returns (uint256) {
+    require(_index < COLLECTION_ACCOUNTS[_id].reflectionVault.length, "CollectionAccount: Index out of bounds");
     return COLLECTION_ACCOUNTS[_id].reflectionVault[_index];
   }
 
@@ -129,6 +131,7 @@ contract CollectionAccount {
       @param _newVal : new value for a single vault index
   */
   function _updateReflectionVaultIndexCollectionAccount(address _id, uint256 _index, uint256 _newVal) internal checkCollectionAccount(_id) {
+    require(_index < COLLECTION_ACCOUNTS[_id].reflectionVault.length, "CollectionAccount: Index out of bounds");
     COLLECTION_ACCOUNTS[_id].reflectionVault[_index] = _newVal;
   }
   /**

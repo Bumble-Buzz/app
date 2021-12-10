@@ -24,7 +24,7 @@ describe("AvaxTrade - Collection Account", () => {
   });
 
   beforeEach(async () => {
-    const contractFactory = await ethers.getContractFactory("AvaxTrade");
+    const contractFactory = await ethers.getContractFactory("Bank");
     CONTRACT = await contractFactory.deploy();
     await CONTRACT.deployed();
   });
@@ -193,7 +193,7 @@ describe("AvaxTrade - Collection Account", () => {
     });
     it('increment account - reflection vault set', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._addCollectionAccount(ACCOUNTS[1].address);
-      await CONTRACT.connect(ACCOUNTS[0])._addReflectionVaultCollectionAccount(ACCOUNTS[1].address, 4);
+      await CONTRACT.connect(ACCOUNTS[0])._initReflectionVaultCollectionAccount(ACCOUNTS[1].address, 4);
 
       let account = await CONTRACT.connect(ACCOUNTS[0])._getCollectionAccount(ACCOUNTS[1].address);
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
@@ -228,9 +228,9 @@ describe("AvaxTrade - Collection Account", () => {
       await CONTRACT.connect(ACCOUNTS[0])._addCollectionAccount(ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._addCollectionAccount(ACCOUNTS[3].address);
 
-      await CONTRACT.connect(ACCOUNTS[0])._addReflectionVaultCollectionAccount(ACCOUNTS[1].address, 3);
-      await CONTRACT.connect(ACCOUNTS[0])._addReflectionVaultCollectionAccount(ACCOUNTS[2].address, 4);
-      await CONTRACT.connect(ACCOUNTS[0])._addReflectionVaultCollectionAccount(ACCOUNTS[3].address, 5);
+      await CONTRACT.connect(ACCOUNTS[0])._initReflectionVaultCollectionAccount(ACCOUNTS[1].address, 3);
+      await CONTRACT.connect(ACCOUNTS[0])._initReflectionVaultCollectionAccount(ACCOUNTS[2].address, 4);
+      await CONTRACT.connect(ACCOUNTS[0])._initReflectionVaultCollectionAccount(ACCOUNTS[3].address, 5);
 
       await CONTRACT.connect(ACCOUNTS[0])._updateCollectionAccount(ACCOUNTS[1].address, [1,2,3], 2);
       await CONTRACT.connect(ACCOUNTS[0])._incrementCollectionAccount(ACCOUNTS[1].address, 5, 4);
@@ -272,7 +272,7 @@ describe("AvaxTrade - Collection Account", () => {
 
     it('nullify account', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._addCollectionAccount(ACCOUNTS[1].address);
-      await CONTRACT.connect(ACCOUNTS[0])._addReflectionVaultCollectionAccount(ACCOUNTS[1].address, 3);
+      await CONTRACT.connect(ACCOUNTS[0])._initReflectionVaultCollectionAccount(ACCOUNTS[1].address, 3);
 
       let account = await CONTRACT.connect(ACCOUNTS[0])._getCollectionAccount(ACCOUNTS[1].address);
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
@@ -305,7 +305,7 @@ describe("AvaxTrade - Collection Account", () => {
 
     it('remove account', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._addCollectionAccount(ACCOUNTS[1].address);
-      await CONTRACT.connect(ACCOUNTS[0])._addReflectionVaultCollectionAccount(ACCOUNTS[1].address, 3);
+      await CONTRACT.connect(ACCOUNTS[0])._initReflectionVaultCollectionAccount(ACCOUNTS[1].address, 3);
 
       let account = await CONTRACT.connect(ACCOUNTS[0])._getCollectionAccount(ACCOUNTS[1].address);
       expect(account.id).to.be.equal(ACCOUNTS[1].address);
@@ -333,12 +333,12 @@ describe("AvaxTrade - Collection Account", () => {
         .should.be.rejectedWith('The account for this collection does not exist');
     });
     it('add collection reflection vault', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._addReflectionVaultCollectionAccount(ACCOUNTS[1].address, 100);
+      await CONTRACT.connect(ACCOUNTS[0])._initReflectionVaultCollectionAccount(ACCOUNTS[1].address, 100);
       const result = await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
       expect(result.length).to.be.equal(100);
     });
     it('nullify collection reflection vault', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._addReflectionVaultCollectionAccount(ACCOUNTS[1].address, 100);
+      await CONTRACT.connect(ACCOUNTS[0])._initReflectionVaultCollectionAccount(ACCOUNTS[1].address, 100);
 
       let result = await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
       expect(result.length).to.be.equal(100);

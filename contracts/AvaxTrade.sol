@@ -5,6 +5,9 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
+import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
+import '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
+
 // import "./User.sol";
 import "./collectionItem/CollectionItem.sol";
 import "./bank/Bank.sol";
@@ -13,7 +16,7 @@ import "./sale/Sale.sol";
 import "hardhat/console.sol";
 
 
-contract AvaxTrade is Ownable, Sale, Bank {
+contract AvaxTrade is Ownable, Sale {
   using Counters for Counters.Counter;
 
   /**
@@ -66,8 +69,8 @@ contract AvaxTrade is Ownable, Sale, Bank {
     // @todo we should already know the contract address of the local collection
     // _createLocalCollection('Local', '', address(0));
 
-    // Bank bank = new Bank();
-    // CONTRACTS.bank = address(bank);
+    Bank bank = new Bank();
+    CONTRACTS.bank = address(bank);
     // Sale sale = new Sale();
     // CONTRACTS.sale = address(sale);
     CollectionItem collectionItem = new CollectionItem(owner(), address(this));
@@ -98,14 +101,14 @@ contract AvaxTrade is Ownable, Sale, Bank {
       // only use passed in buyer param when it is a direct sale
       buyer = _buyer;
     }
-    CollectionItem(CONTRACTS.collectionItem).addItemToCollection(
+    uint256 itemId = CollectionItem(CONTRACTS.collectionItem).addItemToCollection(
       _tokenId,
       _contractAddress,
       msg.sender,
       buyer,
       _price
     );
-    uint256 itemId = CollectionItem(CONTRACTS.collectionItem)._getItemId(_tokenId, _contractAddress, msg.sender);
+    // uint256 itemId = CollectionItem(CONTRACTS.collectionItem)._getItemId(_tokenId, _contractAddress, msg.sender);
     // todo fix this enum issue
     _createSale(itemId, msg.sender, _saleType);
     // if (_saleType == SALE_TYPE_2.direct) {
@@ -200,7 +203,7 @@ contract AvaxTrade is Ownable, Sale, Bank {
     // deduct marketplace 2% commission
     reward = _calculatePercentChange(remainingBalance, MARKETPLACE_COMMISSION);
     remainingBalance = remainingBalance - reward;
-    _incrementUserAccount(owner(), reward, 0, 0);
+    Bank(CONTRACTS.bank).incrementUserAccount(owner(), reward, 0, 0);
     if (collectionType == Collection.COLLECTION_TYPE.local) {
       console.log('local');
 
@@ -211,8 +214,8 @@ contract AvaxTrade is Ownable, Sale, Bank {
         remainingBalance = remainingBalance - reward;
 
         address itemCreator = CollectionItem(CONTRACTS.collectionItem)._getCreatorOfItem(itemId);
-        _addBank(itemCreator); // this is okay even if bank account already exists
-        _incrementUserAccount(itemCreator, 0, reward, 0);
+        Bank(CONTRACTS.bank)._addBank(itemCreator); // this is okay even if bank account already exists
+        Bank(CONTRACTS.bank).incrementUserAccount(itemCreator, 0, reward, 0);
       }
 
     } else if (collectionType == Collection.COLLECTION_TYPE.verified) {
@@ -224,7 +227,7 @@ contract AvaxTrade is Ownable, Sale, Bank {
       if (reward > 0) {
         remainingBalance = remainingBalance - reward;
 
-        _distributeCollectionReflectionReward(collection.contractAddress, collection.totalSupply, remainingBalance);
+        Bank(CONTRACTS.bank).distributeCollectionReflectionReward(collection.contractAddress, collection.totalSupply, reward);
       }
 
       // deduct collection commission rewards, if applicable
@@ -234,18 +237,18 @@ contract AvaxTrade is Ownable, Sale, Bank {
         remainingBalance = remainingBalance - reward;
 
         address collectionOwner = collection.owner;
-        _addBank(collectionOwner); // this is okay even if bank account already exists
-        _incrementUserAccount(collectionOwner, 0, 0, reward);
+        Bank(CONTRACTS.bank)._addBank(collectionOwner); // this is okay even if bank account already exists
+        Bank(CONTRACTS.bank).incrementUserAccount(collectionOwner, 0, 0, reward);
       }
     
       // add collection incentive rewards, if applicable
       percent = collection.incentive;
-      uint256 collectionIncentiveVault = (_getCollectionAccount(collection.contractAddress)).incentiveVault;
+      uint256 collectionIncentiveVault = Bank(CONTRACTS.bank).getIncentiveVaultCollectionAccount(collection.contractAddress);
       reward = _calculatePercentChange(collectionIncentiveVault, percent);
       if (reward > 0) {
         remainingBalance = remainingBalance + reward;
 
-        _updateCollectionIncentiveReward(collection.contractAddress, reward, false);
+        Bank(CONTRACTS.bank).updateCollectionIncentiveReward(collection.contractAddress, reward, false);
       }
 
     } else if (collectionType == Collection.COLLECTION_TYPE.unverified) {
@@ -277,16 +280,27 @@ contract AvaxTrade is Ownable, Sale, Bank {
 
   /** 
     *****************************************************
-    ***************** Reward Functions ******************
+    **************** Monetary Functions *****************
     *****************************************************
   */
   /**
-    * @dev Claim nft commission reward for this user
+    * @dev Claim account general reward for this user
   */
-  function claimNftCommissionReward() public payable returns (uint256) {
-    // todo ensure caller is authorized
+  function claimGeneralRewardUserAccount() external returns (uint256) {
+    uint256 reward = Bank(CONTRACTS.bank).claimGeneralRewardUserAccount(msg.sender);
 
-    uint256 reward = _claimAccountNftCommissionReward(msg.sender);
+    // todo ensure this is a safe way to transfer funds
+    ( bool success, ) = payable(msg.sender).call{ value: reward }("");
+    require(success, "General reward transfer to user was unccessfull");
+    return reward;
+  }
+
+  /**
+    * @dev Claim account nft commission reward for this user
+  */
+  function claimNftCommissionRewardUserAccount() external returns (uint256) {
+    uint256 reward = Bank(CONTRACTS.bank).claimNftCommissionRewardUserAccount(msg.sender);
+
     // todo ensure this is a safe way to transfer funds
     ( bool success, ) = payable(msg.sender).call{ value: reward }("");
     require(success, "Nft commission reward transfer to user was unccessfull");
@@ -294,33 +308,103 @@ contract AvaxTrade is Ownable, Sale, Bank {
   }
 
   /**
-    * @dev Claim collection reflection reward for this user
+    * @dev Claim account collection commission reward for this user
   */
-  function claimCollectionReflectionReward(uint256 _tokenId, address _contractAddress) public returns (uint256) {
-    // todo ensure caller is authorized
+  function claimCollectionCommissionRewardUserAccount() external returns (uint256) {
+    uint256 reward = Bank(CONTRACTS.bank).claimCollectionCommissionRewardUserAccount(msg.sender);
 
-    uint256 reward = getCollectionReflectionTokenReward(_tokenId, _contractAddress);
-    _updateCollectionReflectionTokenReward(_tokenId, _contractAddress, 0);
-    // todo use tokeId to check the owner from nft contract. Compare with this owner
-    address owner = msg.sender;
-    // todo ensure this is a safe way to transfer funds
-    ( bool success, ) = payable(owner).call{ value: reward }("");
-    require(success, "Collection reflection reward transfer to user was unccessfull");
-    return reward;
-  }
-
-  /**
-    * @dev Claim collection commission reward for this user
-  */
-  function claimCollectionCommissionReward() public payable returns (uint256) {
-    // todo ensure caller is authorized
-
-    uint256 reward = _claimAccountCollectionCommissionReward(msg.sender);
     // todo ensure this is a safe way to transfer funds
     ( bool success, ) = payable(msg.sender).call{ value: reward }("");
     require(success, "Collection commission reward transfer to user was unccessfull");
     return reward;
   }
+
+  /**
+    * @dev Claim collection reflection reward for this token id
+  */
+  function claimReflectionRewardCollectionAccount(uint256 _tokenId, address _contractAddress) external {
+    uint256 reward = Bank(CONTRACTS.bank).claimReflectionRewardCollectionAccount(_tokenId, _contractAddress);
+
+    // todo ensure this is a safe way to transfer funds
+    ( bool success, ) = payable(msg.sender).call{ value: reward }("");
+    require(success, "Collection commission reward transfer to user was unccessfull");
+  }
+
+  /**
+    * @dev Deposit into collection incentive vault
+  */
+  function _depositIncentiveCollectionAccount(address _contractAddress) external payable {
+    /**
+      * todo
+      * why check if person depositing funds is the owner of the collection?
+      * Allow anyone to deposit money, in any account? 
+    */
+    Bank(CONTRACTS.bank).updateCollectionIncentiveReward(_contractAddress, msg.value, true);
+  }
+
+  /**
+    * @dev Withdraw from collection incentive vault
+  */
+  function _withdrawIncentiveCollectionAccount(address _contractAddress, uint256 _amount) external {
+    uint256 collectionId = CollectionItem(CONTRACTS.collectionItem).getCllectionForContract(_contractAddress);
+    Collection.CollectionDS memory collection = CollectionItem(CONTRACTS.collectionItem).getCollection(collectionId);
+
+    require(collection.owner == msg.sender, "You are not the owner of this collection");
+
+    Bank(CONTRACTS.bank).updateCollectionIncentiveReward(_contractAddress, _amount, false);
+
+    // todo ensure this is a safe way to transfer funds
+    ( bool success, ) = payable(msg.sender).call{ value: _amount }("");
+    require(success, "Collection commission reward transfer to user was unccessfull");
+  }
+
+
+  /** 
+    *****************************************************
+    ***************** Reward Functions ******************
+    *****************************************************
+  */
+  // /**
+  //   * @dev Claim nft commission reward for this user
+  // */
+  // function claimNftCommissionReward() public payable returns (uint256) {
+  //   // todo ensure caller is authorized
+
+  //   uint256 reward = _claimNftCommissionRewardUserAccount(msg.sender);
+  //   // todo ensure this is a safe way to transfer funds
+  //   ( bool success, ) = payable(msg.sender).call{ value: reward }("");
+  //   require(success, "Nft commission reward transfer to user was unccessfull");
+  //   return reward;
+  // }
+
+  // /**
+  //   * @dev Claim collection commission reward for this user
+  // */
+  // function claimCollectionCommissionReward() public payable returns (uint256) {
+  //   // todo ensure caller is authorized
+
+  //   uint256 reward = _claimCollectionCommissionRewardUserAccount(msg.sender);
+  //   // todo ensure this is a safe way to transfer funds
+  //   ( bool success, ) = payable(msg.sender).call{ value: reward }("");
+  //   require(success, "Collection commission reward transfer to user was unccessfull");
+  //   return reward;
+  // }
+
+  // /**
+  //   * @dev Claim collection reflection reward for this user
+  // */
+  // function claimCollectionReflectionReward(uint256 _tokenId, address _contractAddress) public returns (uint256) {
+  //   // todo ensure caller is authorized
+
+  //   uint256 reward = getCollectionReflectionTokenReward(_tokenId, _contractAddress);
+  //   _updateCollectionReflectionTokenReward(_tokenId, _contractAddress, 0);
+  //   // todo use tokeId to check the owner from nft contract. Compare with this owner
+  //   address owner = msg.sender;
+  //   // todo ensure this is a safe way to transfer funds
+  //   ( bool success, ) = payable(owner).call{ value: reward }("");
+  //   require(success, "Collection reflection reward transfer to user was unccessfull");
+  //   return reward;
+  // }
 
   // /**
   //   * @dev Claim all rewards for this user
@@ -333,35 +417,35 @@ contract AvaxTrade is Ownable, Sale, Bank {
   //   return reward;
   // }
 
-  /**
-    * @dev Deposit funds into the inventive vault
-  */
-  function depositCollectionIncentiveVault(address _contractAddress) public payable {
-    // todo ensure caller is authorized
+  // /**
+  //   * @dev Deposit funds into the inventive vault
+  // */
+  // function depositCollectionIncentiveVault(address _contractAddress) public payable {
+  //   // todo ensure caller is authorized
 
-    _updateCollectionIncentiveReward(_contractAddress, msg.value, true);
-  }
+  //   updateCollectionIncentiveReward(_contractAddress, msg.value, true);
+  // }
 
-  /**
-    * @dev Withdraw funds from the inventive vault
-  */
-  function withdrawCollectionIncentiveVault(address _contractAddress, uint256 _value) public returns (uint256) {
-    // todo ensure caller is authorized
+  // /**
+  //   * @dev Withdraw funds from the inventive vault
+  // */
+  // function withdrawCollectionIncentiveVault(address _contractAddress, uint256 _value) public returns (uint256) {
+  //   // todo ensure caller is authorized
 
-    uint256 initialVaultState = _getIncentiveVaultCollectionAccount(_contractAddress);
-    _updateCollectionIncentiveReward(_contractAddress, _value, false);
-    uint256 afterVaultState = _getIncentiveVaultCollectionAccount(_contractAddress);
+  //   uint256 initialVaultState = _getIncentiveVaultCollectionAccount(_contractAddress);
+  //   updateCollectionIncentiveReward(_contractAddress, _value, false);
+  //   uint256 afterVaultState = _getIncentiveVaultCollectionAccount(_contractAddress);
 
-    if ((initialVaultState - _value) == afterVaultState) {
-      // todo use tokeId to check the owner from nft contract. Compare with this owner
-      address owner = msg.sender;
-      // todo ensure this is a safe way to transfer funds
-      ( bool success, ) = payable(owner).call{ value: _value }("");
-      require(success, "Collection incentive vault transfer was unccessfull");
-    }
-    return _value;
-    // todo 
-  }
+  //   if ((initialVaultState - _value) == afterVaultState) {
+  //     // todo use tokeId to check the owner from nft contract. Compare with this owner
+  //     address owner = msg.sender;
+  //     // todo ensure this is a safe way to transfer funds
+  //     ( bool success, ) = payable(owner).call{ value: _value }("");
+  //     require(success, "Collection incentive vault transfer was unccessfull");
+  //   }
+  //   return _value;
+  //   // todo 
+  // }
 
 
   /** 
@@ -372,9 +456,10 @@ contract AvaxTrade is Ownable, Sale, Bank {
   /**
     * @dev Create local collection
   */
-  function createLocalCollection(string memory _name, address _contractAddress) public onlyOwner() {
+  function createLocalCollection(string memory _name, address _contractAddress) external onlyOwner() {
     // todo update so local address can be passed in
     CollectionItem(CONTRACTS.collectionItem).createLocalCollection(_name, _contractAddress, msg.sender);
+    Bank(CONTRACTS.bank)._addBank(msg.sender); // this is okay even if bank account already exists
   }
 
   /**
@@ -382,20 +467,21 @@ contract AvaxTrade is Ownable, Sale, Bank {
   */
   function createVerifiedCollection(
     string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission, address _owner
-  ) public onlyOwner() {
+  ) external onlyOwner() {
     // todo require _totalSupply to be > 0
 
     CollectionItem(CONTRACTS.collectionItem).createVerifiedCollection(_name, _contractAddress, _totalSupply, _reflection, _commission, _owner);
-    _addBank(_contractAddress); // this is okay even if bank account already exists
-    _addReflectionVaultCollectionAccount(_contractAddress, _totalSupply);
+    Bank(CONTRACTS.bank)._addBank(_contractAddress); // this is okay even if bank account already exists
+    Bank(CONTRACTS.bank).initReflectionVaultCollectionAccount(_contractAddress, _totalSupply);
   }
 
   /**
     * @dev Create unvarivied collection
   */
-  function createUnvariviedCollection(string memory _name) public onlyOwner() {
+  function createUnvariviedCollection(string memory _name) external onlyOwner() {
     // todo update so local address can be passed in
     CollectionItem(CONTRACTS.collectionItem).createUnvariviedCollection(_name, msg.sender);
+    Bank(CONTRACTS.bank)._addBank(msg.sender); // this is okay even if bank account already exists
   }
 
 
@@ -405,42 +491,35 @@ contract AvaxTrade is Ownable, Sale, Bank {
     *****************************************************
   */
 
-  // Collection.sol
-  /**
-    * @dev Create local collection
-  */
-  // function createLocalCollection(string memory _name, address _contractAddress) public {
-  //   Market(CONTRACTS.collectionItem)._createLocalCollection(_name, _contractAddress);
+  // // UserAccount.sol
+  // /**
+  //   * @dev Get account of user
+  // */
+  // function getUserAccount(address _id) external view returns (UserAccountDS memory) {
+  //   return _getUserAccount(_id);
   // }
 
-  /**
-    * @dev Create verified collection
-  */
-  // function createVerifiedCollection(
-  //   string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission, address _owner
-  // ) public {
-  //   Market(CONTRACTS.collectionItem)._createVerifiedCollection(_name, _contractAddress, _totalSupply, _reflection, _commission, _owner);
+  // // CollectionAccount.sol
+  // /**
+  //   * @dev Get account of collection
+  // */
+  // function getCollectionAccount(address _id) external view returns (CollectionAccountDS memory) {
+  //   return _getCollectionAccount(_id);
   // }
 
-  /**
-    * @dev Create unvarivied collection
-  */
-  // function createUnvariviedCollection(string memory _name) public {
-  //   Market(CONTRACTS.collectionItem)._createUnvariviedCollection(_name);
-  // }
-  /**
-    * @dev Get collection
-  */
-  // function getCollection(uint256 _collectionId) external view returns (CollectionDS memory) {
-  //   return Market(CONTRACTS.collectionItem)._getCollection(_collectionId);
+  // /**
+  //   * @dev Get collection incentive vault
+  // */
+  // function getIncentiveVaultCollectionAccount(address _id) external view returns (uint256) {
+  //   return _getIncentiveVaultCollectionAccount(_id);
   // }
 
-  // Item.sol
-  /**
-    * @dev Get item
-  */
-  // function getItem(uint256 _itemId) external view returns (ItemDS memory) {
-  //   return Market(CONTRACTS.collectionItem)._getItem(_itemId);
+  // // Vault.sol
+  // /**
+  //   * @dev Get vault of user
+  // */
+  // function getVault(address _id) external view returns (VaultDS memory) {
+  //   return _getVault(_id);
   // }
 
 }

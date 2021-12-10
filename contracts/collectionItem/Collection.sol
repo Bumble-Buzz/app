@@ -635,7 +635,7 @@ contract Collection {
   }
 
   /**
-    * @dev Get collection for given contract address
+    * @dev Get collection id for given contract address
   */
   function _getCllectionForContract(address _contract) internal view returns (uint256) {
     return COLLECTION_CONTRACTS[_contract];

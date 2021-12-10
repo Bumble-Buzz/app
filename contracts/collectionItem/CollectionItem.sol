@@ -668,7 +668,7 @@ contract CollectionItem is Collection, Item, AccessControl {
   }
 
   /**
-    * @dev Get collection for given contract address
+    * @dev Get collection id for given contract address
   */
   function getCllectionForContract(address _contract) external view returns (uint256) {
     return _getCllectionForContract(_contract);
