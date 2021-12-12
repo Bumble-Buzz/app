@@ -173,7 +173,7 @@ contract Collection {
 
     _addActiveCollectionId(id);
     _addLocalCollectionId(id);
-    _addCollectionForOwner(address(this), id);
+    _addCollectionForOwner(_owner, id);
     _assignContractToCollection(_contractAddress, id);
   }
 
@@ -227,7 +227,7 @@ contract Collection {
 
     _addActiveCollectionId(id);
     _addUnverifiedCollectionId(id);
-    _addCollectionForOwner(address(this), id);
+    _addCollectionForOwner(_owner, id);
     _assignContractToCollection(address(0), id); // todo dont think we need this, better to remove?
   }
 
@@ -301,7 +301,6 @@ contract Collection {
   function _updateCollection(
     uint256 _id, string memory _name, address _contractAddress, uint8 _reflection, uint8 _commission, uint8 _incentive, address _owner
   ) internal checkCollection(_id) {
-
     COLLECTIONS[_id].name = _name;
     COLLECTIONS[_id].reflection = _reflection;
     COLLECTIONS[_id].commission = _commission;

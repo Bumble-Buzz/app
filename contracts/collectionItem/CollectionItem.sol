@@ -66,13 +66,17 @@ contract CollectionItem is Collection, Item, AccessControl {
   }
 
 
-  constructor(address _admin, address _owner) {
+  constructor(address _owner, address _admin) {
+    // todo create 2 roles, instead of one
+    //      ADMIN_ROLE = Admin (owner of AvaxTrade contract)
+    //      OWNER_ROLE = AvaxTrade contract
+
     // set up admin role
     _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
 
     // grant admin role to following accounts
-    _setupRole(ADMIN_ROLE, _admin);
     _setupRole(ADMIN_ROLE, _owner);
+    _setupRole(ADMIN_ROLE, _admin);
 
     // create collections
     createUnvariviedCollection('Unverified', _admin);
@@ -137,7 +141,7 @@ contract CollectionItem is Collection, Item, AccessControl {
     * @dev Cancel item that is currently on sale
   */
   function cancelItemInCollection(uint256 _tokenId, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) {
-    uint256 itemId = _getItemId(_tokenId, _contractAddress, _owner);
+    uint256 itemId = getItemId(_tokenId, _contractAddress, _owner);
     uint256 collectionId = _getItemCollectionId(itemId);
     require(_collectionItemIdExists(collectionId, itemId), "Collection or item does not exist");
 
@@ -149,7 +153,7 @@ contract CollectionItem is Collection, Item, AccessControl {
     * @dev Mark item sold in collection
   */
   function markItemSoldInCollection(uint256 _tokenId, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) {
-    uint256 itemId = _getItemId(_tokenId, _contractAddress, _owner);
+    uint256 itemId = getItemId(_tokenId, _contractAddress, _owner);
     uint256 collectionId = _getItemCollectionId(itemId);
     require(_collectionItemIdExists(collectionId, itemId), "Collection or item does not exist");
 
@@ -193,13 +197,7 @@ contract CollectionItem is Collection, Item, AccessControl {
   /**
     * @dev Create unvarivied collection
   */
-  function createUnvariviedCollection(string memory _name, address _owner) public onlyRole(ADMIN_ROLE) {
-    // create collection role
-    // bytes memory role = abi.encodePacked(_contractAddress);
-    // COLLECTION_ROLES[_contractAddress] = keccak256(role);
-    // _setRoleAdmin(COLLECTION_ROLES[_contractAddress], ADMIN_ROLE);
-    // _setupRole(COLLECTION_ROLES[_contractAddress], _owner);
-
+  function createUnvariviedCollection(string memory _name, address _owner) public onlyRole(ADMIN_ROLE) returns (uint256) {
     // todo owner of this collection should be admin (me)
     // todo update so local address can be passed in
 
@@ -211,6 +209,8 @@ contract CollectionItem is Collection, Item, AccessControl {
     COLLECTION_ROLES[id] = keccak256(encodedId);
     _setRoleAdmin(COLLECTION_ROLES[id], ADMIN_ROLE);
     _setupRole(COLLECTION_ROLES[id], _owner);
+
+    return id;
   }
 
   /**
@@ -220,8 +220,9 @@ contract CollectionItem is Collection, Item, AccessControl {
     uint256 _id, string memory _name, address _contractAddress, uint8 _reflection, uint8 _commission,
     uint8 _incentive, address _owner
   ) external onlyRole(COLLECTION_ROLES[_id]) {
-    // todo if collectionType == unverified / local, only admin can update
-    // todo if collectionType == verified, only collection owner can update
+    // todo owner owner of the collection can update
+    //      admin owns unverified and local collections
+    //      owner of the verified collections are owned by their owners
 
     return _updateCollection(_id, _name, _contractAddress, _reflection, _commission, _incentive, _owner);
   }
@@ -254,235 +255,6 @@ contract CollectionItem is Collection, Item, AccessControl {
     return _deactivateItem(_itemId);
   }
 
-  // /**
-  //   * @dev Handle collection reflection rewards
-  // */
-  // function handleReflectionRewards(uint256 _tokenId, address _contractAddress, address _owner, uint256 _price) public onlyOwner() {
-  //   uint256 itemId = _getItemId(_tokenId, _contractAddress, _owner);
-
-  //   uint256 collectionReflectionReward = getCollectionReflectionReward(_tokenId, _contractAddress, _owner, _price);
-  //   if (collectionReflectionReward > 0) {
-  //     distributeCollectionReflectionReward(itemId, collectionReflectionReward);
-  //   }
-  // }
-
-  // /**
-  //   * @dev Handle collection incentive rewards
-  // */
-  // function handleIncentiveRewards(uint256 _tokenId, address _contractAddress, address _owner) public onlyOwner() {
-  //   uint256 itemId = _getItemId(_tokenId, _contractAddress, _owner);
-  //   uint256 collectionId = _getItemCollectionId(itemId);
-
-  //   uint256 collectionIncentiveReward = getCollectionIncentiveReward(_tokenId, _contractAddress, _owner);
-  //   if (collectionIncentiveReward > 0) {
-  //     _decreaseCollectionIncentiveReward(collectionId, collectionIncentiveReward);
-  //   }
-  // }
-
-  // /**
-  //   * @dev Handle collection reflection token reward
-  // */
-  // function claimReflectionTokenReward(uint256 _tokenId, address _contractAddress) public onlyOwner() returns (uint256) {
-  //   // todo caller must be admin or collection owner
-
-  //   uint256 reward = getCollectionReflectionTokenReward(_tokenId, _contractAddress);
-  //   if (reward > 0) {
-  //     _updateCollectionReflectionTokenReward(_tokenId, _contractAddress, 0);
-
-  //     // todo use tokeId to check the owner from nft contract. Compare with this owner
-  //     address owner = msg.sender;
-  //     // todo ensure this is a safe way to transfer funds
-  //     ( bool success, ) = payable(owner).call{ value: reward }("");
-  //     require(success, "Collection reflection reward transfer to user was unccessfull");
-  //   }
-  //   return reward;
-  // }
-
-  // /**
-  //   * @dev Calculate nft commission reward
-  // */
-  // function getNftCommissionReward(uint256 _tokenId, address _contractAddress, address _owner, uint256 _price) public view returns (uint256) {
-  //   uint256 itemId = _getItemId(_tokenId, _contractAddress, _owner);
-
-  //   uint8 percent = _getItemCommission(itemId);
-  //   return _calculatePercentChange(_price, percent);
-  // }
-
-  // /**
-  //   * @dev Calculate collection commission reward
-  // */
-  // function getCollectionCommissionReward(uint256 _tokenId, address _contractAddress, address _owner, uint256 _price) public view returns (uint256) {
-  //   uint256 itemId = _getItemId(_tokenId, _contractAddress, _owner);
-  //   uint256 collectionId = _getItemCollectionId(itemId);
-
-  //   uint8 percent = _getCollectionCommission(collectionId);
-  //   return _calculatePercentChange(_price, percent);
-  // }
-
-  // /**
-  //   * @dev Calculate collection reflection reward
-  // */
-  // function getCollectionReflectionReward(uint256 _tokenId, address _contractAddress, address _owner, uint256 _price) public view returns (uint256) {
-  //   uint256 itemId = _getItemId(_tokenId, _contractAddress, _owner);
-  //   uint256 collectionId = _getItemCollectionId(itemId);
-
-  //   uint8 percent = _getCollectionReflection(collectionId);
-  //   return _calculatePercentChange(_price, percent);
-  // }
-
-  // /**
-  //   * @dev Distribute collection reflection reward
-  // */
-  // function distributeCollectionReflectionReward(uint256 _collectionId, uint256 _reflectionReward) public {
-  //   // uint256 collectionId = _getItemCollectionId(_itemId);
-  //   // require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
-
-  //   // if (collectionId == 0) {
-  //   //   collectionId = UNVERIFIED_COLLECTION_ID;
-  //   // }
-  //   COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
-  //   if (collectionType == COLLECTION_TYPE.verified) {
-  //     uint256 totalSupply = _getCollectionTotalSupply(_collectionId);
-  //     uint256 reflectionRewardPerItem = _reflectionReward / totalSupply;
-  //     _increaseCollectionReflectionVault(_collectionId, reflectionRewardPerItem);
-  //   }
-  // }
-
-  // /**
-  //   * @dev Get collection reflection token reward
-  // */
-  // function getCollectionReflectionTokenReward(uint256 _tokenId, address _contractAddress) public view returns (uint256) {
-  //   uint256 collectionId = _getCllectionForContract(_contractAddress);
-  //   if (collectionId == 0) {
-  //     collectionId = UNVERIFIED_COLLECTION_ID;
-  //   }
-  //   COLLECTION_TYPE collectionType = _getCollectionType(collectionId);
-  //   if (collectionType != COLLECTION_TYPE.verified) {
-  //     revert("This NFT can not collect reflection rewards");
-  //   }
-
-  //   uint256 vaultIndex = _tokenId - 1;
-  //   return _getCollectionReflectionVaultIndex(collectionId, vaultIndex);
-  // }
-
-  // /**
-  //   * @dev Update collection reflection reward for item from vault
-  //   * @custom:return-type private
-  // */
-  // function _updateCollectionReflectionTokenReward(uint256 _tokenId, address _contractAddress, uint256 _newVal) public onlyOwner() {
-  //   uint256 collectionId = _getCllectionForContract(_contractAddress);
-  //   if (collectionId == 0) {
-  //     collectionId = UNVERIFIED_COLLECTION_ID;
-  //   }
-  //   COLLECTION_TYPE collectionType = _getCollectionType(collectionId);
-  //   if (collectionType != COLLECTION_TYPE.verified) {
-  //     revert("This NFT can not deduct reflection rewards");
-  //   }
-
-  //   uint256 vaultIndex = _tokenId - 1;
-  //   _updateCollectionReflectionVaultIndex(collectionId, vaultIndex, _newVal);
-  // }
-
-  // /**
-  //   * @dev Set collection incentive percentage
-  // */
-  // function _setCollectionIncentive(uint256 _collectionId, uint8 _incentive) public checkCollection(_collectionId) {
-  //   COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
-  //   if (collectionType == COLLECTION_TYPE.verified) {
-  //     _updateCollectionIncentive(_collectionId, _incentive);
-  //   }
-  // }
-
-  // /**
-  //   * @dev Calculate collection incentive reward
-  // */
-  // function getCollectionIncentiveReward(uint256 _tokenId, address _contractAddress, address _owner) public view returns (uint256) {
-  //   uint256 itemId = _getItemId(_tokenId, _contractAddress, _owner);
-  //   uint256 collectionId = _getItemCollectionId(itemId);
-
-  //   uint256 incentiveVault = _getCollectionIncentiveVault(collectionId);
-  //   uint8 percent = _getCollectionIncentive(collectionId);
-  //   return _calculatePercentChange(incentiveVault, percent);
-  // }
-
-  // /**
-  //   * @dev Update collection incentive reward
-  // */
-  // function _updateCollectionIncentiveReward(uint256 _collectionId, uint256 _value, bool _increase) public checkCollection(_collectionId) {
-  //   // todo caller must be admin or collection owner
-
-  //   COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
-  //   if (collectionType == COLLECTION_TYPE.verified) {
-  //     uint256 incentiveVault = _getCollectionIncentiveVault(_collectionId);
-  //     if (_increase) {
-  //       uint256 newIncentiveVault = incentiveVault + _value;
-  //       _updateCollectionIncentiveVault(_collectionId, newIncentiveVault);
-  //     } else {
-  //       require(incentiveVault > _value, "Passed in value must be greater than vault balance");
-  //       uint256 newIncentiveVault = incentiveVault - _value;
-  //       _updateCollectionIncentiveVault(_collectionId, newIncentiveVault);
-  //     }
-  //   }
-  // }
-
-  // /**
-  //   * @dev Increase collection incentive reward
-  //   * @custom:return-type private
-  // */
-  // function _increaseCollectionIncentiveReward(uint256 _collectionId, uint256 _value) public checkCollection(_collectionId) {
-  //   COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
-  //   if (collectionType == COLLECTION_TYPE.verified) {
-  //     uint256 incentiveVault = _getCollectionIncentiveVault(_collectionId);
-  //     uint256 newIncentiveVault = incentiveVault + _value;
-  //     _updateCollectionIncentiveVault(_collectionId, newIncentiveVault);
-  //   }
-  // }
-
-  // /**
-  //   * @dev Decrease collection incentive reward
-  //   * @custom:return-type private
-  // */
-  // function _decreaseCollectionIncentiveReward(uint256 _collectionId, uint256 _value) public checkCollection(_collectionId) {
-  //   COLLECTION_TYPE collectionType = _getCollectionType(_collectionId);
-  //   if (collectionType == COLLECTION_TYPE.verified) {
-  //     uint256 incentiveVault = _getCollectionIncentiveVault(_collectionId);
-  //     if (incentiveVault > _value) {
-  //       uint256 newIncentiveVault = incentiveVault - _value;
-  //       _updateCollectionIncentiveVault(_collectionId, newIncentiveVault);
-  //     }
-  //   }
-  // }
-
-  // /**
-  //   * @dev Deposit funds into the inventive vault
-  // */
-  // function depositCollectionIncentiveVault(uint256 _collectionId) public payable checkCollection(_collectionId) {
-  //   // todo check if msg.sender is the owner of this collection
-
-  //   // _updateCollectionIncentiveReward(_collectionId, msg.value, true);
-  // }
-
-  // /**
-  //   * @dev Withdraw funds from the inventive vault
-  // */
-  // function withdrawCollectionIncentiveVault(uint256 _collectionId, uint256 _value) public returns (uint256) {
-  //   // todo check if msg.sender is the owner of this collection
-
-  //   // uint256 initialVaultState = _getCollectionIncentiveVault(_collectionId);
-  //   // _updateCollectionIncentiveReward(_collectionId, _value, false);
-  //   // uint256 afterVaultState = _getCollectionIncentiveVault(_collectionId);
-
-  //   // if ((initialVaultState - _value) == afterVaultState) {
-  //     // todo use tokeId to check the owner from nft contract. Compare with this owner
-  //     address owner = msg.sender;
-  //     // todo ensure this is a safe way to transfer funds
-  //     ( bool success, ) = payable(owner).call{ value: _value }("");
-  //     require(success, "Collection incentive vault transfer was unccessfull");
-  //   // }
-  //   return _value;
-  //   // todo 
-  // }
-
 
   /** 
     *****************************************************
@@ -491,6 +263,7 @@ contract CollectionItem is Collection, Item, AccessControl {
   */
   /**
     * @dev Add a new collection id (if necessary) and add item id to the array
+    * @custom:return-type private
   */
   function _addItemIdInCollection(uint256 _id, uint256 _itemId) public {
     COLLECTION_ITEMS[_id].push(_itemId);
@@ -505,6 +278,7 @@ contract CollectionItem is Collection, Item, AccessControl {
 
   /**
     * @dev Remove an item in collection
+    * @custom:return-type private
   */
   function _removeItemIdInCollection(uint256 _id, uint256 _itemId) public {
     uint256 arrLength = COLLECTION_ITEMS[_id].length - 1;
@@ -521,6 +295,7 @@ contract CollectionItem is Collection, Item, AccessControl {
 
   /**
     * @dev Remove the collection item
+    * @custom:return-type private
   */
   function _removeCollectionItem(uint256 _id) public {
     delete COLLECTION_ITEMS[_id];
@@ -536,7 +311,7 @@ contract CollectionItem is Collection, Item, AccessControl {
   /**
     * @dev Get item id given token id and contract address
   */
-  function _getItemId(uint256 _tokenId, address _contractAddress, address _owner) public view returns (uint256) {
+  function getItemId(uint256 _tokenId, address _contractAddress, address _owner) public view returns (uint256) {
     uint256[] memory itemIds = _getItemsForOwner(_owner);
     uint256 itemId = 0;
     for (uint256 i = 0; i < itemIds.length; i++) {
@@ -552,7 +327,7 @@ contract CollectionItem is Collection, Item, AccessControl {
   /**
     * @dev Get all item ids in collection
   */
-  function _getItemsInCollection(uint256 _collectionId) public view checkCollection(_collectionId) returns (ItemDS[] memory) {
+  function getItemsInCollection(uint256 _collectionId) public view checkCollection(_collectionId) returns (ItemDS[] memory) {
     uint256[] memory itemsIds = _getItemIdsInCollection(_collectionId);
     return _getItems(itemsIds);
   }
@@ -560,14 +335,14 @@ contract CollectionItem is Collection, Item, AccessControl {
   /**
     * @dev Get owner of collection
   */
-  function _getOwnerOfCollection(uint256 _collectionId) public view checkCollection(_collectionId) returns (address) {
+  function getOwnerOfCollection(uint256 _collectionId) public view checkCollection(_collectionId) returns (address) {
     return _getCollectionOwner(_collectionId);
   }
 
   /**
     * @dev Get owner of collection for this item
   */
-  function _getOwnerOfItemCollection(uint256 _itemId) public view returns (address) {
+  function getOwnerOfItemCollection(uint256 _itemId) public view returns (address) {
     uint256 collectionId = _getItemCollectionId(_itemId);
     _doesCollectionExist(collectionId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
@@ -578,7 +353,7 @@ contract CollectionItem is Collection, Item, AccessControl {
   /**
     * @dev Get creator of this item
   */
-  function _getCreatorOfItem(uint256 _itemId) public view checkItem(_itemId) returns (address) {
+  function getCreatorOfItem(uint256 _itemId) public view checkItem(_itemId) returns (address) {
     return _getItemCreator(_itemId);
   }
 

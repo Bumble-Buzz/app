@@ -73,7 +73,7 @@ contract AvaxTrade is Ownable, Sale {
     CONTRACTS.bank = address(bank);
     // Sale sale = new Sale();
     // CONTRACTS.sale = address(sale);
-    CollectionItem collectionItem = new CollectionItem(owner(), address(this));
+    CollectionItem collectionItem = new CollectionItem(address(this), owner());
     CONTRACTS.collectionItem = address(collectionItem);
   }
 
@@ -108,7 +108,7 @@ contract AvaxTrade is Ownable, Sale {
       buyer,
       _price
     );
-    // uint256 itemId = CollectionItem(CONTRACTS.collectionItem)._getItemId(_tokenId, _contractAddress, msg.sender);
+    // uint256 itemId = CollectionItem(CONTRACTS.collectionItem).getItemId(_tokenId, _contractAddress, msg.sender);
     // todo fix this enum issue
     _createSale(itemId, msg.sender, _saleType);
     // if (_saleType == SALE_TYPE_2.direct) {
@@ -133,7 +133,7 @@ contract AvaxTrade is Ownable, Sale {
   */
   function cancelMarketSale(uint256 _tokenId, address _contractAddress) external payable {
     CollectionItem(CONTRACTS.collectionItem).cancelItemInCollection(_tokenId, _contractAddress, msg.sender);
-    uint256 itemId = CollectionItem(CONTRACTS.collectionItem)._getItemId(_tokenId, _contractAddress, msg.sender);
+    uint256 itemId = CollectionItem(CONTRACTS.collectionItem).getItemId(_tokenId, _contractAddress, msg.sender);
     _removeSale(itemId, msg.sender);
 
     // take care of balances
@@ -149,7 +149,7 @@ contract AvaxTrade is Ownable, Sale {
     // general require statements here
     // todo ensure msg.value >= listed sale price
 
-    uint256 itemId = CollectionItem(CONTRACTS.collectionItem)._getItemId(_tokenId, _contractAddress, msg.sender);
+    uint256 itemId = CollectionItem(CONTRACTS.collectionItem).getItemId(_tokenId, _contractAddress, msg.sender);
 
     if (_isDirectSaleValid(itemId, msg.sender)) {
       directMarketSale(itemId, _tokenId, _contractAddress, msg.sender);
@@ -184,7 +184,7 @@ contract AvaxTrade is Ownable, Sale {
     // general require statements here
     // todo ensure msg.value >= listed sale price
 
-    // uint256 itemId = CollectionItem(CONTRACTS.collectionItem)._getItemId(_tokenId, _contractAddress, msg.sender);
+    // uint256 itemId = CollectionItem(CONTRACTS.collectionItem).getItemId(_tokenId, _contractAddress, msg.sender);
     uint256 collectionId = CollectionItem(CONTRACTS.collectionItem).getItemCollectionId(itemId);
     Collection.CollectionDS memory collection = CollectionItem(CONTRACTS.collectionItem).getCollection(collectionId);
 
@@ -213,7 +213,7 @@ contract AvaxTrade is Ownable, Sale {
       if (reward > 0) {
         remainingBalance = remainingBalance - reward;
 
-        address itemCreator = CollectionItem(CONTRACTS.collectionItem)._getCreatorOfItem(itemId);
+        address itemCreator = CollectionItem(CONTRACTS.collectionItem).getCreatorOfItem(itemId);
         Bank(CONTRACTS.bank)._addBank(itemCreator); // this is okay even if bank account already exists
         Bank(CONTRACTS.bank).incrementUserAccount(itemCreator, 0, reward, 0);
       }
@@ -344,12 +344,14 @@ contract AvaxTrade is Ownable, Sale {
 
   /**
     * @dev Withdraw from collection incentive vault
+    * todo Provide option where owner of collection can and can not have access to incentive vault?
   */
   function _withdrawIncentiveCollectionAccount(address _contractAddress, uint256 _amount) external {
     uint256 collectionId = CollectionItem(CONTRACTS.collectionItem).getCllectionForContract(_contractAddress);
-    Collection.CollectionDS memory collection = CollectionItem(CONTRACTS.collectionItem).getCollection(collectionId);
+    // Collection.CollectionDS memory collection = CollectionItem(CONTRACTS.collectionItem).getCollection(collectionId);
+    address collectionOwner = CollectionItem(CONTRACTS.collectionItem).getOwnerOfCollection(collectionId);
 
-    require(collection.owner == msg.sender, "You are not the owner of this collection");
+    require(collectionOwner == msg.sender, "You are not the owner of this collection");
 
     Bank(CONTRACTS.bank).updateCollectionIncentiveReward(_contractAddress, _amount, false);
 
@@ -480,8 +482,10 @@ contract AvaxTrade is Ownable, Sale {
   */
   function createUnvariviedCollection(string memory _name) external onlyOwner() {
     // todo update so local address can be passed in
-    CollectionItem(CONTRACTS.collectionItem).createUnvariviedCollection(_name, msg.sender);
+    /**uint256 id = */CollectionItem(CONTRACTS.collectionItem).createUnvariviedCollection(_name, msg.sender);
     Bank(CONTRACTS.bank)._addBank(msg.sender); // this is okay even if bank account already exists
+
+    // todo event of collection id?
   }
 
 
