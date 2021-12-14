@@ -361,7 +361,7 @@ contract AvaxTrade is Ownable, Sale {
   /**
     * @dev Deposit into collection incentive vault
   */
-  function _depositIncentiveCollectionAccount(address _contractAddress) external payable {
+  function depositIncentiveCollectionAccount(address _contractAddress) external payable {
     /**
       * todo
       * why check if person depositing funds is the owner of the collection?
@@ -374,7 +374,7 @@ contract AvaxTrade is Ownable, Sale {
     * @dev Withdraw from collection incentive vault
     * todo Provide option where owner of collection can and can not have access to incentive vault?
   */
-  function _withdrawIncentiveCollectionAccount(address _contractAddress, uint256 _amount) external {
+  function withdrawIncentiveCollectionAccount(address _contractAddress, uint256 _amount) external {
     uint256 collectionId = CollectionItem(CONTRACTS.collectionItem).getCllectionForContract(_contractAddress);
     Collection.CollectionDS memory collection = CollectionItem(CONTRACTS.collectionItem).getCollection(collectionId);
     // address collectionOwner = CollectionItem(CONTRACTS.collectionItem).getOwnerOfCollection(collectionId);

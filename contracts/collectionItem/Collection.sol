@@ -44,7 +44,7 @@ contract Collection {
     uint8 incentive; // in percentage
     address owner; // owner of the collection
     COLLECTION_TYPE collectionType; // type of the collection
-    bool ownerIncentiveAccess;
+    bool ownerIncentiveAccess; // whether owner of the collection can withdraw from incentive fund or not
     bool active;
   }
   struct CollectionIdDS {

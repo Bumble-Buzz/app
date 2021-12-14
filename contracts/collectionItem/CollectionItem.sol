@@ -16,13 +16,6 @@ contract CollectionItem is Collection, Item, AccessControl {
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
   // modifiers
-  // modifier onlyOwnerCollectionOwner(address _collectionOwner) {
-  //   require(
-  //     (owner() == _msgSender()) || (_collectionOwner == _msgSender()),
-  //     "Caller is not the owner or collection owner"
-  //   );
-  //   _;
-  // }
   modifier checkCollectionItem(uint256 _id) {
     require(_collectionItemExists(_id), "The collection item does not exist");
     _;
@@ -264,7 +257,7 @@ contract CollectionItem is Collection, Item, AccessControl {
   */
   /**
     * @dev Add a new collection id (if necessary) and add item id to the array
-    * @custom:return-type private
+    * @custom:type private
   */
   function _addItemIdInCollection(uint256 _id, uint256 _itemId) public {
     COLLECTION_ITEMS[_id].push(_itemId);
@@ -273,13 +266,13 @@ contract CollectionItem is Collection, Item, AccessControl {
   /**
     * @dev Get item ids for the given collection
   */
-  function _getItemIdsInCollection(uint256 _id) public view returns (uint256[] memory) {
+  function getItemIdsInCollection(uint256 _id) public view returns (uint256[] memory) {
     return COLLECTION_ITEMS[_id];
   }
 
   /**
     * @dev Remove an item in collection
-    * @custom:return-type private
+    * @custom:type private
   */
   function _removeItemIdInCollection(uint256 _id, uint256 _itemId) public {
     uint256 arrLength = COLLECTION_ITEMS[_id].length - 1;
@@ -296,7 +289,7 @@ contract CollectionItem is Collection, Item, AccessControl {
 
   /**
     * @dev Remove the collection item
-    * @custom:return-type private
+    * @custom:type private
   */
   function _removeCollectionItem(uint256 _id) public {
     delete COLLECTION_ITEMS[_id];
@@ -329,7 +322,7 @@ contract CollectionItem is Collection, Item, AccessControl {
     * @dev Get all item ids in collection
   */
   function getItemsInCollection(uint256 _collectionId) public view checkCollection(_collectionId) returns (ItemDS[] memory) {
-    uint256[] memory itemsIds = _getItemIdsInCollection(_collectionId);
+    uint256[] memory itemsIds = getItemIdsInCollection(_collectionId);
     return _getItems(itemsIds);
   }
 

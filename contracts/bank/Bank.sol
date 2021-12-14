@@ -82,7 +82,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
     * @dev Add bank
   */
   function addBank(address _id) public onlyOwner() {
-    if (_isBankOwnerUnique(_id)) {
+    if (isBankOwnerUnique(_id)) {
       _addBankOwner(_id);
       _addUserAccount(_id);
       _addCollectionAccount(_id);
@@ -138,9 +138,9 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
 
   /**
     * @dev Nullify bank
-    * @custom:return-type private
+    * @custom:type private
   */
-  function _nullifyBank(address _id) public checkBank(_id) onlyOwner() {
+  function _nullifyBank(address _id) public checkBank(_id) {
     _nullifyUserAccount(_id);
     _nullifyCollectionAccount(_id);
     _nullifyVault(_id);
@@ -148,9 +148,9 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
 
   /**
     * @dev Remove bank
-    * @custom:return-type private
+    * @custom:type private
   */
-  function _removeBank(address _id) public checkBank(_id) onlyOwner() {
+  function _removeBank(address _id) public checkBank(_id) {
     _removeBankOwner(_id);
     _removeUserAccount(_id);
     _removeCollectionAccount(_id);
@@ -265,7 +265,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   */
   /**
     * @dev Add bank owner
-    * @custom:return-type private
+    * @custom:type private
   */
   function _addBankOwner(address _id) public {
     BANK_OWNERS.push(_id);
@@ -274,14 +274,14 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Get bank owners
   */
-  function _getBankOwners() public view returns (address[] memory) {
+  function getBankOwners() public view returns (address[] memory) {
     return BANK_OWNERS;
   }
 
   /**
     * @dev Does bank owner already exist in the mapping?
   */
-  function _isBankOwnerUnique(address _id) public view returns (bool) {
+  function isBankOwnerUnique(address _id) public view returns (bool) {
     for (uint256 i = 0; i < BANK_OWNERS.length; i++) {
       if (BANK_OWNERS[i] == _id) {
         return false;
@@ -292,7 +292,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
 
   /**
     * @dev Remove bank owner
-    * @custom:return-type private
+    * @custom:type private
   */
   function _removeBankOwner(address _id) public checkBank(_id) {
     uint256 arrLength = BANK_OWNERS.length - 1;

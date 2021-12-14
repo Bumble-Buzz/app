@@ -39,60 +39,60 @@ describe("AvaxTrade - Bank", () => {
     // address[] private BANK_OWNERS;
 
     it('get bank owners', async () => {
-      const result = await CONTRACT.connect(ACCOUNTS[0])._getBankOwners();
+      const result = await CONTRACT.connect(ACCOUNTS[0]).getBankOwners();
       expect(result).to.be.an('array').that.is.empty;
     });
     it('add bank owner', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._addBankOwner(ACCOUNTS[1].address);
-      const result = await CONTRACT.connect(ACCOUNTS[0])._getBankOwners();
+      const result = await CONTRACT.connect(ACCOUNTS[0]).getBankOwners();
       expect(result).to.be.an('array').that.is.not.empty;
       expect(result).to.deep.include(ACCOUNTS[1].address);
     });
     it('is bank owner unique', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._addBankOwner(ACCOUNTS[1].address);
-      expect(await CONTRACT.connect(ACCOUNTS[0])._isBankOwnerUnique(ACCOUNTS[1].address)).to.be.false;
-      expect(await CONTRACT.connect(ACCOUNTS[0])._isBankOwnerUnique(ACCOUNTS[2].address)).to.be.true;
+      expect(await CONTRACT.connect(ACCOUNTS[0]).isBankOwnerUnique(ACCOUNTS[1].address)).to.be.false;
+      expect(await CONTRACT.connect(ACCOUNTS[0]).isBankOwnerUnique(ACCOUNTS[2].address)).to.be.true;
     });
     it('remove bank owner - one user', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[1].address);
 
-      let result = await CONTRACT.connect(ACCOUNTS[0])._getBankOwners();
+      let result = await CONTRACT.connect(ACCOUNTS[0]).getBankOwners();
       expect(result).to.be.an('array').that.is.not.empty;
       expect(result).to.deep.include(ACCOUNTS[1].address);
 
       await CONTRACT.connect(ACCOUNTS[0])._removeBankOwner(ACCOUNTS[1].address);
 
-      result = await CONTRACT.connect(ACCOUNTS[0])._getBankOwners();
+      result = await CONTRACT.connect(ACCOUNTS[0]).getBankOwners();
       expect(result).to.be.an('array').that.is.empty;
     });
     it('remove bank owner - two same users', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[1].address);
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[1].address);
 
-      let result = await CONTRACT.connect(ACCOUNTS[0])._getBankOwners();
+      let result = await CONTRACT.connect(ACCOUNTS[0]).getBankOwners();
       expect(result).to.be.an('array').that.is.not.empty;
       expect(result).to.deep.include(ACCOUNTS[1].address);
 
       await CONTRACT.connect(ACCOUNTS[0])._removeBankOwner(ACCOUNTS[1].address);
 
-      result = await CONTRACT.connect(ACCOUNTS[0])._getBankOwners();
+      result = await CONTRACT.connect(ACCOUNTS[0]).getBankOwners();
       expect(result).to.be.an('array').that.is.empty;
     });
     it('remove bank owner - two different users', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[1].address);
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
 
-      let result = await CONTRACT.connect(ACCOUNTS[0])._getBankOwners();
+      let result = await CONTRACT.connect(ACCOUNTS[0]).getBankOwners();
       expect(result).to.be.an('array').that.is.not.empty;
       expect(result).to.deep.include(ACCOUNTS[1].address);
 
       await CONTRACT.connect(ACCOUNTS[0])._removeBankOwner(ACCOUNTS[1].address);
 
-      result = await CONTRACT.connect(ACCOUNTS[0])._getBankOwners();
+      result = await CONTRACT.connect(ACCOUNTS[0]).getBankOwners();
       expect(result).to.be.an('array').that.is.not.empty;
       expect(_doesArrayInclude(result, ACCOUNTS[2].address)).to.be.true;
-      expect(await CONTRACT.connect(ACCOUNTS[0])._isBankOwnerUnique(ACCOUNTS[1].address)).to.be.true;
-      expect(await CONTRACT.connect(ACCOUNTS[0])._isBankOwnerUnique(ACCOUNTS[2].address)).to.be.false;
+      expect(await CONTRACT.connect(ACCOUNTS[0]).isBankOwnerUnique(ACCOUNTS[1].address)).to.be.true;
+      expect(await CONTRACT.connect(ACCOUNTS[0]).isBankOwnerUnique(ACCOUNTS[2].address)).to.be.false;
     });
   });
 
