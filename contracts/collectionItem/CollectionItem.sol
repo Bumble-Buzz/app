@@ -182,9 +182,10 @@ contract CollectionItem is Collection, Item, AccessControl {
     * @dev Create verified collection
   */
   function createVerifiedCollection(
-    string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission, address _owner
+    string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission,
+    address _owner, bool _ownerIncentiveAccess
   ) public onlyRole(ADMIN_ROLE) {
-    _createVerifiedCollection(_name, _contractAddress, _totalSupply, _reflection, _commission, _owner);
+    _createVerifiedCollection(_name, _contractAddress, _totalSupply, _reflection, _commission, _owner, _ownerIncentiveAccess);
 
     // create collection role
     uint256 id = _getCllectionForContract(_contractAddress);

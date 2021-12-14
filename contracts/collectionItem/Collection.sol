@@ -44,6 +44,7 @@ contract Collection {
     uint8 incentive; // in percentage
     address owner; // owner of the collection
     COLLECTION_TYPE collectionType; // type of the collection
+    bool ownerIncentiveAccess;
     bool active;
   }
   struct CollectionIdDS {
@@ -168,6 +169,7 @@ contract Collection {
       incentive: 0,
       owner: _owner,
       collectionType: COLLECTION_TYPE.local,
+      ownerIncentiveAccess: false,
       active: true
     });
 
@@ -181,7 +183,8 @@ contract Collection {
     * @dev Create verified collection
   */
   function _createVerifiedCollection(
-    string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission, address _owner
+    string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission,
+    address _owner, bool _ownerIncentiveAccess
   ) internal {
     // todo require _totalSupply to be > 0
     COLLECTION_ID_POINTER.increment();
@@ -196,6 +199,7 @@ contract Collection {
       incentive: 0,
       owner: _owner,
       collectionType: COLLECTION_TYPE.verified,
+      ownerIncentiveAccess: _ownerIncentiveAccess,
       active: true
     });
 
@@ -222,6 +226,7 @@ contract Collection {
       incentive: 0,
       owner: _owner,
       collectionType: COLLECTION_TYPE.unverified,
+      ownerIncentiveAccess: false,
       active: true
     });
 
@@ -424,6 +429,20 @@ contract Collection {
   */
   function _updateCollectionType(uint256 _id, COLLECTION_TYPE _collectionType) internal checkCollection(_id) {
     COLLECTIONS[_id].collectionType = _collectionType;
+  }
+
+  /**
+    * @dev Get collection ownerIncentiveAccess boolean
+  */
+  function _getCollectionOwnerIncentiveAccess(uint256 _id) internal view checkCollection(_id) returns (bool) {
+    return COLLECTIONS[_id].ownerIncentiveAccess;
+  }
+
+  /**
+    * @dev Update collectiton ownerIncentiveAccess boolean
+  */
+  function _updateCollectionOwnerIncentiveAccess(uint256 _id, bool _ownerIncentiveAccess) internal checkCollection(_id) {
+    COLLECTIONS[_id].ownerIncentiveAccess = _ownerIncentiveAccess;
   }
 
   /**

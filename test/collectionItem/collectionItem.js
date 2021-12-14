@@ -40,7 +40,7 @@ describe("AvaxTrade - CollectionItem", () => {
   describe('Public Functions', async () => {
     beforeEach(async () => {
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', ACCOUNTS[2].address, 100, 2, 3, ACCOUNTS[3].address
+        'collection name', ACCOUNTS[2].address, 100, 2, 3, ACCOUNTS[3].address, false
       );
       await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
         'collection name', ACCOUNTS[5].address, ACCOUNTS[6].address
@@ -857,7 +857,7 @@ describe("AvaxTrade - CollectionItem", () => {
   describe('Verified collection', async () => {
     beforeEach(async () => {
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address
+        'collection name', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
     });
 
@@ -1049,28 +1049,28 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('create collection - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[2]).createVerifiedCollection(
-        'collection name', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[2].address
+        'collection name', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[2].address, false
       ).should.be.rejectedWith(
         'AccessControl: account 0x5ca6ec5718ac9ac8916b8cecab2c0d6051dbba92 is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775'
       );
     });
     it('create collection - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).createVerifiedCollection(
-        'collection name', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[1].address
+        'collection name', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[1].address, false
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
       expect(collection.collectionType).to.be.equal(1);
     });
     it('create collection - yes admin', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[0].address
+        'collection name', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[0].address, false
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
       expect(collection.collectionType).to.be.equal(1);
     });
     it('create collection', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).createVerifiedCollection(
-        'collection name', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[0].address
+        'collection name', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[0].address, false
       );
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(3);
       expect(collection.id).to.be.equal(3);
@@ -1118,7 +1118,7 @@ describe("AvaxTrade - CollectionItem", () => {
         'collection name', ACCOUNTS[1].address, ACCOUNTS[2].address
       );
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', ACCOUNTS[5].address, 100, 2, 3, ACCOUNTS[6].address
+        'collection name', ACCOUNTS[5].address, 100, 2, 3, ACCOUNTS[6].address, false
       );
     });
 

@@ -40,7 +40,7 @@ describe("AvaxTrade - Collection", () => {
     const contractFactory = await ethers.getContractFactory("Collection");
     CONTRACT = await contractFactory.deploy();
     await CONTRACT.deployed();
-    await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('Unverified');
+    await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('Unverified', ACCOUNTS[0].address);
   });
 
   it('deploys successfully', async () => {
@@ -204,8 +204,8 @@ describe("AvaxTrade - Collection", () => {
     });
 
     it('add and remove collection ids', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 2', ACCOUNTS[1].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 2', ACCOUNTS[1].address, ACCOUNTS[2].address);
 
       let collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
       expect(_doesArrayInclude(collectionIds[0], ethers.BigNumber.from('1'))).to.be.true;
@@ -347,12 +347,14 @@ describe("AvaxTrade - Collection", () => {
       //   commission: 0,
       //   owner: address(this),
       //   collectionType: COLLECTION_TYPE.local,
+      //   ownerIncentiveAccess: false
       //   active: true
       // }
 
       await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(
         'local collection',
-        ACCOUNTS[1].address
+        ACCOUNTS[1].address,
+        ACCOUNTS[0].address
       );
       const collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
       expect(collectionIds[0]).to.be.an('array').that.is.not.empty;
@@ -363,7 +365,7 @@ describe("AvaxTrade - Collection", () => {
       expect(_doesArrayEqual(collectionIds[1], [ethers.BigNumber.from('2')])).to.be.true;
       expect(_doesArrayEqual(collectionIds[3], [ethers.BigNumber.from('1')])).to.be.true;
 
-      const collectionOwner = await CONTRACT.connect(ACCOUNTS[0])._getCollectionsForOwner(CONTRACT.address);
+      const collectionOwner = await CONTRACT.connect(ACCOUNTS[0])._getCollectionsForOwner(ACCOUNTS[0].address);
       expect(collectionOwner).to.be.an('array').that.is.not.empty;
       expect(_doesArrayEqual(collectionOwner, [ethers.BigNumber.from('1'),ethers.BigNumber.from('2')])).to.be.true;
 
@@ -372,7 +374,7 @@ describe("AvaxTrade - Collection", () => {
       expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionReflection(2)).to.be.equal(0);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionCommission(2)).to.be.equal(0);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionIncentive(2)).to.be.equal(0);
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionOwner(2)).to.be.equal(CONTRACT.address);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionOwner(2)).to.be.equal(ACCOUNTS[0].address);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionType(2)).to.be.equal(0);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionActive(2)).to.be.equal(true);
     });
@@ -385,6 +387,7 @@ describe("AvaxTrade - Collection", () => {
       //   commission: _commission,
       //   owner: _owner,
       //   collectionType: COLLECTION_TYPE.verified,
+      //   ownerIncentiveAccess: false
       //   active: true
       // }
 
@@ -394,7 +397,8 @@ describe("AvaxTrade - Collection", () => {
         100,
         2,
         3,
-        ACCOUNTS[2].address
+        ACCOUNTS[2].address,
+        false
       );
       const collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
       expect(collectionIds[0]).to.be.an('array').that.is.not.empty;
@@ -417,6 +421,7 @@ describe("AvaxTrade - Collection", () => {
       expect(collection.commission).to.be.equal(3);
       expect(collection.owner).to.be.equal(ACCOUNTS[2].address);
       expect(collection.collectionType).to.be.equal(1);
+      expect(collection.ownerIncentiveAccess).to.be.equal(false);
       expect(collection.active).to.be.equal(true);
     });
     it('create unvarivied collection', async () => {
@@ -428,11 +433,13 @@ describe("AvaxTrade - Collection", () => {
       //   commission: 0,
       //   owner: address(this),
       //   collectionType: COLLECTION_TYPE.unverified,
+      //   ownerIncentiveAccess: false
       //   active: true
       // }
 
       await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(
-        'unvarivied collection'
+        'unvarivied collection',
+        ACCOUNTS[0].address
       );
       const collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
       expect(collectionIds[0]).to.be.an('array').that.is.not.empty;
@@ -442,7 +449,7 @@ describe("AvaxTrade - Collection", () => {
       expect(_doesArrayEqual(collectionIds[0], [ethers.BigNumber.from('1'),ethers.BigNumber.from('2')])).to.be.true;
       expect(_doesArrayEqual(collectionIds[3], [ethers.BigNumber.from('1'),ethers.BigNumber.from('2')])).to.be.true;
 
-      const collectionOwner = await CONTRACT.connect(ACCOUNTS[0])._getCollectionsForOwner(CONTRACT.address);
+      const collectionOwner = await CONTRACT.connect(ACCOUNTS[0])._getCollectionsForOwner(ACCOUNTS[0].address);
       expect(collectionOwner).to.be.an('array').that.is.not.empty;
       expect(_doesArrayEqual(collectionOwner, [ethers.BigNumber.from('1'),ethers.BigNumber.from('2')])).to.be.true;
 
@@ -452,27 +459,27 @@ describe("AvaxTrade - Collection", () => {
       expect(collection.totalSupply).to.be.equal(0);
       expect(collection.reflection).to.be.equal(0);
       expect(collection.commission).to.be.equal(0);
-      expect(collection.owner).to.be.equal(CONTRACT.address);
+      expect(collection.owner).to.be.equal(ACCOUNTS[0].address);
       expect(collection.collectionType).to.be.equal(2);
       expect(collection.active).to.be.equal(true);
     });
     it('create multiple collections - same user', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address, ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 2', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address
+        'verified collection 2', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3');
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 4', ACCOUNTS[1].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 5', ACCOUNTS[1].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 6');
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3', ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 4', ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 5', ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 6', ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 7', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address
-      );
-      await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 8', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address
+        'verified collection 7', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 9', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address
+        'verified collection 8', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address, true
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
+        'verified collection 9', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
 
       const result = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
@@ -498,22 +505,22 @@ describe("AvaxTrade - Collection", () => {
       expect(unverifiedCollections.length).to.be.equal(3);
     });
     it('create multiple collections - different users', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address, ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 2', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address
+        'verified collection 2', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3');
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 4', ACCOUNTS[5].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 5', ACCOUNTS[6].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 6');
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3', ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 4', ACCOUNTS[5].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 5', ACCOUNTS[6].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 6', ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 7', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address
-      );
-      await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 8', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[3].address
+        'verified collection 7', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 9', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[4].address
+        'verified collection 8', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[3].address, false
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
+        'verified collection 9', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[4].address, false
       );
 
       const result = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
@@ -539,11 +546,11 @@ describe("AvaxTrade - Collection", () => {
       expect(unverifiedCollections.length).to.be.equal(3);
     });
     it('deactivate collection', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', CONTRACT.address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', CONTRACT.address, ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 2', CONTRACT.address, 100, 2, 3, ACCOUNTS[2].address
+        'verified collection 2', CONTRACT.address, 100, 2, 3, ACCOUNTS[2].address, false
       );
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3');
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3', ACCOUNTS[2].address);
 
       let collectionIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
       expect(collectionIdPointer).to.be.equal(4);
@@ -573,11 +580,11 @@ describe("AvaxTrade - Collection", () => {
       expect(_doesArrayInclude(collectionsForOwner, ethers.BigNumber.from('3'))).to.be.true;
     });
     it('remove collection', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', CONTRACT.address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', CONTRACT.address, ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 2', CONTRACT.address, 100, 2, 3, ACCOUNTS[2].address
+        'verified collection 2', CONTRACT.address, 100, 2, 3, ACCOUNTS[2].address, false
       );
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3');
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3', ACCOUNTS[2].address);
 
       let collectionIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
       expect(collectionIdPointer).to.be.equal(4);
@@ -611,7 +618,7 @@ describe("AvaxTrade - Collection", () => {
   describe('Collection attributes', async () => {
     beforeEach(async () => {
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'collection name', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address
+        'collection name', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
     });
 
@@ -673,6 +680,14 @@ describe("AvaxTrade - Collection", () => {
     it('update collection type', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._updateCollectionType(2, 2);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionType(2)).to.be.equal(2);
+    });
+
+    it('get collection ownerIncentiveAccess', async () => {
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionOwnerIncentiveAccess(2)).to.be.equal(false);
+    });
+    it('update collection ownerIncentiveAccess', async () => {
+      await CONTRACT.connect(ACCOUNTS[0])._updateCollectionOwnerIncentiveAccess(2, true);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionOwnerIncentiveAccess(2)).to.be.equal(true);
     });
 
     it('get collection active', async () => {

@@ -26,7 +26,7 @@ describe("AvaxTrade - Item", () => {
   });
 
   beforeEach(async () => {
-    const contractFactory = await ethers.getContractFactory("AvaxTrade");
+    const contractFactory = await ethers.getContractFactory("Item");
     CONTRACT = await contractFactory.deploy();
     await CONTRACT.deployed();
   });
