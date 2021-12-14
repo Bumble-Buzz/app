@@ -66,16 +66,6 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   }
 
 
-  // constructor(address _admin, address _owner) {
-  //   // set up admin role
-  //   _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
-
-  //   // grant admin role to following accounts
-  //   _setupRole(ADMIN_ROLE, _admin);
-  //   _setupRole(ADMIN_ROLE, _owner);
-  // }
-
-
   /** 
     *****************************************************
     **************** Attribute Functions ****************
@@ -91,7 +81,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Add bank
   */
-  function _addBank(address _id) public onlyOwner() {
+  function addBank(address _id) public onlyOwner() {
     if (_isBankOwnerUnique(_id)) {
       _addBankOwner(_id);
       _addUserAccount(_id);
@@ -103,7 +93,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Get bank for given user
   */
-  function _getBank(address _id) public view checkBank(_id) returns (BankDS memory) {
+  function getBank(address _id) public view checkBank(_id) returns (BankDS memory) {
     BankDS memory bank = BankDS({
       id: _id,
       user: _getUserAccount(_id),
@@ -116,7 +106,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Get banks for list of users
   */
-  function _getBanks(address[] memory _ids) public view returns (BankDS[] memory) {
+  function getBanks(address[] memory _ids) public view returns (BankDS[] memory) {
     uint256 arrLength = _ids.length;
     BankDS[] memory banks = new BankDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
@@ -137,7 +127,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Update bank 
   */
-  function _updateBank(
+  function updateBank(
     address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionCommission,
     uint256[] memory _reflectionVault, uint256 _incentiveVault, uint256 _balance
   ) public checkBank(_id) onlyOwner() {
@@ -148,6 +138,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
 
   /**
     * @dev Nullify bank
+    * @custom:return-type private
   */
   function _nullifyBank(address _id) public checkBank(_id) onlyOwner() {
     _nullifyUserAccount(_id);
@@ -157,6 +148,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
 
   /**
     * @dev Remove bank
+    * @custom:return-type private
   */
   function _removeBank(address _id) public checkBank(_id) onlyOwner() {
     _removeBankOwner(_id);
@@ -268,7 +260,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
 
   /** 
     *****************************************************
-    ************* BANK_OWNERS Functions ***************
+    ************** BANK_OWNERS Functions ****************
     *****************************************************
   */
   /**

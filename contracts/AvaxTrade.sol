@@ -19,6 +19,12 @@ import "hardhat/console.sol";
 contract AvaxTrade is Ownable, Sale {
   using Counters for Counters.Counter;
 
+  // modifiers
+  modifier checkContractValidity(address _contractAddress) {
+    require(_isContractAddressValid(_contractAddress), "Provided contract address is not valid");
+    _;
+  }
+
   /**
     * Note All calculations using percentages will truncate any decimals.
     * Instead whole numbers will be used.
@@ -59,6 +65,20 @@ contract AvaxTrade is Ownable, Sale {
 
   // monetary
   BalanceSheetDS private BALANCE_SHEET;
+
+
+  /**
+    * @dev Is contract address valid ERC721 or ERC1155
+  */
+  function _isContractAddressValid(address _contractAddress) private view returns (bool) {
+    if (
+        IERC721(_contractAddress).supportsInterface(type(IERC721).interfaceId) ||
+        IERC1155(_contractAddress).supportsInterface(type(IERC1155).interfaceId)
+    ) {
+      return true;
+    }
+    return false;
+  }
 
 
   constructor() {
@@ -214,7 +234,7 @@ contract AvaxTrade is Ownable, Sale {
         remainingBalance = remainingBalance - reward;
 
         address itemCreator = CollectionItem(CONTRACTS.collectionItem).getCreatorOfItem(itemId);
-        Bank(CONTRACTS.bank)._addBank(itemCreator); // this is okay even if bank account already exists
+        Bank(CONTRACTS.bank).addBank(itemCreator); // this is okay even if bank account already exists
         Bank(CONTRACTS.bank).incrementUserAccount(itemCreator, 0, reward, 0);
       }
 
@@ -237,7 +257,7 @@ contract AvaxTrade is Ownable, Sale {
         remainingBalance = remainingBalance - reward;
 
         address collectionOwner = collection.owner;
-        Bank(CONTRACTS.bank)._addBank(collectionOwner); // this is okay even if bank account already exists
+        Bank(CONTRACTS.bank).addBank(collectionOwner); // this is okay even if bank account already exists
         Bank(CONTRACTS.bank).incrementUserAccount(collectionOwner, 0, 0, reward);
       }
     
@@ -324,6 +344,14 @@ contract AvaxTrade is Ownable, Sale {
   */
   function claimReflectionRewardCollectionAccount(uint256 _tokenId, address _contractAddress) external {
     uint256 reward = Bank(CONTRACTS.bank).claimReflectionRewardCollectionAccount(_tokenId, _contractAddress);
+    
+    //  todo use tokeId to check the owner from nft contract. Compare with this owner
+
+    // ensure contract address is a valid IERC721 or IERC1155 contract
+    require(_isContractAddressValid(_contractAddress), "Provided contract address is not valid");
+
+    // ownerOf(_tokenId) == msg.sender then continue, else revert transaction
+    require(IERC721(_contractAddress).ownerOf(_tokenId) == msg.sender, "You are not the owner of this item");
 
     // todo ensure this is a safe way to transfer funds
     ( bool success, ) = payable(msg.sender).call{ value: reward }("");
@@ -461,7 +489,7 @@ contract AvaxTrade is Ownable, Sale {
   function createLocalCollection(string memory _name, address _contractAddress) external onlyOwner() {
     // todo update so local address can be passed in
     CollectionItem(CONTRACTS.collectionItem).createLocalCollection(_name, _contractAddress, msg.sender);
-    Bank(CONTRACTS.bank)._addBank(msg.sender); // this is okay even if bank account already exists
+    Bank(CONTRACTS.bank).addBank(msg.sender); // this is okay even if bank account already exists
   }
 
   /**
@@ -473,7 +501,7 @@ contract AvaxTrade is Ownable, Sale {
     // todo require _totalSupply to be > 0
 
     CollectionItem(CONTRACTS.collectionItem).createVerifiedCollection(_name, _contractAddress, _totalSupply, _reflection, _commission, _owner);
-    Bank(CONTRACTS.bank)._addBank(_contractAddress); // this is okay even if bank account already exists
+    Bank(CONTRACTS.bank).addBank(_contractAddress); // this is okay even if bank account already exists
     Bank(CONTRACTS.bank).initReflectionVaultCollectionAccount(_contractAddress, _totalSupply);
   }
 
@@ -483,7 +511,7 @@ contract AvaxTrade is Ownable, Sale {
   function createUnvariviedCollection(string memory _name) external onlyOwner() {
     // todo update so local address can be passed in
     /**uint256 id = */CollectionItem(CONTRACTS.collectionItem).createUnvariviedCollection(_name, msg.sender);
-    Bank(CONTRACTS.bank)._addBank(msg.sender); // this is okay even if bank account already exists
+    Bank(CONTRACTS.bank).addBank(msg.sender); // this is okay even if bank account already exists
 
     // todo event of collection id?
   }
