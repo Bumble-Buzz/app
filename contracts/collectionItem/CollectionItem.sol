@@ -133,25 +133,27 @@ contract CollectionItem is Collection, Item, AccessControl {
   /**
     * @dev Cancel item that is currently on sale
   */
-  function cancelItemInCollection(uint256 _tokenId, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) {
+  function cancelItemInCollection(uint256 _tokenId, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) returns (uint256) {
     uint256 itemId = getItemId(_tokenId, _contractAddress, _owner);
     uint256 collectionId = _getItemCollectionId(itemId);
     require(_collectionItemIdExists(collectionId, itemId), "Collection or item does not exist");
 
     _deactivateItem(itemId);
     _removeItemIdInCollection(collectionId, itemId);
+    return itemId;
   }
 
   /**
     * @dev Mark item sold in collection
   */
-  function markItemSoldInCollection(uint256 _tokenId, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) {
+  function markItemSoldInCollection(uint256 _tokenId, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) returns (uint256) {
     uint256 itemId = getItemId(_tokenId, _contractAddress, _owner);
     uint256 collectionId = _getItemCollectionId(itemId);
     require(_collectionItemIdExists(collectionId, itemId), "Collection or item does not exist");
 
     _markItemSold(itemId);
     _removeItemIdInCollection(collectionId, itemId);
+    return itemId;
   }
 
   /**
@@ -316,6 +318,14 @@ contract CollectionItem is Collection, Item, AccessControl {
     require(_doesItemExist(itemId), "The item does not exist");
     require(_isSellerTheOwner(itemId, _owner), "This user is not the owner of the item");
     return itemId;
+  }
+
+  /**
+    * @dev Get item id given token id and contract address
+  */
+  function getItemOfOwner(uint256 _tokenId, address _contractAddress, address _owner) public view returns (ItemDS memory) {
+    uint256 itemId = getItemId(_tokenId, _contractAddress, _owner);
+    return _getItem(itemId);
   }
 
   /**

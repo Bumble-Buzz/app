@@ -2,13 +2,13 @@
 pragma solidity >=0.8.4 <0.9.0;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
-import '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
+// import '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+// import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 
-// import "./User.sol";
 import "./collectionItem/CollectionItem.sol";
 import "./bank/Bank.sol";
 import "./sale/Sale.sol";
@@ -16,8 +16,7 @@ import "./sale/Sale.sol";
 import "hardhat/console.sol";
 
 
-contract AvaxTrade is Ownable, Sale {
-  using Counters for Counters.Counter;
+contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
 
   // modifiers
   modifier checkContractValidity(address _contractAddress) {
@@ -25,19 +24,7 @@ contract AvaxTrade is Ownable, Sale {
     _;
   }
 
-  /**
-    * Note All calculations using percentages will truncate any decimals.
-    * Instead whole numbers will be used.
-    *
-    * Examples: number = (num * perVar / 100);
-    *   - 2% of 100 = 2
-    *   - 2% of 75 = 1
-    *   - 2% of 50 = 1
-    *   - 2% of 20 = 0
-  */
-
   // enums
-  // enum SALE_TYPE_2 { direct, immediate, auction }
 
   // data structures
   struct BalanceSheetDS {
@@ -66,28 +53,16 @@ contract AvaxTrade is Ownable, Sale {
   // monetary
   BalanceSheetDS private BALANCE_SHEET;
 
-
-  /**
-    * @dev Is contract address valid ERC721 or ERC1155
-  */
-  function _isContractAddressValid(address _contractAddress) private view returns (bool) {
-    if (
-        IERC721(_contractAddress).supportsInterface(type(IERC721).interfaceId) ||
-        IERC1155(_contractAddress).supportsInterface(type(IERC1155).interfaceId)
-    ) {
-      return true;
-    }
-    return false;
-  }
+  // events
+  event onERC721ReceivedEvent(address operator, address from, uint256 tokenId, bytes data);
+  // event onERC1155ReceivedEvent(address operator, address from, uint256 id, uint256 value, bytes data);
+  // event onERC1155BatchReceivedEvent(address operator, address from, uint256[] ids, uint256[] values, bytes data);
 
 
   constructor() {
     BALANCE_SHEET = BalanceSheetDS(0, 0, 0, 0, 0, 0, 0, 0);
 
     // create collections
-    // CollectionItem(CONTRACTS.collectionItem).createUnvariviedCollection('Unverified');
-    // @todo we should already know the contract address of the local collection
-    // _createLocalCollection('Local', '', address(0));
 
     Bank bank = new Bank();
     CONTRACTS.bank = address(bank);
@@ -95,6 +70,22 @@ contract AvaxTrade is Ownable, Sale {
     // CONTRACTS.sale = address(sale);
     CollectionItem collectionItem = new CollectionItem(address(this), owner());
     CONTRACTS.collectionItem = address(collectionItem);
+  }
+
+
+  /**
+    *****************************************************
+    **************** Private Functions ******************
+    *****************************************************
+  */
+  /**
+    * @dev Is contract address valid ERC721 or ERC1155
+  */
+  function _isContractAddressValid(address _contractAddress) private view returns (bool) {
+    if (IERC721(_contractAddress).supportsInterface(type(IERC721).interfaceId)) {
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -114,10 +105,10 @@ contract AvaxTrade is Ownable, Sale {
     * @dev Create market sale
   */
   function createMarketSale(
-    uint256 _tokenId, address _contractAddress, address _buyer, uint256 _price, SALE_TYPE_2 _saleType
-  ) external {
+    uint256 _tokenId, address _contractAddress, address _buyer, uint256 _price, SALE_TYPE _saleType
+  ) external nonReentrant() {
     address buyer = address(0);
-    if (_saleType == SALE_TYPE_2.direct) {
+    if (_saleType == SALE_TYPE.direct) {
       // only use passed in buyer param when it is a direct sale
       buyer = _buyer;
     }
@@ -128,33 +119,39 @@ contract AvaxTrade is Ownable, Sale {
       buyer,
       _price
     );
-    // uint256 itemId = CollectionItem(CONTRACTS.collectionItem).getItemId(_tokenId, _contractAddress, msg.sender);
-    // todo fix this enum issue
     _createSale(itemId, msg.sender, _saleType);
-    // if (_saleType == SALE_TYPE_2.direct) {
-    //   _createSaleDirect(itemId, msg.sender);
-    // } else if (_saleType == SALE_TYPE_2.immediate) {
-    //   _createSaleDirect(itemId, msg.sender);
-    // } else if (_saleType == SALE_TYPE_2.auction) {
-    //   _createSaleDirect(itemId, msg.sender);
-    // } else {
-    //   revert("Invalid sale type");
-    // }
-    
+
+    if (IERC721(_contractAddress).supportsInterface(type(IERC721).interfaceId)) {
+      // ownerOf(_tokenId) == msg.sender then continue, else revert transaction
+      require(IERC721(_contractAddress).ownerOf(_tokenId) == msg.sender, "You are not the owner of this item");
+
+      // transfer nft to market place
+      IERC721(_contractAddress).safeTransferFrom(msg.sender, address(this), _tokenId);
+    } else {
+      revert("Provided contract address is not valid");
+    }
 
     // take care of balances
 
     // todo ensure seller owns the nft, if not then revert
-    // transfer nft to market place
   }
 
   /**
     * @dev Cancel market item from sale
   */
   function cancelMarketSale(uint256 _tokenId, address _contractAddress) external payable {
-    CollectionItem(CONTRACTS.collectionItem).cancelItemInCollection(_tokenId, _contractAddress, msg.sender);
-    uint256 itemId = CollectionItem(CONTRACTS.collectionItem).getItemId(_tokenId, _contractAddress, msg.sender);
+    uint256 itemId = CollectionItem(CONTRACTS.collectionItem).cancelItemInCollection(_tokenId, _contractAddress, msg.sender);
     _removeSale(itemId, msg.sender);
+    Item.ItemDS memory item = CollectionItem(CONTRACTS.collectionItem).getItem(itemId);
+
+    if (IERC721(_contractAddress).supportsInterface(type(IERC721).interfaceId)) {
+      require(item.seller == msg.sender, "You are not the original owner of this item");
+
+      // transfer nft to market place
+      IERC721(_contractAddress).safeTransferFrom(address(this), msg.sender, _tokenId);
+    } else {
+      revert("Provided contract address is not valid");
+    }
 
     // take care of balances
     // transfer nft back to to owner
@@ -172,11 +169,13 @@ contract AvaxTrade is Ownable, Sale {
     uint256 itemId = CollectionItem(CONTRACTS.collectionItem).getItemId(_tokenId, _contractAddress, msg.sender);
 
     if (_isDirectSaleValid(itemId, msg.sender)) {
-      directMarketSale(itemId, _tokenId, _contractAddress, msg.sender);
+      directMarketSale(itemId, _tokenId, _contractAddress, msg.sender, msg.value);
     } else if (_isImmediateSaleValid(itemId, msg.sender)) {
       immediateMarketSale(itemId, _tokenId, _contractAddress, msg.sender, msg.value);
     } else if (_isAuctionSaleValid(itemId, msg.sender)) {
       auctionMarketSale(itemId, _tokenId, _contractAddress, msg.sender);
+    } else {
+      revert("Invalid sale type");
     }
 
     // todo make sure to properly check before transfers
@@ -188,9 +187,18 @@ contract AvaxTrade is Ownable, Sale {
   /**
     * @dev Complete direct market sale
   */
-  function directMarketSale(uint256 itemId, uint256 _tokenId, address _contractAddress, address _owner) private {
+  function directMarketSale(uint256 itemId, uint256 _tokenId, address _contractAddress, address _owner, uint256 _price) private {
     CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(_tokenId, _contractAddress, _owner);
     _removeSale(itemId, _owner);
+
+    // if (IERC721(_contractAddress).supportsInterface(type(IERC721).interfaceId)) {
+    //   require(item.seller == msg.sender, "You are not the original owner of this item");
+
+    //   // transfer nft to market place
+    //   IERC721(_contractAddress).safeTransferFrom(address(this), msg.sender, _tokenId);
+    // } else {
+    //   revert("Provided contract address is not valid");
+    // }
 
     // todo make sure to properly check before transfers
     // transfer nft to buyer
@@ -348,7 +356,7 @@ contract AvaxTrade is Ownable, Sale {
     //  todo use tokeId to check the owner from nft contract. Compare with this owner
 
     // ensure contract address is a valid IERC721 or IERC1155 contract
-    require(_isContractAddressValid(_contractAddress), "Provided contract address is not valid");
+    // require(_isContractAddressValid(_contractAddress), "Provided contract address is not valid");
 
     // ownerOf(_tokenId) == msg.sender then continue, else revert transaction
     require(IERC721(_contractAddress).ownerOf(_tokenId) == msg.sender, "You are not the owner of this item");
@@ -434,39 +442,43 @@ contract AvaxTrade is Ownable, Sale {
 
   /** 
     *****************************************************
+    ***************** Public Functions ******************
+    *****************************************************
+  */
+  /**
+    * @dev Get list of contract address of oter contracts
+  */
+  function getContracts() external view returns (ContractsDS memory) {
+    return CONTRACTS;
+  }
+
+
+  /** 
+    *****************************************************
     ************** Expose Child Functions ***************
     *****************************************************
   */
 
-  // // UserAccount.sol
-  // /**
-  //   * @dev Get account of user
-  // */
-  // function getUserAccount(address _id) external view returns (UserAccountDS memory) {
-  //   return _getUserAccount(_id);
-  // }
 
-  // // CollectionAccount.sol
-  // /**
-  //   * @dev Get account of collection
-  // */
-  // function getCollectionAccount(address _id) external view returns (CollectionAccountDS memory) {
-  //   return _getCollectionAccount(_id);
+  /** 
+    *****************************************************
+    ************** Nft Transfter Functions **************
+    *****************************************************
+  */
+  function onERC721Received(address _operator, address _from, uint256 _tokenId, bytes calldata _data
+  ) external override returns (bytes4) {
+    emit onERC721ReceivedEvent(_operator, _from, _tokenId, _data);
+    return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
+  }
+  // function onERC1155Received(address _operator, address _from, uint256 id, uint256 value, bytes calldata _data
+  // ) external returns (bytes4) {
+  //   emit onERC1155ReceivedEvent(_operator, _from, id, value, _data);
+  //   return bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));
   // }
-
-  // /**
-  //   * @dev Get collection incentive vault
-  // */
-  // function getIncentiveVaultCollectionAccount(address _id) external view returns (uint256) {
-  //   return _getIncentiveVaultCollectionAccount(_id);
-  // }
-
-  // // Vault.sol
-  // /**
-  //   * @dev Get vault of user
-  // */
-  // function getVault(address _id) external view returns (VaultDS memory) {
-  //   return _getVault(_id);
+  // function onERC1155BatchReceived(address _operator, address _from, uint256[] calldata ids, uint256[] calldata values, bytes calldata _data
+  // ) external returns (bytes4) {
+  //   emit onERC1155BatchReceivedEvent(_operator, _from, ids, values, _data);
+  //   return bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"));
   // }
 
 }

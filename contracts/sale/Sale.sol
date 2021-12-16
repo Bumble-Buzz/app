@@ -18,7 +18,7 @@ contract Sale is Direct, Immediate, Auction {
 
   // enums
   // @todo MarketItem has a SALE_TYPE enum. Either rename that one or remove it from there
-  enum SALE_TYPE_2 { direct, immediate, auction }
+  enum SALE_TYPE { direct, immediate, auction }
 
   // data structures
   struct SaleUserDS {
@@ -36,7 +36,7 @@ contract Sale is Direct, Immediate, Auction {
 
   struct SaleDS {
     uint256 id; // unique item id
-    SALE_TYPE_2 saleType; // type of the sale for the item
+    SALE_TYPE saleType; // type of the sale for the item
   }
 
   uint256[] private SALE_ITEMS; // current list of total items on sale
@@ -82,7 +82,7 @@ contract Sale is Direct, Immediate, Auction {
     require(!_saleExists(_id), "Sale already exists - Direct");
     SALES[_id] = SaleDS({
       id: _id,
-      saleType: SALE_TYPE_2.direct
+      saleType: SALE_TYPE.direct
     });
 
     _addTotalSaleItemId(_id);
@@ -96,7 +96,7 @@ contract Sale is Direct, Immediate, Auction {
     require(!_saleExists(_id), "Sale already exists - Immediate");
     SALES[_id] = SaleDS({
       id: _id,
-      saleType: SALE_TYPE_2.immediate
+      saleType: SALE_TYPE.immediate
     });
 
     _addTotalSaleItemId(_id);
@@ -110,7 +110,7 @@ contract Sale is Direct, Immediate, Auction {
     require(!_saleExists(_id), "Sale already exists - Auction");
     SALES[_id] = SaleDS({
       id: _id,
-      saleType: SALE_TYPE_2.auction
+      saleType: SALE_TYPE.auction
     });
 
     _addTotalSaleItemId(_id);
@@ -120,13 +120,13 @@ contract Sale is Direct, Immediate, Auction {
   /**
     * @dev Create sale
   */
-  function _createSale(uint256 _id, address _owner, SALE_TYPE_2 _saleType) internal {
+  function _createSale(uint256 _id, address _owner, SALE_TYPE _saleType) internal {
     require(!_saleExists(_id), "Sale already exists");
-    if (_saleType == SALE_TYPE_2.direct) {
+    if (_saleType == SALE_TYPE.direct) {
       _createSaleDirect(_id, _owner);
-    } else if (_saleType == SALE_TYPE_2.immediate) {
+    } else if (_saleType == SALE_TYPE.immediate) {
       _createSaleImmediate(_id, _owner);
-    } else if (_saleType == SALE_TYPE_2.auction) {
+    } else if (_saleType == SALE_TYPE.auction) {
       _createSaleAuction(_id, _owner);
     }
   }
@@ -249,12 +249,12 @@ contract Sale is Direct, Immediate, Auction {
     * @dev Remove sale for user
   */
   function _removeSale(uint256 _id, address _owner) internal checkSale(_id) {
-    SALE_TYPE_2 saleType = SALES[_id].saleType;
-    if (saleType == SALE_TYPE_2.direct) {
+    SALE_TYPE saleType = SALES[_id].saleType;
+    if (saleType == SALE_TYPE.direct) {
       _removeDirectSale(_owner, _id);
-    } else if (saleType == SALE_TYPE_2.immediate) {
+    } else if (saleType == SALE_TYPE.immediate) {
       _removeImmediateSale(_owner, _id);
-    } else if (saleType == SALE_TYPE_2.auction) {
+    } else if (saleType == SALE_TYPE.auction) {
       _removeAuctionSale(_owner, _id);
     }
     _removeTotalSaleItemId(_id);
