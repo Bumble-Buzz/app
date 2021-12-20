@@ -86,7 +86,7 @@ contract Auction {
   /**
     * @dev Does auction sale id exist
   */
-  function _doesAuctionSaleItemIdExists(address _id, uint256 _itemId) internal view checkAuctionSale(_id,_itemId) returns (bool) {
+  function _doesAuctionSaleItemIdExists(address _id, uint256 _itemId) internal view returns (bool) {
     return _auctionSaleExists(_id, _itemId);
   }
 

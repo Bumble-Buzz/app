@@ -132,6 +132,13 @@ contract Sale is Direct, Immediate, Auction {
   }
 
   /**
+    * @dev Get sale
+  */
+  function _getSale(uint256 _id) internal view checkSale(_id) returns (SaleDS memory) {
+    return SALES[_id];
+  }
+
+  /**
     * @dev Is direct sale valid
   */
   function _isDirectSaleValid(uint256 _id, address _owner) internal view checkSale(_id) returns (bool) {

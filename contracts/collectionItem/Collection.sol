@@ -306,6 +306,8 @@ contract Collection {
   function _updateCollection(
     uint256 _id, string memory _name, address _contractAddress, uint8 _reflection, uint8 _commission, uint8 _incentive, address _owner
   ) internal checkCollection(_id) {
+    // todo not allow owner to update _contractAddress? May screw up existing items on sale under this collection
+
     COLLECTIONS[_id].name = _name;
     COLLECTIONS[_id].reflection = _reflection;
     COLLECTIONS[_id].commission = _commission;

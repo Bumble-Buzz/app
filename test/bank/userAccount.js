@@ -7,6 +7,7 @@ const { ethers } = require("hardhat");
 // global variables
 let ACCOUNTS = [];
 let CONTRACT;
+const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 // global functions
 const _doesArrayInclude = (_array, _identifier = {}) => {
@@ -48,8 +49,11 @@ describe("AvaxTrade - User Account", () => {
         .should.be.rejectedWith('An account in the list does not exist');
     });
     it('get account 1 - does not exist', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._getUserAccount(ACCOUNTS[1].address)
-        .should.be.rejectedWith('The account for this user does not exist');
+      const account = await CONTRACT.connect(ACCOUNTS[0])._getUserAccount(ACCOUNTS[1].address);
+      expect(account.id).to.be.equal(EMPTY_ADDRESS);
+      expect(account.general).to.be.equal(0);
+      expect(account.nftCommission).to.be.equal(0);
+      expect(account.collectionCommission).to.be.equal(0);
     });
 
     it('add account', async () => {
@@ -266,9 +270,12 @@ describe("AvaxTrade - User Account", () => {
       expect(account.collectionCommission).to.be.equal(0);
 
       await CONTRACT.connect(ACCOUNTS[0])._removeUserAccount(ACCOUNTS[1].address);
-
-      await CONTRACT.connect(ACCOUNTS[0])._getUserAccount(ACCOUNTS[1].address)
-        .should.be.rejectedWith('The account for this user does not exist');
+      
+      account = await CONTRACT.connect(ACCOUNTS[0])._getUserAccount(ACCOUNTS[1].address);
+      expect(account.id).to.be.equal(EMPTY_ADDRESS);
+      expect(account.general).to.be.equal(0);
+      expect(account.nftCommission).to.be.equal(0);
+      expect(account.collectionCommission).to.be.equal(0);
     });
   });
 

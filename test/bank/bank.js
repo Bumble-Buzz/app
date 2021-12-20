@@ -7,6 +7,7 @@ const { ethers } = require("hardhat");
 // global variables
 let ACCOUNTS = [];
 let CONTRACT;
+const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 // global functions
 const _doesArrayInclude = (_array, _identifier = {}) => {
@@ -109,8 +110,13 @@ describe("AvaxTrade - Bank", () => {
       .should.be.rejectedWith('A user in the list does not own a bank');
     });
     it('get bank 1 - does not exist', async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[1].address)
-        .should.be.rejectedWith('The bank for this user does not exist');
+      await CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[1].address);
+
+      const bank = await CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[1].address);
+      expect(bank.id).to.be.equal(ACCOUNTS[1].address);
+      expect(_doesArrayInclude(bank.user, EMPTY_ADDRESS)).to.be.true;
+      expect(_doesArrayInclude(bank.collection, EMPTY_ADDRESS)).to.be.true;
+      expect(_doesArrayInclude(bank.vault, EMPTY_ADDRESS)).to.be.true;
     });
 
     it('add bank', async () => {
@@ -438,8 +444,11 @@ describe("AvaxTrade - Bank", () => {
 
       await CONTRACT.connect(ACCOUNTS[0])._removeBank(ACCOUNTS[1].address);
 
-      bank = await CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[1].address)
-      .should.be.rejectedWith('The bank for this user does not exist');
+      bank = await CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[1].address);
+      expect(bank.id).to.be.equal(ACCOUNTS[1].address);
+      expect(_doesArrayInclude(bank.user, EMPTY_ADDRESS)).to.be.true;
+      expect(_doesArrayInclude(bank.collection, EMPTY_ADDRESS)).to.be.true;
+      expect(_doesArrayInclude(bank.vault, EMPTY_ADDRESS)).to.be.true;
     });
   });
 
@@ -450,8 +459,17 @@ describe("AvaxTrade - Bank", () => {
         .should.be.rejectedWith('Ownable: caller is not the owner');
     });
     it('claim general reward user account - owner account does not exist', async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).claimGeneralRewardUserAccount(ACCOUNTS[0].address)
-        .should.be.rejectedWith('The account for this user does not exist');
+      let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getGeneralUserAccount(ACCOUNTS[1].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[0]).claimGeneralRewardUserAccount(ACCOUNTS[1].address);
+
+      balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getGeneralUserAccount(ACCOUNTS[1].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
     });
     it('claim general reward user account - no balance', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[1].address);
@@ -490,8 +508,17 @@ describe("AvaxTrade - Bank", () => {
         .should.be.rejectedWith('Ownable: caller is not the owner');
     });
     it('claim nft commission reward user account - owner account does not exist', async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).claimNftCommissionRewardUserAccount(ACCOUNTS[0].address)
-        .should.be.rejectedWith('The account for this user does not exist');
+      let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getGeneralUserAccount(ACCOUNTS[1].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[0]).claimNftCommissionRewardUserAccount(ACCOUNTS[1].address);
+
+      balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getGeneralUserAccount(ACCOUNTS[1].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
     });
     it('claim nft commission reward user account - no balance', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[1].address);
@@ -529,9 +556,18 @@ describe("AvaxTrade - Bank", () => {
       await CONTRACT.connect(ACCOUNTS[1]).claimCollectionCommissionRewardUserAccount(ACCOUNTS[1].address)
         .should.be.rejectedWith('Ownable: caller is not the owner');
     });
-    it('claim collection commission reward user account - account does not exist', async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).claimCollectionCommissionRewardUserAccount(ACCOUNTS[0].address)
-        .should.be.rejectedWith('The account for this user does not exist');
+    it('claim collection commission reward user account - owner account does not exist', async () => {
+      let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getGeneralUserAccount(ACCOUNTS[1].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[0]).claimCollectionCommissionRewardUserAccount(ACCOUNTS[1].address);
+
+      balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getGeneralUserAccount(ACCOUNTS[1].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
     });
     it('claim collection commission reward user account - no balance', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[1].address);
@@ -569,15 +605,15 @@ describe("AvaxTrade - Bank", () => {
       await CONTRACT.connect(ACCOUNTS[1]).claimReflectionRewardCollectionAccount(2, ACCOUNTS[2].address)
         .should.be.rejectedWith('Ownable: caller is not the owner');
     });
-    it('claim reflection reward collection account - account does not exist', async () => {
+    it('claim reflection reward collection account - owner account does not exist', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardCollectionAccount(2, ACCOUNTS[2].address)
-        .should.be.rejectedWith('The account for this collection does not exist');
+        .should.be.rejectedWith('CollectionAccount: Reflection vault not initialized');
     });
-    it('claim reflection reward collection account - bank exists - token id out of bounds', async () => {
+    it('claim reflection reward collection account - bank exists - vault not initialized', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
 
       await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardCollectionAccount(1, ACCOUNTS[2].address)
-        .should.be.rejectedWith('CollectionAccount: Index out of bounds');
+        .should.be.rejectedWith('CollectionAccount: Reflection vault not initialized');
     });
     it('claim reflection reward collection account - bank & vault exists - token id out of bounds', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
@@ -633,7 +669,7 @@ describe("AvaxTrade - Bank", () => {
     });
     it('distribute collection reflection - account does not exist', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(ACCOUNTS[2].address, 3, ethers.utils.parseEther('6'))
-        .should.be.rejectedWith('The account for this collection does not exist');
+        .should.be.rejectedWith('CollectionAccount: Reflection vault not initialized');
     });
     it('distribute collection reflection - no existing balance', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
@@ -672,6 +708,12 @@ describe("AvaxTrade - Bank", () => {
       expect(ethers.utils.formatEther(balance)).to.be.equal('8.0');
     });
 
+    
+    it('update collection incentive reward - vault not initialized', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).incrementCollectionAccount(ACCOUNTS[2].address, 0, ethers.utils.parseEther('4'))
+        .should.be.rejectedWith('CollectionAccount: Reflection vault not initialized');
+    });
     it('update collection incentive reward - increase - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).updateCollectionIncentiveReward(ACCOUNTS[2].address, ethers.utils.parseEther('5'), true)
         .should.be.rejectedWith('Ownable: caller is not the owner');
@@ -681,12 +723,26 @@ describe("AvaxTrade - Bank", () => {
         .should.be.rejectedWith('Ownable: caller is not the owner');
     });
     it('update collection incentive reward - increase - account does not exist', async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).updateCollectionIncentiveReward(ACCOUNTS[2].address, ethers.utils.parseEther('5'), true)
-        .should.be.rejectedWith('The account for this collection does not exist');
+      let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getIncentiveVaultCollectionAccount(ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[0]).updateCollectionIncentiveReward(ACCOUNTS[2].address, ethers.utils.parseEther('5'), true);
+        // .should.be.rejectedWith('The account for this collection does not exist');
+      balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getIncentiveVaultCollectionAccount(ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
     });
     it('update collection incentive reward - decrease - account does not exist', async () => {
+      let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getIncentiveVaultCollectionAccount(ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+
       await CONTRACT.connect(ACCOUNTS[0]).updateCollectionIncentiveReward(ACCOUNTS[2].address, ethers.utils.parseEther('5'), false)
-        .should.be.rejectedWith('The account for this collection does not exist');
+        .should.be.rejectedWith('Bank: Passed in value must be greater than vault balance');
     });
     it('update collection incentive reward - increase - no existing balance', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
@@ -705,6 +761,7 @@ describe("AvaxTrade - Bank", () => {
     });
     it('update collection incentive reward - increase - yes existing balance', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[2].address, 3);
       await CONTRACT.connect(ACCOUNTS[0]).incrementCollectionAccount(ACCOUNTS[2].address, 0, ethers.utils.parseEther('4'));
 
       let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
@@ -732,6 +789,7 @@ describe("AvaxTrade - Bank", () => {
     });
     it('update collection incentive reward - decrease - yes existing balance', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[2].address, 3);
       await CONTRACT.connect(ACCOUNTS[0]).incrementCollectionAccount(ACCOUNTS[2].address, 0, ethers.utils.parseEther('5'));
 
       let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
@@ -748,6 +806,7 @@ describe("AvaxTrade - Bank", () => {
     });
     it('update collection incentive reward - decrease - yes existing balance - all', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[2].address, 3);
       await CONTRACT.connect(ACCOUNTS[0]).incrementCollectionAccount(ACCOUNTS[2].address, 0, ethers.utils.parseEther('5'));
 
       let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
@@ -764,6 +823,7 @@ describe("AvaxTrade - Bank", () => {
     });
     it('update collection incentive reward - decrease - yes existing balance - overdraft', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[2].address, 3);
       await CONTRACT.connect(ACCOUNTS[0]).incrementCollectionAccount(ACCOUNTS[2].address, 0, ethers.utils.parseEther('4'));
 
       let balance = await CONTRACT.provider.getBalance(CONTRACT.address);

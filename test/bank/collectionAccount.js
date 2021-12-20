@@ -7,6 +7,7 @@ const { ethers } = require("hardhat");
 // global variables
 let ACCOUNTS = [];
 let CONTRACT;
+const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 // global functions
 const _doesArrayInclude = (_array, _identifier = {}) => {
@@ -47,8 +48,10 @@ describe("AvaxTrade - Collection Account", () => {
         .should.be.rejectedWith('An account in the list does not exist');
     });
     it('get account 1 - does not exist', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._getCollectionAccount(ACCOUNTS[1].address)
-        .should.be.rejectedWith('The account for this collection does not exist');
+        const account = await CONTRACT.connect(ACCOUNTS[0])._getCollectionAccount(ACCOUNTS[1].address);
+        expect(account.id).to.be.equal(EMPTY_ADDRESS);
+        expect(account.reflectionVault).to.be.an('array').that.is.empty;
+        expect(account.incentiveVault).to.be.equal(0);
     });
 
     it('add account', async () => {
@@ -316,9 +319,10 @@ describe("AvaxTrade - Collection Account", () => {
       expect(account.incentiveVault).to.be.equal(0);
 
       await CONTRACT.connect(ACCOUNTS[0])._removeCollectionAccount(ACCOUNTS[1].address);
-
-      await CONTRACT.connect(ACCOUNTS[0])._getCollectionAccount(ACCOUNTS[1].address)
-        .should.be.rejectedWith('The account for this collection does not exist');
+      account = await CONTRACT.connect(ACCOUNTS[0])._getCollectionAccount(ACCOUNTS[1].address);
+      expect(account.id).to.be.equal(EMPTY_ADDRESS);
+      expect(account.reflectionVault).to.be.an('array').that.is.empty;
+      expect(account.incentiveVault).to.be.equal(0);
     });
 
   });
@@ -329,8 +333,9 @@ describe("AvaxTrade - Collection Account", () => {
     });
 
     it('get collection reflection vault', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultCollectionAccount(ACCOUNTS[2].address)
-        .should.be.rejectedWith('The account for this collection does not exist');
+      const result = await CONTRACT.connect(ACCOUNTS[0])._getReflectionVaultCollectionAccount(ACCOUNTS[2].address);
+      expect(result).to.be.an('array').that.is.empty;
+      expect(result.length).to.be.equal(0);
     });
     it('add collection reflection vault', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._initReflectionVaultCollectionAccount(ACCOUNTS[1].address, 100);
@@ -356,8 +361,8 @@ describe("AvaxTrade - Collection Account", () => {
     });
 
     it('get collection incentive vault', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._getIncentiveVaultCollectionAccount(ACCOUNTS[2].address)
-        .should.be.rejectedWith('The account for this collection does not exist');
+      const result = await CONTRACT.connect(ACCOUNTS[0])._getIncentiveVaultCollectionAccount(ACCOUNTS[2].address);
+      expect(result).to.be.equal(0);
     });
     it('update collection incentive vault', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._updateIncentiveVaultCollectionAccount(ACCOUNTS[1].address, 2);

@@ -56,7 +56,7 @@ contract UserAccount {
   /**
     * @dev Get account of user
   */
-  function _getUserAccount(address _id) internal view checkUserAccount(_id) returns (UserAccountDS memory) {
+  function _getUserAccount(address _id) internal view returns (UserAccountDS memory) {
     return USER_ACCOUNTS[_id];
   }
 
@@ -80,7 +80,7 @@ contract UserAccount {
   */
   function _updateUserAccount(
     address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionCommission
-  ) internal checkUserAccount(_id) {
+  ) internal {
     USER_ACCOUNTS[_id] = UserAccountDS({
       id: _id,
       general: _general,
@@ -94,7 +94,7 @@ contract UserAccount {
   */
   function _incrementUserAccount(
     address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionCommission
-  ) internal checkUserAccount(_id) {
+  ) internal {
     USER_ACCOUNTS[_id] = UserAccountDS({
       id: _id,
       general: _getGeneralUserAccount(_id) + _general,
@@ -106,56 +106,56 @@ contract UserAccount {
   /**
     * @dev Get general account
   */
-  function _getGeneralUserAccount(address _id) internal view checkUserAccount(_id) returns (uint256) {
+  function _getGeneralUserAccount(address _id) internal view returns (uint256) {
     return USER_ACCOUNTS[_id].general;
   }
 
   /**
     * @dev Update general account
   */
-  function _updateGeneralUserAccount(address _id, uint256 _general) internal checkUserAccount(_id) {
+  function _updateGeneralUserAccount(address _id, uint256 _general) internal {
     USER_ACCOUNTS[_id].general = _general;
   }
 
   /**
     * @dev Get nft commission account
   */
-  function _getNftCommissionUserAccount(address _id) internal view checkUserAccount(_id) returns (uint256) {
+  function _getNftCommissionUserAccount(address _id) internal view returns (uint256) {
     return USER_ACCOUNTS[_id].nftCommission;
   }
 
   /**
     * @dev Update nft commission account
   */
-  function _updateNftCommissionUserAccount(address _id, uint256 _nftCommission) internal checkUserAccount(_id) {
+  function _updateNftCommissionUserAccount(address _id, uint256 _nftCommission) internal {
     USER_ACCOUNTS[_id].nftCommission = _nftCommission;
   }
 
   /**
     * @dev Get collection commission account
   */
-  function _getCollectionCommissionUserAccount(address _id) internal view checkUserAccount(_id) returns (uint256) {
+  function _getCollectionCommissionUserAccount(address _id) internal view returns (uint256) {
     return USER_ACCOUNTS[_id].collectionCommission;
   }
 
   /**
     * @dev Update collection commission account
   */
-  function _updateCollectionCommissionUserAccount(address _id, uint256 _collectionCommission) internal checkUserAccount(_id) {
+  function _updateCollectionCommissionUserAccount(address _id, uint256 _collectionCommission) internal {
     USER_ACCOUNTS[_id].collectionCommission = _collectionCommission;
   }
 
   /**
     * @dev Nullify account
   */
-  function _nullifyUserAccount(address _id) internal checkUserAccount(_id) {
+  function _nullifyUserAccount(address _id) internal {
     _updateUserAccount(_id, 0, 0, 0);
   }
 
   /**
     * @dev Remove account
   */
-  function _removeUserAccount(address _id) internal checkUserAccount(_id) {
+  function _removeUserAccount(address _id) internal {
     delete USER_ACCOUNTS[_id];
   }
 }

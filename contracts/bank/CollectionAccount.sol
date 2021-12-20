@@ -56,7 +56,7 @@ contract CollectionAccount {
   /**
     * @dev Get account of collection
   */
-  function _getCollectionAccount(address _id) internal view checkCollectionAccount(_id) returns (CollectionAccountDS memory) {
+  function _getCollectionAccount(address _id) internal view returns (CollectionAccountDS memory) {
     return COLLECTION_ACCOUNTS[_id];
   }
 
@@ -80,7 +80,7 @@ contract CollectionAccount {
   */
   function _updateCollectionAccount(
     address _id, uint256[] memory _reflectionVault, uint256 _incentiveVault
-  ) internal checkCollectionAccount(_id) {
+  ) internal {
     COLLECTION_ACCOUNTS[_id] = CollectionAccountDS({
       id: _id,
       reflectionVault: _reflectionVault,
@@ -98,7 +98,7 @@ contract CollectionAccount {
   /**
     * @dev Get collection reflection vault
   */
-  function _getReflectionVaultCollectionAccount(address _id) internal view checkCollectionAccount(_id) returns (uint256[] memory) {
+  function _getReflectionVaultCollectionAccount(address _id) internal view returns (uint256[] memory) {
     return COLLECTION_ACCOUNTS[_id].reflectionVault;
   }
 
@@ -107,7 +107,8 @@ contract CollectionAccount {
       @param _id : collection id
       @param _rewardPerItem : reward needs to be allocated to each item in this collection
   */
-  function _increaseReflectionVaultCollectionAccount(address _id, uint256 _rewardPerItem) internal checkCollectionAccount(_id) {
+  function _increaseReflectionVaultCollectionAccount(address _id, uint256 _rewardPerItem) internal {
+    require(COLLECTION_ACCOUNTS[_id].reflectionVault.length > 0 , "CollectionAccount: Reflection vault not initialized");
     uint256[] memory vault = COLLECTION_ACCOUNTS[_id].reflectionVault;
     for (uint256 i = 0; i < vault.length; i++) {
       uint256 currentValue = vault[i];
@@ -119,7 +120,8 @@ contract CollectionAccount {
   /**
     * @dev Get collection reflection vault index
   */
-  function _getReflectionVaultIndexCollectionAccount(address _id, uint256 _index) internal view checkCollectionAccount(_id) returns (uint256) {
+  function _getReflectionVaultIndexCollectionAccount(address _id, uint256 _index) internal view returns (uint256) {
+    require(COLLECTION_ACCOUNTS[_id].reflectionVault.length > 0 , "CollectionAccount: Reflection vault not initialized");
     require(_index < COLLECTION_ACCOUNTS[_id].reflectionVault.length, "CollectionAccount: Index out of bounds");
     return COLLECTION_ACCOUNTS[_id].reflectionVault[_index];
   }
@@ -130,7 +132,8 @@ contract CollectionAccount {
       @param _index : specific vault index to update
       @param _newVal : new value for a single vault index
   */
-  function _updateReflectionVaultIndexCollectionAccount(address _id, uint256 _index, uint256 _newVal) internal checkCollectionAccount(_id) {
+  function _updateReflectionVaultIndexCollectionAccount(address _id, uint256 _index, uint256 _newVal) internal {
+    require(COLLECTION_ACCOUNTS[_id].reflectionVault.length > 0 , "CollectionAccount: Reflection vault not initialized");
     require(_index < COLLECTION_ACCOUNTS[_id].reflectionVault.length, "CollectionAccount: Index out of bounds");
     COLLECTION_ACCOUNTS[_id].reflectionVault[_index] = _newVal;
   }
@@ -145,14 +148,14 @@ contract CollectionAccount {
   /**
     * @dev Get collection incentive vault
   */
-  function _getIncentiveVaultCollectionAccount(address _id) internal view checkCollectionAccount(_id) returns (uint256) {
+  function _getIncentiveVaultCollectionAccount(address _id) internal view returns (uint256) {
     return COLLECTION_ACCOUNTS[_id].incentiveVault;
   }
 
   /**
     * @dev Update collection incentive vault
   */
-  function _updateIncentiveVaultCollectionAccount(address _id, uint256 _incentiveVault) internal checkCollectionAccount(_id) {
+  function _updateIncentiveVaultCollectionAccount(address _id, uint256 _incentiveVault) internal {
     COLLECTION_ACCOUNTS[_id].incentiveVault = _incentiveVault;
   }
 
@@ -161,7 +164,7 @@ contract CollectionAccount {
   */
   function _incrementCollectionAccount(
     address _id, uint256 _rewardPerItem, uint256 _incentiveVault
-  ) internal checkCollectionAccount(_id) {
+  ) internal {
     _increaseReflectionVaultCollectionAccount(_id, _rewardPerItem);
     COLLECTION_ACCOUNTS[_id].incentiveVault += _incentiveVault;
   }
@@ -169,7 +172,7 @@ contract CollectionAccount {
   /**
     * @dev Nullify collection
   */
-  function _nullifyCollectionAccount(address _id) internal checkCollectionAccount(_id) {
+  function _nullifyCollectionAccount(address _id) internal {
     _nullifyReflectionVaultCollectionAccount(_id);
     _updateIncentiveVaultCollectionAccount(_id, 0);
   }
@@ -177,7 +180,7 @@ contract CollectionAccount {
   /**
     * @dev Remove collection
   */
-  function _removeCollectionAccount(address _id) internal checkCollectionAccount(_id) {
+  function _removeCollectionAccount(address _id) internal {
     delete COLLECTION_ACCOUNTS[_id];
   }
 }

@@ -86,7 +86,7 @@ contract Direct {
   /**
     * @dev Does direct sale id exist
   */
-  function _doesDirectSaleItemIdExists(address _id, uint256 _itemId) internal view checkDirectSale(_id,_itemId) returns (bool) {
+  function _doesDirectSaleItemIdExists(address _id, uint256 _itemId) internal view returns (bool) {
     return _directSaleExists(_id, _itemId);
   }
 

@@ -257,32 +257,32 @@ describe("AvaxTrade - CollectionItem", () => {
     });
 
     it('cancel item in collection - not owner', async () => {
-      await CONTRACT.connect(ACCOUNTS[2]).cancelItemInCollection(2, ACCOUNTS[1].address, ACCOUNTS[2].address)
+      await CONTRACT.connect(ACCOUNTS[2]).cancelItemInCollection(1)
         .should.be.rejectedWith(
         'AccessControl: account 0x5ca6ec5718ac9ac8916b8cecab2c0d6051dbba92 is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775'
       );
     });
     it('cancel item in collection - yes owner', async () => {
-      await CONTRACT.connect(ACCOUNTS[1]).cancelItemInCollection(2, ACCOUNTS[1].address, ACCOUNTS[2].address)
+      await CONTRACT.connect(ACCOUNTS[1]).cancelItemInCollection(1)
         .should.be.rejectedWith('The item does not exist');
     });
     it('cancel item in collection - yes admin', async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).cancelItemInCollection(2, ACCOUNTS[1].address, ACCOUNTS[2].address)
+      await CONTRACT.connect(ACCOUNTS[0]).cancelItemInCollection(1)
         .should.be.rejectedWith('The item does not exist');
     });
 
     it('mark item sold in collection - not owner', async () => {
-      await CONTRACT.connect(ACCOUNTS[2]).markItemSoldInCollection(2, ACCOUNTS[1].address, ACCOUNTS[2].address)
+      await CONTRACT.connect(ACCOUNTS[2]).markItemSoldInCollection(2, ACCOUNTS[2].address)
         .should.be.rejectedWith(
         'AccessControl: account 0x5ca6ec5718ac9ac8916b8cecab2c0d6051dbba92 is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775'
       );
     });
     it('mark item sold in collection - yes owner', async () => {
-      await CONTRACT.connect(ACCOUNTS[1]).markItemSoldInCollection(2, ACCOUNTS[1].address, ACCOUNTS[2].address)
+      await CONTRACT.connect(ACCOUNTS[1]).markItemSoldInCollection(2, ACCOUNTS[2].address)
         .should.be.rejectedWith('The item does not exist');
     });
     it('mark item sold in collection - yes admin', async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).markItemSoldInCollection(2, ACCOUNTS[1].address, ACCOUNTS[2].address)
+      await CONTRACT.connect(ACCOUNTS[0]).markItemSoldInCollection(2, ACCOUNTS[2].address)
         .should.be.rejectedWith('The item does not exist');
     });
 
@@ -484,7 +484,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(item.sold).to.be.equal(false);
       expect(item.active).to.be.equal(true);
 
-      await CONTRACT.connect(ACCOUNTS[0]).cancelItemInCollection(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).cancelItemInCollection(itemId);
 
       item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       expect(item.id).to.be.equal(itemId);
@@ -492,17 +492,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(item.active).to.be.equal(false);
     });
     it('cancel item in collection - invalid item id', async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
-      );
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
-      
-      let item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
-      expect(item.id).to.be.equal(itemId);
-      expect(item.sold).to.be.equal(false);
-      expect(item.active).to.be.equal(true);
-
-      await CONTRACT.connect(ACCOUNTS[0]).cancelItemInCollection(11, ACCOUNTS[1].address, ACCOUNTS[2].address)
+      await CONTRACT.connect(ACCOUNTS[0]).cancelItemInCollection(1)
         .should.be.rejectedWith('The item does not exist');
     });
 
@@ -517,7 +507,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(item.sold).to.be.equal(false);
       expect(item.active).to.be.equal(true);
 
-      await CONTRACT.connect(ACCOUNTS[0]).markItemSoldInCollection(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).markItemSoldInCollection(itemId, ACCOUNTS[2].address);
 
       item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       expect(item.id).to.be.equal(itemId);
@@ -525,17 +515,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(item.active).to.be.equal(true);
     });
     it('mark item sold in collection - invalid item id', async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
-      );
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
-
-      let item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
-      expect(item.id).to.be.equal(itemId);
-      expect(item.sold).to.be.equal(false);
-      expect(item.active).to.be.equal(true);
-
-      await CONTRACT.connect(ACCOUNTS[0]).markItemSoldInCollection(11, ACCOUNTS[1].address, ACCOUNTS[2].address)
+      await CONTRACT.connect(ACCOUNTS[0]).markItemSoldInCollection(11, ACCOUNTS[2].address)
         .should.be.rejectedWith('The item does not exist');
     });
 
@@ -734,7 +714,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(item.sold).to.be.equal(false);
       expect(item.active).to.be.equal(true);
 
-      await CONTRACT.connect(ACCOUNTS[0]).cancelItemInCollection(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).cancelItemInCollection(itemId);
 
       item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       expect(item.id).to.be.equal(itemId);
@@ -742,17 +722,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(item.active).to.be.equal(false);
     });
     it('cancel item in collection - invalid item id', async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
-      );
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
-      
-      let item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
-      expect(item.id).to.be.equal(itemId);
-      expect(item.sold).to.be.equal(false);
-      expect(item.active).to.be.equal(true);
-
-      await CONTRACT.connect(ACCOUNTS[0]).cancelItemInCollection(11, ACCOUNTS[1].address, ACCOUNTS[2].address)
+      await CONTRACT.connect(ACCOUNTS[0]).cancelItemInCollection(1)
         .should.be.rejectedWith('The item does not exist');
     });
 
@@ -767,7 +737,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(item.sold).to.be.equal(false);
       expect(item.active).to.be.equal(true);
 
-      await CONTRACT.connect(ACCOUNTS[0]).markItemSoldInCollection(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).markItemSoldInCollection(itemId, ACCOUNTS[2].address);
 
       item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       expect(item.id).to.be.equal(itemId);
@@ -775,17 +745,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(item.active).to.be.equal(true);
     });
     it('mark item sold in collection - invalid item id', async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
-      );
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
-
-      let item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
-      expect(item.id).to.be.equal(itemId);
-      expect(item.sold).to.be.equal(false);
-      expect(item.active).to.be.equal(true);
-
-      await CONTRACT.connect(ACCOUNTS[0]).markItemSoldInCollection(11, ACCOUNTS[1].address, ACCOUNTS[2].address)
+      await CONTRACT.connect(ACCOUNTS[0]).markItemSoldInCollection(11, ACCOUNTS[2].address)
         .should.be.rejectedWith('The item does not exist');
     });
 
@@ -992,7 +952,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(item.sold).to.be.equal(false);
       expect(item.active).to.be.equal(true);
 
-      await CONTRACT.connect(ACCOUNTS[0]).cancelItemInCollection(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).cancelItemInCollection(itemId);
 
       item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       expect(item.id).to.be.equal(itemId);
@@ -1000,17 +960,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(item.active).to.be.equal(false);
     });
     it('cancel item in collection - invalid item id', async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
-      );
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
-      
-      let item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
-      expect(item.id).to.be.equal(itemId);
-      expect(item.sold).to.be.equal(false);
-      expect(item.active).to.be.equal(true);
-
-      await CONTRACT.connect(ACCOUNTS[0]).cancelItemInCollection(11, ACCOUNTS[1].address, ACCOUNTS[2].address)
+      await CONTRACT.connect(ACCOUNTS[0]).cancelItemInCollection(1)
         .should.be.rejectedWith('The item does not exist');
     });
 
@@ -1025,7 +975,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(item.sold).to.be.equal(false);
       expect(item.active).to.be.equal(true);
 
-      await CONTRACT.connect(ACCOUNTS[0]).markItemSoldInCollection(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).markItemSoldInCollection(itemId, ACCOUNTS[2].address);
 
       item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       expect(item.id).to.be.equal(itemId);
@@ -1033,17 +983,7 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(item.active).to.be.equal(true);
     });
     it('mark item sold in collection - invalid item id', async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
-      );
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
-
-      let item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
-      expect(item.id).to.be.equal(itemId);
-      expect(item.sold).to.be.equal(false);
-      expect(item.active).to.be.equal(true);
-
-      await CONTRACT.connect(ACCOUNTS[0]).markItemSoldInCollection(11, ACCOUNTS[1].address, ACCOUNTS[2].address)
+      await CONTRACT.connect(ACCOUNTS[0]).markItemSoldInCollection(1, ACCOUNTS[2].address)
         .should.be.rejectedWith('The item does not exist');
     });
 

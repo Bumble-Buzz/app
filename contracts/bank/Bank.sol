@@ -16,9 +16,6 @@ import "hardhat/console.sol";
 
 contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
 
-  // Access Control
-  // bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-
   // modifiers
   modifier checkBank(address _id) {
     require(_bankExists(_id), "The bank for this user does not exist");
@@ -93,7 +90,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Get bank for given user
   */
-  function getBank(address _id) public view checkBank(_id) returns (BankDS memory) {
+  function getBank(address _id) public view returns (BankDS memory) {
     BankDS memory bank = BankDS({
       id: _id,
       user: _getUserAccount(_id),
@@ -130,7 +127,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   function updateBank(
     address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionCommission,
     uint256[] memory _reflectionVault, uint256 _incentiveVault, uint256 _balance
-  ) public checkBank(_id) onlyOwner() {
+  ) public onlyOwner() {
     _updateUserAccount(_id, _general, _nftCommission, _collectionCommission);
     _updateCollectionAccount(_id, _reflectionVault, _incentiveVault);
     _updateVault(_id, _balance);
@@ -140,7 +137,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
     * @dev Nullify bank
     * @custom:type private
   */
-  function _nullifyBank(address _id) public checkBank(_id) {
+  function _nullifyBank(address _id) public {
     _nullifyUserAccount(_id);
     _nullifyCollectionAccount(_id);
     _nullifyVault(_id);
@@ -150,7 +147,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
     * @dev Remove bank
     * @custom:type private
   */
-  function _removeBank(address _id) public checkBank(_id) {
+  function _removeBank(address _id) public {
     _removeBankOwner(_id);
     _removeUserAccount(_id);
     _removeCollectionAccount(_id);
@@ -170,6 +167,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   function incrementUserAccount(
     address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionCommission
   ) external onlyOwner() {
+    addBank(_id); // create if bank account does not exist
     _incrementUserAccount(_id, _general, _nftCommission, _collectionCommission);
   }
 
@@ -179,6 +177,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   function incrementCollectionAccount(
     address _id, uint256 _rewardPerItem, uint256 _incentiveVault
   ) external onlyOwner() {
+    addBank(_id); // create if bank account does not exist
     _incrementCollectionAccount(_id, _rewardPerItem, _incentiveVault);
   }
 
@@ -234,6 +233,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
     * @dev Distribute collection reflection reward between all token id's
   */
   function distributeCollectionReflectionReward(address _contractAddress, uint256 _totalSupply, uint256 _reflectionReward) external onlyOwner() {
+    addBank(_contractAddress); // create if bank account does not exist
     uint256 reflectionRewardPerItem = _reflectionReward / _totalSupply;
     _increaseReflectionVaultCollectionAccount(_contractAddress, reflectionRewardPerItem);
   }
@@ -242,8 +242,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
     * @dev Update collection incentive reward
   */
   function updateCollectionIncentiveReward(address _contractAddress, uint256 _value, bool _increase) external onlyOwner() returns (uint256) {
-    // todo caller must be admin or collection owner
-
+    addBank(_contractAddress); // create if bank account does not exist
     uint256 incentiveVault = _getIncentiveVaultCollectionAccount(_contractAddress);
     if (_increase) {
       uint256 newIncentiveVault = incentiveVault + _value;
@@ -294,7 +293,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
     * @dev Remove bank owner
     * @custom:type private
   */
-  function _removeBankOwner(address _id) public checkBank(_id) {
+  function _removeBankOwner(address _id) public {
     uint256 arrLength = BANK_OWNERS.length - 1;
     address[] memory data = new address[](arrLength);
     uint8 dataCounter = 0;
@@ -368,6 +367,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
     * @dev Initialize a collection reflection vault for the given collection
   */
   function initReflectionVaultCollectionAccount(address _id, uint256 _totalSupply) external {
+    addBank(_id); // create if bank account does not exist
     return _initReflectionVaultCollectionAccount(_id, _totalSupply);
   }
 

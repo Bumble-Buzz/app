@@ -86,7 +86,7 @@ contract Immediate {
   /**
     * @dev Does immediate sale id exist
   */
-  function _doesImmediateSaleItemIdExists(address _id, uint256 _itemId) internal view checkImmediateSale(_id,_itemId) returns (bool) {
+  function _doesImmediateSaleItemIdExists(address _id, uint256 _itemId) internal view returns (bool) {
     return _immediateSaleExists(_id, _itemId);
   }
 

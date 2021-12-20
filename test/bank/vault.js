@@ -7,6 +7,7 @@ const { ethers } = require("hardhat");
 // global variables
 let ACCOUNTS = [];
 let CONTRACT;
+const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 // global functions
 const _doesArrayInclude = (_array, _identifier = {}) => {
@@ -24,7 +25,7 @@ describe("AvaxTrade - Vault", () => {
   });
 
   beforeEach(async () => {
-    const contractFactory = await ethers.getContractFactory("AvaxTrade");
+    const contractFactory = await ethers.getContractFactory("Bank");
     CONTRACT = await contractFactory.deploy();
     await CONTRACT.deployed();
   });
@@ -46,8 +47,9 @@ describe("AvaxTrade - Vault", () => {
         .should.be.rejectedWith('A vault in the list does not exist');
     });
     it('get vault 1 - does not exist', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._getVault(ACCOUNTS[1].address)
-        .should.be.rejectedWith('The vault for this user does not exist');
+      const vault = await CONTRACT.connect(ACCOUNTS[0])._getVault(ACCOUNTS[1].address);
+      expect(vault.id).to.be.equal(EMPTY_ADDRESS);
+      expect(vault.balance).to.be.equal(0);
     });
 
     it('add vault', async () => {
@@ -169,8 +171,9 @@ describe("AvaxTrade - Vault", () => {
 
       await CONTRACT.connect(ACCOUNTS[0])._removeVault(ACCOUNTS[1].address);
 
-      await CONTRACT.connect(ACCOUNTS[0])._getVault(ACCOUNTS[1].address)
-        .should.be.rejectedWith('The vault for this user does not exist');
+      vault = await CONTRACT.connect(ACCOUNTS[0])._getVault(ACCOUNTS[1].address);
+      expect(vault.id).to.be.equal(EMPTY_ADDRESS);
+      expect(vault.balance).to.be.equal(0);
     });
   });
 
