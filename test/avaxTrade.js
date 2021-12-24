@@ -381,12 +381,15 @@ describe("AvaxTrade - Main", () => {
       item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
       expect(item.sold).to.be.true;
       balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
-      expect(ethers.utils.formatEther(balance)).to.be.equal('4.9');
+      let expectedBalance = ethers.utils.parseEther('5');
+      expectedBalance = expectedBalance - (expectedBalance*0.02); // marketplace commission
+      expectedBalance = expectedBalance + (ethers.utils.parseEther('100')*0.00); // marketplace incentive
+      expectedBalance = ethers.utils.formatEther(expectedBalance.toString()); // convert to proper form
+      expect(ethers.utils.formatEther(balance)).to.be.equal(expectedBalance);
       nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
       expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
     });
     it('complete market sale - immediate - yes market incentive', async () => {
-      await CONTRACT.connect(ACCOUNTS[4]).depositMarketplaceIncentiveVault({ value: ethers.utils.parseEther('100') });
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
       );
@@ -398,12 +401,44 @@ describe("AvaxTrade - Main", () => {
       let nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
       expect(nftOwner).to.be.equal(CONTRACT.address);
 
+      await CONTRACT.connect(ACCOUNTS[4]).depositMarketplaceIncentiveVault({ value: ethers.utils.parseEther('100') });
       await CONTRACT.connect(ACCOUNTS[5]).completeMarketSale(1, { value: ethers.utils.parseEther('5') });
 
       item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
       expect(item.sold).to.be.true;
       balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
-      expect(ethers.utils.formatEther(balance)).to.be.equal('6.9');
+      let expectedBalance = ethers.utils.parseEther('5');
+      expectedBalance = expectedBalance - (expectedBalance*0.02); // marketplace commission
+      expectedBalance = expectedBalance + (expectedBalance*0.02); // marketplace incentive
+      expectedBalance = ethers.utils.formatEther(expectedBalance.toString()); // convert to proper form
+      expect(ethers.utils.formatEther(balance)).to.be.equal(expectedBalance);
+      nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
+      expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
+    });
+    it('complete market sale - immediate - not enough in market vault', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
+      );
+
+      let item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
+      expect(item.sold).to.be.false;
+      let balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      let nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
+      expect(nftOwner).to.be.equal(CONTRACT.address);
+
+      await CONTRACT.connect(ACCOUNTS[4]).depositMarketplaceIncentiveVault({ value: ethers.utils.parseEther('0.05') });
+      const balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      await CONTRACT.connect(ACCOUNTS[5]).completeMarketSale(1, { value: ethers.utils.parseEther('5') });
+
+      item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
+      expect(item.sold).to.be.true;
+      balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
+      let expectedBalance = ethers.utils.parseEther('5');
+      expectedBalance = expectedBalance - (expectedBalance*0.02); // marketplace commission
+      expectedBalance = expectedBalance + (balanceSheet.incentiveVault*1); // marketplace incentive
+      expectedBalance = ethers.utils.formatEther(expectedBalance.toString()); // convert to proper form
+      expect(ethers.utils.formatEther(balance)).to.be.equal(expectedBalance);
       nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
       expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
     });
@@ -762,7 +797,35 @@ describe("AvaxTrade - Main", () => {
       let expectedBalance = ethers.utils.parseEther('5');
       expectedBalance = expectedBalance - (expectedBalance*0.02); // marketplace commission
       expectedBalance = expectedBalance - (expectedBalance*0.02); // artist commission
-      expectedBalance = expectedBalance + (ethers.utils.parseEther('100')*0.02); // marketplace incentive
+      expectedBalance = expectedBalance + (expectedBalance*0.02); // marketplace incentive
+      expectedBalance = ethers.utils.formatEther(expectedBalance.toString()); // convert to proper form
+      expect(ethers.utils.formatEther(balance)).to.be.equal(expectedBalance);
+      nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
+      expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
+    });
+    it('complete market sale - immediate - not enough in market vault', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
+      );
+
+      let item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
+      expect(item.sold).to.be.false;
+      let balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      let nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
+      expect(nftOwner).to.be.equal(CONTRACT.address);
+
+      await CONTRACT.connect(ACCOUNTS[0]).depositMarketplaceIncentiveVault({ value: ethers.utils.parseEther('0.05') });
+      const balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      await CONTRACT.connect(ACCOUNTS[5]).completeMarketSale(1, { value: ethers.utils.parseEther('5') });
+
+      item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
+      expect(item.sold).to.be.true;
+      balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
+      let expectedBalance = ethers.utils.parseEther('5');
+      expectedBalance = expectedBalance - (expectedBalance*0.02); // marketplace commission
+      expectedBalance = expectedBalance - (expectedBalance*0.02); // artist commission
+      expectedBalance = expectedBalance + (balanceSheet.incentiveVault*1); // marketplace incentive
       expectedBalance = ethers.utils.formatEther(expectedBalance.toString()); // convert to proper form
       expect(ethers.utils.formatEther(balance)).to.be.equal(expectedBalance);
       nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
@@ -1222,8 +1285,41 @@ describe("AvaxTrade - Main", () => {
       expectedBalance = expectedBalance - (expectedBalance*0.02); // marketplace commission
       expectedBalance = expectedBalance - (expectedBalance*0.02); // collection reflection
       expectedBalance = expectedBalance - (expectedBalance*0.04); // collection commission
-      expectedBalance = expectedBalance + (ethers.utils.parseEther('10')*0.03); // collection incentive
-      expectedBalance = expectedBalance + (ethers.utils.parseEther('0')*0.00); // marketplace incentive
+      expectedBalance = expectedBalance + (expectedBalance*0.03); // collection incentive
+      expectedBalance = expectedBalance + (expectedBalance*0.00); // marketplace incentive
+      expectedBalance = ethers.utils.formatEther(expectedBalance.toString()); // convert to proper form
+      expect(ethers.utils.formatEther(balance)).to.be.equal(expectedBalance);
+      nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
+      expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
+    });
+    it('complete market sale - immediate - not enough in collection vault', async () => {
+      await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).updateCollection(
+        2, 'collection name', NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[4].address
+      );
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
+      );
+
+      let item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
+      expect(item.sold).to.be.false;
+      let balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      let nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
+      expect(nftOwner).to.be.equal(CONTRACT.address);
+
+      await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(NFT_CONTRACT.address, { value: ethers.utils.parseEther('0.05') });
+      const collectionVault = await BANK_CONTRACT.connect(ACCOUNTS[5]).getIncentiveVaultCollectionAccount(NFT_CONTRACT.address);
+      await CONTRACT.connect(ACCOUNTS[5]).completeMarketSale(1, { value: ethers.utils.parseEther('5') });
+
+      item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
+      expect(item.sold).to.be.true;
+      balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
+      let expectedBalance = ethers.utils.parseEther('5');
+      expectedBalance = expectedBalance - (expectedBalance*0.02); // marketplace commission
+      expectedBalance = expectedBalance - (expectedBalance*0.02); // collection reflection
+      expectedBalance = expectedBalance - (expectedBalance*0.04); // collection commission
+      expectedBalance = expectedBalance + (collectionVault*1); // collection incentive
+      expectedBalance = expectedBalance + (expectedBalance*0.00); // marketplace incentive
       expectedBalance = ethers.utils.formatEther(expectedBalance.toString()); // convert to proper form
       expect(ethers.utils.formatEther(balance)).to.be.equal(expectedBalance);
       nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
@@ -1255,8 +1351,42 @@ describe("AvaxTrade - Main", () => {
       expectedBalance = expectedBalance - (expectedBalance*0.02); // marketplace commission
       expectedBalance = expectedBalance - (expectedBalance*0.02); // collection reflection
       expectedBalance = expectedBalance - (expectedBalance*0.04); // collection commission
-      expectedBalance = expectedBalance + (ethers.utils.parseEther('10')*0.03); // collection incentive
-      expectedBalance = expectedBalance + (ethers.utils.parseEther('100')*0.02); // marketplace incentive
+      expectedBalance = expectedBalance + (expectedBalance*0.03); // collection incentive
+      expectedBalance = expectedBalance + (expectedBalance*0.02); // marketplace incentive
+      expectedBalance = ethers.utils.formatEther(expectedBalance.toString()); // convert to proper form
+      expect(ethers.utils.formatEther(balance)).to.be.equal(expectedBalance);
+      nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
+      expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
+    });
+    it('complete market sale - immediate - not enough in market vault', async () => {
+      await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).updateCollection(
+        2, 'collection name', NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[4].address
+      );
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
+      );
+
+      let item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
+      expect(item.sold).to.be.false;
+      let balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      let nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
+      expect(nftOwner).to.be.equal(CONTRACT.address);
+
+      await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(NFT_CONTRACT.address, { value: ethers.utils.parseEther('10') });
+      await CONTRACT.connect(ACCOUNTS[0]).depositMarketplaceIncentiveVault({ value: ethers.utils.parseEther('0.05') });
+      const balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      await CONTRACT.connect(ACCOUNTS[5]).completeMarketSale(1, { value: ethers.utils.parseEther('5') });
+
+      item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
+      expect(item.sold).to.be.true;
+      balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
+      let expectedBalance = ethers.utils.parseEther('5');
+      expectedBalance = expectedBalance - (expectedBalance*0.02); // marketplace commission
+      expectedBalance = expectedBalance - (expectedBalance*0.02); // collection reflection
+      expectedBalance = expectedBalance - (expectedBalance*0.04); // collection commission
+      expectedBalance = expectedBalance + (expectedBalance*0.03); // collection incentive
+      expectedBalance = expectedBalance + (balanceSheet.incentiveVault*1); // marketplace incentive
       expectedBalance = ethers.utils.formatEther(expectedBalance.toString()); // convert to proper form
       expect(ethers.utils.formatEther(balance)).to.be.equal(expectedBalance);
       nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
@@ -1305,32 +1435,45 @@ describe("AvaxTrade - Main", () => {
   //     expect(ethers.utils.formatEther(result)).to.be.equal('10.0');
   //   });
 
-  //   it('collection incentive', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-  //       'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
-  //     );
-  //     await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(ACCOUNTS[5].address, { value: ethers.utils.parseEther('10') });
-  //     const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionIncentive(ethers.utils.parseEther('10'), 2, ACCOUNTS[5].address);
-  //     expect(ethers.utils.formatEther(result)).to.be.equal('10.2');
-  //   });
-  //   it('collection incentive - 0%', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-  //       'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
-  //     );
-  //     await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(ACCOUNTS[5].address, { value: ethers.utils.parseEther('10') });
-  //     const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionIncentive(ethers.utils.parseEther('10'), 0, ACCOUNTS[5].address);
-  //     expect(ethers.utils.formatEther(result)).to.be.equal('10.0');
-  //   });
+    // it('collection incentive', async () => {
+    //   await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+    //     'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
+    //   );
+    //   await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(ACCOUNTS[5].address, { value: ethers.utils.parseEther('100') });
+    //   const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionIncentive(ethers.utils.parseEther('10'), 2, ACCOUNTS[5].address);
+    //   expect(ethers.utils.formatEther(result)).to.be.equal('10.2');
+    // });
+    // it('collection incentive - 0%', async () => {
+    //   await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+    //     'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
+    //   );
+    //   await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(ACCOUNTS[5].address, { value: ethers.utils.parseEther('100') });
+    //   const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionIncentive(ethers.utils.parseEther('10'), 0, ACCOUNTS[5].address);
+    //   expect(ethers.utils.formatEther(result)).to.be.equal('10.0');
+    // });
+    // it('collection incentive - not enough in vault', async () => {
+    //   await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+    //     'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
+    //   );
+    //   await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(ACCOUNTS[5].address, { value: ethers.utils.parseEther('0.05') });
+    //   const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionIncentive(ethers.utils.parseEther('10'), 2, ACCOUNTS[5].address);
+    //   expect(ethers.utils.formatEther(result)).to.be.equal('10.05');
+    // });
 
   //   it('marketplace incentive', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0]).depositMarketplaceIncentiveVault({ value: ethers.utils.parseEther('10') });
+  //     await CONTRACT.connect(ACCOUNTS[0]).depositMarketplaceIncentiveVault({ value: ethers.utils.parseEther('100') });
   //     const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.marketplaceIncentive(ethers.utils.parseEther('10'), 2);
   //     expect(ethers.utils.formatEther(result)).to.be.equal('10.2');
   //   });
   //   it('marketplace incentive - 0%', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0]).depositMarketplaceIncentiveVault({ value: ethers.utils.parseEther('10') });
+  //     await CONTRACT.connect(ACCOUNTS[0]).depositMarketplaceIncentiveVault({ value: ethers.utils.parseEther('100') });
   //     const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.marketplaceIncentive(ethers.utils.parseEther('10'), 0);
   //     expect(ethers.utils.formatEther(result)).to.be.equal('10.0');
+  //   });
+  //   it('marketplace incentive - not enough in vault', async () => {
+  //     await CONTRACT.connect(ACCOUNTS[0]).depositMarketplaceIncentiveVault({ value: ethers.utils.parseEther('0.05') });
+  //     const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.marketplaceIncentive(ethers.utils.parseEther('10'), 2);
+  //     expect(ethers.utils.formatEther(result)).to.be.equal('10.05');
   //   });
   // });
 

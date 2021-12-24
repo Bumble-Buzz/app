@@ -256,6 +256,16 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
     return _getIncentiveVaultCollectionAccount(_contractAddress);
   }
 
+  /**
+    * @dev Nullify collection incentive reward
+  */
+  function nullifyCollectionIncentiveReward(address _contractAddress) external onlyOwner() returns (uint256) {
+    addBank(_contractAddress); // create if bank account does not exist
+    _updateIncentiveVaultCollectionAccount(_contractAddress, 0);
+
+    return _getIncentiveVaultCollectionAccount(_contractAddress);
+  }
+
 
   /** 
     *****************************************************

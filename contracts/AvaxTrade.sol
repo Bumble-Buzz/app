@@ -371,13 +371,18 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
     * @custom:type private
   */
   function collectionIncentive(uint256 _value, uint8 _percent, address _contractAddress) private returns (uint256) {
-    uint256 collectionIncentiveVault = Bank(CONTRACTS.bank).getIncentiveVaultCollectionAccount(_contractAddress);
-    uint256 reward = _calculatePercentChange(collectionIncentiveVault, _percent);
+    uint256 reward = _calculatePercentChange(_value, _percent);
     if (reward > 0) {
-      _value += reward;
-
-      Bank(CONTRACTS.bank).updateCollectionIncentiveReward(_contractAddress, reward, false);
-      BALANCE_SHEET.collectionIncentive -= reward;
+      uint256 collectionIncentiveVault = Bank(CONTRACTS.bank).getIncentiveVaultCollectionAccount(_contractAddress);
+      if (collectionIncentiveVault >= reward) {
+        _value += reward;
+        Bank(CONTRACTS.bank).updateCollectionIncentiveReward(_contractAddress, reward, false);
+        BALANCE_SHEET.collectionIncentive -= reward;
+      } else {
+        _value += collectionIncentiveVault;
+        Bank(CONTRACTS.bank).nullifyCollectionIncentiveReward(_contractAddress);
+        BALANCE_SHEET.collectionIncentive = 0;
+      }
     }
     return _value;
   }
@@ -387,11 +392,15 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
     * @custom:type private
   */
   function marketplaceIncentive(uint256 _value, uint8 _percent) private returns (uint256) {
-    uint256 reward = _calculatePercentChange(BALANCE_SHEET.incentiveVault, _percent);
+    uint256 reward = _calculatePercentChange(_value, _percent);
     if (reward > 0) {
-      _value += reward;
-
-      BALANCE_SHEET.incentiveVault -= reward;
+      if (BALANCE_SHEET.incentiveVault >= reward) {
+        _value += reward;
+        BALANCE_SHEET.incentiveVault -= reward;
+      } else {
+        _value += BALANCE_SHEET.incentiveVault;
+        BALANCE_SHEET.incentiveVault = 0;
+      }
     }
     return _value;
   }
