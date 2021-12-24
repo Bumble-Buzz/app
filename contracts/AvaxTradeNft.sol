@@ -11,6 +11,13 @@ import "hardhat/console.sol";
 contract AvaxTradeNft is ERC721Enumerable, Ownable {
   using Strings for uint256;
 
+  // data structures
+  struct ArtistDS {
+    uint256 id; // token id
+    address artist; // creator of this nft
+    uint8 commission; // in percentage
+  }
+
   // state variables
   string private BASE_URI;
   string private BASE_EXTENSION = '.json';
@@ -23,6 +30,9 @@ contract AvaxTradeNft is ERC721Enumerable, Ownable {
   bool private REVEALED = true;
 
   uint8 private HONORARY_MAX_SUPPLY = 5;
+
+  mapping(uint256 => ArtistDS) private ARTIST; // mapping token id to ArtistDS
+  mapping(address => uint256[]) private ARTIST_NFT_LIST; // list of token ids for a user
 
   constructor( string memory _name, string memory _symbol, string memory _initBaseURI) ERC721(_name, _symbol) {
     setBaseUri(_initBaseURI);
@@ -64,7 +74,8 @@ contract AvaxTradeNft is ERC721Enumerable, Ownable {
     return REVEALED;
   }
 
-  function mint(address _to, uint8 _mintAmount) public payable {
+  // todo no need for address `_to`. use msg.sender
+  function mint(uint8 _mintAmount, uint8 _commission) public payable {
     require(!PAUSED, 'The contract is paused, can not mint');
     require(_mintAmount >= MIN_MINT_AMMOUNT, 'Mint amount must be greater');
     require(_mintAmount <= MAX_MINT_AMMOUNT, 'Mint amount too big');
@@ -74,9 +85,26 @@ contract AvaxTradeNft is ERC721Enumerable, Ownable {
       require(msg.value >= COST * _mintAmount, 'Not enough funds to mint');
     }
 
+    // todo have artist pass in commission
+    ARTIST[totalSupply() + 1] = ArtistDS(totalSupply() + 1, msg.sender, _commission);
+    ARTIST_NFT_LIST[msg.sender].push(totalSupply() + 1);
+
     for (uint8 i = 1; i <= _mintAmount; i++) {
-      _safeMint(_to, totalSupply() + 1);
+      _safeMint(msg.sender, totalSupply() + 1);
     }
+  }
+
+  function getNftArtist(uint256 _tokenId) public view returns (address) {
+    return ARTIST[_tokenId].artist;
+  }
+  function getNftCommission(uint256 _tokenId) public view returns (uint8) {
+    return ARTIST[_tokenId].commission;
+  }
+  function getNftInfo(uint256 _tokenId) public view returns (address, uint8) {
+    return (ARTIST[_tokenId].artist, ARTIST[_tokenId].commission);
+  }
+  function getArtistNfts(address _artist) public view returns (uint256[] memory) {
+    return ARTIST_NFT_LIST[_artist];
   }
 
   function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {

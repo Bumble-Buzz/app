@@ -4,6 +4,10 @@ pragma solidity >=0.8.4 <0.9.0;
 // import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/access/AccessControl.sol';
 
+import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
+
+import '../AvaxTradeNft.sol';
+
 import "./Collection.sol";
 import "./Item.sol";
 
@@ -112,8 +116,10 @@ contract CollectionItem is Collection, Item, AccessControl {
     COLLECTION_TYPE collectionType = _getCollectionType(collectionId);
     if (collectionType == COLLECTION_TYPE.local) {
       // todo fetch this information from the local nvt contract
-      commission = 2; // fetch commission from nft contract
-      creator = address(this); // fetch creator from nft contract
+      // commission = 2; // fetch commission from nft contract
+      // creator = address(this); // fetch creator from nft contract
+      // creator = AvaxTradeNft(_contractAddress).getNftArtist(_tokenId);
+      (creator, commission) = AvaxTradeNft(_contractAddress).getNftInfo(_tokenId);
     }
 
     uint256 itemId = _addItem(

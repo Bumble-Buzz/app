@@ -263,7 +263,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
 
       // deduct collection commission rewards, if applicable
       _price = collectionCommission(_price, collection.commission, collection.owner);
-    
+
       // add collection incentive rewards, if applicable
       _price = collectionIncentive(_price, collection.incentive, collection.contractAddress);
 
