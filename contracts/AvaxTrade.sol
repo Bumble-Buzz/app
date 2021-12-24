@@ -359,7 +359,6 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
     if (reward > 0) {
       _value -= reward;
 
-      // Bank(CONTRACTS.bank).addBank(_collectionOwner); // this is okay even if bank account already exists
       Bank(CONTRACTS.bank).incrementUserAccount(_collectionOwner, 0, 0, reward);
       BALANCE_SHEET.collectionCommission += reward;
     }
@@ -496,6 +495,17 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
     // todo ensure this is a safe way to transfer funds
     ( bool success, ) = payable(msg.sender).call{ value: _amount }("");
     require(success, "Collection commission reward transfer to user was unccessfull");
+  }
+
+  /**
+    * @dev Distrubute reward among all NFT holders in a given collection
+  */
+  function distributeRewardInCollection(uint256 _collectionId) external payable {
+    Collection.CollectionDS memory collection = CollectionItem(CONTRACTS.collectionItem).getCollection(_collectionId);
+    require(collection.collectionType == Collection.COLLECTION_TYPE.verified, "Not a verified collection");
+
+    Bank(CONTRACTS.bank).distributeCollectionReflectionReward(collection.contractAddress, collection.totalSupply, msg.value);
+    BALANCE_SHEET.collectionReflection += msg.value;
   }
 
   /**
