@@ -118,6 +118,15 @@ contract CollectionAccount {
   }
 
   /**
+    * @dev Increase collection reflection vault for given token
+    * todo write test for this
+  */
+  function _increaseReflectionVaultForTokensCollectionAccount(address _id, uint256  _tokenId, uint256 _rewardPerItem) internal {
+    require(COLLECTION_ACCOUNTS[_id].reflectionVault.length > 0 , "CollectionAccount: Reflection vault not initialized");
+    COLLECTION_ACCOUNTS[_id].reflectionVault[_tokenId] += _rewardPerItem;
+  }
+
+  /**
     * @dev Get collection reflection vault index
   */
   function _getReflectionVaultIndexCollectionAccount(address _id, uint256 _index) internal view returns (uint256) {

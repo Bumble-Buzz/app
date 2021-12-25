@@ -139,15 +139,6 @@ contract CollectionItem is Collection, Item, AccessControl {
   /**
     * @dev Cancel item that is currently on sale
   */
-  // function cancelItemInCollection(uint256 _tokenId, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) returns (uint256) {
-  //   uint256 itemId = getItemId(_tokenId, _contractAddress, _owner);
-  //   uint256 collectionId = _getItemCollectionId(itemId);
-  //   require(_collectionItemIdExists(collectionId, itemId), "Collection or item does not exist");
-
-  //   _deactivateItem(itemId);
-  //   _removeItemIdInCollection(collectionId, itemId);
-  //   return itemId;
-  // }
   function cancelItemInCollection(uint256 _itemId) public onlyRole(ADMIN_ROLE){
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");
@@ -159,15 +150,6 @@ contract CollectionItem is Collection, Item, AccessControl {
   /**
     * @dev Mark item sold in collection
   */
-  // function markItemSoldInCollection(uint256 _tokenId, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) returns (uint256) {
-  //   uint256 itemId = getItemId(_tokenId, _contractAddress, _owner);
-  //   uint256 collectionId = _getItemCollectionId(itemId);
-  //   require(_collectionItemIdExists(collectionId, itemId), "Collection or item does not exist");
-
-  //   _markItemSold(itemId);
-  //   _removeItemIdInCollection(collectionId, itemId);
-  //   return itemId;
-  // }
   function markItemSoldInCollection(uint256 _itemId, address _buyer) public onlyRole(ADMIN_ROLE) {
     uint256 collectionId = _getItemCollectionId(_itemId);
     require(_collectionItemIdExists(collectionId, _itemId), "Collection or item does not exist");

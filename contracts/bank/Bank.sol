@@ -239,6 +239,18 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   }
 
   /**
+    * @dev Distribute collection reflection reward between all token id's
+    * todo write test for this
+  */
+  function distributeCollectionReflectionRewardList(address _contractAddress, uint256[] memory _tokenIds, uint256 _reflectionReward) external onlyOwner() {
+    addBank(_contractAddress); // create if bank account does not exist
+    uint256 reflectionRewardPerItem = _reflectionReward / _tokenIds.length;
+    for (uint256 i = 0; i < _tokenIds.length; i++) {
+      _increaseReflectionVaultForTokensCollectionAccount(_contractAddress, _tokenIds[i], reflectionRewardPerItem);
+    }
+  }
+
+  /**
     * @dev Update collection incentive reward
   */
   function updateCollectionIncentiveReward(address _contractAddress, uint256 _value, bool _increase) external onlyOwner() returns (uint256) {

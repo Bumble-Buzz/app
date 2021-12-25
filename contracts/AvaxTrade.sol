@@ -509,6 +509,20 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
   }
 
   /**
+    * @dev Distrubute reward among given NFT holders in a given collection
+    * todo write test for this
+  */
+  function distributeRewardListInCollection(uint256 _collectionId, uint256[] memory _tokenIds) external payable {
+    Collection.CollectionDS memory collection = CollectionItem(CONTRACTS.collectionItem).getCollection(_collectionId);
+    require(collection.collectionType == Collection.COLLECTION_TYPE.verified, "Not a verified collection");
+    require(_tokenIds.length > 0, "Token id list must be greater than 0");
+    require(_tokenIds.length <= collection.totalSupply, "Token id list must not exceed size of collection total supply");
+
+    Bank(CONTRACTS.bank).distributeCollectionReflectionRewardList(collection.contractAddress, _tokenIds, msg.value);
+    BALANCE_SHEET.collectionReflection += msg.value;
+  }
+
+  /**
     * @dev Deposit into marketplace incentive vault
   */
   function depositMarketplaceIncentiveVault() external payable {
