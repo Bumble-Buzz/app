@@ -16,7 +16,7 @@ import "./sale/Sale.sol";
 import "hardhat/console.sol";
 
 
-contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
+contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
 
   // modifiers
   modifier checkContractValidity(address _contractAddress) {
@@ -25,6 +25,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
   }
 
   // enums
+  enum SALE_TYPE { direct, immediate, auction }
 
   // data structures
   struct BalanceSheetDS {
@@ -70,8 +71,8 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
 
     Bank bank = new Bank();
     CONTRACTS.bank = address(bank);
-    // Sale sale = new Sale();
-    // CONTRACTS.sale = address(sale);
+    Sale sale = new Sale(address(this), owner());
+    CONTRACTS.sale = address(sale);
     CollectionItem collectionItem = new CollectionItem(address(this), owner());
     CONTRACTS.collectionItem = address(collectionItem);
   }
@@ -123,7 +124,16 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
       buyer,
       _price
     );
-    _createSale(itemId, msg.sender, _saleType);
+    // createSale(itemId, msg.sender, _saleType);
+    if (_saleType == SALE_TYPE.direct) {
+      Sale(CONTRACTS.sale).createSaleDirect(itemId, msg.sender);
+    } else if (_saleType == SALE_TYPE.immediate) {
+      Sale(CONTRACTS.sale).createSaleImmediate(itemId, msg.sender);
+    } else if (_saleType == SALE_TYPE.auction) {
+      Sale(CONTRACTS.sale).createSaleAuction(itemId, msg.sender);
+    } else {
+      revert("Incorrect sale type");
+    }
 
     if (IERC721(_contractAddress).supportsInterface(type(IERC721).interfaceId)) {
       // ownerOf(_tokenId) == msg.sender then continue, else revert transaction
@@ -151,7 +161,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
 
     // uint256 itemId = CollectionItem(CONTRACTS.collectionItem).cancelItemInCollection(_tokenId, _contractAddress, msg.sender);
     CollectionItem(CONTRACTS.collectionItem).cancelItemInCollection(_itemId);
-    _removeSale(_itemId, msg.sender);
+    Sale(CONTRACTS.sale)._removeSale(_itemId, msg.sender);
 
     // transfer nft to market place
     IERC721(item.contractAddress).safeTransferFrom(address(this), msg.sender, item.tokenId);
@@ -185,11 +195,11 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
 
     // uint256 itemId = CollectionItem(CONTRACTS.collectionItem).getItemId(_tokenId, _contractAddress, msg.sender);
 
-    if (_isDirectSaleValid(itemId, item.seller)) {
+    if (Sale(CONTRACTS.sale).isDirectSaleValid(itemId, item.seller)) {
       directMarketSale(item, msg.sender, msg.value);
-    } else if (_isImmediateSaleValid(itemId, item.seller)) {
+    } else if (Sale(CONTRACTS.sale).isImmediateSaleValid(itemId, item.seller)) {
       immediateMarketSale(item, msg.sender, msg.value);
-    } else if (_isAuctionSaleValid(itemId, item.seller)) {
+    } else if (Sale(CONTRACTS.sale).isAuctionSaleValid(itemId, item.seller)) {
       auctionMarketSale(item, msg.sender);
     } else {
       revert("Invalid sale type");
@@ -210,7 +220,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
 
     // CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(_tokenId, _contractAddress, _buyer);
     CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(item.id, _buyer);
-    _removeSale(item.id, item.seller);
+    Sale(CONTRACTS.sale)._removeSale(item.id, item.seller);
 
     if (_price > 0) {
       // Bank(CONTRACTS.bank).addBank(item.seller); // this is okay even if bank account already exists
@@ -243,7 +253,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
 
     // CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(item.tokenId, item.contractAddress, _buyer);
     CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(item.id, _buyer);
-    _removeSale(item.id, item.seller);
+    Sale(CONTRACTS.sale)._removeSale(item.id, item.seller);
 
     // deduct marketplace 2% commission
     _price = marketplaceCommission(_price, MARKETPLACE_COMMISSION);
@@ -293,7 +303,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
   function auctionMarketSale(Item.ItemDS memory item, address _buyer) private {
     // CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(item.tokenId, item.contractAddress, _buyer);
     CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(item.id, _buyer);
-    _removeSale(item.id, _buyer);
+    Sale(CONTRACTS.sale)._removeSale(item.id, _buyer);
 
     // todo make sure to properly check before transfers
     // transfer nft to buyer
@@ -600,9 +610,9 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver, Sale {
   /**
     * @dev Get sale
   */
-  function getSale(uint256 _id) external view returns (SaleDS memory) {
-    return _getSale(_id);
-  }
+  // function getSale(uint256 _id) external view returns (SaleDS memory) {
+  //   return getSale(_id);
+  // }
 
 
   /** 

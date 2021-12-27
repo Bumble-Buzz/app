@@ -7,6 +7,7 @@ const { ethers } = require("hardhat");
 let ACCOUNTS = [];
 let CONTRACT;
 let BANK_CONTRACT;
+let SALE_CONTRACT;
 let COLLECTION_ITEM_CONTRACT;
 let NFT_CONTRACT;
 let NFT_CONTRACT_1155;
@@ -36,6 +37,7 @@ describe("AvaxTrade - Main", () => {
     // set up Bank and CollectionItem contracts
     const contracts = await CONTRACT.connect(ACCOUNTS[4]).getContracts();
     BANK_CONTRACT = await ethers.getContractAt("Bank", contracts.bank);
+    SALE_CONTRACT = await ethers.getContractAt("Sale", contracts.sale);
     COLLECTION_ITEM_CONTRACT = await ethers.getContractAt("CollectionItem", contracts.collectionItem);
 
     // set up AvaxTrade NFT 721 contract
@@ -113,7 +115,7 @@ describe("AvaxTrade - Main", () => {
       expect(item.sold).to.be.false;
       expect(item.active).to.be.true;
 
-      const sale = await CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
+      const sale = await SALE_CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
       expect(sale.saleType).to.be.equal(0);
     });
     it('create market sale - immediate', async () => {
@@ -136,7 +138,7 @@ describe("AvaxTrade - Main", () => {
       expect(item.sold).to.be.false;
       expect(item.active).to.be.true;
 
-      const sale = await CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
+      const sale = await SALE_CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
       expect(sale.saleType).to.be.equal(1);
     });
     it('create market sale - auction', async () => {
@@ -159,7 +161,7 @@ describe("AvaxTrade - Main", () => {
       expect(item.sold).to.be.false;
       expect(item.active).to.be.true;
 
-      const sale = await CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
+      const sale = await SALE_CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
       expect(sale.saleType).to.be.equal(2);
     });
 
@@ -499,7 +501,7 @@ describe("AvaxTrade - Main", () => {
       expect(item.sold).to.be.false;
       expect(item.active).to.be.true;
 
-      const sale = await CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
+      const sale = await SALE_CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
       expect(sale.saleType).to.be.equal(0);
     });
     it('create market sale - immediate', async () => {
@@ -522,7 +524,7 @@ describe("AvaxTrade - Main", () => {
       expect(item.sold).to.be.false;
       expect(item.active).to.be.true;
 
-      const sale = await CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
+      const sale = await SALE_CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
       expect(sale.saleType).to.be.equal(1);
     });
     it('create market sale - auction', async () => {
@@ -545,7 +547,7 @@ describe("AvaxTrade - Main", () => {
       expect(item.sold).to.be.false;
       expect(item.active).to.be.true;
 
-      const sale = await CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
+      const sale = await SALE_CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
       expect(sale.saleType).to.be.equal(2);
     });
 
@@ -888,7 +890,7 @@ describe("AvaxTrade - Main", () => {
       expect(item.sold).to.be.false;
       expect(item.active).to.be.true;
 
-      const sale = await CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
+      const sale = await SALE_CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
       expect(sale.saleType).to.be.equal(0);
     });
     it('create market sale - immediate', async () => {
@@ -911,7 +913,7 @@ describe("AvaxTrade - Main", () => {
       expect(item.sold).to.be.false;
       expect(item.active).to.be.true;
 
-      const sale = await CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
+      const sale = await SALE_CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
       expect(sale.saleType).to.be.equal(1);
     });
     it('create market sale - auction', async () => {
@@ -934,7 +936,7 @@ describe("AvaxTrade - Main", () => {
       expect(item.sold).to.be.false;
       expect(item.active).to.be.true;
 
-      const sale = await CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
+      const sale = await SALE_CONTRACT.connect(ACCOUNTS[4]).getSale(item.id);
       expect(sale.saleType).to.be.equal(2);
     });
 
@@ -1435,30 +1437,30 @@ describe("AvaxTrade - Main", () => {
   //     expect(ethers.utils.formatEther(result)).to.be.equal('10.0');
   //   });
 
-    // it('collection incentive', async () => {
-    //   await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-    //     'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
-    //   );
-    //   await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(ACCOUNTS[5].address, { value: ethers.utils.parseEther('100') });
-    //   const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionIncentive(ethers.utils.parseEther('10'), 2, ACCOUNTS[5].address);
-    //   expect(ethers.utils.formatEther(result)).to.be.equal('10.2');
-    // });
-    // it('collection incentive - 0%', async () => {
-    //   await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-    //     'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
-    //   );
-    //   await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(ACCOUNTS[5].address, { value: ethers.utils.parseEther('100') });
-    //   const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionIncentive(ethers.utils.parseEther('10'), 0, ACCOUNTS[5].address);
-    //   expect(ethers.utils.formatEther(result)).to.be.equal('10.0');
-    // });
-    // it('collection incentive - not enough in vault', async () => {
-    //   await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-    //     'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
-    //   );
-    //   await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(ACCOUNTS[5].address, { value: ethers.utils.parseEther('0.05') });
-    //   const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionIncentive(ethers.utils.parseEther('10'), 2, ACCOUNTS[5].address);
-    //   expect(ethers.utils.formatEther(result)).to.be.equal('10.05');
-    // });
+  //   it('collection incentive', async () => {
+  //     await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+  //       'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
+  //     );
+  //     await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(ACCOUNTS[5].address, { value: ethers.utils.parseEther('100') });
+  //     const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionIncentive(ethers.utils.parseEther('10'), 2, ACCOUNTS[5].address);
+  //     expect(ethers.utils.formatEther(result)).to.be.equal('10.2');
+  //   });
+  //   it('collection incentive - 0%', async () => {
+  //     await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+  //       'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
+  //     );
+  //     await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(ACCOUNTS[5].address, { value: ethers.utils.parseEther('100') });
+  //     const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionIncentive(ethers.utils.parseEther('10'), 0, ACCOUNTS[5].address);
+  //     expect(ethers.utils.formatEther(result)).to.be.equal('10.0');
+  //   });
+  //   it('collection incentive - not enough in vault', async () => {
+  //     await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+  //       'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
+  //     );
+  //     await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(ACCOUNTS[5].address, { value: ethers.utils.parseEther('0.05') });
+  //     const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionIncentive(ethers.utils.parseEther('10'), 2, ACCOUNTS[5].address);
+  //     expect(ethers.utils.formatEther(result)).to.be.equal('10.05');
+  //   });
 
   //   it('marketplace incentive', async () => {
   //     await CONTRACT.connect(ACCOUNTS[0]).depositMarketplaceIncentiveVault({ value: ethers.utils.parseEther('100') });

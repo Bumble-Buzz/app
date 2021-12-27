@@ -24,7 +24,7 @@ describe("AvaxTrade - Immediate", () => {
   });
 
   beforeEach(async () => {
-    const contractFactory = await ethers.getContractFactory("AvaxTrade");
+    const contractFactory = await ethers.getContractFactory("Sale");
     CONTRACT = await contractFactory.deploy();
     await CONTRACT.deployed();
   });
@@ -97,13 +97,11 @@ describe("AvaxTrade - Immediate", () => {
     });
 
     it('item id does not exist', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._doesImmediateSaleItemIdExists(ACCOUNTS[1].address, 123)
-        .should.be.rejectedWith('This item is not a immediate sale');
+        expect(await CONTRACT.connect(ACCOUNTS[0])._doesImmediateSaleItemIdExists(ACCOUNTS[1].address, 123)).to.be.false;
     });
     it('item id does exist', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._createImmediateSale(ACCOUNTS[1].address, 123);
-      const result = await CONTRACT.connect(ACCOUNTS[0])._doesImmediateSaleItemIdExists(ACCOUNTS[1].address, 123);
-      expect(result).to.be.true;
+      expect(await CONTRACT.connect(ACCOUNTS[0])._doesImmediateSaleItemIdExists(ACCOUNTS[1].address, 123)).to.be.true;
     });
 
     it('create sale', async () => {

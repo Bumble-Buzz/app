@@ -18,6 +18,9 @@ Things left to do:
         - Auctions can not be cancelled!
     - Make all error messages unique
     - Address all `@todo` in the code
+    - Convert all `owner` to `Access` contracts
+    - Is it possible to not transfer NFT to contract upon `createMarketSale`. Rather just get approval,
+        then transfer NFT to buyer and money to seller upon `completeMarketSale`?
 - Front-end dapp
 - Social media
     - Discord server

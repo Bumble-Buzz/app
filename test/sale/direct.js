@@ -24,7 +24,7 @@ describe("AvaxTrade - Direct", () => {
   });
 
   beforeEach(async () => {
-    const contractFactory = await ethers.getContractFactory("AvaxTrade");
+    const contractFactory = await ethers.getContractFactory("Sale");
     CONTRACT = await contractFactory.deploy();
     await CONTRACT.deployed();
   });
@@ -97,8 +97,7 @@ describe("AvaxTrade - Direct", () => {
     });
 
     it('item id does not exist', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._doesDirectSaleItemIdExists(ACCOUNTS[1].address, 123)
-        .should.be.rejectedWith('This item is not a direct sale');
+      expect(await CONTRACT.connect(ACCOUNTS[0])._doesDirectSaleItemIdExists(ACCOUNTS[1].address, 123)).to.be.false;
     });
     it('item id does exist', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._createDirectSale(ACCOUNTS[1].address, 123);
