@@ -22,6 +22,8 @@ Things left to do:
     - Is it possible to not transfer NFT to contract upon `createMarketSale`. Rather just get approval,
         then transfer NFT to buyer and money to seller upon `completeMarketSale`?
     - Change contract name from `Sale` to `Transaction`
+    - For direct sales, take out cut for maretplace / artist? Give incentives?
+    - NFT contract `approve` one instead of `approve all`, give option to do both
 - Front-end dapp
 - Social media
     - Discord server

@@ -475,7 +475,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
 
   /** 
     *****************************************************
-    **************** Monetary Functions *****************
+    ***************** Claim Functions *******************
     *****************************************************
   */
   /**
@@ -533,6 +533,12 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     require(success, "Collection commission reward transfer to user was unccessfull");
   }
 
+
+  /** 
+    *****************************************************
+    **************** Monetary Functions *****************
+    *****************************************************
+  */
   /**
     * @dev Deposit into collection incentive vault
   */

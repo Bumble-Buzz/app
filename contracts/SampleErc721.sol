@@ -9,7 +9,7 @@ import "hardhat/console.sol";
 contract SampleErc721 is ERC721Enumerable {
     constructor() ERC721("SampleERC721", "SPL") {}
 
-    function mint(address to, uint256 tokenId) public payable {
-        _mint(to, tokenId);
+    function mint(uint256 tokenId) public payable {
+        _mint(msg.sender, tokenId);
     }
 }
