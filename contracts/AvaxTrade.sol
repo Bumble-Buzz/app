@@ -46,12 +46,10 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   }
 
   // state variables
-  // todo initialize to 0, make it configurable
   uint256 private LISTING_PRICE = 0.0 ether; // price to list item in marketplace
-  // todo initialize to 2, make it configurable
   uint8 private MARKETPLACE_COMMISSION = 2; // commission rate charged upon every sale, in percentage
-  // todo initialize to 0, make it configurable
-  uint8 private MARKETPLACE_INCENTIVE_COMMISSION = 2; // commission rate rewarded upon every sale, in percentage
+  uint8 private MARKETPLACE_INCENTIVE_COMMISSION = 0; // commission rate rewarded upon every sale, in percentage
+  address private MARKETPLACE_BANK_OWNER; // user who has access to withdraw marketplace commission
 
   ContractsDS private CONTRACTS;
 
@@ -67,14 +65,14 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   constructor() {
     BALANCE_SHEET = BalanceSheetDS(0, 0, 0, 0, 0, 0, 0, 0);
 
-    // create collections
-
     Bank bank = new Bank();
     CONTRACTS.bank = address(bank);
     Sale sale = new Sale(address(this), owner());
     CONTRACTS.sale = address(sale);
     CollectionItem collectionItem = new CollectionItem(address(this), owner());
     CONTRACTS.collectionItem = address(collectionItem);
+
+    MARKETPLACE_BANK_OWNER = owner();
   }
 
 
@@ -103,6 +101,64 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
 
   /** 
     *****************************************************
+    **************** Attribute Functions ****************
+    *****************************************************
+  */
+  /**
+    * @dev Get marketplace listing price
+  */
+  function getMarketplaceListingPrice() public view returns (uint256) {
+    return LISTING_PRICE;
+  }
+  /**
+    * @dev Set marketplace listing price
+  */
+  function setMarketplaceListingPrice(uint256 _listingPrice) public onlyOwner() {
+    LISTING_PRICE = _listingPrice;
+  }
+
+  /**
+    * @dev Get marketplace commission
+  */
+  function getMarketplaceCommission() public view returns (uint8) {
+    return MARKETPLACE_COMMISSION;
+  }
+  /**
+    * @dev Set marketplace commission
+  */
+  function setMarketplaceCommission(uint8 _commission) public onlyOwner() {
+    MARKETPLACE_COMMISSION = _commission;
+  }
+
+  /**
+    * @dev Get marketplace incentive commission
+  */
+  function getMarketplaceIncentiveCommission() public view returns (uint8) {
+    return MARKETPLACE_INCENTIVE_COMMISSION;
+  }
+  /**
+    * @dev Set marketplace incentive commission
+  */
+  function setMarketplaceIncentiveCommission(uint8 _commission) public onlyOwner() {
+    MARKETPLACE_INCENTIVE_COMMISSION = _commission;
+  }
+
+  /**
+    * @dev Get marketplace bank owner
+  */
+  function getMarketplaceBankOwner() public view returns (address) {
+    return MARKETPLACE_BANK_OWNER;
+  }
+  /**
+    * @dev Set marketplace bank owner
+  */
+  function setMarketplaceBankOwner(address _owner) public onlyOwner() {
+    MARKETPLACE_BANK_OWNER = _owner;
+  }
+
+
+  /** 
+    *****************************************************
     ****************** Main Functions *******************
     *****************************************************
   */
@@ -111,7 +167,10 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   */
   function createMarketSale(
     uint256 _tokenId, address _contractAddress, address _buyer, uint256 _price, SALE_TYPE _saleType
-  ) external nonReentrant() {
+  ) external nonReentrant() payable {
+    // ensure listing price is met
+    require(msg.value >= LISTING_PRICE, 'Not enough funds to create sale');
+
     address buyer = address(0);
     if (_saleType == SALE_TYPE.direct) {
       // only use passed in buyer param when it is a direct sale
@@ -323,8 +382,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   function marketplaceCommission(uint256 _value, uint8 _percent) private returns (uint256) {
     uint256 reward = _calculatePercentChange(_value, _percent);
     _value -= reward;
-    // Bank(CONTRACTS.bank).addBank(owner()); // this is okay even if bank account already exists
-    Bank(CONTRACTS.bank).incrementUserAccount(owner(), reward, 0, 0);
+    Bank(CONTRACTS.bank).incrementUserAccount(MARKETPLACE_BANK_OWNER, reward, 0, 0);
     BALANCE_SHEET.marketplaceRevenue += reward;
     return _value;
   }

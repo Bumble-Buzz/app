@@ -21,6 +21,7 @@ Things left to do:
     - Convert all `owner` to `Access` contracts
     - Is it possible to not transfer NFT to contract upon `createMarketSale`. Rather just get approval,
         then transfer NFT to buyer and money to seller upon `completeMarketSale`?
+    - Change contract name from `Sale` to `Transaction`
 - Front-end dapp
 - Social media
     - Discord server
