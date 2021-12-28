@@ -7,6 +7,8 @@ const { ethers } = require("hardhat");
 // global variables
 let ACCOUNTS = [];
 let CONTRACT;
+let NFT_CONTRACT_LOCAL;
+let NFT_CONTRACT_VERIFIED;
 const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 // global functions
@@ -39,11 +41,32 @@ describe("AvaxTrade - CollectionItem", () => {
 
   describe('Public Functions', async () => {
     beforeEach(async () => {
+      // verivied
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT_VERIFIED = await contractFactory.deploy();
+      await NFT_CONTRACT_VERIFIED.deployed();
+
+      await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[3]).mint(1, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[3]).mint(2, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[3])['safeTransferFrom(address,address,uint256)'](ACCOUNTS[3].address, ACCOUNTS[2].address, 1);
+      await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
+
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', ACCOUNTS[2].address, 100, 2, 3, ACCOUNTS[3].address, false
+        'collection name', NFT_CONTRACT_VERIFIED.address, 100, 2, 3, ACCOUNTS[3].address, false
       );
+
+      // local
+      contractFactory = await ethers.getContractFactory("AvaxTradeNft");
+      NFT_CONTRACT_LOCAL = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://cid/');
+      await NFT_CONTRACT_LOCAL.deployed();
+
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6])['safeTransferFrom(address,address,uint256)'](ACCOUNTS[6].address, ACCOUNTS[2].address, 1);
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
+
       await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
-        'collection name', ACCOUNTS[5].address, ACCOUNTS[6].address
+        'collection name', NFT_CONTRACT_LOCAL.address, ACCOUNTS[6].address
       );
     });
 
@@ -104,7 +127,7 @@ describe("AvaxTrade - CollectionItem", () => {
     });
     it('get items in collection - not empty - verified', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[2].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
 
       const result = await CONTRACT.connect(ACCOUNTS[0]).getItemsInCollection(2);
@@ -113,11 +136,11 @@ describe("AvaxTrade - CollectionItem", () => {
 
       expect(result[0].collectionId).to.be.equal(2);
       expect(result[0].tokenId).to.be.equal(2);
-      expect(result[0].contractAddress).to.be.equal(ACCOUNTS[2].address);
+      expect(result[0].contractAddress).to.be.equal(NFT_CONTRACT_VERIFIED.address);
     });
     it('get items in collection - not empty - local', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[5].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
 
       const result = await CONTRACT.connect(ACCOUNTS[0]).getItemsInCollection(3);
@@ -126,23 +149,23 @@ describe("AvaxTrade - CollectionItem", () => {
 
       expect(result[0].collectionId).to.be.equal(3);
       expect(result[0].tokenId).to.be.equal(2);
-      expect(result[0].contractAddress).to.be.equal(ACCOUNTS[5].address);
+      expect(result[0].contractAddress).to.be.equal(NFT_CONTRACT_LOCAL.address);
     });
     it('get items in collection - not empty - multiple', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[5].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[2].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[2].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[2].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[5].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
 
       let result = await CONTRACT.connect(ACCOUNTS[0]).getItemsInCollection(1);
@@ -186,19 +209,19 @@ describe("AvaxTrade - CollectionItem", () => {
     });
     it('get owner of item collection - verified', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[2].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
 
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[2].address, ACCOUNTS[2].address);
+      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address);
       const collectionOwner = await CONTRACT.connect(ACCOUNTS[0]).getOwnerOfItemCollection(itemId);
       expect(collectionOwner).to.be.equal(ACCOUNTS[3].address);
     });
     it('get owner of item collection - local', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[5].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
 
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[5].address, ACCOUNTS[2].address);
+      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address);
       const collectionOwner = await CONTRACT.connect(ACCOUNTS[0]).getOwnerOfItemCollection(itemId);
       expect(collectionOwner).to.be.equal(ACCOUNTS[6].address);
     });
@@ -223,12 +246,12 @@ describe("AvaxTrade - CollectionItem", () => {
     });
     it('get creator of item - local', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[5].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
 
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[5].address, ACCOUNTS[2].address);
+      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address);
       const itemCreator = await CONTRACT.connect(ACCOUNTS[0]).getCreatorOfItem(itemId);
-      expect(itemCreator).to.be.equal(CONTRACT.address);
+      expect(itemCreator).to.be.equal(ACCOUNTS[6].address);
     });
   });
 
@@ -578,9 +601,22 @@ describe("AvaxTrade - CollectionItem", () => {
 
   describe('Local collection', async () => {
     beforeEach(async () => {
+      contractFactory = await ethers.getContractFactory("AvaxTradeNft");
+      NFT_CONTRACT_LOCAL = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://cid/');
+      await NFT_CONTRACT_LOCAL.deployed();
+
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6])['safeTransferFrom(address,address,uint256)'](ACCOUNTS[6].address, ACCOUNTS[2].address, 1);
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
+
       await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
-        'collection name', ACCOUNTS[1].address, ACCOUNTS[2].address
+        'collection name', NFT_CONTRACT_LOCAL.address, ACCOUNTS[6].address
       );
+      // await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
+      //   'collection name', ACCOUNTS[1].address, ACCOUNTS[2].address
+      // );
     });
 
     it('get items collections', async () => {
@@ -590,9 +626,9 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('add item to collection', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address);
       const item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
 
       const result = await CONTRACT.connect(ACCOUNTS[0]).getItemsInCollection(item.collectionId);
@@ -601,12 +637,12 @@ describe("AvaxTrade - CollectionItem", () => {
 
       expect(result[0].collectionId).to.be.equal(item.collectionId);
       expect(result[0].tokenId).to.be.equal(2);
-      expect(result[0].contractAddress).to.be.equal(ACCOUNTS[1].address);
+      expect(result[0].contractAddress).to.be.equal(NFT_CONTRACT_LOCAL.address);
       expect(result[0].seller).to.be.equal(ACCOUNTS[2].address);
       expect(result[0].buyer).to.be.equal(EMPTY_ADDRESS);
       expect(result[0].price).to.be.equal(111);
       expect(result[0].commission).to.be.equal(2);
-      expect(result[0].creator).to.be.equal(CONTRACT.address);
+      expect(result[0].creator).to.be.equal(ACCOUNTS[6].address);
       expect(result[0].sold).to.be.equal(false);
       expect(result[0].active).to.be.equal(true);
     });
@@ -622,16 +658,16 @@ describe("AvaxTrade - CollectionItem", () => {
     });
     it('add items to collection - same user', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        3, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 222
+        3, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 222
       );
 
       // are both items are under unverified collection
-      const itemId1 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      const itemId1 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address);
       const item1 = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId1);
-      const itemId2 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(3, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      const itemId2 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(3, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address);
       const item2 = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId2);
       expect(item1.collectionId).to.be.equal(item2.collectionId);
 
@@ -641,38 +677,38 @@ describe("AvaxTrade - CollectionItem", () => {
 
       expect(result[0].collectionId).to.be.equal(item1.collectionId);
       expect(result[0].tokenId).to.be.equal(2);
-      expect(result[0].contractAddress).to.be.equal(ACCOUNTS[1].address);
+      expect(result[0].contractAddress).to.be.equal(NFT_CONTRACT_LOCAL.address);
       expect(result[0].seller).to.be.equal(ACCOUNTS[2].address);
       expect(result[0].buyer).to.be.equal(EMPTY_ADDRESS);
       expect(result[0].price).to.be.equal(111);
       expect(result[0].commission).to.be.equal(2);
-      expect(result[0].creator).to.be.equal(CONTRACT.address);
+      expect(result[0].creator).to.be.equal(ACCOUNTS[6].address);
       expect(result[0].sold).to.be.equal(false);
       expect(result[0].active).to.be.equal(true);
 
       expect(result[1].collectionId).to.be.equal(item2.collectionId);
       expect(result[1].tokenId).to.be.equal(3);
-      expect(result[1].contractAddress).to.be.equal(ACCOUNTS[1].address);
+      expect(result[1].contractAddress).to.be.equal(NFT_CONTRACT_LOCAL.address);
       expect(result[1].seller).to.be.equal(ACCOUNTS[2].address);
       expect(result[1].buyer).to.be.equal(EMPTY_ADDRESS);
       expect(result[1].price).to.be.equal(222);
       expect(result[1].commission).to.be.equal(2);
-      expect(result[1].creator).to.be.equal(CONTRACT.address);
+      expect(result[1].creator).to.be.equal(ACCOUNTS[6].address);
       expect(result[1].sold).to.be.equal(false);
       expect(result[1].active).to.be.equal(true);
     });
     it('add items to collection - different users', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        3, ACCOUNTS[1].address, ACCOUNTS[3].address, EMPTY_ADDRESS, 222
+        3, NFT_CONTRACT_LOCAL.address, ACCOUNTS[3].address, EMPTY_ADDRESS, 222
       );
 
       // are both items are under unverified collection
-      const itemId1 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      const itemId1 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address);
       const item1 = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId1);
-      const itemId2 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(3, ACCOUNTS[1].address, ACCOUNTS[3].address);
+      const itemId2 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(3, NFT_CONTRACT_LOCAL.address, ACCOUNTS[3].address);
       const item2 = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId2);
       expect(item1.collectionId).to.be.equal(item2.collectionId);
 
@@ -682,32 +718,32 @@ describe("AvaxTrade - CollectionItem", () => {
 
       expect(result[0].collectionId).to.be.equal(item1.collectionId);
       expect(result[0].tokenId).to.be.equal(2);
-      expect(result[0].contractAddress).to.be.equal(ACCOUNTS[1].address);
+      expect(result[0].contractAddress).to.be.equal(NFT_CONTRACT_LOCAL.address);
       expect(result[0].seller).to.be.equal(ACCOUNTS[2].address);
       expect(result[0].buyer).to.be.equal(EMPTY_ADDRESS);
       expect(result[0].price).to.be.equal(111);
       expect(result[0].commission).to.be.equal(2);
-      expect(result[0].creator).to.be.equal(CONTRACT.address);
+      expect(result[0].creator).to.be.equal(ACCOUNTS[6].address);
       expect(result[0].sold).to.be.equal(false);
       expect(result[0].active).to.be.equal(true);
 
       expect(result[1].collectionId).to.be.equal(item2.collectionId);
       expect(result[1].tokenId).to.be.equal(3);
-      expect(result[1].contractAddress).to.be.equal(ACCOUNTS[1].address);
+      expect(result[1].contractAddress).to.be.equal(NFT_CONTRACT_LOCAL.address);
       expect(result[1].seller).to.be.equal(ACCOUNTS[3].address);
       expect(result[1].buyer).to.be.equal(EMPTY_ADDRESS);
       expect(result[1].price).to.be.equal(222);
       expect(result[1].commission).to.be.equal(2);
-      expect(result[1].creator).to.be.equal(CONTRACT.address);
+      expect(result[1].creator).to.be.equal(ACCOUNTS[6].address);
       expect(result[1].sold).to.be.equal(false);
       expect(result[1].active).to.be.equal(true);
     });
 
     it('cancel item in collection - valid item id', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address);
 
       let item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       expect(item.id).to.be.equal(itemId);
@@ -728,9 +764,9 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('mark item sold in collection - valid item id', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address);
 
       let item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       expect(item.id).to.be.equal(itemId);
@@ -751,61 +787,61 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('create collection - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[2]).createLocalCollection(
-        'collection name', ACCOUNTS[1].address, ACCOUNTS[2].address
+        'collection name', NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address
       ).should.be.rejectedWith(
         'AccessControl: account 0x5ca6ec5718ac9ac8916b8cecab2c0d6051dbba92 is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775'
       );
     });
     it('create collection - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).createLocalCollection(
-        'collection name', ACCOUNTS[1].address, ACCOUNTS[1].address
+        'collection name', NFT_CONTRACT_LOCAL.address, ACCOUNTS[1].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
       expect(collection.collectionType).to.be.equal(0);
     });
     it('create collection - yes admin', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
-        'collection name', ACCOUNTS[1].address, ACCOUNTS[0].address
+        'collection name', NFT_CONTRACT_LOCAL.address, ACCOUNTS[0].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
       expect(collection.collectionType).to.be.equal(0);
     });
     it('create collection', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).createLocalCollection(
-        'collection name', ACCOUNTS[1].address, ACCOUNTS[0].address
+        'collection name', NFT_CONTRACT_LOCAL.address, ACCOUNTS[0].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(3);
       expect(collection.id).to.be.equal(3);
       expect(collection.name).to.be.equal('collection name');
       expect(collection.collectionType).to.be.equal(0);
-      expect(collection.contractAddress).to.be.equal(ACCOUNTS[1].address);
+      expect(collection.contractAddress).to.be.equal(NFT_CONTRACT_LOCAL.address);
       expect(collection.owner).to.be.equal(ACCOUNTS[0].address);
     });
 
     it('update collection - not owner (regular user)', async () => {
       await CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name 2', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[3].address
+        2, 'collection name 2', NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0x2142c9e89f53770c174b6f211ab4ec58d1d632f8 is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - not owner (contract owner)', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).updateCollection(
-        2, 'collection name 2', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[3].address
+        2, 'collection name 2', NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - not owner (admin)', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).updateCollection(
-        2, 'collection name 2', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[3].address
+        2, 'collection name 2', NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0xda121ab48c7675e4f25e28636e3efe602e49eec6 is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - yes owner', async () => {
-      await CONTRACT.connect(ACCOUNTS[2]).updateCollection(
-        2, 'collection name 2', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[5].address
+      await CONTRACT.connect(ACCOUNTS[6]).updateCollection(
+        2, 'collection name 2', NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[6].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(2);
       expect(collection.collectionType).to.be.equal(0);
@@ -816,8 +852,17 @@ describe("AvaxTrade - CollectionItem", () => {
 
   describe('Verified collection', async () => {
     beforeEach(async () => {
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT_VERIFIED = await contractFactory.deploy();
+      await NFT_CONTRACT_VERIFIED.deployed();
+
+      await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[3]).mint(1, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[3]).mint(2, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[3])['safeTransferFrom(address,address,uint256)'](ACCOUNTS[3].address, ACCOUNTS[2].address, 1);
+      await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
+
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address, false
+        'collection name', NFT_CONTRACT_VERIFIED.address, 100, 2, 3, ACCOUNTS[2].address, false
       );
     });
 
@@ -828,9 +873,9 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('add item to collection', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address);
       const item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
 
       const result = await CONTRACT.connect(ACCOUNTS[0]).getItemsInCollection(item.collectionId);
@@ -839,7 +884,7 @@ describe("AvaxTrade - CollectionItem", () => {
 
       expect(result[0].collectionId).to.be.equal(item.collectionId);
       expect(result[0].tokenId).to.be.equal(2);
-      expect(result[0].contractAddress).to.be.equal(ACCOUNTS[1].address);
+      expect(result[0].contractAddress).to.be.equal(NFT_CONTRACT_VERIFIED.address);
       expect(result[0].seller).to.be.equal(ACCOUNTS[2].address);
       expect(result[0].buyer).to.be.equal(EMPTY_ADDRESS);
       expect(result[0].price).to.be.equal(111);
@@ -860,16 +905,16 @@ describe("AvaxTrade - CollectionItem", () => {
     });
     it('add items to collection - same user', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        3, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 222
+        3, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 222
       );
 
       // are both items are under unverified collection
-      const itemId1 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      const itemId1 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address);
       const item1 = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId1);
-      const itemId2 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(3, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      const itemId2 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(3, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address);
       const item2 = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId2);
       expect(item1.collectionId).to.be.equal(item2.collectionId);
 
@@ -879,7 +924,7 @@ describe("AvaxTrade - CollectionItem", () => {
 
       expect(result[0].collectionId).to.be.equal(item1.collectionId);
       expect(result[0].tokenId).to.be.equal(2);
-      expect(result[0].contractAddress).to.be.equal(ACCOUNTS[1].address);
+      expect(result[0].contractAddress).to.be.equal(NFT_CONTRACT_VERIFIED.address);
       expect(result[0].seller).to.be.equal(ACCOUNTS[2].address);
       expect(result[0].buyer).to.be.equal(EMPTY_ADDRESS);
       expect(result[0].price).to.be.equal(111);
@@ -890,7 +935,7 @@ describe("AvaxTrade - CollectionItem", () => {
 
       expect(result[1].collectionId).to.be.equal(item2.collectionId);
       expect(result[1].tokenId).to.be.equal(3);
-      expect(result[1].contractAddress).to.be.equal(ACCOUNTS[1].address);
+      expect(result[1].contractAddress).to.be.equal(NFT_CONTRACT_VERIFIED.address);
       expect(result[1].seller).to.be.equal(ACCOUNTS[2].address);
       expect(result[1].buyer).to.be.equal(EMPTY_ADDRESS);
       expect(result[1].price).to.be.equal(222);
@@ -901,16 +946,16 @@ describe("AvaxTrade - CollectionItem", () => {
     });
     it('add items to collection - different users', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        3, ACCOUNTS[1].address, ACCOUNTS[3].address, EMPTY_ADDRESS, 222
+        3, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[3].address, EMPTY_ADDRESS, 222
       );
 
       // are both items are under unverified collection
-      const itemId1 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      const itemId1 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address);
       const item1 = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId1);
-      const itemId2 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(3, ACCOUNTS[1].address, ACCOUNTS[3].address);
+      const itemId2 = await CONTRACT.connect(ACCOUNTS[0]).getItemId(3, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[3].address);
       const item2 = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId2);
       expect(item1.collectionId).to.be.equal(item2.collectionId);
 
@@ -920,7 +965,7 @@ describe("AvaxTrade - CollectionItem", () => {
 
       expect(result[0].collectionId).to.be.equal(item1.collectionId);
       expect(result[0].tokenId).to.be.equal(2);
-      expect(result[0].contractAddress).to.be.equal(ACCOUNTS[1].address);
+      expect(result[0].contractAddress).to.be.equal(NFT_CONTRACT_VERIFIED.address);
       expect(result[0].seller).to.be.equal(ACCOUNTS[2].address);
       expect(result[0].buyer).to.be.equal(EMPTY_ADDRESS);
       expect(result[0].price).to.be.equal(111);
@@ -931,7 +976,7 @@ describe("AvaxTrade - CollectionItem", () => {
 
       expect(result[1].collectionId).to.be.equal(item2.collectionId);
       expect(result[1].tokenId).to.be.equal(3);
-      expect(result[1].contractAddress).to.be.equal(ACCOUNTS[1].address);
+      expect(result[1].contractAddress).to.be.equal(NFT_CONTRACT_VERIFIED.address);
       expect(result[1].seller).to.be.equal(ACCOUNTS[3].address);
       expect(result[1].buyer).to.be.equal(EMPTY_ADDRESS);
       expect(result[1].price).to.be.equal(222);
@@ -943,9 +988,9 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('cancel item in collection - valid item id', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address);
 
       let item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       expect(item.id).to.be.equal(itemId);
@@ -966,9 +1011,9 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('mark item sold in collection - valid item id', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
+        2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address, EMPTY_ADDRESS, 111
       );
-      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, ACCOUNTS[1].address, ACCOUNTS[2].address);
+      const itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(2, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[2].address);
 
       let item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       expect(item.id).to.be.equal(itemId);
@@ -989,61 +1034,61 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('create collection - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[2]).createVerifiedCollection(
-        'collection name', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[2].address, false
+        'collection name', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[2].address, false
       ).should.be.rejectedWith(
         'AccessControl: account 0x5ca6ec5718ac9ac8916b8cecab2c0d6051dbba92 is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775'
       );
     });
     it('create collection - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).createVerifiedCollection(
-        'collection name', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[1].address, false
+        'collection name', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[1].address, false
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
       expect(collection.collectionType).to.be.equal(1);
     });
     it('create collection - yes admin', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[0].address, false
+        'collection name', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[0].address, false
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
       expect(collection.collectionType).to.be.equal(1);
     });
     it('create collection', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).createVerifiedCollection(
-        'collection name', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[0].address, false
+        'collection name', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[0].address, false
       );
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(3);
       expect(collection.id).to.be.equal(3);
       expect(collection.name).to.be.equal('collection name');
       expect(collection.collectionType).to.be.equal(1);
-      expect(collection.contractAddress).to.be.equal(ACCOUNTS[1].address);
+      expect(collection.contractAddress).to.be.equal(NFT_CONTRACT_VERIFIED.address);
       expect(collection.owner).to.be.equal(ACCOUNTS[0].address);
     });
 
     it('update collection - not owner (regular user)', async () => {
       await CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name 2', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[3].address
+        2, 'collection name 2', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0x2142c9e89f53770c174b6f211ab4ec58d1d632f8 is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - not owner (contract owner)', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).updateCollection(
-        2, 'collection name 2', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[3].address
+        2, 'collection name 2', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - not owner (admin)', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).updateCollection(
-        2, 'collection name 2', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[3].address
+        2, 'collection name 2', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0xda121ab48c7675e4f25e28636e3efe602e49eec6 is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[2]).updateCollection(
-        2, 'collection name 2', ACCOUNTS[1].address, 0, 0, 0, ACCOUNTS[5].address
+        2, 'collection name 2', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[5].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(2);
       expect(collection.collectionType).to.be.equal(1);
@@ -1054,11 +1099,32 @@ describe("AvaxTrade - CollectionItem", () => {
 
   describe('Multiple collections', async () => {
     beforeEach(async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
-        'collection name', ACCOUNTS[1].address, ACCOUNTS[2].address
-      );
+      // verivied
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT_VERIFIED = await contractFactory.deploy();
+      await NFT_CONTRACT_VERIFIED.deployed();
+
+      await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[3]).mint(1, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[3]).mint(2, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[3])['safeTransferFrom(address,address,uint256)'](ACCOUNTS[3].address, ACCOUNTS[2].address, 1);
+      await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
+
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', ACCOUNTS[5].address, 100, 2, 3, ACCOUNTS[6].address, false
+        'collection name', NFT_CONTRACT_VERIFIED.address, 100, 2, 3, ACCOUNTS[6].address, false
+      );
+
+      // local
+      contractFactory = await ethers.getContractFactory("AvaxTradeNft");
+      NFT_CONTRACT_LOCAL = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://cid/');
+      await NFT_CONTRACT_LOCAL.deployed();
+
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6])['safeTransferFrom(address,address,uint256)'](ACCOUNTS[6].address, ACCOUNTS[2].address, 1);
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
+
+      await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
+        'collection name', NFT_CONTRACT_LOCAL.address, ACCOUNTS[6].address
       );
     });
 
@@ -1085,24 +1151,24 @@ describe("AvaxTrade - CollectionItem", () => {
 
       // local
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        5, ACCOUNTS[1].address, ACCOUNTS[3].address, EMPTY_ADDRESS, 111
+        5, NFT_CONTRACT_LOCAL.address, ACCOUNTS[3].address, EMPTY_ADDRESS, 111
       );
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        55, ACCOUNTS[1].address, ACCOUNTS[3].address, EMPTY_ADDRESS, 111
+        55, NFT_CONTRACT_LOCAL.address, ACCOUNTS[3].address, EMPTY_ADDRESS, 111
       );
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        56, ACCOUNTS[1].address, ACCOUNTS[4].address, EMPTY_ADDRESS, 111
+        56, NFT_CONTRACT_LOCAL.address, ACCOUNTS[4].address, EMPTY_ADDRESS, 111
       );
 
       // verivied
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        7, ACCOUNTS[5].address, ACCOUNTS[4].address, EMPTY_ADDRESS, 111
+        7, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[4].address, EMPTY_ADDRESS, 111
       );
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        17, ACCOUNTS[5].address, ACCOUNTS[4].address, EMPTY_ADDRESS, 111
+        17, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[4].address, EMPTY_ADDRESS, 111
       );
       await CONTRACT.connect(ACCOUNTS[0]).addItemToCollection(
-        27, ACCOUNTS[5].address, ACCOUNTS[6].address, EMPTY_ADDRESS, 111
+        27, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[6].address, EMPTY_ADDRESS, 111
       );
 
       // unverified
@@ -1122,33 +1188,33 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(result[0].collectionId).to.be.equal(item.collectionId);
 
       // local
-      itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(5, ACCOUNTS[1].address, ACCOUNTS[3].address);
+      itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(5, NFT_CONTRACT_LOCAL.address, ACCOUNTS[3].address);
       item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       result = await CONTRACT.connect(ACCOUNTS[0]).getItemsInCollection(item.collectionId);
       expect(result[0].collectionId).to.be.equal(item.collectionId);
 
-      itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(55, ACCOUNTS[1].address, ACCOUNTS[3].address);
+      itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(55, NFT_CONTRACT_LOCAL.address, ACCOUNTS[3].address);
       item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       result = await CONTRACT.connect(ACCOUNTS[0]).getItemsInCollection(item.collectionId);
       expect(result[0].collectionId).to.be.equal(item.collectionId);
 
-      itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(56, ACCOUNTS[1].address, ACCOUNTS[4].address);
+      itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(56, NFT_CONTRACT_LOCAL.address, ACCOUNTS[4].address);
       item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       result = await CONTRACT.connect(ACCOUNTS[0]).getItemsInCollection(item.collectionId);
       expect(result[0].collectionId).to.be.equal(item.collectionId);
 
       // verified
-      itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(7, ACCOUNTS[5].address, ACCOUNTS[4].address);
+      itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(7, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[4].address);
       item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       result = await CONTRACT.connect(ACCOUNTS[0]).getItemsInCollection(item.collectionId);
       expect(result[0].collectionId).to.be.equal(item.collectionId);
 
-      itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(17, ACCOUNTS[5].address, ACCOUNTS[4].address);
+      itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(17, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[4].address);
       item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       result = await CONTRACT.connect(ACCOUNTS[0]).getItemsInCollection(item.collectionId);
       expect(result[0].collectionId).to.be.equal(item.collectionId);
 
-      itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(27, ACCOUNTS[5].address, ACCOUNTS[6].address);
+      itemId = await CONTRACT.connect(ACCOUNTS[0]).getItemId(27, NFT_CONTRACT_VERIFIED.address, ACCOUNTS[6].address);
       item = await CONTRACT.connect(ACCOUNTS[0]).getItem(itemId);
       result = await CONTRACT.connect(ACCOUNTS[0]).getItemsInCollection(item.collectionId);
       expect(result[0].collectionId).to.be.equal(item.collectionId);

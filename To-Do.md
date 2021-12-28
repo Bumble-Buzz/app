@@ -24,6 +24,7 @@ Things left to do:
     - Change contract name from `Sale` to `Transaction`
     - For direct sales, take out cut for maretplace / artist? Give incentives?
     - NFT contract `approve` one instead of `approve all`, give option to do both
+    - Rename `Bank > CollectionAccount > reflectionVault` to `tokenVault`?
 - Front-end dapp
 - Social media
     - Discord server

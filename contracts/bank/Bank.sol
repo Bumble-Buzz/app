@@ -239,14 +239,14 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   }
 
   /**
-    * @dev Distribute collection reflection reward between all token id's
-    * todo write test for this
+    * @dev Distribute collection reflection reward between given token id's
   */
   function distributeCollectionReflectionRewardList(address _contractAddress, uint256[] memory _tokenIds, uint256 _reflectionReward) external onlyOwner() {
     addBank(_contractAddress); // create if bank account does not exist
     uint256 reflectionRewardPerItem = _reflectionReward / _tokenIds.length;
     for (uint256 i = 0; i < _tokenIds.length; i++) {
-      _increaseReflectionVaultForTokensCollectionAccount(_contractAddress, _tokenIds[i], reflectionRewardPerItem);
+      uint256 vaultIndex = _tokenIds[i] - 1;
+      _increaseReflectionVaultForTokensCollectionAccount(_contractAddress, vaultIndex, reflectionRewardPerItem);
     }
   }
 
@@ -260,7 +260,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
       uint256 newIncentiveVault = incentiveVault + _value;
       _updateIncentiveVaultCollectionAccount(_contractAddress, newIncentiveVault);
     } else {
-      require(incentiveVault >= _value, "Bank: Passed in value must be greater than vault balance");
+      require(incentiveVault >= _value, "Bank: Withdraw amount must be less than or equal to vault balance");
       uint256 newIncentiveVault = incentiveVault - _value;
       _updateIncentiveVaultCollectionAccount(_contractAddress, newIncentiveVault);
     }

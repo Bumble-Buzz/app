@@ -554,7 +554,6 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
 
   /**
     * @dev Withdraw from collection incentive vault
-    * todo Provide option where owner of collection can and can not have access to incentive vault?
   */
   function withdrawIncentiveCollectionAccount(address _contractAddress, uint256 _amount) external {
     uint256 collectionId = CollectionItem(CONTRACTS.collectionItem).getCllectionForContract(_contractAddress);
@@ -565,6 +564,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     require(collection.ownerIncentiveAccess == true, "You do not have access to withdraw");
 
     Bank(CONTRACTS.bank).updateCollectionIncentiveReward(_contractAddress, _amount, false);
+    BALANCE_SHEET.collectionIncentive -= _amount;
 
     // todo ensure this is a safe way to transfer funds
     ( bool success, ) = payable(msg.sender).call{ value: _amount }("");

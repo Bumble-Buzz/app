@@ -708,7 +708,66 @@ describe("AvaxTrade - Bank", () => {
       expect(ethers.utils.formatEther(balance)).to.be.equal('8.0');
     });
 
-    
+    it('distribute collection reflection given list - not owner', async () => {
+      await CONTRACT.connect(ACCOUNTS[1]).distributeCollectionReflectionRewardList(ACCOUNTS[2].address, [1,3], ethers.utils.parseEther('10'))
+        .should.be.rejectedWith('Ownable: caller is not the owner');
+    });
+    it('distribute collection reflection given list - account does not exist', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionRewardList(ACCOUNTS[2].address, [1,3], ethers.utils.parseEther('10'))
+        .should.be.rejectedWith('CollectionAccount: Reflection vault not initialized');
+    });
+    it('distribute collection reflection given list - no existing balance', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[2].address, 3);
+
+      let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(1, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(2, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(3, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+
+      // distribute 10 ether among 2 users
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionRewardList(ACCOUNTS[2].address, [1,3], ethers.utils.parseEther('10'))
+
+      balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(1, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(2, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(3, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+    });
+    it('distribute collection reflection given list - yes existing balance', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[2].address, 3);
+      await CONTRACT.connect(ACCOUNTS[0]).incrementCollectionAccount(ACCOUNTS[2].address, ethers.utils.parseEther('5'), 0);
+
+      let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(1, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(2, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(3, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+
+      // distribute 10 ether among 2 users
+      await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionRewardList(ACCOUNTS[2].address, [1,3], ethers.utils.parseEther('10'))
+
+      balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(1, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('10.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(2, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(3, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('10.0');
+    });
+
     it('update collection incentive reward - vault not initialized', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0]).incrementCollectionAccount(ACCOUNTS[2].address, 0, ethers.utils.parseEther('4'))
@@ -742,7 +801,7 @@ describe("AvaxTrade - Bank", () => {
       expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
 
       await CONTRACT.connect(ACCOUNTS[0]).updateCollectionIncentiveReward(ACCOUNTS[2].address, ethers.utils.parseEther('5'), false)
-        .should.be.rejectedWith('Bank: Passed in value must be greater than vault balance');
+        .should.be.rejectedWith('Bank: Withdraw amount must be less than or equal to vault balance');
     });
     it('update collection incentive reward - increase - no existing balance', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
@@ -785,7 +844,7 @@ describe("AvaxTrade - Bank", () => {
       expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
 
       await CONTRACT.connect(ACCOUNTS[0]).updateCollectionIncentiveReward(ACCOUNTS[2].address, ethers.utils.parseEther('5'), false)
-        .should.be.rejectedWith('Bank: Passed in value must be greater than vault balance');
+        .should.be.rejectedWith('Bank: Withdraw amount must be less than or equal to vault balance');
     });
     it('update collection incentive reward - decrease - yes existing balance', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
@@ -832,7 +891,7 @@ describe("AvaxTrade - Bank", () => {
       expect(ethers.utils.formatEther(balance)).to.be.equal('4.0');
 
       await CONTRACT.connect(ACCOUNTS[0]).updateCollectionIncentiveReward(ACCOUNTS[2].address, ethers.utils.parseEther('5'), false)
-        .should.be.rejectedWith('Bank: Passed in value must be greater than vault balance');
+        .should.be.rejectedWith('Bank: Withdraw amount must be less than or equal to vault balance');
     });
 
   });

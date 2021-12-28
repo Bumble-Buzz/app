@@ -64,57 +64,57 @@ describe("AvaxTrade - Main", () => {
     assert.notEqual(address, 0x0);
   });
 
-  // describe('Attribute functions', async () => {
+  describe('Attribute functions', async () => {
 
-  //   it('get marketplace listing price', async () => {
-  //     expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceListingPrice()).to.be.equal(0);
-  //   });
-  //   it('set marketplace listing price - not owner', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[1]).setMarketplaceListingPrice(ethers.utils.parseEther('5'))
-  //       .should.be.rejectedWith('Ownable: caller is not the owner');
-  //   });
-  //   it('set marketplace listing price - yes owner', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceListingPrice(ethers.utils.parseEther('5'));
-  //     const result = await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceListingPrice();
-  //     expect(ethers.utils.formatEther(result)).to.be.equal('5.0');
-  //   });
+    it('get marketplace listing price', async () => {
+      expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceListingPrice()).to.be.equal(0);
+    });
+    it('set marketplace listing price - not owner', async () => {
+      await CONTRACT.connect(ACCOUNTS[1]).setMarketplaceListingPrice(ethers.utils.parseEther('5'))
+        .should.be.rejectedWith('Ownable: caller is not the owner');
+    });
+    it('set marketplace listing price - yes owner', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceListingPrice(ethers.utils.parseEther('5'));
+      const result = await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceListingPrice();
+      expect(ethers.utils.formatEther(result)).to.be.equal('5.0');
+    });
 
-  //   it('get marketplace commission', async () => {
-  //     expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceCommission()).to.be.equal(2);
-  //   });
-  //   it('set marketplace commission - not owner', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[1]).setMarketplaceCommission(5)
-  //       .should.be.rejectedWith('Ownable: caller is not the owner');
-  //   });
-  //   it('set marketplace commission - yes owner', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceCommission(5);
-  //     expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceCommission()).to.be.equal(5);
-  //   });
+    it('get marketplace commission', async () => {
+      expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceCommission()).to.be.equal(2);
+    });
+    it('set marketplace commission - not owner', async () => {
+      await CONTRACT.connect(ACCOUNTS[1]).setMarketplaceCommission(5)
+        .should.be.rejectedWith('Ownable: caller is not the owner');
+    });
+    it('set marketplace commission - yes owner', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceCommission(5);
+      expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceCommission()).to.be.equal(5);
+    });
 
-  //   it('get marketplace incentive commission', async () => {
-  //     expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceIncentiveCommission()).to.be.equal(0);
-  //   });
-  //   it('set marketplace incentive commission - not owner', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[1]).setMarketplaceIncentiveCommission(5)
-  //       .should.be.rejectedWith('Ownable: caller is not the owner');
-  //   });
-  //   it('set marketplace incentive commission - yes owner', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceIncentiveCommission(5);
-  //     expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceIncentiveCommission()).to.be.equal(5);
-  //   });
+    it('get marketplace incentive commission', async () => {
+      expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceIncentiveCommission()).to.be.equal(0);
+    });
+    it('set marketplace incentive commission - not owner', async () => {
+      await CONTRACT.connect(ACCOUNTS[1]).setMarketplaceIncentiveCommission(5)
+        .should.be.rejectedWith('Ownable: caller is not the owner');
+    });
+    it('set marketplace incentive commission - yes owner', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceIncentiveCommission(5);
+      expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceIncentiveCommission()).to.be.equal(5);
+    });
 
-  //   it('get marketplace bank owner', async () => {
-  //     expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceBankOwner()).to.be.equal(ACCOUNTS[0].address);
-  //   });
-  //   it('set marketplace bank owner - not owner', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[1]).setMarketplaceBankOwner(ACCOUNTS[1].address)
-  //       .should.be.rejectedWith('Ownable: caller is not the owner');
-  //   });
-  //   it('set marketplace bank owner - yes owner', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceBankOwner(ACCOUNTS[1].address);
-  //     expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceBankOwner()).to.be.equal(ACCOUNTS[1].address);
-  //   });
-  // });
+    it('get marketplace bank owner', async () => {
+      expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceBankOwner()).to.be.equal(ACCOUNTS[0].address);
+    });
+    it('set marketplace bank owner - not owner', async () => {
+      await CONTRACT.connect(ACCOUNTS[1]).setMarketplaceBankOwner(ACCOUNTS[1].address)
+        .should.be.rejectedWith('Ownable: caller is not the owner');
+    });
+    it('set marketplace bank owner - yes owner', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceBankOwner(ACCOUNTS[1].address);
+      expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceBankOwner()).to.be.equal(ACCOUNTS[1].address);
+    });
+  });
 
   describe('Main Functions - Unverified', async () => {
     beforeEach(async () => {
@@ -2331,6 +2331,386 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
     });
+  });
+
+  describe('Monetary Functions', async () => {
+
+    it('deposit into collection incentive vault', async () => {
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT = await contractFactory.deploy();
+      await NFT_CONTRACT.deployed();
+
+      await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, false
+      );
+
+      let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('0.0');
+      let balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionIncentive)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[4]).depositIncentiveCollectionAccount(NFT_CONTRACT.address, { value: ethers.utils.parseEther('10') });
+
+      contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('10.0');
+      balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionIncentive)).to.be.equal('10.0');
+    });
+    it('withdraw from collection incentive vault - not owner', async () => {
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT = await contractFactory.deploy();
+      await NFT_CONTRACT.deployed();
+
+      await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, false
+      );
+
+      let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('0.0');
+      let balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionIncentive)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[4]).depositIncentiveCollectionAccount(NFT_CONTRACT.address, { value: ethers.utils.parseEther('10') });
+
+      contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('10.0');
+      balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionIncentive)).to.be.equal('10.0');
+
+      await CONTRACT.connect(ACCOUNTS[4]).withdrawIncentiveCollectionAccount(NFT_CONTRACT.address, ethers.utils.parseEther('20'))
+        .should.be.rejectedWith('You are not the owner of this collection');
+    });
+    it('withdraw from collection incentive vault - yes owner - no access', async () => {
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT = await contractFactory.deploy();
+      await NFT_CONTRACT.deployed();
+
+      await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, false
+      );
+
+      let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('0.0');
+      let balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionIncentive)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[4]).depositIncentiveCollectionAccount(NFT_CONTRACT.address, { value: ethers.utils.parseEther('10') });
+
+      contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('10.0');
+      balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionIncentive)).to.be.equal('10.0');
+
+      await CONTRACT.connect(ACCOUNTS[3]).withdrawIncentiveCollectionAccount(NFT_CONTRACT.address, ethers.utils.parseEther('20'))
+        .should.be.rejectedWith('You do not have access to withdraw');
+    });
+    it('withdraw from collection incentive vault - yes owner - yes access - > vault balance', async () => {
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT = await contractFactory.deploy();
+      await NFT_CONTRACT.deployed();
+
+      await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+      );
+
+      let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('0.0');
+      let balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionIncentive)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[4]).depositIncentiveCollectionAccount(NFT_CONTRACT.address, { value: ethers.utils.parseEther('10') });
+
+      contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('10.0');
+      balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionIncentive)).to.be.equal('10.0');
+
+      await CONTRACT.connect(ACCOUNTS[3]).withdrawIncentiveCollectionAccount(NFT_CONTRACT.address, ethers.utils.parseEther('20'))
+        .should.be.rejectedWith('Bank: Withdraw amount must be less than or equal to vault balance');
+    });
+    it('withdraw from collection incentive vault - yes owner - yes access - < vault balance', async () => {
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT = await contractFactory.deploy();
+      await NFT_CONTRACT.deployed();
+
+      await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+      );
+
+      let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('0.0');
+      let balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionIncentive)).to.be.equal('0.0');
+
+      let bank;
+      bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(NFT_CONTRACT.address);
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
+      expect(bank.collection.reflectionVault).that.is.not.empty;
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[4]).depositIncentiveCollectionAccount(NFT_CONTRACT.address, { value: ethers.utils.parseEther('10') });
+
+      contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('10.0');
+      balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionIncentive)).to.be.equal('10.0');
+
+      bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(NFT_CONTRACT.address);
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
+      expect(bank.collection.reflectionVault).that.is.not.empty;
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('10.0');
+      expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[3]).withdrawIncentiveCollectionAccount(NFT_CONTRACT.address, ethers.utils.parseEther('2'));
+
+      contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('8.0');
+      balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionIncentive)).to.be.equal('8.0');
+
+      bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(NFT_CONTRACT.address);
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
+      expect(bank.collection.reflectionVault).that.is.not.empty;
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('8.0');
+      expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
+    });
+    it('withdraw from collection incentive vault - yes owner - yes access - == vault balance', async () => {
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT = await contractFactory.deploy();
+      await NFT_CONTRACT.deployed();
+
+      await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+      );
+
+      let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('0.0');
+      let balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionIncentive)).to.be.equal('0.0');
+
+      let bank;
+      bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(NFT_CONTRACT.address);
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
+      expect(bank.collection.reflectionVault).that.is.not.empty;
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[4]).depositIncentiveCollectionAccount(NFT_CONTRACT.address, { value: ethers.utils.parseEther('10') });
+
+      contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('10.0');
+      balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionIncentive)).to.be.equal('10.0');
+
+      bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(NFT_CONTRACT.address);
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
+      expect(bank.collection.reflectionVault).that.is.not.empty;
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('10.0');
+      expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[3]).withdrawIncentiveCollectionAccount(NFT_CONTRACT.address, ethers.utils.parseEther('10'));
+
+      contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('0.0');
+      balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionIncentive)).to.be.equal('0.0');
+
+      bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(NFT_CONTRACT.address);
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
+      expect(bank.collection.reflectionVault).that.is.not.empty;
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
+    });
+
+    it('distrubute reward among all NFT holders - unverified', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).distributeRewardInCollection(1, { value: ethers.utils.parseEther('10') })
+        .should.be.rejectedWith('Not a verified collection');
+    });
+    it('distrubute reward among all NFT holders - local', async () => {
+      contractFactory = await ethers.getContractFactory("AvaxTradeNft");
+      NFT_CONTRACT = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://cid/');
+      await NFT_CONTRACT.deployed();
+
+      await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
+        'collection name', NFT_CONTRACT.address
+      );
+
+      await CONTRACT.connect(ACCOUNTS[4]).distributeRewardInCollection(2, { value: ethers.utils.parseEther('10') })
+        .should.be.rejectedWith('Not a verified collection');
+    });
+    it('distrubute reward among all NFT holders - verified', async () => {
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT = await contractFactory.deploy();
+      await NFT_CONTRACT.deployed();
+
+      await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+      );
+
+      let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('0.0');
+      let balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionReflection)).to.be.equal('0.0');
+
+      let bank;
+      bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(NFT_CONTRACT.address);
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
+      expect(bank.collection.reflectionVault).that.is.not.empty;
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[4]).distributeRewardInCollection(2, { value: ethers.utils.parseEther('10') });
+
+      contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('10.0');
+      balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionReflection)).to.be.equal('10.0');
+
+      bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(NFT_CONTRACT.address);
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
+      expect(bank.collection.reflectionVault).that.is.not.empty;
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('2.0');
+      expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
+    });
+
+    it('distrubute reward among all NFT holders - unverified', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).distributeRewardListInCollection(1, [2,3], { value: ethers.utils.parseEther('10') })
+        .should.be.rejectedWith('Not a verified collection');
+    });
+    it('distrubute reward among all NFT holders - local', async () => {
+      contractFactory = await ethers.getContractFactory("AvaxTradeNft");
+      NFT_CONTRACT = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://cid/');
+      await NFT_CONTRACT.deployed();
+
+      await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
+        'collection name', NFT_CONTRACT.address
+      );
+
+      await CONTRACT.connect(ACCOUNTS[4]).distributeRewardListInCollection(2, [2,3], { value: ethers.utils.parseEther('10') })
+        .should.be.rejectedWith('Not a verified collection');
+    });
+    it('distrubute reward among all NFT holders - verified - empty token id list', async () => {
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT = await contractFactory.deploy();
+      await NFT_CONTRACT.deployed();
+
+      await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+      );
+
+      await CONTRACT.connect(ACCOUNTS[4]).distributeRewardListInCollection(2, [], { value: ethers.utils.parseEther('10') })
+        .should.be.rejectedWith('Token id list must be greater than 0');
+    });
+    it('distrubute reward among all NFT holders - verified - invalid token id list', async () => {
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT = await contractFactory.deploy();
+      await NFT_CONTRACT.deployed();
+
+      await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+      );
+
+      await CONTRACT.connect(ACCOUNTS[4]).distributeRewardListInCollection(2, [0,2,3], { value: ethers.utils.parseEther('10') })
+        .should.be.rejectedWith('VM Exception while processing transaction: reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)');
+    });
+    it('distrubute reward among all NFT holders - verified - negative token id list', async () => {
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT = await contractFactory.deploy();
+      await NFT_CONTRACT.deployed();
+
+      await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+      );
+
+      await CONTRACT.connect(ACCOUNTS[4]).distributeRewardListInCollection(2, [2,-3], { value: ethers.utils.parseEther('10') })
+        .should.be.rejectedWith('value out-of-bounds (argument=null, value=-3, code=INVALID_ARGUMENT, version=abi/5.5.0)');
+    });
+    it('distrubute reward among all NFT holders - verified - token id list > supply', async () => {
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT = await contractFactory.deploy();
+      await NFT_CONTRACT.deployed();
+
+      await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+      );
+
+      await CONTRACT.connect(ACCOUNTS[4]).distributeRewardListInCollection(2, [1,2,3,4,5,6], { value: ethers.utils.parseEther('10') })
+        .should.be.rejectedWith('Token id list must not exceed size of collection total supply');
+    });
+    it('distrubute reward among all NFT holders - verified', async () => {
+      contractFactory = await ethers.getContractFactory("SampleErc721");
+      NFT_CONTRACT = await contractFactory.deploy();
+      await NFT_CONTRACT.deployed();
+
+      await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+      );
+
+      let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('0.0');
+      let balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionReflection)).to.be.equal('0.0');
+
+      let bank;
+      bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(NFT_CONTRACT.address);
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
+      expect(bank.collection.reflectionVault).that.is.not.empty;
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[1])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[2])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[3])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[4])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[4]).distributeRewardListInCollection(2, [1,3], { value: ethers.utils.parseEther('10') });
+
+      contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(contractBalance)).to.be.equal('10.0');
+      balanceSheet = await CONTRACT.connect(ACCOUNTS[4]).getBalanceSheet();
+      expect(ethers.utils.formatEther(balanceSheet.collectionReflection)).to.be.equal('10.0');
+
+      bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(NFT_CONTRACT.address);
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
+      expect(bank.collection.reflectionVault).that.is.not.empty;
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('5.0');
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[1])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[2])).to.be.equal('5.0');
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[3])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[4])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
+    });
+
   });
 
   // describe('Reward Functions', async () => {
