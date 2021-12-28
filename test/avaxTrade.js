@@ -127,6 +127,12 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.connect(ACCOUNTS[4]).setApprovalForAll(CONTRACT.address, true);
     });
 
+    it('create market sale - not enough funds', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceListingPrice(ethers.utils.parseEther('5'));
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
+      ).should.be.rejectedWith('Not enough funds to create sale');
+    });
     it('create market sale - no permission', async () => {
       await NFT_CONTRACT.connect(ACCOUNTS[4]).setApprovalForAll(CONTRACT.address, false);
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
@@ -784,6 +790,12 @@ describe("AvaxTrade - Main", () => {
       );
     });
 
+    it('create market sale - not enough funds', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceListingPrice(ethers.utils.parseEther('5'));
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
+      ).should.be.rejectedWith('Not enough funds to create sale');
+    });
     it('create market sale - no permission', async () => {
       await NFT_CONTRACT.connect(ACCOUNTS[4]).setApprovalForAll(CONTRACT.address, false);
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
@@ -1445,6 +1457,12 @@ describe("AvaxTrade - Main", () => {
       );
     });
 
+    it('create market sale - not enough funds', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceListingPrice(ethers.utils.parseEther('5'));
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
+      ).should.be.rejectedWith('Not enough funds to create sale');
+    });
     it('create market sale - no permission', async () => {
       await NFT_CONTRACT.connect(ACCOUNTS[4]).setApprovalForAll(CONTRACT.address, false);
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(

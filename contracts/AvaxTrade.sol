@@ -58,8 +58,6 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
 
   // events
   event onERC721ReceivedEvent(address operator, address from, uint256 tokenId, bytes data);
-  // event onERC1155ReceivedEvent(address operator, address from, uint256 id, uint256 value, bytes data);
-  // event onERC1155BatchReceivedEvent(address operator, address from, uint256[] ids, uint256[] values, bytes data);
 
 
   constructor() {
@@ -171,6 +169,8 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     // ensure listing price is met
     require(msg.value >= LISTING_PRICE, 'Not enough funds to create sale');
 
+    // todo _price > 0 ??
+
     address buyer = address(0);
     if (_saleType == SALE_TYPE.direct) {
       // only use passed in buyer param when it is a direct sale
@@ -183,7 +183,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
       buyer,
       _price
     );
-    // createSale(itemId, msg.sender, _saleType);
+
     if (_saleType == SALE_TYPE.direct) {
       Sale(CONTRACTS.sale).createSaleDirect(itemId, msg.sender);
     } else if (_saleType == SALE_TYPE.immediate) {
@@ -204,9 +204,6 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
       revert("Provided contract address is not valid");
     }
 
-    // take care of balances
-
-    // todo ensure seller owns the nft, if not then revert
   }
 
   /**
@@ -218,25 +215,11 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     require(item.active, "This item is inactive");
     require(msg.sender == item.seller, "You are not the original owner of this item");
 
-    // uint256 itemId = CollectionItem(CONTRACTS.collectionItem).cancelItemInCollection(_tokenId, _contractAddress, msg.sender);
     CollectionItem(CONTRACTS.collectionItem).cancelItemInCollection(_itemId);
     Sale(CONTRACTS.sale)._removeSale(_itemId, msg.sender);
 
-    // transfer nft to market place
+    // transfer nft to original owner
     IERC721(item.contractAddress).safeTransferFrom(address(this), msg.sender, item.tokenId);
-
-    // todo why confirm if contractAddress is valid ERC721, we already have when creating market sale
-    // if (IERC721(item.contractAddress).supportsInterface(type(IERC721).interfaceId)) {
-    //   // transfer nft to market place
-    //   IERC721(item.contractAddress).safeTransferFrom(address(this), msg.sender, item.tokenId);
-    // } else {
-    //   revert("Provided contract address is not valid");
-    // }
-
-    // take care of balances
-    // transfer nft back to to owner
-    // todo make a call to the given contractAddress, use tokenId & owner to ensure this is the owner of this nft
-    // todo transfer nft back to the owner
   }
 
   /**
@@ -249,11 +232,6 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     require(msg.value >= item.price, "Not enough funds to purchase this item");
     require(msg.sender != item.seller, "You can not buy your own item");
 
-    // general require statements here
-    // todo ensure msg.value >= listed sale price
-
-    // uint256 itemId = CollectionItem(CONTRACTS.collectionItem).getItemId(_tokenId, _contractAddress, msg.sender);
-
     if (Sale(CONTRACTS.sale).isDirectSaleValid(itemId, item.seller)) {
       directMarketSale(item, msg.sender, msg.value);
     } else if (Sale(CONTRACTS.sale).isImmediateSaleValid(itemId, item.seller)) {
@@ -263,12 +241,6 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     } else {
       revert("Invalid sale type");
     }
-
-    // todo make sure to properly check before transfers
-    // transfer nft to buyer
-
-    // transfer funds to seller
-    // todo Remove so many extra addBank() calls
   }
 
   /**
@@ -277,29 +249,24 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   function directMarketSale(Item.ItemDS memory item, address _buyer, uint256 _price) private {
     require(_buyer == item.buyer, "You are not the authorized buyer");
 
-    // CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(_tokenId, _contractAddress, _buyer);
+    // todo deduction / incentive logic?
+    //    market commission ? yes
+    //    artist commission ? yes, if applicable
+    //    collection reflection ? no
+    //    collection commission ? yes, if applicable
+    //    collection incentive ? no
+    //    market incentive ? no
+
     CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(item.id, _buyer);
     Sale(CONTRACTS.sale)._removeSale(item.id, item.seller);
 
     if (_price > 0) {
-      // Bank(CONTRACTS.bank).addBank(item.seller); // this is okay even if bank account already exists
+      // if asking price > 0, transfer to seller
       Bank(CONTRACTS.bank).incrementUserAccount(item.seller, _price, 0, 0);
     }
 
     // transfer nft to market place
     IERC721(item.contractAddress).safeTransferFrom(address(this), _buyer, item.tokenId);
-
-    // todo why confirm if contractAddress is valid ERC721, we already have when creating market sale
-    // if (IERC721(item.contractAddress).supportsInterface(type(IERC721).interfaceId)) {
-    //   // transfer nft to market place
-    //   IERC721(item.contractAddress).safeTransferFrom(address(this), msg.sender, item.tokenId);
-    // } else {
-    //   revert("Provided contract address is not valid");
-    // }
-
-    // todo make sure to properly check before transfers
-    // transfer nft to buyer
-    // transfer funds to seller, if any. If 0 then do not attempt fund transfer
   }
 
   /**
@@ -310,7 +277,6 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
 
     Collection.CollectionDS memory collection = CollectionItem(CONTRACTS.collectionItem).getCollection(item.collectionId);
 
-    // CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(item.tokenId, item.contractAddress, _buyer);
     CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(item.id, _buyer);
     Sale(CONTRACTS.sale)._removeSale(item.id, item.seller);
 
@@ -346,27 +312,21 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     _price = marketplaceIncentive(_price, MARKETPLACE_INCENTIVE_COMMISSION);
 
     // transfer funds to seller
-    // Bank(CONTRACTS.bank).addBank(item.seller); // this is okay even if bank account already exists
     Bank(CONTRACTS.bank).incrementUserAccount(item.seller, _price, 0, 0);
 
     // transfer nft to market place
     IERC721(item.contractAddress).safeTransferFrom(address(this), _buyer, item.tokenId);
-
-    // todo make sure to properly check before transfers
-    // transfer nft to buyer
   }
 
   /**
     * @dev Complete direct market sale
   */
   function auctionMarketSale(Item.ItemDS memory item, address _buyer) private {
-    // CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(item.tokenId, item.contractAddress, _buyer);
     CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(item.id, _buyer);
     Sale(CONTRACTS.sale)._removeSale(item.id, _buyer);
 
     // todo make sure to properly check before transfers
     // transfer nft to buyer
-    // transfer funds to seller, if any. If 0 then do not attempt fund transfer
   }
 
 
@@ -395,8 +355,6 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     uint256 reward = _calculatePercentChange(_value, _percent);
     if (reward > 0) {
       _value -= reward;
-
-      // Bank(CONTRACTS.bank).addBank(_creator); // this is okay even if bank account already exists
       Bank(CONTRACTS.bank).incrementUserAccount(_creator, 0, reward, 0);
       BALANCE_SHEET.nftCommission += reward;
     }
@@ -411,7 +369,6 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     uint256 reward = _calculatePercentChange(_value, _percent);
     if (reward > 0) {
       _value -= reward;
-
       Bank(CONTRACTS.bank).distributeCollectionReflectionReward(_contractAddress, _totalSupply, reward);
       BALANCE_SHEET.collectionReflection += reward;
     }
@@ -426,7 +383,6 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     uint256 reward = _calculatePercentChange(_value, _percent);
     if (reward > 0) {
       _value -= reward;
-
       Bank(CONTRACTS.bank).incrementUserAccount(_collectionOwner, 0, 0, reward);
       BALANCE_SHEET.collectionCommission += reward;
     }
@@ -481,7 +437,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   /**
     * @dev Claim account general reward for this user
   */
-  function claimGeneralRewardUserAccount() external returns (uint256) {
+  function claimGeneralRewardUserAccount() external nonReentrant() returns (uint256) {
     uint256 reward = Bank(CONTRACTS.bank).claimGeneralRewardUserAccount(msg.sender);
 
     // todo ensure this is a safe way to transfer funds
@@ -493,7 +449,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   /**
     * @dev Claim account nft commission reward for this user
   */
-  function claimNftCommissionRewardUserAccount() external returns (uint256) {
+  function claimNftCommissionRewardUserAccount() external nonReentrant() returns (uint256) {
     uint256 reward = Bank(CONTRACTS.bank).claimNftCommissionRewardUserAccount(msg.sender);
 
     // todo ensure this is a safe way to transfer funds
@@ -505,7 +461,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   /**
     * @dev Claim account collection commission reward for this user
   */
-  function claimCollectionCommissionRewardUserAccount() external returns (uint256) {
+  function claimCollectionCommissionRewardUserAccount() external nonReentrant() returns (uint256) {
     uint256 reward = Bank(CONTRACTS.bank).claimCollectionCommissionRewardUserAccount(msg.sender);
 
     // todo ensure this is a safe way to transfer funds
@@ -517,20 +473,20 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   /**
     * @dev Claim collection reflection reward for this token id
   */
-  function claimReflectionRewardCollectionAccount(uint256 _tokenId, address _contractAddress) external {
+  function claimReflectionRewardCollectionAccount(uint256 _tokenId, address _contractAddress) external nonReentrant() returns (uint256) {
     uint256 reward = Bank(CONTRACTS.bank).claimReflectionRewardCollectionAccount(_tokenId, _contractAddress);
-    
-    //  todo use tokeId to check the owner from nft contract. Compare with this owner
 
-    // ensure contract address is a valid IERC721 or IERC1155 contract
-    // require(_isContractAddressValid(_contractAddress), "Provided contract address is not valid");
+    if (IERC721(_contractAddress).supportsInterface(type(IERC721).interfaceId)) {
+      // ownerOf(_tokenId) == msg.sender then continue, else revert transaction
+      require(IERC721(_contractAddress).ownerOf(_tokenId) == msg.sender, "You are not the owner of this item");
 
-    // ownerOf(_tokenId) == msg.sender then continue, else revert transaction
-    require(IERC721(_contractAddress).ownerOf(_tokenId) == msg.sender, "You are not the owner of this item");
-
-    // todo ensure this is a safe way to transfer funds
-    ( bool success, ) = payable(msg.sender).call{ value: reward }("");
-    require(success, "Collection commission reward transfer to user was unccessfull");
+      // todo ensure this is a safe way to transfer funds
+      ( bool success, ) = payable(msg.sender).call{ value: reward }("");
+      require(success, "Collection commission reward transfer to user was unccessfull");
+    } else {
+      revert("Provided contract address is not valid");
+    }
+    return reward;
   }
 
 
@@ -542,7 +498,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   /**
     * @dev Deposit into collection incentive vault
   */
-  function depositIncentiveCollectionAccount(address _contractAddress) external payable {
+  function depositIncentiveCollectionAccount(address _contractAddress) external nonReentrant() payable {
     /**
       * todo
       * why check if person depositing funds is the owner of the collection?
@@ -555,7 +511,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   /**
     * @dev Withdraw from collection incentive vault
   */
-  function withdrawIncentiveCollectionAccount(address _contractAddress, uint256 _amount) external {
+  function withdrawIncentiveCollectionAccount(address _contractAddress, uint256 _amount) external nonReentrant() {
     uint256 collectionId = CollectionItem(CONTRACTS.collectionItem).getCllectionForContract(_contractAddress);
     Collection.CollectionDS memory collection = CollectionItem(CONTRACTS.collectionItem).getCollection(collectionId);
     // address collectionOwner = CollectionItem(CONTRACTS.collectionItem).getOwnerOfCollection(collectionId);
@@ -574,7 +530,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   /**
     * @dev Distrubute reward among all NFT holders in a given collection
   */
-  function distributeRewardInCollection(uint256 _collectionId) external payable {
+  function distributeRewardInCollection(uint256 _collectionId) external nonReentrant() payable {
     Collection.CollectionDS memory collection = CollectionItem(CONTRACTS.collectionItem).getCollection(_collectionId);
     require(collection.collectionType == Collection.COLLECTION_TYPE.verified, "Not a verified collection");
 
@@ -584,9 +540,8 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
 
   /**
     * @dev Distrubute reward among given NFT holders in a given collection
-    * todo write test for this
   */
-  function distributeRewardListInCollection(uint256 _collectionId, uint256[] memory _tokenIds) external payable {
+  function distributeRewardListInCollection(uint256 _collectionId, uint256[] memory _tokenIds) external nonReentrant() payable {
     Collection.CollectionDS memory collection = CollectionItem(CONTRACTS.collectionItem).getCollection(_collectionId);
     require(collection.collectionType == Collection.COLLECTION_TYPE.verified, "Not a verified collection");
     require(_tokenIds.length > 0, "Token id list must be greater than 0");
@@ -599,7 +554,7 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   /**
     * @dev Deposit into marketplace incentive vault
   */
-  function depositMarketplaceIncentiveVault() external payable {
+  function depositMarketplaceIncentiveVault() external nonReentrant() payable {
     BALANCE_SHEET.incentiveVault += msg.value;
   }
 
@@ -671,12 +626,6 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     ************** Expose Child Functions ***************
     *****************************************************
   */
-  /**
-    * @dev Get sale
-  */
-  // function getSale(uint256 _id) external view returns (SaleDS memory) {
-  //   return getSale(_id);
-  // }
 
 
   /** 
@@ -689,15 +638,5 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     emit onERC721ReceivedEvent(_operator, _from, _tokenId, _data);
     return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
   }
-  // function onERC1155Received(address _operator, address _from, uint256 id, uint256 value, bytes calldata _data
-  // ) external returns (bytes4) {
-  //   emit onERC1155ReceivedEvent(_operator, _from, id, value, _data);
-  //   return bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));
-  // }
-  // function onERC1155BatchReceived(address _operator, address _from, uint256[] calldata ids, uint256[] calldata values, bytes calldata _data
-  // ) external returns (bytes4) {
-  //   emit onERC1155BatchReceivedEvent(_operator, _from, ids, values, _data);
-  //   return bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"));
-  // }
 
 }

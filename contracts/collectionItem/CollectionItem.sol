@@ -115,10 +115,6 @@ contract CollectionItem is Collection, Item, AccessControl {
     address creator = address(0);
     COLLECTION_TYPE collectionType = _getCollectionType(collectionId);
     if (collectionType == COLLECTION_TYPE.local) {
-      // todo fetch this information from the local nvt contract
-      // commission = 2; // fetch commission from nft contract
-      // creator = address(this); // fetch creator from nft contract
-      // creator = AvaxTradeNft(_contractAddress).getNftArtist(_tokenId);
       (creator, commission) = AvaxTradeNft(_contractAddress).getNftInfo(_tokenId);
     }
 
@@ -163,9 +159,6 @@ contract CollectionItem is Collection, Item, AccessControl {
     * @dev Create local collection
   */
   function createLocalCollection(string memory _name, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) {
-    // todo owner of this collection should be admin (me)
-    // todo update so local address can be passed in
-
     _createLocalCollection(_name, _contractAddress, _owner);
 
     // create collection role
@@ -197,9 +190,6 @@ contract CollectionItem is Collection, Item, AccessControl {
     * @dev Create unvarivied collection
   */
   function createUnvariviedCollection(string memory _name, address _owner) public onlyRole(ADMIN_ROLE) returns (uint256) {
-    // todo owner of this collection should be admin (me)
-    // todo update so local address can be passed in
-
     _createUnvariviedCollection(_name, _owner);
 
     // create collection role
@@ -219,10 +209,6 @@ contract CollectionItem is Collection, Item, AccessControl {
     uint256 _id, string memory _name, address _contractAddress, uint8 _reflection, uint8 _commission,
     uint8 _incentive, address _owner
   ) external onlyRole(COLLECTION_ROLES[_id]) {
-    // todo owner owner of the collection can update
-    //      admin owns unverified and local collections
-    //      owner of the verified collections are owned by their owners
-
     return _updateCollection(_id, _name, _contractAddress, _reflection, _commission, _incentive, _owner);
   }
 

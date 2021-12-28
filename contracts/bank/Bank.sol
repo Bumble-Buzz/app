@@ -21,10 +21,6 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
     require(_bankExists(_id), "The bank for this user does not exist");
     _;
   }
-  modifier checkContractValidity(address _contractAddress) {
-    require(_isContractAddressValid(_contractAddress), "Provided contract address is not valid");
-    _;
-  }
 
   // data structures
   struct BankDS {
@@ -45,19 +41,6 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
       if (BANK_OWNERS[i] == _id) {
         return true;
       }
-    }
-    return false;
-  }
-
-  /**
-    * @dev Is contract address valid ERC721 or ERC1155
-  */
-  function _isContractAddressValid(address _contractAddress) private view returns (bool) {
-    if (
-        IERC721(_contractAddress).supportsInterface(type(IERC721).interfaceId) ||
-        IERC1155(_contractAddress).supportsInterface(type(IERC1155).interfaceId)
-    ) {
-      return true;
     }
     return false;
   }
@@ -217,15 +200,6 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
     uint256 vaultIndex = _tokenId - 1;
     uint256 reward = _getReflectionVaultIndexCollectionAccount(_contractAddress, vaultIndex);
     _updateReflectionVaultIndexCollectionAccount(_contractAddress, vaultIndex, 0);
-    
-    //  todo use tokeId to check the owner from nft contract. Compare with this owner
-
-    // ensure contract address is a valid IERC721 or IERC1155 contract
-    // require(_isContractAddressValid(_contractAddress), "Provided contract address is not valid");
-
-    // ownerOf(_tokenId) == msg.sender then continue, else revert transaction
-    // require(IERC721(_contractAddress).ownerOf(_tokenId) == msg.sender, "You are not the owner of this item");
-
     return reward;
   }
 
@@ -372,6 +346,14 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
 
   // CollectionAccount.sol
   /**
+    * @dev Initialize a collection reflection vault for the given collection
+  */
+  function initReflectionVaultCollectionAccount(address _id, uint256 _totalSupply) external onlyOwner() {
+    addBank(_id); // create if bank account does not exist
+    return _initReflectionVaultCollectionAccount(_id, _totalSupply);
+  }
+
+  /**
     * @dev Get account of collection
   */
   function getCollectionAccount(address _id) external view returns (CollectionAccountDS memory) {
@@ -383,14 +365,6 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   */
   function getCollectionAccounts(address[] memory _ids) external view returns (CollectionAccountDS[] memory) {
     return _getCollectionAccounts(_ids);
-  }
-
-  /**
-    * @dev Initialize a collection reflection vault for the given collection
-  */
-  function initReflectionVaultCollectionAccount(address _id, uint256 _totalSupply) external {
-    addBank(_id); // create if bank account does not exist
-    return _initReflectionVaultCollectionAccount(_id, _totalSupply);
   }
 
   /**
