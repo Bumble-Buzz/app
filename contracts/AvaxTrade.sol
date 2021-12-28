@@ -168,13 +168,13 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   ) external nonReentrant() payable {
     // ensure listing price is met
     require(msg.value >= LISTING_PRICE, 'Not enough funds to create sale');
-
-    // todo _price > 0 ??
+    if (_saleType != SALE_TYPE.direct) {
+      require(_price > 0, 'Buy price must be greater than 0');
+    }
 
     address buyer = address(0);
     if (_saleType == SALE_TYPE.direct) {
-      // only use passed in buyer param when it is a direct sale
-      buyer = _buyer;
+      buyer = _buyer; // only use passed in buyer param when it is a direct sale
     }
     uint256 itemId = CollectionItem(CONTRACTS.collectionItem).addItemToCollection(
       _tokenId,

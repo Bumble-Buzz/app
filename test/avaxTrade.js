@@ -133,6 +133,47 @@ describe("AvaxTrade - Main", () => {
         1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
       ).should.be.rejectedWith('Not enough funds to create sale');
     });
+    it('create market sale - price < 0', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('-1'), 1
+      ).should.be.rejectedWith('value out-of-bounds (argument="_price", value={"type":"BigNumber","hex":"-0x0de0b6b3a7640000"}, code=INVALID_ARGUMENT, version=abi/5.5.0)');
+    });
+    it('create market sale - price < 0 int', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, -1, 1
+      ).should.be.rejectedWith('value out-of-bounds (argument="_price", value=-1, code=INVALID_ARGUMENT, version=abi/5.5.0)');
+    });
+    it('create market sale - direct - price = 0', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('0'), 0
+      );
+      const item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
+      expect(item.seller).to.be.equal(ACCOUNTS[4].address);
+      expect(item.collectionId).to.be.equal(1);
+      expect(item.tokenId).to.be.equal(1);
+      expect(item.contractAddress).to.be.equal(NFT_CONTRACT.address);
+      expect(ethers.utils.formatEther(item.price)).to.be.equal('0.0');
+      expect(item.buyer).to.be.equal(EMPTY_ADDRESS);
+      expect(item.commission).to.be.equal(0);
+      expect(item.creator).to.be.equal(EMPTY_ADDRESS);
+      expect(item.sold).to.be.false;
+      expect(item.active).to.be.true;
+    });
+    it('create market sale - immediate - price = 0', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('0'), 1
+      ).should.be.rejectedWith('Buy price must be greater than 0');
+    });
+    it('create market sale - auction - price = 0', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('0'), 2
+      ).should.be.rejectedWith('Buy price must be greater than 0');
+    });
+    it('create market sale - price = 0 int', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, 0, 1
+      ).should.be.rejectedWith('Buy price must be greater than 0');
+    });
     it('create market sale - no permission', async () => {
       await NFT_CONTRACT.connect(ACCOUNTS[4]).setApprovalForAll(CONTRACT.address, false);
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
@@ -795,6 +836,47 @@ describe("AvaxTrade - Main", () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
       ).should.be.rejectedWith('Not enough funds to create sale');
+    });
+    it('create market sale - price < 0', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('-1'), 1
+      ).should.be.rejectedWith('value out-of-bounds (argument="_price", value={"type":"BigNumber","hex":"-0x0de0b6b3a7640000"}, code=INVALID_ARGUMENT, version=abi/5.5.0)');
+    });
+    it('create market sale - price < 0 int', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, -1, 1
+      ).should.be.rejectedWith('value out-of-bounds (argument="_price", value=-1, code=INVALID_ARGUMENT, version=abi/5.5.0)');
+    });
+    it('create market sale - direct - price = 0', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('0'), 0
+      );
+      const item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
+      expect(item.seller).to.be.equal(ACCOUNTS[4].address);
+      expect(item.collectionId).to.be.equal(2);
+      expect(item.tokenId).to.be.equal(1);
+      expect(item.contractAddress).to.be.equal(NFT_CONTRACT.address);
+      expect(ethers.utils.formatEther(item.price)).to.be.equal('0.0');
+      expect(item.buyer).to.be.equal(EMPTY_ADDRESS);
+      expect(item.commission).to.be.equal(2);
+      expect(item.creator).to.be.equal(ACCOUNTS[3].address);
+      expect(item.sold).to.be.false;
+      expect(item.active).to.be.true;
+    });
+    it('create market sale - immediate - price = 0', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('0'), 1
+      ).should.be.rejectedWith('Buy price must be greater than 0');
+    });
+    it('create market sale - auction - price = 0', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('0'), 2
+      ).should.be.rejectedWith('Buy price must be greater than 0');
+    });
+    it('create market sale - price = 0 int', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, 0, 1
+      ).should.be.rejectedWith('Buy price must be greater than 0');
     });
     it('create market sale - no permission', async () => {
       await NFT_CONTRACT.connect(ACCOUNTS[4]).setApprovalForAll(CONTRACT.address, false);
@@ -1462,6 +1544,47 @@ describe("AvaxTrade - Main", () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
       ).should.be.rejectedWith('Not enough funds to create sale');
+    });
+    it('create market sale - price < 0', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('-1'), 1
+      ).should.be.rejectedWith('value out-of-bounds (argument="_price", value={"type":"BigNumber","hex":"-0x0de0b6b3a7640000"}, code=INVALID_ARGUMENT, version=abi/5.5.0)');
+    });
+    it('create market sale - price < 0 int', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, -1, 1
+      ).should.be.rejectedWith('value out-of-bounds (argument="_price", value=-1, code=INVALID_ARGUMENT, version=abi/5.5.0)');
+    });
+    it('create market sale - direct - price = 0', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('0'), 0
+      );
+      const item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
+      expect(item.seller).to.be.equal(ACCOUNTS[4].address);
+      expect(item.collectionId).to.be.equal(2);
+      expect(item.tokenId).to.be.equal(1);
+      expect(item.contractAddress).to.be.equal(NFT_CONTRACT.address);
+      expect(ethers.utils.formatEther(item.price)).to.be.equal('0.0');
+      expect(item.buyer).to.be.equal(EMPTY_ADDRESS);
+      expect(item.commission).to.be.equal(0);
+      expect(item.creator).to.be.equal(EMPTY_ADDRESS);
+      expect(item.sold).to.be.false;
+      expect(item.active).to.be.true;
+    });
+    it('create market sale - immediate - price = 0', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('0'), 1
+      ).should.be.rejectedWith('Buy price must be greater than 0');
+    });
+    it('create market sale - auction - price = 0', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('0'), 2
+      ).should.be.rejectedWith('Buy price must be greater than 0');
+    });
+    it('create market sale - price = 0 int', async () => {
+      await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
+        1, NFT_CONTRACT.address, EMPTY_ADDRESS, 0, 1
+      ).should.be.rejectedWith('Buy price must be greater than 0');
     });
     it('create market sale - no permission', async () => {
       await NFT_CONTRACT.connect(ACCOUNTS[4]).setApprovalForAll(CONTRACT.address, false);
