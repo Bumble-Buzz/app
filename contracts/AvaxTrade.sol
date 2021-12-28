@@ -233,46 +233,22 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     require(msg.sender != item.seller, "You can not buy your own item");
 
     if (Sale(CONTRACTS.sale).isDirectSaleValid(itemId, item.seller)) {
-      directMarketSale(item, msg.sender, msg.value);
+      // directMarketSale(item, msg.sender, msg.value);
+      require(msg.sender == item.buyer, "You are not the authorized buyer");
+      _completeSale(item, msg.sender, msg.value);
     } else if (Sale(CONTRACTS.sale).isImmediateSaleValid(itemId, item.seller)) {
-      immediateMarketSale(item, msg.sender, msg.value);
+      _completeSale(item, msg.sender, msg.value);
     } else if (Sale(CONTRACTS.sale).isAuctionSaleValid(itemId, item.seller)) {
-      auctionMarketSale(item, msg.sender);
+      _completeSale(item, msg.sender, msg.value);
     } else {
       revert("Invalid sale type");
     }
   }
 
   /**
-    * @dev Complete direct market sale
+    * @dev Complete sale
   */
-  function directMarketSale(Item.ItemDS memory item, address _buyer, uint256 _price) private {
-    require(_buyer == item.buyer, "You are not the authorized buyer");
-
-    // todo deduction / incentive logic?
-    //    market commission ? yes
-    //    artist commission ? yes, if applicable
-    //    collection reflection ? no
-    //    collection commission ? yes, if applicable
-    //    collection incentive ? no
-    //    market incentive ? no
-
-    CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(item.id, _buyer);
-    Sale(CONTRACTS.sale)._removeSale(item.id, item.seller);
-
-    if (_price > 0) {
-      // if asking price > 0, transfer to seller
-      Bank(CONTRACTS.bank).incrementUserAccount(item.seller, _price, 0, 0);
-    }
-
-    // transfer nft to market place
-    IERC721(item.contractAddress).safeTransferFrom(address(this), _buyer, item.tokenId);
-  }
-
-  /**
-    * @dev Complete immediate market sale
-  */
-  function immediateMarketSale(Item.ItemDS memory item, address _buyer, uint256 _price) private {
+  function _completeSale(Item.ItemDS memory item, address _buyer, uint256 _price) private {
     // todo Test: Unverified item on sale. Then item is now verified but still listed on sale. What happens?
 
     Collection.CollectionDS memory collection = CollectionItem(CONTRACTS.collectionItem).getCollection(item.collectionId);
@@ -316,17 +292,6 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
 
     // transfer nft to market place
     IERC721(item.contractAddress).safeTransferFrom(address(this), _buyer, item.tokenId);
-  }
-
-  /**
-    * @dev Complete direct market sale
-  */
-  function auctionMarketSale(Item.ItemDS memory item, address _buyer) private {
-    CollectionItem(CONTRACTS.collectionItem).markItemSoldInCollection(item.id, _buyer);
-    Sale(CONTRACTS.sale)._removeSale(item.id, _buyer);
-
-    // todo make sure to properly check before transfers
-    // transfer nft to buyer
   }
 
 

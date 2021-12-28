@@ -286,7 +286,7 @@ describe("AvaxTrade - Main", () => {
       item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
       expect(item.sold).to.be.true;
       balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
-      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      expect(ethers.utils.formatEther(balance)).to.be.equal('4.9');
       nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
       expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
 
@@ -382,7 +382,7 @@ describe("AvaxTrade - Main", () => {
       item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
       expect(item.sold).to.be.true;
       balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
-      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      expect(ethers.utils.formatEther(balance)).to.be.equal('4.9');
       nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
       expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
 
@@ -542,7 +542,7 @@ describe("AvaxTrade - Main", () => {
       item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
       expect(item.sold).to.be.true;
       balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
-      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      expect(ethers.utils.formatEther(balance)).to.be.equal('4.9');
       nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
       expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
     });
@@ -592,7 +592,7 @@ describe("AvaxTrade - Main", () => {
 
       // admin
       bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[0].address);
-      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.1');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
       expect(bank.collection.reflectionVault).that.is.empty;
@@ -610,7 +610,7 @@ describe("AvaxTrade - Main", () => {
 
       // seller
       bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[4].address);
-      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('5.0');
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('4.9');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
       expect(bank.collection.reflectionVault).that.is.empty;
@@ -990,7 +990,7 @@ describe("AvaxTrade - Main", () => {
       item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
       expect(item.sold).to.be.true;
       balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
-      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      expect(ethers.utils.formatEther(balance)).to.be.equal('4.802');
       nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
       expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
 
@@ -1086,7 +1086,7 @@ describe("AvaxTrade - Main", () => {
       item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
       expect(item.sold).to.be.true;
       balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
-      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      expect(ethers.utils.formatEther(balance)).to.be.equal('4.802');
       nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
       expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
 
@@ -1246,7 +1246,7 @@ describe("AvaxTrade - Main", () => {
       item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
       expect(item.sold).to.be.true;
       balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
-      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      expect(ethers.utils.formatEther(balance)).to.be.equal('4.802');
       nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
       expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
     });
@@ -1296,7 +1296,7 @@ describe("AvaxTrade - Main", () => {
 
       // admin
       bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[0].address);
-      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.1');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
       expect(bank.collection.reflectionVault).that.is.empty;
@@ -1306,7 +1306,7 @@ describe("AvaxTrade - Main", () => {
       // artist
       bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[3].address);
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
-      expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.098');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
       expect(bank.collection.reflectionVault).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
@@ -1314,7 +1314,7 @@ describe("AvaxTrade - Main", () => {
 
       // seller
       bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[4].address);
-      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('5.0');
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('4.802');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
       expect(bank.collection.reflectionVault).that.is.empty;
@@ -1698,7 +1698,7 @@ describe("AvaxTrade - Main", () => {
       item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
       expect(item.sold).to.be.true;
       balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
-      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      expect(ethers.utils.formatEther(balance)).to.be.equal('4.65794');
       nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
       expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
 
@@ -1794,7 +1794,7 @@ describe("AvaxTrade - Main", () => {
       item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
       expect(item.sold).to.be.true;
       balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
-      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      expect(ethers.utils.formatEther(balance)).to.be.equal('4.65794');
       nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
       expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
 
@@ -1974,7 +1974,7 @@ describe("AvaxTrade - Main", () => {
       item = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getItemOfOwner(1, NFT_CONTRACT.address, ACCOUNTS[4].address);
       expect(item.sold).to.be.true;
       balance = await BANK_CONTRACT.connect(ACCOUNTS[4]).getGeneralUserAccount(ACCOUNTS[4].address);
-      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      expect(ethers.utils.formatEther(balance)).to.be.equal('4.65794');
       nftOwner = await NFT_CONTRACT.connect(ACCOUNTS[4]).ownerOf(1);
       expect(nftOwner).to.be.equal(ACCOUNTS[5].address);
     });
@@ -2034,7 +2034,7 @@ describe("AvaxTrade - Main", () => {
 
       // admin
       bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[0].address);
-      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.1');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
       expect(bank.collection.reflectionVault).that.is.empty;
@@ -2047,7 +2047,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
       expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0196');
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2055,14 +2055,14 @@ describe("AvaxTrade - Main", () => {
       bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[3].address);
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
-      expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
+      expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.14406');
       expect(bank.collection.reflectionVault).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
       // seller
       bank = await BANK_CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[4].address);
-      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('5.0');
+      expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('4.65794');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
       expect(bank.collection.reflectionVault).that.is.empty;
