@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.4 <0.9.0;
 
-// import '@openzeppelin/contracts/access/Ownable.sol';
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-// import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -19,7 +17,10 @@ import "./sale/Sale.sol";
 import "hardhat/console.sol";
 
 
-contract AvaxTrade is Initializable, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, IERC721Receiver {
+contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, ReentrancyGuardUpgradeable, IERC721Receiver {
+
+  // Access Control
+  bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
   // modifiers
   modifier checkContractValidity(address _contractAddress) {
@@ -63,24 +64,30 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
   event onERC721ReceivedEvent(address operator, address from, uint256 tokenId, bytes data);
 
 
-  function initialize() initializer public {
+  function initialize(address _owner) initializer public {
     // call parent classes
-    __Ownable_init();
+    __AccessControl_init();
     __ReentrancyGuard_init();
 
     // initialize state variables
     LISTING_PRICE = 0.0 ether;
     MARKETPLACE_COMMISSION = 2;
     MARKETPLACE_INCENTIVE_COMMISSION = 0;
-    MARKETPLACE_BANK_OWNER = owner();
+    MARKETPLACE_BANK_OWNER = _owner;
 
     BALANCE_SHEET = BalanceSheetDS(0, 0, 0, 0, 0, 0, 0, 0);
+
+    // set up admin role
+    _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
+
+    // grant admin role to following account (parent contract)
+    _setupRole(ADMIN_ROLE, _owner);
   }
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() initializer {}
 
-  function _authorizeUpgrade(address) internal override onlyOwner() {}
+  function _authorizeUpgrade(address) internal override onlyRole(ADMIN_ROLE) {}
 
 
   /**
@@ -120,7 +127,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
   /**
     * @dev Set list of contract address of sibling contracts
   */
-  function setContracts(address _bank, address _sale, address _collectionItem) public onlyOwner() {
+  function setContracts(address _bank, address _sale, address _collectionItem) public onlyRole(ADMIN_ROLE) {
     if (_bank != address(0)) {
       CONTRACTS.bank = _bank;
     }
@@ -141,7 +148,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
   /**
     * @dev Set marketplace listing price
   */
-  function setMarketplaceListingPrice(uint256 _listingPrice) public onlyOwner() {
+  function setMarketplaceListingPrice(uint256 _listingPrice) public onlyRole(ADMIN_ROLE) {
     LISTING_PRICE = _listingPrice;
   }
 
@@ -154,7 +161,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
   /**
     * @dev Set marketplace commission
   */
-  function setMarketplaceCommission(uint8 _commission) public onlyOwner() {
+  function setMarketplaceCommission(uint8 _commission) public onlyRole(ADMIN_ROLE) {
     MARKETPLACE_COMMISSION = _commission;
   }
 
@@ -167,7 +174,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
   /**
     * @dev Set marketplace incentive commission
   */
-  function setMarketplaceIncentiveCommission(uint8 _commission) public onlyOwner() {
+  function setMarketplaceIncentiveCommission(uint8 _commission) public onlyRole(ADMIN_ROLE) {
     MARKETPLACE_INCENTIVE_COMMISSION = _commission;
   }
 
@@ -180,7 +187,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
   /**
     * @dev Set marketplace bank owner
   */
-  function setMarketplaceBankOwner(address _owner) public onlyOwner() {
+  function setMarketplaceBankOwner(address _owner) public onlyRole(ADMIN_ROLE) {
     MARKETPLACE_BANK_OWNER = _owner;
   }
 
@@ -562,7 +569,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
   /**
     * @dev Create local collection
   */
-  function createLocalCollection(string memory _name, address _contractAddress) external onlyOwner() {
+  function createLocalCollection(string memory _name, address _contractAddress) external onlyRole(ADMIN_ROLE) {
     // todo update so local address can be passed in
     CollectionItem(CONTRACTS.collectionItem).createLocalCollection(_name, _contractAddress, msg.sender);
     Bank(CONTRACTS.bank).addBank(msg.sender); // this is okay even if bank account already exists
@@ -574,7 +581,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
   function createVerifiedCollection(
     string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission,
     address _owner, bool _ownerIncentiveAccess
-  ) external onlyOwner() {
+  ) external onlyRole(ADMIN_ROLE) {
     // todo require _totalSupply to be > 0
 
     CollectionItem(CONTRACTS.collectionItem).createVerifiedCollection(
@@ -587,7 +594,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
   /**
     * @dev Create unvarivied collection
   */
-  function createUnvariviedCollection(string memory _name) external onlyOwner() {
+  function createUnvariviedCollection(string memory _name) external onlyRole(ADMIN_ROLE) {
     // todo update so local address can be passed in
     /**uint256 id = */CollectionItem(CONTRACTS.collectionItem).createUnvariviedCollection(_name, msg.sender);
     Bank(CONTRACTS.bank).addBank(msg.sender); // this is okay even if bank account already exists

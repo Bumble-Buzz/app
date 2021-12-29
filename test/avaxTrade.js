@@ -32,7 +32,7 @@ describe("AvaxTrade - Main", () => {
   beforeEach(async () => {
     let contractFactory = await ethers.getContractFactory("AvaxTrade");
     // CONTRACT = await contractFactory.deploy();
-    CONTRACT = await upgrades.deployProxy(contractFactory, { kind: 'uups' });
+    CONTRACT = await upgrades.deployProxy(contractFactory, [ACCOUNTS[0].address], { kind: 'uups' });
     await CONTRACT.deployed();
 
     // upgrade - all tests passed with this turned on
@@ -98,11 +98,12 @@ describe("AvaxTrade - Main", () => {
         .to.be.equal(await CONTRACT.connect(ACCOUNTS[0]).getImplementation());
     });
     it('upgrade - not owner', async () => {
-      await CONTRACT.connect(ACCOUNTS[0]).transferOwnership(ACCOUNTS[1].address);
+      const role = await CONTRACT.connect(ACCOUNTS[0]).ADMIN_ROLE();
+      await CONTRACT.connect(ACCOUNTS[0]).renounceRole(role, ACCOUNTS[0].address);
 
       const contractFactory = await ethers.getContractFactory("AvaxTrade2");
       await upgrades.upgradeProxy(CONTRACT.address, contractFactory)
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xda121ab48c7675e4f25e28636e3efe602e49eec6 is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
   });
 
@@ -116,7 +117,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('set sibling contracts - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).setContracts(EMPTY_ADDRESS, EMPTY_ADDRESS, EMPTY_ADDRESS)
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
     it('set sibling contracts - not change any address', async () => {
       let result = await CONTRACT.connect(ACCOUNTS[0]).getContracts();
@@ -189,7 +190,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('set marketplace listing price - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).setMarketplaceListingPrice(ethers.utils.parseEther('5'))
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
     it('set marketplace listing price - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceListingPrice(ethers.utils.parseEther('5'));
@@ -202,7 +203,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('set marketplace commission - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).setMarketplaceCommission(5)
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
     it('set marketplace commission - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceCommission(5);
@@ -214,7 +215,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('set marketplace incentive commission - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).setMarketplaceIncentiveCommission(5)
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
     it('set marketplace incentive commission - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceIncentiveCommission(5);
@@ -226,7 +227,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('set marketplace bank owner - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).setMarketplaceBankOwner(ACCOUNTS[1].address)
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
     it('set marketplace bank owner - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceBankOwner(ACCOUNTS[1].address);
@@ -301,7 +302,7 @@ describe("AvaxTrade - Main", () => {
     it('create market sale - invalid IERC721 or IERC1155 contract', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
-      ).should.be.rejectedWith('Transaction reverted: function selector was not recognized and there\'s no fallback function');
+      ).should.be.rejectedWith('Provided contract address is not valid');
     });
     it('create market sale - non-contract address passed in', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
@@ -1005,7 +1006,7 @@ describe("AvaxTrade - Main", () => {
     it('create market sale - invalid IERC721 or IERC1155 contract', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
-      ).should.be.rejectedWith('Transaction reverted: function selector was not recognized and there\'s no fallback function');
+      ).should.be.rejectedWith('Provided contract address is not valid');
     });
     it('create market sale - non-contract address passed in', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
@@ -1713,7 +1714,7 @@ describe("AvaxTrade - Main", () => {
     it('create market sale - invalid IERC721 or IERC1155 contract', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, CONTRACT.address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
-      ).should.be.rejectedWith('Transaction reverted: function selector was not recognized and there\'s no fallback function');
+      ).should.be.rejectedWith('Provided contract address is not valid');
     });
     it('create market sale - non-contract address passed in', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
