@@ -35,6 +35,10 @@ contract Immediate {
   }
 
 
+  function __Immediate_init() internal {
+  }
+
+
   /** 
     *****************************************************
     **************** Attribute Functions ****************

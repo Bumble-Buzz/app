@@ -29,6 +29,7 @@ describe("AvaxTrade - Item", () => {
     const contractFactory = await ethers.getContractFactory("Item");
     CONTRACT = await contractFactory.deploy();
     await CONTRACT.deployed();
+    await CONTRACT.connect(ACCOUNTS[0]).__Item_init();
   });
 
   it('deploys successfully', async () => {

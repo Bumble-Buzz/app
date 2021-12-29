@@ -66,14 +66,14 @@ contract Collection {
     * to add collection in index '5', and then increment size +1 in end because now we have 6 collections
   */
   Counters.Counter private COLLECTION_ID_POINTER; // tracks total number of collections
-  uint256 private MAX_COLLECTION_SIZE = 9999; // maximum number of collections allowed
+  uint256 private MAX_COLLECTION_SIZE; // maximum number of collections allowed
   CollectionIdDS private COLLECTION_IDS; // Track important info for all collections
   mapping(uint256 => CollectionDS) private COLLECTIONS; // mapping collection id to collection
 
   mapping(address => uint256[]) private COLLECTION_OWNERS; // mapping collection owner to collection ids
   mapping(address => uint256) private COLLECTION_CONTRACTS; // mapping contract addresses to a collection id
 
-  uint8 internal UNVERIFIED_COLLECTION_ID = 1; // collection id `1` is always the unverified collection
+  uint8 internal UNVERIFIED_COLLECTION_ID; // collection id `1` is always the unverified collection
 
 
   /**
@@ -101,6 +101,13 @@ contract Collection {
       return true;
     }
     return false;
+  }
+
+
+  function __Collection_init() internal {
+    // initialize state variables
+    MAX_COLLECTION_SIZE = 9999;
+    UNVERIFIED_COLLECTION_ID = 1;
   }
 
 

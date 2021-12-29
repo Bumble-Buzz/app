@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.4 <0.9.0;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+// import '@openzeppelin/contracts/access/Ownable.sol';
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+// import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
@@ -14,7 +19,7 @@ import "./sale/Sale.sol";
 import "hardhat/console.sol";
 
 
-contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
+contract AvaxTrade is Initializable, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, IERC721Receiver {
 
   // modifiers
   modifier checkContractValidity(address _contractAddress) {
@@ -44,9 +49,9 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   }
 
   // state variables
-  uint256 private LISTING_PRICE = 0.0 ether; // price to list item in marketplace
-  uint8 private MARKETPLACE_COMMISSION = 2; // commission rate charged upon every sale, in percentage
-  uint8 private MARKETPLACE_INCENTIVE_COMMISSION = 0; // commission rate rewarded upon every sale, in percentage
+  uint256 private LISTING_PRICE; // price to list item in marketplace
+  uint8 private MARKETPLACE_COMMISSION; // commission rate charged upon every sale, in percentage
+  uint8 private MARKETPLACE_INCENTIVE_COMMISSION; // commission rate rewarded upon every sale, in percentage
   address private MARKETPLACE_BANK_OWNER; // user who has access to withdraw marketplace commission
 
   ContractsDS private CONTRACTS;
@@ -58,11 +63,24 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   event onERC721ReceivedEvent(address operator, address from, uint256 tokenId, bytes data);
 
 
-  constructor() {
-    BALANCE_SHEET = BalanceSheetDS(0, 0, 0, 0, 0, 0, 0, 0);
+  function initialize() initializer public {
+    // call parent classes
+    __Ownable_init();
+    __ReentrancyGuard_init();
 
+    // initialize state variables
+    LISTING_PRICE = 0.0 ether;
+    MARKETPLACE_COMMISSION = 2;
+    MARKETPLACE_INCENTIVE_COMMISSION = 0;
     MARKETPLACE_BANK_OWNER = owner();
+
+    BALANCE_SHEET = BalanceSheetDS(0, 0, 0, 0, 0, 0, 0, 0);
   }
+
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
+
+  function _authorizeUpgrade(address) internal override onlyOwner() {}
 
 
   /**
@@ -584,6 +602,12 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     *****************************************************
   */
   /**
+    * @dev Version of implementation contract
+  */
+  function version() external pure virtual returns (string memory) {
+      return 'v1';
+  }
+  /**
     * @dev Get contract balance sheet
   */
   function getBalanceSheet() external view returns (BalanceSheetDS memory) {
@@ -596,6 +620,15 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     ************** Expose Child Functions ***************
     *****************************************************
   */
+  function getImplementation() external view returns (address) {
+      return _getImplementation();
+  }
+  function getAdmin() external view returns (address) {
+      return _getAdmin();
+  }
+  function getBeacon() external view returns (address) {
+      return _getBeacon();
+  }
 
 
   /** 

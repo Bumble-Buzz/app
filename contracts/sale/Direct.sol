@@ -35,6 +35,10 @@ contract Direct {
   }
 
 
+  function __Direct_init() internal {
+  }
+
+
   /** 
     *****************************************************
     **************** Attribute Functions ****************

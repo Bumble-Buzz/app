@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { assert, expect } = require('chai');
 require('chai').use(require('chai-as-promised')).should();
-const { ethers } = require("hardhat");
+const { ethers, upgrades } = require("hardhat");
 
 
 // global variables
@@ -29,7 +29,8 @@ describe("AvaxTrade - CollectionItem", () => {
 
   beforeEach(async () => {
     const contractFactory = await ethers.getContractFactory("CollectionItem");
-    CONTRACT = await contractFactory.deploy(ACCOUNTS[0].address, ACCOUNTS[1].address);
+    // CONTRACT = await contractFactory.deploy(ACCOUNTS[0].address, ACCOUNTS[1].address);
+    CONTRACT = await upgrades.deployProxy(contractFactory, [ACCOUNTS[0].address, ACCOUNTS[1].address], { kind: 'uups' });
     await CONTRACT.deployed();
   });
 
@@ -37,6 +38,17 @@ describe("AvaxTrade - CollectionItem", () => {
     const address = await CONTRACT.address;
     assert.notEqual(address, '');
     assert.notEqual(address, 0x0);
+  });
+
+  describe('Proxy testing', async () => {
+    it('upgrade - not owner', async () => {
+      const role = await CONTRACT.connect(ACCOUNTS[0]).ADMIN_ROLE();
+      await CONTRACT.connect(ACCOUNTS[0]).renounceRole(role, ACCOUNTS[0].address);
+
+      const contractFactory = await ethers.getContractFactory("CollectionItem");
+      await upgrades.upgradeProxy(CONTRACT.address, contractFactory)
+        .should.be.rejectedWith('AccessControl: account 0xda121ab48c7675e4f25e28636e3efe602e49eec6 is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
+    });
   });
 
   describe('Public Functions', async () => {

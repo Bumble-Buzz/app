@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.4 <0.9.0;
 
-import '@openzeppelin/contracts/access/AccessControl.sol';
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
@@ -12,7 +15,7 @@ import "./Item.sol";
 import "hardhat/console.sol";
 
 
-contract CollectionItem is Collection, Item, AccessControl {
+contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradeable, Collection, Item {
 
   // Access Control
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
@@ -60,8 +63,20 @@ contract CollectionItem is Collection, Item, AccessControl {
     return false;
   }
 
+  /**
+    * @dev Calculate percent change
+  */
+  function _calculatePercentChange(uint256 _value, uint8 _percent) private pure returns (uint256) {
+    return (_value * _percent / 100);
+  }
 
-  constructor(address _owner, address _admin) {
+
+  function initialize(address _owner, address _admin) initializer public {
+    // call parent classes
+    __AccessControl_init();
+    __Collection_init();
+    __Item_init();
+
     // todo create 2 roles, instead of one
     //      ADMIN_ROLE = Admin (owner of AvaxTrade contract)
     //      OWNER_ROLE = AvaxTrade contract
@@ -77,12 +92,10 @@ contract CollectionItem is Collection, Item, AccessControl {
     createUnvariviedCollection('Unverified', _admin);
   }
 
-  /**
-    * @dev Calculate percent change
-  */
-  function _calculatePercentChange(uint256 _value, uint8 _percent) private pure returns (uint256) {
-    return (_value * _percent / 100);
-  }
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
+
+  function _authorizeUpgrade(address) internal override onlyRole(ADMIN_ROLE) {}
 
 
   /** 

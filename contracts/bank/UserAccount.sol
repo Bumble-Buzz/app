@@ -34,6 +34,10 @@ contract UserAccount {
   }
 
 
+  function __UserAccount_init() internal {
+  }
+
+
   /** 
     *****************************************************
     **************** Attribute Functions ****************

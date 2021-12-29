@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { assert, expect } = require('chai');
 require('chai').use(require('chai-as-promised')).should();
-const { ethers } = require("hardhat");
+const { ethers, upgrades } = require("hardhat");
 
 
 // global variables
@@ -31,8 +31,7 @@ describe("AvaxTrade - Sale", () => {
 
   beforeEach(async () => {
     const contractFactory = await ethers.getContractFactory("Sale");
-    // CONTRACT = await contractFactory.deploy();
-    CONTRACT = await contractFactory.deploy(ACCOUNTS[0].address, ACCOUNTS[1].address);
+    CONTRACT = await upgrades.deployProxy(contractFactory, [ACCOUNTS[0].address, ACCOUNTS[1].address], { kind: 'uups' });
     await CONTRACT.deployed();
   });
 
@@ -42,46 +41,57 @@ describe("AvaxTrade - Sale", () => {
     assert.notEqual(address, 0x0);
   });
 
-  // describe('Sale items', async () => {
-  //   // uint256[] private SALE_ITEMS;
+  describe('Proxy testing', async () => {
+    it('upgrade - not owner', async () => {
+      const role = await CONTRACT.connect(ACCOUNTS[0]).ADMIN_ROLE();
+      await CONTRACT.connect(ACCOUNTS[0]).renounceRole(role, ACCOUNTS[0].address);
 
-  //   it('get total sale item ids', async () => {
-  //     const result = await CONTRACT.connect(ACCOUNTS[0]).getTotalSaleItemIds();
-  //     expect(result).to.be.an('array').that.is.empty;
-  //   });
-  //   it('add total sale item id', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0])._addTotalSaleItemId(123);
-  //     const result = await CONTRACT.connect(ACCOUNTS[0]).getTotalSaleItemIds();
-  //     expect(result).to.be.an('array').that.is.not.empty;
-  //     expect(_doesArrayEqual(result, [ethers.BigNumber.from('123')])).to.be.true;
-  //   });
-  //   it('remove total sale item id - one item', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0]).createEmptySale(1);
+      const contractFactory = await ethers.getContractFactory("Sale");
+      await upgrades.upgradeProxy(CONTRACT.address, contractFactory)
+        .should.be.rejectedWith('AccessControl: account 0xda121ab48c7675e4f25e28636e3efe602e49eec6 is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
+    });
+  });
 
-  //     let result = await CONTRACT.connect(ACCOUNTS[0]).getTotalSaleItemIds();
-  //     expect(result).to.be.an('array').that.is.not.empty;
-  //     expect(_doesArrayEqual(result, [ethers.BigNumber.from('1')])).to.be.true;
+  describe('Sale items', async () => {
+    // uint256[] private SALE_ITEMS;
 
-  //     await CONTRACT.connect(ACCOUNTS[0])._removeTotalSaleItemId(1);
+    it('get total sale item ids', async () => {
+      const result = await CONTRACT.connect(ACCOUNTS[0]).getTotalSaleItemIds();
+      expect(result).to.be.an('array').that.is.empty;
+    });
+    it('add total sale item id', async () => {
+      await CONTRACT.connect(ACCOUNTS[0])._addTotalSaleItemId(123);
+      const result = await CONTRACT.connect(ACCOUNTS[0]).getTotalSaleItemIds();
+      expect(result).to.be.an('array').that.is.not.empty;
+      expect(_doesArrayEqual(result, [ethers.BigNumber.from('123')])).to.be.true;
+    });
+    it('remove total sale item id - one item', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).createEmptySale(1);
 
-  //     result = await CONTRACT.connect(ACCOUNTS[0]).getTotalSaleItemIds();
-  //     expect(result).to.be.an('array').that.is.empty;
-  //   });
-  //   it('remove total sale item id - two items', async () => {
-  //     await CONTRACT.connect(ACCOUNTS[0]).createEmptySale(1);
-  //     await CONTRACT.connect(ACCOUNTS[0]).createEmptySale(2);
+      let result = await CONTRACT.connect(ACCOUNTS[0]).getTotalSaleItemIds();
+      expect(result).to.be.an('array').that.is.not.empty;
+      expect(_doesArrayEqual(result, [ethers.BigNumber.from('1')])).to.be.true;
 
-  //     let result = await CONTRACT.connect(ACCOUNTS[0]).getTotalSaleItemIds();
-  //     expect(result).to.be.an('array').that.is.not.empty;
-  //     expect(_doesArrayEqual(result, [ethers.BigNumber.from('1'),ethers.BigNumber.from('2')])).to.be.true;
+      await CONTRACT.connect(ACCOUNTS[0])._removeTotalSaleItemId(1);
 
-  //     await CONTRACT.connect(ACCOUNTS[0])._removeTotalSaleItemId(1);
+      result = await CONTRACT.connect(ACCOUNTS[0]).getTotalSaleItemIds();
+      expect(result).to.be.an('array').that.is.empty;
+    });
+    it('remove total sale item id - two items', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).createEmptySale(1);
+      await CONTRACT.connect(ACCOUNTS[0]).createEmptySale(2);
 
-  //     result = await CONTRACT.connect(ACCOUNTS[0]).getTotalSaleItemIds();
-  //     expect(result).to.be.an('array').that.is.not.empty;
-  //     expect(_doesArrayInclude(result, ethers.BigNumber.from('2'))).to.be.true;
-  //   });
-  // });
+      let result = await CONTRACT.connect(ACCOUNTS[0]).getTotalSaleItemIds();
+      expect(result).to.be.an('array').that.is.not.empty;
+      expect(_doesArrayEqual(result, [ethers.BigNumber.from('1'),ethers.BigNumber.from('2')])).to.be.true;
+
+      await CONTRACT.connect(ACCOUNTS[0])._removeTotalSaleItemId(1);
+
+      result = await CONTRACT.connect(ACCOUNTS[0]).getTotalSaleItemIds();
+      expect(result).to.be.an('array').that.is.not.empty;
+      expect(_doesArrayInclude(result, ethers.BigNumber.from('2'))).to.be.true;
+    });
+  });
 
   describe('Access Control Check', async () => {
 

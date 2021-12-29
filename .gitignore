@@ -37,6 +37,7 @@ node_modules
 .env
 
 #Hardhat files
+.openzeppelin
 cache
 artifacts
 node_modules

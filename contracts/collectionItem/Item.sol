@@ -97,6 +97,10 @@ contract Item {
   }
 
 
+  function __Item_init() internal {
+  }
+
+
   /** 
     *****************************************************
     **************** Attribute Functions ****************

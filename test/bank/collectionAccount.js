@@ -180,19 +180,8 @@ describe("AvaxTrade - Collection Account", () => {
       expect(account.reflectionVault).to.be.an('array').that.is.empty;
       expect(account.incentiveVault).to.be.equal(0);
 
-      await CONTRACT.connect(ACCOUNTS[0])._incrementCollectionAccount(ACCOUNTS[1].address, 1, 2);
-
-      account = await CONTRACT.connect(ACCOUNTS[0])._getCollectionAccount(ACCOUNTS[1].address);
-      expect(account.id).to.be.equal(ACCOUNTS[1].address);
-      expect(account.reflectionVault).to.be.an('array').that.is.empty;
-      expect(account.incentiveVault).to.be.equal(2);
-
-      await CONTRACT.connect(ACCOUNTS[0])._incrementCollectionAccount(ACCOUNTS[1].address, 3, 3);
-
-      account = await CONTRACT.connect(ACCOUNTS[0])._getCollectionAccount(ACCOUNTS[1].address);
-      expect(account.id).to.be.equal(ACCOUNTS[1].address);
-      expect(account.reflectionVault).to.be.an('array').that.is.empty;
-      expect(account.incentiveVault).to.be.equal(5);
+      await CONTRACT.connect(ACCOUNTS[0])._incrementCollectionAccount(ACCOUNTS[1].address, 1, 2)
+        .should.be.rejectedWith('CollectionAccount: Reflection vault not initialized');
     });
     it('increment account - reflection vault set', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._addCollectionAccount(ACCOUNTS[1].address);

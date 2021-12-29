@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.4 <0.9.0;
 
-import '@openzeppelin/contracts/access/AccessControl.sol';
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import "./Direct.sol";
 import "./Immediate.sol";
@@ -10,7 +13,7 @@ import "./Auction.sol";
 import "hardhat/console.sol";
 
 
-contract Sale is Direct, Immediate, Auction, AccessControl {
+contract Sale is Initializable, UUPSUpgradeable, AccessControlUpgradeable, Direct, Immediate, Auction {
 
   // Access Control
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
@@ -59,7 +62,10 @@ contract Sale is Direct, Immediate, Auction, AccessControl {
   }
 
 
-  constructor(address _owner, address _admin) {
+  function initialize(address _owner, address _admin) initializer public {
+    // call parent classes
+    __AccessControl_init();
+
     // set up admin role
     _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
 
@@ -67,6 +73,11 @@ contract Sale is Direct, Immediate, Auction, AccessControl {
     _setupRole(ADMIN_ROLE, _owner);
     _setupRole(ADMIN_ROLE, _admin);
   }
+
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
+
+  function _authorizeUpgrade(address) internal override onlyRole(ADMIN_ROLE) {}
 
 
   /** 

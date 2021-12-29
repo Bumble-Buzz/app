@@ -32,6 +32,10 @@ contract Vault {
   }
 
 
+  function __Vault_init() internal {
+  }
+
+
   /** 
     *****************************************************
     **************** Attribute Functions ****************

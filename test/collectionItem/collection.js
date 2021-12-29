@@ -40,6 +40,7 @@ describe("AvaxTrade - Collection", () => {
     const contractFactory = await ethers.getContractFactory("Collection");
     CONTRACT = await contractFactory.deploy();
     await CONTRACT.deployed();
+    await CONTRACT.connect(ACCOUNTS[0]).__Collection_init();
     await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('Unverified', ACCOUNTS[0].address);
   });
 

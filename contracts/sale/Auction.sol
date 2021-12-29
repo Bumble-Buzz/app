@@ -35,6 +35,10 @@ contract Auction {
   }
 
 
+  function __Auction_init() internal {
+  }
+
+
   /** 
     *****************************************************
     **************** Attribute Functions ****************

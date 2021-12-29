@@ -34,6 +34,10 @@ contract CollectionAccount {
   }
 
 
+  function __CollectionAccount_init() internal {
+  }
+
+
   /** 
     *****************************************************
     **************** Attribute Functions ****************

@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { assert, expect } = require('chai');
 require('chai').use(require('chai-as-promised')).should();
-const { ethers } = require("hardhat");
+const { ethers, upgrades } = require("hardhat");
 
 // global variables
 let ACCOUNTS = [];
@@ -31,22 +31,30 @@ describe("AvaxTrade - Main", () => {
 
   beforeEach(async () => {
     let contractFactory = await ethers.getContractFactory("AvaxTrade");
-    CONTRACT = await contractFactory.deploy();
+    // CONTRACT = await contractFactory.deploy();
+    CONTRACT = await upgrades.deployProxy(contractFactory, { kind: 'uups' });
     await CONTRACT.deployed();
+
+    // upgrade - all tests passed with this turned on
+    // contractFactory = await ethers.getContractFactory("AvaxTrade2");
+    // await upgrades.upgradeProxy(CONTRACT, contractFactory);
 
     // set up Bank contract
     contractFactory = await ethers.getContractFactory("Bank");
-    BANK_CONTRACT = await contractFactory.deploy(CONTRACT.address);
+    // BANK_CONTRACT = await contractFactory.deploy(CONTRACT.address);
+    BANK_CONTRACT = await upgrades.deployProxy(contractFactory, [CONTRACT.address], { kind: 'uups' });
     await BANK_CONTRACT.deployed();
 
     // set up Sale contract
     contractFactory = await ethers.getContractFactory("Sale");
-    SALE_CONTRACT = await contractFactory.deploy(CONTRACT.address, ACCOUNTS[0].address);
+    // SALE_CONTRACT = await contractFactory.deploy(CONTRACT.address, ACCOUNTS[0].address);
+    SALE_CONTRACT = await upgrades.deployProxy(contractFactory, [CONTRACT.address, ACCOUNTS[0].address], { kind: 'uups' });
     await SALE_CONTRACT.deployed();
 
     // set up CollectionItem contract
     contractFactory = await ethers.getContractFactory("CollectionItem");
-    COLLECTION_ITEM_CONTRACT = await contractFactory.deploy(CONTRACT.address, ACCOUNTS[0].address);
+    // COLLECTION_ITEM_CONTRACT = await contractFactory.deploy(CONTRACT.address, ACCOUNTS[0].address);
+    COLLECTION_ITEM_CONTRACT = await upgrades.deployProxy(contractFactory, [CONTRACT.address, ACCOUNTS[0].address], { kind: 'uups' });
     await COLLECTION_ITEM_CONTRACT.deployed();
 
     // update AvaxTrade with sibling contracts
@@ -72,6 +80,30 @@ describe("AvaxTrade - Main", () => {
     const address = await CONTRACT.address;
     assert.notEqual(address, '');
     assert.notEqual(address, 0x0);
+  });
+
+  describe('Proxy testing', async () => {
+    it('upgrade', async () => {
+      expect(await CONTRACT.connect(ACCOUNTS[0]).version()).to.be.equal('v1');
+      const oldContractAddress = CONTRACT.address;
+      const oldImplementationAddress = await CONTRACT.connect(ACCOUNTS[0]).getImplementation();
+
+      const contractFactory = await ethers.getContractFactory("AvaxTrade2");
+      await upgrades.upgradeProxy(CONTRACT.address, contractFactory);
+
+      expect(await CONTRACT.connect(ACCOUNTS[0]).version()).to.be.equal('v2');
+      expect(oldContractAddress).to.be.equal(CONTRACT.address);
+      expect(oldImplementationAddress).to.not.be.equal(await CONTRACT.connect(ACCOUNTS[0]).getImplementation());
+      expect(await upgrades.prepareUpgrade(CONTRACT.address, contractFactory))
+        .to.be.equal(await CONTRACT.connect(ACCOUNTS[0]).getImplementation());
+    });
+    it('upgrade - not owner', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).transferOwnership(ACCOUNTS[1].address);
+
+      const contractFactory = await ethers.getContractFactory("AvaxTrade2");
+      await upgrades.upgradeProxy(CONTRACT.address, contractFactory)
+        .should.be.rejectedWith('Ownable: caller is not the owner');
+    });
   });
 
   describe('Attribute functions', async () => {

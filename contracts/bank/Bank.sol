@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.4 <0.9.0;
 
-import '@openzeppelin/contracts/access/AccessControl.sol';
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
@@ -13,7 +16,7 @@ import "./Vault.sol";
 import "hardhat/console.sol";
 
 
-contract Bank is AccessControl, UserAccount, CollectionAccount, Vault {
+contract Bank is Initializable, UUPSUpgradeable, AccessControlUpgradeable, UserAccount, CollectionAccount, Vault {
 
   // Access Control
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
@@ -48,13 +51,21 @@ contract Bank is AccessControl, UserAccount, CollectionAccount, Vault {
   }
 
 
-  constructor(address _owner) {
+  function initialize(address _owner) initializer public {
+    // call parent classes
+    __AccessControl_init();
+
     // set up admin role
     _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
 
     // grant admin role to following account (parent contract)
     _setupRole(ADMIN_ROLE, _owner);
   }
+
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
+
+  function _authorizeUpgrade(address) internal override onlyRole(ADMIN_ROLE) {}
 
 
   /** 
