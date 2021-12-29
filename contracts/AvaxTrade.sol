@@ -5,9 +5,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
-// import '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-// import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 
 import "./collectionItem/CollectionItem.sol";
 import "./bank/Bank.sol";
@@ -63,13 +61,6 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
   constructor() {
     BALANCE_SHEET = BalanceSheetDS(0, 0, 0, 0, 0, 0, 0, 0);
 
-    Bank bank = new Bank();
-    CONTRACTS.bank = address(bank);
-    Sale sale = new Sale(address(this), owner());
-    CONTRACTS.sale = address(sale);
-    CollectionItem collectionItem = new CollectionItem(address(this), owner());
-    CONTRACTS.collectionItem = address(collectionItem);
-
     MARKETPLACE_BANK_OWNER = owner();
   }
 
@@ -102,6 +93,27 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     **************** Attribute Functions ****************
     *****************************************************
   */
+  /**
+    * @dev Get list of contract address of sibling contracts
+  */
+  function getContracts() public view returns (ContractsDS memory) {
+    return CONTRACTS;
+  }
+  /**
+    * @dev Set list of contract address of sibling contracts
+  */
+  function setContracts(address _bank, address _sale, address _collectionItem) public onlyOwner() {
+    if (_bank != address(0)) {
+      CONTRACTS.bank = _bank;
+    }
+    if (_sale != address(0)) {
+      CONTRACTS.sale = _sale;
+    }
+    if (_collectionItem != address(0)) {
+      CONTRACTS.collectionItem = _collectionItem;
+    }
+  }
+
   /**
     * @dev Get marketplace listing price
   */
@@ -571,13 +583,6 @@ contract AvaxTrade is Ownable, ReentrancyGuard, IERC721Receiver {
     ***************** Public Functions ******************
     *****************************************************
   */
-  /**
-    * @dev Get list of contract address of oter contracts
-  */
-  function getContracts() external view returns (ContractsDS memory) {
-    return CONTRACTS;
-  }
-
   /**
     * @dev Get contract balance sheet
   */

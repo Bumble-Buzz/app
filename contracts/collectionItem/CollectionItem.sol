@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.4 <0.9.0;
 
-// import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/access/AccessControl.sol';
 
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
 import '../AvaxTradeNft.sol';
-
 import "./Collection.sol";
 import "./Item.sol";
 

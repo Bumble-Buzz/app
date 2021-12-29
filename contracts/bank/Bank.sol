@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.4 <0.9.0;
 
-
-// import '@openzeppelin/contracts/access/AccessControl.sol';
-import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts/access/AccessControl.sol';
 
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
@@ -11,10 +9,14 @@ import '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
 import "./UserAccount.sol";
 import "./CollectionAccount.sol";
 import "./Vault.sol";
+
 import "hardhat/console.sol";
 
 
-contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
+contract Bank is AccessControl, UserAccount, CollectionAccount, Vault {
+
+  // Access Control
+  bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
   // modifiers
   modifier checkBank(address _id) {
@@ -46,6 +48,15 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   }
 
 
+  constructor(address _owner) {
+    // set up admin role
+    _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
+
+    // grant admin role to following account (parent contract)
+    _setupRole(ADMIN_ROLE, _owner);
+  }
+
+
   /** 
     *****************************************************
     **************** Attribute Functions ****************
@@ -61,7 +72,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Add bank
   */
-  function addBank(address _id) public onlyOwner() {
+  function addBank(address _id) public onlyRole(ADMIN_ROLE) {
     if (isBankOwnerUnique(_id)) {
       _addBankOwner(_id);
       _addUserAccount(_id);
@@ -110,7 +121,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   function updateBank(
     address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionCommission,
     uint256[] memory _reflectionVault, uint256 _incentiveVault, uint256 _balance
-  ) public onlyOwner() {
+  ) public onlyRole(ADMIN_ROLE) {
     _updateUserAccount(_id, _general, _nftCommission, _collectionCommission);
     _updateCollectionAccount(_id, _reflectionVault, _incentiveVault);
     _updateVault(_id, _balance);
@@ -149,7 +160,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   */
   function incrementUserAccount(
     address _id, uint256 _general, uint256 _nftCommission, uint256 _collectionCommission
-  ) external onlyOwner() {
+  ) external onlyRole(ADMIN_ROLE) {
     addBank(_id); // create if bank account does not exist
     _incrementUserAccount(_id, _general, _nftCommission, _collectionCommission);
   }
@@ -159,7 +170,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   */
   function incrementCollectionAccount(
     address _id, uint256 _rewardPerItem, uint256 _incentiveVault
-  ) external onlyOwner() {
+  ) external onlyRole(ADMIN_ROLE) {
     addBank(_id); // create if bank account does not exist
     _incrementCollectionAccount(_id, _rewardPerItem, _incentiveVault);
   }
@@ -167,7 +178,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Claim account general reward for this user
   */
-  function claimGeneralRewardUserAccount(address _owner) external onlyOwner() returns (uint256) {
+  function claimGeneralRewardUserAccount(address _owner) external onlyRole(ADMIN_ROLE) returns (uint256) {
     uint256 reward = _getGeneralUserAccount(_owner);
     _updateGeneralUserAccount(_owner, 0);
     return reward;
@@ -176,7 +187,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Claim account nft commission reward for this user
   */
-  function claimNftCommissionRewardUserAccount(address _owner) external onlyOwner() returns (uint256) {
+  function claimNftCommissionRewardUserAccount(address _owner) external onlyRole(ADMIN_ROLE) returns (uint256) {
     uint256 reward = _getNftCommissionUserAccount(_owner);
     _updateNftCommissionUserAccount(_owner, 0);
     return reward;
@@ -185,7 +196,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Claim account collection commission reward for this user
   */
-  function claimCollectionCommissionRewardUserAccount(address _owner) external onlyOwner() returns (uint256) {
+  function claimCollectionCommissionRewardUserAccount(address _owner) external onlyRole(ADMIN_ROLE) returns (uint256) {
     uint256 reward = _getCollectionCommissionUserAccount(_owner);
     _updateCollectionCommissionUserAccount(_owner, 0);
     return reward;
@@ -194,7 +205,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Claim collection reflection reward for this token id
   */
-  function claimReflectionRewardCollectionAccount(uint256 _tokenId, address _contractAddress) external onlyOwner() returns (uint256) {
+  function claimReflectionRewardCollectionAccount(uint256 _tokenId, address _contractAddress) external onlyRole(ADMIN_ROLE) returns (uint256) {
     require(_tokenId > 0, "Bank: Invalid token id provided");
 
     uint256 vaultIndex = _tokenId - 1;
@@ -206,7 +217,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Distribute collection reflection reward between all token id's
   */
-  function distributeCollectionReflectionReward(address _contractAddress, uint256 _totalSupply, uint256 _reflectionReward) external onlyOwner() {
+  function distributeCollectionReflectionReward(address _contractAddress, uint256 _totalSupply, uint256 _reflectionReward) external onlyRole(ADMIN_ROLE) {
     addBank(_contractAddress); // create if bank account does not exist
     uint256 reflectionRewardPerItem = _reflectionReward / _totalSupply;
     _increaseReflectionVaultCollectionAccount(_contractAddress, reflectionRewardPerItem);
@@ -215,7 +226,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Distribute collection reflection reward between given token id's
   */
-  function distributeCollectionReflectionRewardList(address _contractAddress, uint256[] memory _tokenIds, uint256 _reflectionReward) external onlyOwner() {
+  function distributeCollectionReflectionRewardList(address _contractAddress, uint256[] memory _tokenIds, uint256 _reflectionReward) external onlyRole(ADMIN_ROLE) {
     addBank(_contractAddress); // create if bank account does not exist
     uint256 reflectionRewardPerItem = _reflectionReward / _tokenIds.length;
     for (uint256 i = 0; i < _tokenIds.length; i++) {
@@ -227,7 +238,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Update collection incentive reward
   */
-  function updateCollectionIncentiveReward(address _contractAddress, uint256 _value, bool _increase) external onlyOwner() returns (uint256) {
+  function updateCollectionIncentiveReward(address _contractAddress, uint256 _value, bool _increase) external onlyRole(ADMIN_ROLE) returns (uint256) {
     addBank(_contractAddress); // create if bank account does not exist
     uint256 incentiveVault = _getIncentiveVaultCollectionAccount(_contractAddress);
     if (_increase) {
@@ -245,7 +256,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Nullify collection incentive reward
   */
-  function nullifyCollectionIncentiveReward(address _contractAddress) external onlyOwner() returns (uint256) {
+  function nullifyCollectionIncentiveReward(address _contractAddress) external onlyRole(ADMIN_ROLE) returns (uint256) {
     addBank(_contractAddress); // create if bank account does not exist
     _updateIncentiveVaultCollectionAccount(_contractAddress, 0);
 
@@ -348,7 +359,7 @@ contract Bank is Ownable, UserAccount, CollectionAccount, Vault {
   /**
     * @dev Initialize a collection reflection vault for the given collection
   */
-  function initReflectionVaultCollectionAccount(address _id, uint256 _totalSupply) external onlyOwner() {
+  function initReflectionVaultCollectionAccount(address _id, uint256 _totalSupply) external onlyRole(ADMIN_ROLE) {
     addBank(_id); // create if bank account does not exist
     return _initReflectionVaultCollectionAccount(_id, _totalSupply);
   }

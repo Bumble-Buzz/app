@@ -26,7 +26,7 @@ describe("AvaxTrade - Bank", () => {
 
   beforeEach(async () => {
     const contractFactory = await ethers.getContractFactory("Bank");
-    CONTRACT = await contractFactory.deploy();
+    CONTRACT = await contractFactory.deploy(ACCOUNTS[0].address);
     await CONTRACT.deployed();
   });
 
@@ -262,7 +262,7 @@ describe("AvaxTrade - Bank", () => {
       expect(bank.vault.balance).to.be.equal(0);
 
       await CONTRACT.connect(ACCOUNTS[1]).updateBank(ACCOUNTS[1].address, 1, 2, 3, [1,2,3], 4, 5)
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
     it('update one bank out of many', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[1].address);
@@ -456,7 +456,7 @@ describe("AvaxTrade - Bank", () => {
 
     it('claim general reward user account - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).claimGeneralRewardUserAccount(ACCOUNTS[1].address)
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
     it('claim general reward user account - owner account does not exist', async () => {
       let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
@@ -505,7 +505,7 @@ describe("AvaxTrade - Bank", () => {
 
     it('claim nft commission reward user account - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).claimNftCommissionRewardUserAccount(ACCOUNTS[1].address)
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
     it('claim nft commission reward user account - owner account does not exist', async () => {
       let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
@@ -554,7 +554,7 @@ describe("AvaxTrade - Bank", () => {
 
     it('claim collection commission reward user account - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).claimCollectionCommissionRewardUserAccount(ACCOUNTS[1].address)
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
     it('claim collection commission reward user account - owner account does not exist', async () => {
       let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
@@ -603,7 +603,7 @@ describe("AvaxTrade - Bank", () => {
 
     it('claim reflection reward collection account - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).claimReflectionRewardCollectionAccount(2, ACCOUNTS[2].address)
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
     it('claim reflection reward collection account - owner account does not exist', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardCollectionAccount(2, ACCOUNTS[2].address)
@@ -665,7 +665,7 @@ describe("AvaxTrade - Bank", () => {
 
     it('distribute collection reflection - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).distributeCollectionReflectionReward(ACCOUNTS[2].address, 3, ethers.utils.parseEther('6'))
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
     it('distribute collection reflection - account does not exist', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(ACCOUNTS[2].address, 3, ethers.utils.parseEther('6'))
@@ -710,7 +710,7 @@ describe("AvaxTrade - Bank", () => {
 
     it('distribute collection reflection given list - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).distributeCollectionReflectionRewardList(ACCOUNTS[2].address, [1,3], ethers.utils.parseEther('10'))
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
     it('distribute collection reflection given list - account does not exist', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionRewardList(ACCOUNTS[2].address, [1,3], ethers.utils.parseEther('10'))
@@ -775,11 +775,11 @@ describe("AvaxTrade - Bank", () => {
     });
     it('update collection incentive reward - increase - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).updateCollectionIncentiveReward(ACCOUNTS[2].address, ethers.utils.parseEther('5'), true)
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
     it('update collection incentive reward - decrease - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).updateCollectionIncentiveReward(ACCOUNTS[2].address, ethers.utils.parseEther('5'), false)
-        .should.be.rejectedWith('Ownable: caller is not the owner');
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
     it('update collection incentive reward - increase - account does not exist', async () => {
       let balance = await CONTRACT.provider.getBalance(CONTRACT.address);

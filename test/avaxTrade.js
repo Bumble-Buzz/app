@@ -34,11 +34,29 @@ describe("AvaxTrade - Main", () => {
     CONTRACT = await contractFactory.deploy();
     await CONTRACT.deployed();
 
-    // set up Bank and CollectionItem contracts
-    const contracts = await CONTRACT.connect(ACCOUNTS[4]).getContracts();
-    BANK_CONTRACT = await ethers.getContractAt("Bank", contracts.bank);
-    SALE_CONTRACT = await ethers.getContractAt("Sale", contracts.sale);
-    COLLECTION_ITEM_CONTRACT = await ethers.getContractAt("CollectionItem", contracts.collectionItem);
+    // set up Bank contract
+    contractFactory = await ethers.getContractFactory("Bank");
+    BANK_CONTRACT = await contractFactory.deploy(CONTRACT.address);
+    await BANK_CONTRACT.deployed();
+
+    // set up Sale contract
+    contractFactory = await ethers.getContractFactory("Sale");
+    SALE_CONTRACT = await contractFactory.deploy(CONTRACT.address, ACCOUNTS[0].address);
+    await SALE_CONTRACT.deployed();
+
+    // set up CollectionItem contract
+    contractFactory = await ethers.getContractFactory("CollectionItem");
+    COLLECTION_ITEM_CONTRACT = await contractFactory.deploy(CONTRACT.address, ACCOUNTS[0].address);
+    await COLLECTION_ITEM_CONTRACT.deployed();
+
+    // update AvaxTrade with sibling contracts
+    await CONTRACT.connect(ACCOUNTS[0]).setContracts(BANK_CONTRACT.address, SALE_CONTRACT.address, COLLECTION_ITEM_CONTRACT.address);
+
+    // set up Bank, Sale, and CollectionItem contracts
+    // const contracts = await CONTRACT.connect(ACCOUNTS[4]).getContracts();
+    // BANK_CONTRACT = await ethers.getContractAt("Bank", contracts.bank);
+    // SALE_CONTRACT = await ethers.getContractAt("Sale", contracts.sale);
+    // COLLECTION_ITEM_CONTRACT = await ethers.getContractAt("CollectionItem", contracts.collectionItem);
 
     // set up AvaxTrade NFT 721 contract
     // contractFactory = await ethers.getContractFactory("AvaxTradeNft");
@@ -48,14 +66,6 @@ describe("AvaxTrade - Main", () => {
     // await NFT_CONTRACT.connect(ACCOUNTS[4]).mint(ACCOUNTS[4].address, 1, { value: ethers.utils.parseEther('0.50') });
     // await NFT_CONTRACT.connect(ACCOUNTS[4]).setApprovalForAll(CONTRACT.address, true);
     // await NFT_CONTRACT.connect(ACCOUNTS[4]).approve(CONTRACT.address, 1);
-
-    // // set up AvaxTrade NFT 1155 contract
-    // contractFactory = await ethers.getContractFactory("AvaxTradeNft1155");
-    // NFT_CONTRACT_1155 = await contractFactory.deploy('ipfs://cid/{id}.json');
-    // await NFT_CONTRACT_1155.deployed();
-
-    // await NFT_CONTRACT_1155.connect(ACCOUNTS[4]).mint(ACCOUNTS[4].address, 1, { value: ethers.utils.parseEther('0.50') });
-    // await NFT_CONTRACT_1155.connect(ACCOUNTS[4]).setApprovalForAll(CONTRACT.address, true);
   });
 
   it('deploys successfully', async () => {
@@ -65,6 +75,82 @@ describe("AvaxTrade - Main", () => {
   });
 
   describe('Attribute functions', async () => {
+
+    it('get sibling contracts', async () => {
+      const result = await CONTRACT.connect(ACCOUNTS[0]).getContracts();
+      expect(result.bank).to.be.equal(BANK_CONTRACT.address);
+      expect(result.sale).to.be.equal(SALE_CONTRACT.address);
+      expect(result.collectionItem).to.be.equal(COLLECTION_ITEM_CONTRACT.address);
+    });
+    it('set sibling contracts - not owner', async () => {
+      await CONTRACT.connect(ACCOUNTS[1]).setContracts(EMPTY_ADDRESS, EMPTY_ADDRESS, EMPTY_ADDRESS)
+        .should.be.rejectedWith('Ownable: caller is not the owner');
+    });
+    it('set sibling contracts - not change any address', async () => {
+      let result = await CONTRACT.connect(ACCOUNTS[0]).getContracts();
+      expect(result.bank).to.be.equal(BANK_CONTRACT.address);
+      expect(result.sale).to.be.equal(SALE_CONTRACT.address);
+      expect(result.collectionItem).to.be.equal(COLLECTION_ITEM_CONTRACT.address);
+
+      await CONTRACT.connect(ACCOUNTS[0]).setContracts(EMPTY_ADDRESS, EMPTY_ADDRESS, EMPTY_ADDRESS);
+
+      result = await CONTRACT.connect(ACCOUNTS[0]).getContracts();
+      expect(result.bank).to.be.equal(BANK_CONTRACT.address);
+      expect(result.sale).to.be.equal(SALE_CONTRACT.address);
+      expect(result.collectionItem).to.be.equal(COLLECTION_ITEM_CONTRACT.address);
+    });
+    it('set sibling contracts - only change bank address', async () => {
+      let result = await CONTRACT.connect(ACCOUNTS[0]).getContracts();
+      expect(result.bank).to.be.equal(BANK_CONTRACT.address);
+      expect(result.sale).to.be.equal(SALE_CONTRACT.address);
+      expect(result.collectionItem).to.be.equal(COLLECTION_ITEM_CONTRACT.address);
+
+      await CONTRACT.connect(ACCOUNTS[0]).setContracts(ACCOUNTS[5].address, EMPTY_ADDRESS, EMPTY_ADDRESS);
+
+      result = await CONTRACT.connect(ACCOUNTS[0]).getContracts();
+      expect(result.bank).to.be.equal(ACCOUNTS[5].address);
+      expect(result.sale).to.be.equal(SALE_CONTRACT.address);
+      expect(result.collectionItem).to.be.equal(COLLECTION_ITEM_CONTRACT.address);
+    });
+    it('set sibling contracts - only change sale address', async () => {
+      let result = await CONTRACT.connect(ACCOUNTS[0]).getContracts();
+      expect(result.bank).to.be.equal(BANK_CONTRACT.address);
+      expect(result.sale).to.be.equal(SALE_CONTRACT.address);
+      expect(result.collectionItem).to.be.equal(COLLECTION_ITEM_CONTRACT.address);
+
+      await CONTRACT.connect(ACCOUNTS[0]).setContracts(EMPTY_ADDRESS, ACCOUNTS[5].address, EMPTY_ADDRESS);
+
+      result = await CONTRACT.connect(ACCOUNTS[0]).getContracts();
+      expect(result.bank).to.be.equal(BANK_CONTRACT.address);
+      expect(result.sale).to.be.equal(ACCOUNTS[5].address);
+      expect(result.collectionItem).to.be.equal(COLLECTION_ITEM_CONTRACT.address);
+    });
+    it('set sibling contracts - only change collectionItem address', async () => {
+      let result = await CONTRACT.connect(ACCOUNTS[0]).getContracts();
+      expect(result.bank).to.be.equal(BANK_CONTRACT.address);
+      expect(result.sale).to.be.equal(SALE_CONTRACT.address);
+      expect(result.collectionItem).to.be.equal(COLLECTION_ITEM_CONTRACT.address);
+
+      await CONTRACT.connect(ACCOUNTS[0]).setContracts(EMPTY_ADDRESS, EMPTY_ADDRESS, ACCOUNTS[5].address);
+
+      result = await CONTRACT.connect(ACCOUNTS[0]).getContracts();
+      expect(result.bank).to.be.equal(BANK_CONTRACT.address);
+      expect(result.sale).to.be.equal(SALE_CONTRACT.address);
+      expect(result.collectionItem).to.be.equal(ACCOUNTS[5].address);
+    });
+    it('set sibling contracts - change all addresses', async () => {
+      let result = await CONTRACT.connect(ACCOUNTS[0]).getContracts();
+      expect(result.bank).to.be.equal(BANK_CONTRACT.address);
+      expect(result.sale).to.be.equal(SALE_CONTRACT.address);
+      expect(result.collectionItem).to.be.equal(COLLECTION_ITEM_CONTRACT.address);
+
+      await CONTRACT.connect(ACCOUNTS[0]).setContracts(ACCOUNTS[3].address, ACCOUNTS[4].address, ACCOUNTS[5].address);
+
+      result = await CONTRACT.connect(ACCOUNTS[0]).getContracts();
+      expect(result.bank).to.be.equal(ACCOUNTS[3].address);
+      expect(result.sale).to.be.equal(ACCOUNTS[4].address);
+      expect(result.collectionItem).to.be.equal(ACCOUNTS[5].address);
+    });
 
     it('get marketplace listing price', async () => {
       expect(await CONTRACT.connect(ACCOUNTS[0]).getMarketplaceListingPrice()).to.be.equal(0);
