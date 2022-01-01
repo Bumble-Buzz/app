@@ -7,8 +7,8 @@ function MyApp({ Component, pageProps }) {
   return (
     <>
       <Head>
-        <title>Avaxocado</title>
-        <meta name="description" content="Generated a Avaxocado NFT on AVAX!" />
+        <title>AvaxTrade</title>
+        <meta name="description" content="Generated a AvaxTrade NFT on AVAX!" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 

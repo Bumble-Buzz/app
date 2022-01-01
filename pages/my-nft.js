@@ -6,7 +6,7 @@ import WALLTET from '../utils/wallet';
 import IPFS from '../utils/ipfs';
 
 
-import AvaxocadoAbi from '../artifacts/contracts/AvaxocadoNft.sol/AvaxocadoNft.json'
+import AvaxocadoAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json'
 
 export default function MyNft() {
   const [tokenIds, setTokenIds] = useState([]);

@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { ethers } from 'ethers';
 import WALLTET from '../utils/wallet';
 
-import AvaxocadoAbi from '../artifacts/contracts/AvaxocadoNft.sol/AvaxocadoNft.json'
+import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json'
 
 export default function Home() {
   // NFT contract states
@@ -28,9 +28,9 @@ export default function Home() {
     }
 
     // const provider = WALLTET.getDefaultProvider();
-    // const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxocadoAbi.abi, provider);
+    // const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, provider);
     const signer = await WALLTET.getSigner();
-    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxocadoAbi.abi, signer);
+    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, signer);
     const val = await contract.getMaxSupply();
     setMaxSupply(val.toLocaleString(undefined,0));
     console.log('end - getMaxSupply');
@@ -44,9 +44,9 @@ export default function Home() {
     }
 
     // const provider = WALLTET.getDefaultProvider();
-    // const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxocadoAbi.abi, provider);
+    // const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, provider);
     const signer = await WALLTET.getSigner();
-    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxocadoAbi.abi, signer);
+    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, signer);
     const val = await contract.totalSupply();
     setMintedSupply(val.toLocaleString(undefined,0));
     console.log('end - getMintedSupply');
@@ -60,7 +60,7 @@ export default function Home() {
     }
 
     const signer = await WALLTET.getSigner();
-    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxocadoAbi.abi, signer);
+    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, signer);
 
     const finalCost = COST*mintCounter;
     const price = ethers.utils.parseUnits(finalCost.toString(), 'ether');
@@ -93,32 +93,24 @@ export default function Home() {
           <div className="flex items-center text-center lg:text-left px-8 md:px-12 lg:w-1/2">
             <div className="flex flex-col">
               <div className="my-2">
-                <h2 className="text-3xl font-semibold text-gray-800 md:text-4xl">Mint Your New <span className="text-indigo-600">Avaxocado NFT!</span></h2>
+                <h2 className="text-3xl font-semibold text-gray-800 md:text-4xl">Collect, create, and sell <span className="text-indigo-600">priceless NFTs!</span></h2>
               </div>
               <div className="my-2">
                 <p className="mt-2 text-sm text-gray-500 md:text-base">
-                  Avaxocado are beautiful NFTs which can be minted on the Avalanche blockchain.
-                  These NFTs are 100% unique, some are also animated. So don&#39;t wait around, hurry up and mint before the supply runs out!
+                  AvaxTrade is a NFT Marketplace on the Avalanche blockchain.
+                  Collect a unique NFT, or create your own. Put an NFT up for sale. You can do it all on AvaxTrade!
                 </p>
               </div>
               <div className="my-2">
                 <div className="flex flex-row flex-wrap justify-center">
-                  <div className="my-1 mx-4 flex flex-nowrap">
-                    <button onClick={handleClickSubtract} data-action="decrement" className="px-2 bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full rounded-l cursor-pointer outline-none">
-                      <span className="m-auto text-2xl font-thin">−</span>
-                    </button>
-                    <button data-action="increment" className="px-2 bg-gray-300 text-gray-600 h-full cursor-default">
-                      <span className="m-auto text-2xl font-thin">{mintCounter}</span>
-                    </button>
-                    <button onClick={handleClickAdd} data-action="increment" className="px-2 bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full rounded-r cursor-pointer">
-                      <span className="m-auto text-2xl font-thin">+</span>
-                    </button>
+                  <div>
+                    <button onClick={mintNft} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Explore</button>
                   </div>
                   <div>
-                    <button onClick={mintNft} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Mint NFT!</button>
+                    <button onClick={mintNft} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Sell</button>
                   </div>
                   <div>
-                    <button className="my-1 mx-4 px-4 py-3 bg-gray-300 text-gray-900 text-xs font-semibold rounded cursor-default" href="#">{mintedSupply}/{maxSupply}</button>
+                    <button onClick={mintNft} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Create</button>
                   </div>
                 </div>
               </div>

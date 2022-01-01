@@ -15,7 +15,7 @@ export default function Docs() {
         <div className="flex bg-grayDark" style={{minHeight: '500px'}}>
           <div className="flex flex-col">
             <div className="p-2 md:p-4">
-              <h2 className="text-3xl font-semibold text-gray-800 md:text-4xl">Avaxocado <span className="text-indigo-600">Docs</span></h2>
+              <h2 className="text-3xl font-semibold text-gray-800 md:text-4xl">AvaxTrade <span className="text-indigo-600">Docs</span></h2>
             </div>
             <div className="p-2 md:p-4">
               <div className="flex flex-row">
@@ -24,7 +24,7 @@ export default function Docs() {
                     <a
                       onClick={(e) => handleClick(e, 1)}
                       className="block px-1 md:px-4 py-2 text-grey-800 hover:bg-gray-500 hover:text-gray-100 hover:font-medium cursor-pointer">
-                        Avaxocado
+                        AvaxTrade
                     </a>
                     <a
                       onClick={(e) => handleClick(e, 2)}

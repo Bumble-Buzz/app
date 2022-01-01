@@ -1,5 +1,6 @@
 Things left to do:
 - Smart contract
+    - Name the app, then make the change everywhere
     - All attributes and functions have correct access classifiers (private/internal/public)
     - Use one specific version in the contracts, not a range (0.8.4)
     - Remove `import "hardhat/console.sol";` from all contracts
@@ -25,6 +26,22 @@ Things left to do:
     - For direct sales, take out cut for maretplace / artist? Give incentives?
     - NFT contract `approve` one instead of `approve all`, give option to do both
     - Rename `Bank > CollectionAccount > reflectionVault` to `tokenVault`?
+    - Transaction types
+        - Transfer
+            - Transfer of asset, no sale, commissions or incentives.
+        - Direct
+            - Need to be careful with incentives for direct sales. Risk of users selling to their own wallets and making money.
+        - Immediate
+        - Auction
+            - Duringthe auction, buyer is not able to back out of the auction
+            - What to do if no buyer is foind in an auction? Only then seller is able to `reclaim` their NFT.
+    - Commissions
+        - Have an upper cap of 99%, or no need?
+        - Artist commission cap at 20%?
+    - Incentives
+        - Have an upper cap of 99%, or no need?
+        - Have different configurable variables for marketplace incentives (direct / immediate / auction)
+        - Need to be careful with incentives for direct sales. Risk of users selling to their own wallets and making money.
 - Front-end dapp
 - Social media
     - Discord server
