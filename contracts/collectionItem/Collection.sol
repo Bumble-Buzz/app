@@ -193,7 +193,10 @@ contract Collection {
     string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission,
     address _owner, bool _ownerIncentiveAccess
   ) internal {
-    // todo require _totalSupply to be > 0
+    require(_totalSupply > 0, "Collection: Total supply must be > 0");
+    require(_reflection < 100, "Collection: Reflection percent must be < 100");
+    require(_commission < 100, "Collection: Commission percent must be < 100");
+
     COLLECTION_ID_POINTER.increment();
     uint256 id = COLLECTION_ID_POINTER.current();
     COLLECTIONS[id] = CollectionDS({
@@ -313,7 +316,11 @@ contract Collection {
   function _updateCollection(
     uint256 _id, string memory _name, address _contractAddress, uint8 _reflection, uint8 _commission, uint8 _incentive, address _owner
   ) internal checkCollection(_id) {
-    // todo not allow owner to update _contractAddress? May screw up existing items on sale under this collection
+    // todo not allow owner to update _contractAddress? May screw up existing items on sale under this collection. write test!
+
+    require(_reflection < 100, "Collection: Reflection percent must be < 100");
+    require(_commission < 100, "Collection: Commission percent must be < 100");
+    require(_incentive < 100, "Collection: Incentive percent must be < 100");
 
     COLLECTIONS[_id].name = _name;
     COLLECTIONS[_id].reflection = _reflection;

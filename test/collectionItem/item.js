@@ -185,6 +185,11 @@ describe("AvaxTrade - Item", () => {
       expect(itemIds.length).to.be.equal(1);
       expect(_doesArrayInclude(itemIds, ethers.BigNumber.from('1'))).to.be.true;
     });
+    it('add local item - invalid commission percent', async () => {
+      await CONTRACT.connect(ACCOUNTS[0])._addItem(
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 100, ACCOUNTS[3].address
+      ).should.be.rejectedWith('Item: Commission percent must be < 100');
+    });
     it('add local item', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._addItem(
         1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 2, ACCOUNTS[3].address
@@ -456,46 +461,52 @@ describe("AvaxTrade - Item", () => {
       expect(itemOwner).to.be.an('array').that.is.not.empty;
       expect(_doesArrayInclude(itemOwner, ethers.BigNumber.from('2'))).to.be.true;
     });
-    it('deactivate item', async () => {
+    it('update item - invalid commission percent', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._addItem(
         1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 2, ACCOUNTS[3].address
       );
+      await CONTRACT.connect(ACCOUNTS[0])._updateItem(
+        1, 1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 456, 100, ACCOUNTS[3].address, false, false
+      ).should.be.rejectedWith('Item: Commission percent must be < 100');
+    });
+    it('update item', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._addItem(
-        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 2, ACCOUNTS[3].address
       );
-      await CONTRACT.connect(ACCOUNTS[0])._addItem(
-        1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 123, 0, EMPTY_ADDRESS
+      const itemIds = await CONTRACT.connect(ACCOUNTS[0])._getItemIds();
+      expect(itemIds).to.be.an('array').that.is.not.empty;
+      expect(itemIds.length).to.be.equal(1);
+      expect(_doesArrayInclude(itemIds, ethers.BigNumber.from('1'))).to.be.true;
+
+      const itemOwner = await CONTRACT.connect(ACCOUNTS[0])._getItemsForOwner(ACCOUNTS[2].address);
+      expect(itemOwner).to.be.an('array').that.is.not.empty;
+      expect(_doesArrayEqual(itemOwner, [ethers.BigNumber.from('1')])).to.be.true;
+
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemCollectionId(1)).to.be.equal(1);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemTokenId(1)).to.be.equal(2);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemContractAddress(1)).to.be.equal(ACCOUNTS[1].address);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemSeller(1)).to.be.equal(ACCOUNTS[2].address);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemBuyer(1)).to.be.equal(EMPTY_ADDRESS);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemPrice(1)).to.be.equal(123);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemCommission(1)).to.be.equal(2);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemCreator(1)).to.be.equal(ACCOUNTS[3].address);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemSold(1)).to.be.equal(false);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemActive(1)).to.be.equal(true);
+
+      await CONTRACT.connect(ACCOUNTS[0])._updateItem(
+        1, 1, 2, ACCOUNTS[1].address, ACCOUNTS[2].address, EMPTY_ADDRESS, 456, 5, ACCOUNTS[3].address, false, false
       );
 
-      let itemIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getItemIdPointer();
-      expect(itemIdPointer).to.be.equal(3);
-
-      let itemIds = await CONTRACT.connect(ACCOUNTS[0])._getItemIds();
-      expect(itemIds).to.be.an('array').that.is.not.empty;
-      expect(itemIds.length).to.be.equal(3);
-
-      let item = await CONTRACT.connect(ACCOUNTS[0])._getItem(2);
-      expect(item.active).to.be.equal(true);
-
-      let itemOwner = await CONTRACT.connect(ACCOUNTS[0])._getItemsForOwner(ACCOUNTS[2].address);
-      expect(itemOwner).to.be.an('array').that.is.not.empty;
-      expect(_doesArrayInclude(itemOwner, ethers.BigNumber.from('2'))).to.be.true;
-
-      await CONTRACT.connect(ACCOUNTS[0])._removeItem(2); // remove item
-
-      itemIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getItemIdPointer();
-      expect(itemIdPointer).to.be.equal(3);
-
-      itemIds = await CONTRACT.connect(ACCOUNTS[0])._getItemIds();
-      expect(itemIds).to.be.an('array').that.is.not.empty;
-      expect(itemIds.length).to.be.equal(2);
-
-      item = await CONTRACT.connect(ACCOUNTS[0])._getItem(2)
-        .should.be.rejectedWith('The item does not exist');
-
-      itemOwner = await CONTRACT.connect(ACCOUNTS[0])._getItemsForOwner(ACCOUNTS[2].address);
-      expect(itemOwner).to.be.an('array').that.is.not.empty;
-      expect(_doesArrayInclude(itemOwner, ethers.BigNumber.from('2'))).to.be.true;
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemCollectionId(1)).to.be.equal(1);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemTokenId(1)).to.be.equal(2);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemContractAddress(1)).to.be.equal(ACCOUNTS[1].address);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemSeller(1)).to.be.equal(ACCOUNTS[2].address);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemBuyer(1)).to.be.equal(EMPTY_ADDRESS);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemPrice(1)).to.be.equal(456);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemCommission(1)).to.be.equal(5);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemCreator(1)).to.be.equal(ACCOUNTS[3].address);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemSold(1)).to.be.equal(false);
+      expect(await CONTRACT.connect(ACCOUNTS[0])._getItemActive(1)).to.be.equal(false);
     });
   });
 

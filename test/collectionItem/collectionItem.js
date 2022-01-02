@@ -1046,28 +1046,28 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('create collection - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[2]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[2].address, false
+        'collection name', NFT_CONTRACT_VERIFIED.address, 100, 0, 0, ACCOUNTS[2].address, false
       ).should.be.rejectedWith(
         'AccessControl: account 0x5ca6ec5718ac9ac8916b8cecab2c0d6051dbba92 is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775'
       );
     });
     it('create collection - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[1].address, false
+        'collection name', NFT_CONTRACT_VERIFIED.address, 100, 0, 0, ACCOUNTS[1].address, false
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
       expect(collection.collectionType).to.be.equal(1);
     });
     it('create collection - yes admin', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[0].address, false
+        'collection name', NFT_CONTRACT_VERIFIED.address, 100, 0, 0, ACCOUNTS[0].address, false
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
       expect(collection.collectionType).to.be.equal(1);
     });
     it('create collection', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[0].address, false
+        'collection name', NFT_CONTRACT_VERIFIED.address, 100, 0, 0, ACCOUNTS[0].address, false
       );
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(3);
       expect(collection.id).to.be.equal(3);

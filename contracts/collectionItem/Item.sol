@@ -142,6 +142,8 @@ contract Item {
   function _addItem(
     uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, address _buyer, uint256 _price, uint8 _commission, address _creator
   ) internal returns (uint256) {
+    require(_commission < 100, "Item: Commission percent must be < 100");
+
     ITEM_ID_POINTER.increment();
     uint256 id = ITEM_ID_POINTER.current();
     ITEMS[id] = ItemDS({
@@ -206,6 +208,9 @@ contract Item {
     uint256 _id, uint256 _collectionId, uint256 _tokenId, address _contractAddress, address _seller, address _buyer, uint256 _price,
     uint8 _commission, address _creator, bool _sold, bool _active
   ) internal checkItem(_id) {
+    // todo do not allow to update _collectionId, _contractAddress, _creator
+    require(_commission < 100, "Item: Commission percent must be < 100");
+
     ITEMS[_id] = ItemDS({
       id: _id,
       collectionId: _collectionId,
