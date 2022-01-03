@@ -8,6 +8,13 @@ import WALLTET from '../utils/wallet';
 
 import Button from './Button';
 import HeadlessSlideOver from './HeadlessSlideOver';
+import DropDown from './DropDown';
+
+import {ChevronDownIcon, PencilIcon} from '@heroicons/react/solid';
+import {
+  ChevronDownIcon as ChevronDownIconOutline,
+  PencilIcon as PencilIconOutline
+} from '@heroicons/react/outline';
 
 import { config, library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -67,11 +74,96 @@ function Navbar() {
     }
   };
 
+  const exploreItems = () => {
+    const asd = [];
+    const inner = {};
+    inner.icon;
+    inner.label;
+    return asd;
+  };
+
+  const renderItem = () => {
+    return (
+      <PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />
+    );
+  };
+
+  const getItem = (itemId) => {
+    switch(itemId) {
+      case 1:
+        return {
+          label: 'All NFTs',
+          link: '/',
+          icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
+          iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
+        };
+      case 2:
+        return {
+          label: 'All Collections',
+          link: '/',
+          icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
+          iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
+        };
+      case 3:
+        return {
+          label: 'Categories below...',
+          link: '/',
+          icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
+          iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
+        };
+      case 7:
+        return {
+          label: 'Create',
+          link: '/',
+          icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
+          iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
+        };
+      case 8:
+        return {
+          label: 'Sell',
+          link: '/',
+          icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
+          iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
+        };
+      case 9:
+        return {
+          label: 'Transfer',
+          link: '/',
+          icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
+          iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
+        };
+      case 11:
+        return {
+          label: 'Profile',
+          link: '/',
+          icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
+          iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
+        };
+      case 12:
+        return {
+          label: 'My Collections',
+          link: '/',
+          icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
+          iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
+        };
+      case 13:
+        return {
+          label: 'Preferences',
+          link: '/',
+          icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
+          iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
+        };
+      default:
+        return {};
+    };
+  };
+
   const getNotificationCountString = () => {
     if (notificationCount > 9) {
       return '!'
     } else {
-      return notificationCount}
+      return notificationCount;
+    }
   };
 
   const handleNotificationClick = (e, action, fromHeadless) => {
@@ -174,7 +266,6 @@ function Navbar() {
             <p className="text-gray-700 text-base">
               You have received a new bid on "NFT SALE TITLE" sale.
             </p>
-            {/* <button type="button" className=" inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">Clear</button> */}
           </div>
           <div className="block m-2 p-2 rounded-lg shadow-lg bg-white max-w-sm relative">
             <span className="text-white bg-red-700 absolute right-0 rounded-full text-xs -mt-2.5 px-1.5">X</span>
@@ -231,11 +322,13 @@ function Navbar() {
         <div className="flex items-center ml-2 gap-2">
           {/* explore */}
           <div className="hidden md:block ml-2 text-gray-800 font-bold hover:underline">
-            <Link href='/' passHref={true}><a title="Explore">Explore</a></Link>
+            {/* <Link href='/' passHref={true}><a title="Explore">Explore</a></Link> */}
+            <DropDown title="Explore" items={[1,2,3]} getItem={getItem}></DropDown>
           </div>
-          {/* create */}
+          {/* trade */}
           <div className="hidden md:block ml-2 text-gray-800 font-bold hover:underline">
-            <Link href='/' passHref={true}><a title="Trade">Trade</a></Link>
+            {/* <Link href='/' passHref={true}><a title="Trade">Trade</a></Link> */}
+            <DropDown title="Trade" items={[7,8,9]} getItem={getItem}></DropDown>
           </div>
           {/* shopping cart */}
           {/* <div className="ml-2 h-5 w-5">
@@ -246,10 +339,9 @@ function Navbar() {
           {/* notification */}
           <div className="ml-2 h-5 w-5">
             <Link href='/' passHref={true}>
-              {/* <a target="_blank" title="Notification"><FontAwesomeIcon icon={['fas', 'bell']} /></a> */}
               {isNotificationOpen == true ?
-                <a title="Menu close"><FontAwesomeIcon icon={['fas', 'bell']} /></a> :
-                <a title="Menu open"><FontAwesomeIcon onClick={(e) => handleNotificationClick(e, true)} icon={['fas', 'bell']} /></a>
+                <a title="Notification close"><FontAwesomeIcon icon={['fas', 'bell']} /></a> :
+                <a title="Notification open"><FontAwesomeIcon onClick={(e) => handleNotificationClick(e, true)} icon={['fas', 'bell']} /></a>
               }
             </Link>
             {notificationCount > 0 ?
@@ -259,11 +351,12 @@ function Navbar() {
             }
           </div>
           {/* avatar */}
-          <div className="cursor-pointer">
-            <Link href='/' passHref={true}>
+          <div className="cursor-pointer ml-2">
+            {/* <Link href='/' passHref={true}>
               <img className="object-cover w-10 h-10 border-2 border-black-600 rounded-full"
-                src={'/avocado.jpg'} alt="Profile" title="Profile" />
-              </Link>
+                src={'/avocado.jpg'} alt="Profile" title="Account" />
+            </Link> */}
+            <DropDown title="Avatar" items={[11,12,13]} getItem={getItem} typeImage={true}></DropDown>
           </div>
           {/* menu open */}
           <div className="md:hidden ml-2 min-w-5 h-5 w-5">
@@ -278,52 +371,6 @@ function Navbar() {
         </div>
 
       </div>
-      {/* <div className="md:flex items-center justify-between py-2 px-8 md:px-12">
-        <div className="flex justify-between items-center">
-          <div className="text-2xl font-bold text-gray-800 md:text-3xl">
-            <Link href='/'><a>AvaxTrade</a></Link>
-          </div>
-          <div onMouseEnter={handleClick} className="relative z-10 md:hidden">
-            <button type="button" className="relative block text-gray-800 hover:text-gray-700 focus:text-gray-700 focus:outline-none">
-              <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24">
-                <path className="hidden" d="M16.24 14.83a1 1 0 0 1-1.41 1.41L12 13.41l-2.83 2.83a1 1 0 0 1-1.41-1.41L10.59 12 7.76 9.17a1 1 0 0 1 1.41-1.41L12 10.59l2.83-2.83a1 1 0 0 1 1.41 1.41L13.41 12l2.83 2.83z"/>
-                <path d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"/>
-              </svg>
-            </button>
-            {navContentBgLayer()}
-            {navContent()}
-          </div>
-        </div>
-        <div className="flex flex-col md:flex-row hidden md:block -mx-2">
-          <Link href='/'>
-            {ROUTER.pathname == '/' ?
-              <a className="text-gray-100 bg-gray-900 font-medium rounded py-2 px-2 md:mx-2">Explore</a> :
-              <a className="text-gray-800 rounded hover:bg-gray-900 hover:text-gray-100 hover:font-medium py-2 px-2 md:mx-2">Explore</a>
-            }
-          </Link>
-          <Link href='/my-nft'>
-            {ROUTER.pathname == '/my-nft' ?
-              <a className="text-gray-100 bg-gray-900 font-medium rounded py-2 px-2 md:mx-2">My Wallet</a> :
-              <a className="text-gray-800 rounded hover:bg-gray-900 hover:text-gray-100 hover:font-medium py-2 px-2 md:mx-2">My Wallet</a>
-            }
-          </Link>
-          <Link href='/analytic'>
-            {ROUTER.pathname == '/analytic' ?
-              <a className="text-gray-100 bg-gray-900 font-medium rounded py-2 px-2 md:mx-2">Analytics</a> :
-              <a className="text-gray-800 rounded hover:bg-gray-900 hover:text-gray-100 hover:font-medium py-2 px-2 md:mx-2">Analytics</a>
-            }
-          </Link>
-          <Link href='/docs'>
-            {ROUTER.pathname == '/docs' ?
-              <a className="text-gray-100 bg-gray-900 font-medium rounded py-2 px-2 md:mx-2">Docs</a> :
-              <a className="text-gray-800 rounded hover:bg-gray-900 hover:text-gray-100 hover:font-medium py-2 px-2 md:mx-2">Docs</a>
-            }
-          </Link>
-          <Link href='/'>
-            <button onClick={connectWallet} className="w-28 mx-2 px-2 py-2 bg-gray-600 text-white text-xs font-semibold rounded hover:bg-gray-800 transition duration-200 each-in-out">{walletState.displayString}</button>
-          </Link>
-        </div>
-      </div> */}
 
 
               
