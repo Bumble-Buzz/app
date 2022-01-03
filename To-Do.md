@@ -11,7 +11,6 @@ Things left to do:
         - Add option for anyone to donate funds to the contract
         - Dividends
     - Make all error messages unique
-    - Address all `@todo` in the code
     - Change contract name from `Sale` to `Transaction`
     - NFT contract `approve` one instead of `approve all`, give option to do both
     - Rename `Bank > CollectionAccount > reflectionVault` to `tokenVault`?
@@ -23,7 +22,7 @@ Things left to do:
             - Need to be careful with incentives for direct sales. Risk of users selling to their own wallets and making money.
         - Immediate
         - Auction
-            - Duringthe auction, buyer is not able to back out of (or cancel) the auction
+            - During the auction, buyer is not able to back out of (or cancel) the auction
             - What to do if no buyer is foind in an auction? Only then seller is able to `reclaim` their NFT.
     - Commissions
         - Have an upper cap of 99%, or no need?
@@ -32,7 +31,9 @@ Things left to do:
         - Have an upper cap of 99%, or no need?
         - Have different configurable variables for marketplace incentives (direct / immediate / auction)
         - Need to be careful with incentives for direct sales. Risk of users selling to their own wallets and making money.
+    - Address all `@todo` in the code
 - Front-end dapp
+    - Easy way to set ENV variables in docker image / k8s, for contract addresses, admin accounts, etc...
 - Social media
     - Discord server
     - Twitter account

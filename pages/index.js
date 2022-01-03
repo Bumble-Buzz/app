@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';  
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { ethers } from 'ethers';
 import WALLTET from '../utils/wallet';
