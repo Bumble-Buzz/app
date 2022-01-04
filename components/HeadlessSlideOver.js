@@ -64,7 +64,7 @@ export default function HeadlessSlideOver({ open, setOpen, title, children }) {
                       {title}
                     </Dialog.Title>
                   </div>
-                  <div className="mt-6 relative flex-1 sm:px-2">
+                  <div className="mt-12 relative flex-1 sm:px-2">
                     {/* Replace with your content */}
                     {children}
                     {/* /End replace */}

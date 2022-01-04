@@ -260,7 +260,7 @@ function Navbar() {
 
   const notificationContent = () => {
     return (
-      <HeadlessSlideOver open={isNotificationOpen} setOpen={handleNotificationClick} title="Item Details">
+      <HeadlessSlideOver open={isNotificationOpen} setOpen={handleNotificationClick}>
         <div className="flex flex-wrap justify-center">
 
           <div className="block m-2 p-2 rounded-lg shadow-lg bg-white max-w-sm relative">
@@ -289,11 +289,11 @@ function Navbar() {
   };
 
   return (
-    <nav className="items-center justify-between py-2 px-8 md:px-6 bg-white shadow-lg sticky top-0 z-10">
+    <nav className="items-center justify-between py-2 px-4 bg-white shadow-lg sticky top-0 z-10">
       <OverlayProvider>
 
         {/* menu slider */}
-        <HeadlessSlideOver open={isMenuOpen} setOpen={handleMenuClick} title="Item Details">
+        <HeadlessSlideOver open={isMenuOpen} setOpen={handleMenuClick}>
           <Menu handleClick={handleMenuClick}></Menu>
         </HeadlessSlideOver>
 
@@ -302,7 +302,7 @@ function Navbar() {
       <div className="flex flex-nowrap">
 
         {/* Logo */}
-        <div className="flex items-center ml-2 text-1xl md:text-2xl lg:text-3xl font-bold text-gray-800">
+        <div className="flex items-center text-1xl md:text-2xl lg:text-3xl font-bold text-gray-800">
           <Link href='/' passHref={true}><a>AvaxTrade</a></Link>
         </div>
 
@@ -317,12 +317,12 @@ function Navbar() {
         {/* Right side links */}
         <div className="flex items-center ml-2 gap-2">
           {/* explore */}
-          <div className="hidden md:block ml-2 text-gray-800 font-bold hover:underline">
+          <div className="hidden lg:block ml-2 text-gray-800 font-bold hover:underline">
             {/* <Link href='/' passHref={true}><a title="Explore">Explore</a></Link> */}
             <DropDown title="Explore" items={[1,2,3]} getItem={getItem}></DropDown>
           </div>
           {/* trade */}
-          <div className="hidden md:block ml-2 text-gray-800 font-bold hover:underline">
+          <div className="hidden lg:block ml-2 text-gray-800 font-bold hover:underline">
             {/* <Link href='/' passHref={true}><a title="Trade">Trade</a></Link> */}
             <DropDown title="Trade" items={[7,8,9]} getItem={getItem}></DropDown>
           </div>
@@ -353,7 +353,7 @@ function Navbar() {
             <DropDown title="Avatar" items={[11,12,13]} getItem={getItem} typeImage={true}></DropDown>
           </div>
           {/* menu open */}
-          <div className="md:hidden ml-2 min-w-5 h-5 w-5 cursor-pointer" onClick={() => handleMenuClick(true)}>
+          <div className="lg:hidden ml-2 min-w-5 h-5 w-5 cursor-pointer" onClick={() => handleMenuClick(true)}>
             {isMenuOpen == true ?
               <a title="Menu close"><FontAwesomeIcon icon={['fas', 'times']} /></a> :
               <a title="Menu open"><FontAwesomeIcon icon={['fas', 'bars']} /></a>
