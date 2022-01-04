@@ -8,9 +8,10 @@ import WALLTET from '../utils/wallet';
 
 import Button from './Button';
 import HeadlessSlideOver from './HeadlessSlideOver';
+import Menu from './Menu';
 import DropDown from './DropDown';
 
-import {ChevronDownIcon, PencilIcon} from '@heroicons/react/solid';
+import {ChevronRightIcon, ChevronLeftIcon, PencilIcon} from '@heroicons/react/solid';
 import {
   ChevronDownIcon as ChevronDownIconOutline,
   PencilIcon as PencilIconOutline
@@ -31,6 +32,8 @@ function Navbar() {
   const [notificationCount, setNotificationCount] = useState(3);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [menuClickTime, setMenuClickTime] = useState(0);
+
+  const [activeMenu, setActiveMenu] = useState('main');
 
   const [isNavOpen, setNavOpen] = useState(false);
   const [walletState, setWalletState] = useState({
@@ -166,10 +169,10 @@ function Navbar() {
     }
   };
 
-  const handleNotificationClick = (e, action, fromHeadless) => {
-    if (e) {
-      e.preventDefault();
-    }
+  const handleNotificationClick = (action, fromHeadless) => {
+    // if (e) {
+    //   e.preventDefault();
+    // }
     const diff = Date.now() - notificationClickTime;
     if (fromHeadless) {
       setNotificationOpen(action);
@@ -182,17 +185,16 @@ function Navbar() {
     }
   };
 
-  const handleMenuClick = (e, action, fromHeadless) => {
-    if (e) {
-      e.preventDefault();
-    }
+  const handleMenuClick = (action, fromHeadless) => {
     const diff = Date.now() - menuClickTime;
     if (fromHeadless) {
+      if (action) { setActiveMenu('main'); }
       setMenuOpen(action);
       setMenuClickTime(Date.now());
     } else {
       // console.log('diff', diff);
       if (diff > 250) {
+        if (action) { setActiveMenu('main'); }
         setMenuOpen(action);
       }
     }
@@ -280,18 +282,7 @@ function Navbar() {
             </p>
           </div>
 
-          <Button className="mt-4" onClick={() => setNotificationOpen(false)}>Notification Close</Button>
-        </div>
-      </HeadlessSlideOver>
-    )
-  };
-
-  const menuContent = () => {
-    return (
-      <HeadlessSlideOver open={isMenuOpen} setOpen={handleMenuClick} title="Item Details">
-        <div className="flex flex-col">
-          {/* <input type="text" className="border-gray-300 rounded-md" /> */}
-          <Button className="mt-4" onClick={() => setMenuOpen(false)}>Menu Close</Button>
+          <Button className="mt-4" onClick={() => handleNotificationClick(false)}>Notification Close</Button>
         </div>
       </HeadlessSlideOver>
     )
@@ -300,7 +291,12 @@ function Navbar() {
   return (
     <nav className="items-center justify-between py-2 px-8 md:px-6 bg-white shadow-lg sticky top-0 z-10">
       <OverlayProvider>
-        {menuContent()}
+
+        {/* menu slider */}
+        <HeadlessSlideOver open={isMenuOpen} setOpen={handleMenuClick} title="Item Details">
+          <Menu handleClick={handleMenuClick}></Menu>
+        </HeadlessSlideOver>
+
         {notificationContent()}
 
       <div className="flex flex-nowrap">
@@ -337,13 +333,11 @@ function Navbar() {
             </Link>
           </div> */}
           {/* notification */}
-          <div className="ml-2 h-5 w-5">
-            <Link href='/' passHref={true}>
-              {isNotificationOpen == true ?
-                <a title="Notification close"><FontAwesomeIcon icon={['fas', 'bell']} /></a> :
-                <a title="Notification open"><FontAwesomeIcon onClick={(e) => handleNotificationClick(e, true)} icon={['fas', 'bell']} /></a>
-              }
-            </Link>
+          <div className="ml-2 h-5 w-5 cursor-pointer" onClick={() => handleNotificationClick(true)}>
+            {isNotificationOpen == true ?
+              <a title="Notification close"><FontAwesomeIcon icon={['fas', 'bell']} /></a> :
+              <a title="Notification open"><FontAwesomeIcon icon={['fas', 'bell']} /></a>
+            }
             {notificationCount > 0 ?
               <span className="text-white bg-red-700 absolute rounded-full text-xs -mt-2.5 ml-2 py-0 px-1.5">{getNotificationCountString()}</span>
               :
@@ -359,13 +353,11 @@ function Navbar() {
             <DropDown title="Avatar" items={[11,12,13]} getItem={getItem} typeImage={true}></DropDown>
           </div>
           {/* menu open */}
-          <div className="md:hidden ml-2 min-w-5 h-5 w-5">
-            <Link href='/' passHref={true}>
-              {isMenuOpen == true ?
-                <a title="Menu close"><FontAwesomeIcon icon={['fas', 'times']} /></a> :
-                <a title="Menu open"><FontAwesomeIcon onClick={(e) => handleMenuClick(e, true)} icon={['fas', 'bars']} /></a>
-              }
-            </Link>
+          <div className="md:hidden ml-2 min-w-5 h-5 w-5 cursor-pointer" onClick={() => handleMenuClick(true)}>
+            {isMenuOpen == true ?
+              <a title="Menu close"><FontAwesomeIcon icon={['fas', 'times']} /></a> :
+              <a title="Menu open"><FontAwesomeIcon icon={['fas', 'bars']} /></a>
+            }
           </div>
           
         </div>

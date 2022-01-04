@@ -12,7 +12,7 @@ export default function HeadlessSlideOver({ open, setOpen, title, children }) {
         className="fixed inset-0 overflow-hidden"
         open={open}
         onClose={(action) => {
-          setOpen(undefined, action, true);
+          setOpen(action, true);
         }}
       >
         <div className="absolute inset-0 overflow-hidden">
@@ -64,7 +64,7 @@ export default function HeadlessSlideOver({ open, setOpen, title, children }) {
                       {title}
                     </Dialog.Title>
                   </div>
-                  <div className="mt-6 relative flex-1 px-4 sm:px-6">
+                  <div className="mt-6 relative flex-1 sm:px-2">
                     {/* Replace with your content */}
                     {children}
                     {/* /End replace */}
