@@ -9,6 +9,7 @@ import WALLTET from '../utils/wallet';
 import Button from './Button';
 import HeadlessSlideOver from './HeadlessSlideOver';
 import Menu from './Menu';
+import Notification from './Notification';
 import DropDown from './DropDown';
 
 import {ChevronRightIcon, ChevronLeftIcon, PencilIcon} from '@heroicons/react/solid';
@@ -32,8 +33,6 @@ function Navbar() {
   const [notificationCount, setNotificationCount] = useState(3);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [menuClickTime, setMenuClickTime] = useState(0);
-
-  const [activeMenu, setActiveMenu] = useState('main');
 
   const [isNavOpen, setNavOpen] = useState(false);
   const [walletState, setWalletState] = useState({
@@ -188,13 +187,11 @@ function Navbar() {
   const handleMenuClick = (action, fromHeadless) => {
     const diff = Date.now() - menuClickTime;
     if (fromHeadless) {
-      if (action) { setActiveMenu('main'); }
       setMenuOpen(action);
       setMenuClickTime(Date.now());
     } else {
       // console.log('diff', diff);
       if (diff > 250) {
-        if (action) { setActiveMenu('main'); }
         setMenuOpen(action);
       }
     }
@@ -258,36 +255,6 @@ function Navbar() {
     }
   };
 
-  const notificationContent = () => {
-    return (
-      <HeadlessSlideOver open={isNotificationOpen} setOpen={handleNotificationClick}>
-        <div className="flex flex-wrap justify-center">
-
-          <div className="block m-2 p-2 rounded-lg shadow-lg bg-white max-w-sm relative">
-            <span className="text-white bg-red-700 absolute right-0 rounded-full text-xs -mt-2.5 px-1.5">X</span>
-            <p className="text-gray-700 text-base">
-              You have received a new bid on "NFT SALE TITLE" sale.
-            </p>
-          </div>
-          <div className="block m-2 p-2 rounded-lg shadow-lg bg-white max-w-sm relative">
-            <span className="text-white bg-red-700 absolute right-0 rounded-full text-xs -mt-2.5 px-1.5">X</span>
-            <p className="text-gray-700 text-base">
-              You have received a new bid on "NFT SALE TITLE" sale.
-            </p>
-          </div>
-          <div className="block m-2 p-2 rounded-lg shadow-lg bg-white max-w-sm relative">
-            <span className="text-white bg-red-700 absolute right-0 rounded-full text-xs -mt-2.5 px-1.5">X</span>
-            <p className="text-gray-700 text-base">
-              You have received a new bid on "NFT SALE TITLE" sale.
-            </p>
-          </div>
-
-          <Button className="mt-4" onClick={() => handleNotificationClick(false)}>Notification Close</Button>
-        </div>
-      </HeadlessSlideOver>
-    )
-  };
-
   return (
     <nav className="items-center justify-between py-2 px-4 bg-white shadow-lg sticky top-0 z-10">
       <OverlayProvider>
@@ -297,7 +264,10 @@ function Navbar() {
           <Menu handleClick={handleMenuClick}></Menu>
         </HeadlessSlideOver>
 
-        {notificationContent()}
+        {/* notification slider */}
+        <HeadlessSlideOver open={isNotificationOpen} setOpen={handleNotificationClick}>
+          <Notification handleClick={handleNotificationClick}></Notification>
+        </HeadlessSlideOver>
 
       <div className="flex flex-nowrap">
 
