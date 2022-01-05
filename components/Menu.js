@@ -133,7 +133,7 @@ export default function Menu({ children, handleClick }) {
           </MenuItem>
           <MenuItem
             leftIcon={<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />}
-            click={() => {ROUTER.push('/'); handleClick(false)}}
+            click={() => {ROUTER.push('/create'); handleClick(false)}}
             class="mx-2 py-6"
           >
             <div className="text-gray-400 text-base text-left w-full">Create</div>
