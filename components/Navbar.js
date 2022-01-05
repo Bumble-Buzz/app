@@ -309,7 +309,7 @@ function Navbar() {
               <a title="Notification open"><FontAwesomeIcon icon={['fas', 'bell']} /></a>
             }
             {notificationCount > 0 ?
-              <span className="text-white bg-red-700 absolute rounded-full text-xs -mt-2.5 ml-2 py-0 px-1.5">{getNotificationCountString()}</span>
+              <span className="animate-bounce text-white bg-red-700 absolute rounded-full text-xs -mt-2.5 ml-2 py-0 px-1.5">{getNotificationCountString()}</span>
               :
               <span></span>
             }
