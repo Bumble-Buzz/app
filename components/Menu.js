@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useRouter } from 'next/router';
+import { Transition } from '@headlessui/react';
 import {ChevronRightIcon, ChevronLeftIcon, PencilIcon, SearchIcon, XIcon} from '@heroicons/react/solid';
 
 
 export default function Menu({ children, handleClick }) {
   const ROUTER = useRouter();
   const [activeMenu, setActiveMenu] = useState('main');
+  const [isShowing, setIsShowing] = useState(false);
 
   function SearchBar(props) {
     return (
@@ -33,9 +35,16 @@ export default function Menu({ children, handleClick }) {
 
   return (
     <div className="flex flex-col">
-
-      {activeMenu === 'main' && 
-        <>
+<Transition
+    show={activeMenu === 'main'}
+    enter="transform transition ease-linear duration-300"
+    enterFrom="absolute -translate-x-full"
+    enterTo="translate-x-0"
+    leave="transform transition ease-linear duration-200"
+    leaveFrom="translate-x-0"
+    leaveTo="absolute -translate-x-full"
+    className="flex flex-col"
+  >
           {/* <MenuItem
             leftIcon={<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />}
             rightIcon={<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />}
@@ -43,7 +52,9 @@ export default function Menu({ children, handleClick }) {
           >
             <div className="text-gray-400 text-base text-left w-full">Direct Link</div>
           </MenuItem> */}
+
           <SearchBar></SearchBar>
+          
           <MenuItem
             leftIcon={<XIcon className="w-5 h-5 mr-2" aria-hidden="true" />}
             click={() => {handleClick(false)}}
@@ -67,11 +78,18 @@ export default function Menu({ children, handleClick }) {
           >
             <div className="text-gray-400 text-base text-left w-full">Trade</div>
           </MenuItem>
-        </>
-      }
-      
-      {activeMenu === 'explore' && 
-        <>
+</Transition>
+
+<Transition
+    show={activeMenu === 'explore'}
+    enter="transform transition ease-linear duration-300"
+    enterFrom="absolute translate-x-full"
+    enterTo="translate-x-0"
+    leave="transform transition ease-linear duration-200"
+    leaveFrom="translate-x-0"
+    leaveTo="absolute translate-x-full"
+    className="flex flex-col"
+  >
           <SearchBar></SearchBar>
           <MenuItem
             leftIcon={<ChevronLeftIcon className="w-5 h-5 mr-2" aria-hidden="true" />}
@@ -94,11 +112,19 @@ export default function Menu({ children, handleClick }) {
           >
             <div className="text-gray-400 text-base text-left w-full">All Collections</div>
           </MenuItem>
-        </>
-      }
-      
-      {activeMenu === 'trade' && 
-        <>
+</Transition>
+
+
+<Transition
+    show={activeMenu === 'trade'}
+    enter="transform transition ease-linear duration-300"
+    enterFrom="absolute translate-x-full"
+    enterTo="translate-x-0"
+    leave="transform transition ease-linear duration-200"
+    leaveFrom="translate-x-0"
+    leaveTo="absolute translate-x-full"
+    className="flex flex-col"
+  >
           <SearchBar></SearchBar>
           <MenuItem
             leftIcon={<ChevronLeftIcon className="w-5 h-5 mr-2" aria-hidden="true" />}
@@ -128,8 +154,7 @@ export default function Menu({ children, handleClick }) {
           >
             <div className="text-gray-400 text-base text-left w-full">Transfer</div>
           </MenuItem>
-        </>
-      }
+</Transition>
 
       <MenuItem
         click={() => {handleClick(false)}}
