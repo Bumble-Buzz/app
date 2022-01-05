@@ -302,7 +302,7 @@ function Navbar() {
       <div className="flex flex-nowrap">
 
         {/* Logo */}
-        <div className="flex items-center text-1xl md:text-2xl lg:text-3xl font-bold text-gray-800">
+        <div className="flex items-center text-2xl lg:text-3xl font-bold text-gray-800">
           <Link href='/' passHref={true}><a>AvaxTrade</a></Link>
         </div>
 
