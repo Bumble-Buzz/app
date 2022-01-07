@@ -27,7 +27,7 @@ export default function Create() {
       if (txReceipt && txReceipt.blockNumber) {
         console.log('txReceipt', txReceipt);
         setTransaction();
-        setSelectedImage(null);
+        initValues();
         setMinted(true);
         setLoading(false);
       } else {
@@ -58,7 +58,30 @@ export default function Create() {
     const existingValues = values;
     existingValues.commission = e.target.value;
     setValues(existingValues);
-    // console.log('values', values);
+  };
+
+  const handleImage = (e) => {
+    const existingValues = values;
+    setSelectedImage(e.target.files[0]);
+    existingValues.image = e.target.files[0];
+    setValues(existingValues);
+  };
+
+  const updateValue = (property, value) => {
+    const existingValues = values;
+    existingValues[property] = value;
+    setValues(existingValues);
+  };
+
+  const initValues = () => {
+    setSelectedImage(null);
+    setValues({
+      name: '',
+      description: '',
+      category: 'Art',
+      commission: '',
+      image: null
+    });
   };
 
   const createNft = async (e) => {
@@ -193,25 +216,6 @@ export default function Create() {
                           }
                         </div>
                         <div className="my-2">
-                          {/* <label
-                            htmlFor="file-upload"
-                            className="inline-flex justify-center py-2 px-8 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
-                          >
-                            <UploadIcon className="w-5 h-5 mr-1" aria-hidden="true" />
-                            Upload
-                          </label>
-                          <input
-                            id="file-upload"
-                            type="file"
-                            name="myImage"
-                            accept=".jpg, .jpeg, .png, .gif"
-                            required
-                            className="hidden"
-                            onChange={(event) => {
-                              console.log(event.target.files[0]);
-                              setSelectedImage(event.target.files[0]);
-                            }}
-                          /> */}
                           <input
                             type="file"
                             name="nft-image"
@@ -226,19 +230,16 @@ export default function Create() {
                               file:border file:border-transparent file:shadow-sm
                               file:text-sm file:font-medium file:rounded-md file:text-white
                               file:bg-indigo-600 file:hover:bg-indigo-700
-                              file:focus:outline-none file:focus:ring-2 file:focus:ring-offset-2 file:focus:ring-indigo-500
+                              file:focus:outline file:focus:outline-0
 
                               bg-gradient-to-br from-gray-200 to-gray-400
-                              text-black/80
+                              text-sm text-black/80 font-medium
                               rounded-full
                               cursor-pointer
                               shadow-xl shadow-gray-400/60
                               focus:outline focus:outline-0
                             "
-                            onChange={(event) => {
-                              console.log(event.target.files[0]);
-                              setSelectedImage(event.target.files[0]);
-                            }}
+                            onChange={handleImage}
                             // file:bg-gradient-to-br file:from-indigo-500 file:to-indigo-600
                             // file:px-2 file:py-2 file:m-3
                             // file:border-none
@@ -275,7 +276,7 @@ export default function Create() {
               </div>
             }
 
-            
+<p onClick={() => {console.log('values', values);}}>Click to see values</p>
 
           </div>
         </div>
