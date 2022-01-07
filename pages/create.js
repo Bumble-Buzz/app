@@ -182,18 +182,18 @@ export default function Create() {
                       <div className="hidden md:block border-r border-gray-200 mx-4"></div>
 
                       <div className="flex flex-nowrap flex-col w-full max-w-lg">
-                        {/* <div>
+                        {/* <div className="my-2">
                           <h1>Upload and Display Image usign React Hook's</h1>
                         </div> */}
-                        <div className="">
+                        <div className="my-2">
                           {selectedImage ?
                               <Image className="" alt='nft image' src={URL.createObjectURL(selectedImage)} layout='responsive' width={6} height={4} />
                             :
                               <Image className="" alt='nft image' src={NoImageAvailable} layout='responsive' />
                           }
                         </div>
-                        <div>
-                          <label
+                        <div className="my-2">
+                          {/* <label
                             htmlFor="file-upload"
                             className="inline-flex justify-center py-2 px-8 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
                           >
@@ -211,6 +211,42 @@ export default function Create() {
                               console.log(event.target.files[0]);
                               setSelectedImage(event.target.files[0]);
                             }}
+                          /> */}
+                          <input
+                            type="file"
+                            name="nft-image"
+                            accept=".jpg, .jpeg, .png, .gif"
+                            required
+                            className="
+                              min-w-fit
+
+                              file:cursor-pointer
+                              file:inline-flex file:justify-center
+                              file:py-2 file:px-4
+                              file:border file:border-transparent file:shadow-sm
+                              file:text-sm file:font-medium file:rounded-md file:text-white
+                              file:bg-indigo-600 file:hover:bg-indigo-700
+                              file:focus:outline-none file:focus:ring-2 file:focus:ring-offset-2 file:focus:ring-indigo-500
+
+                              bg-gradient-to-br from-gray-200 to-gray-400
+                              text-black/80
+                              rounded-full
+                              cursor-pointer
+                              shadow-xl shadow-gray-400/60
+                              focus:outline focus:outline-0
+                            "
+                            onChange={(event) => {
+                              console.log(event.target.files[0]);
+                              setSelectedImage(event.target.files[0]);
+                            }}
+                            // file:bg-gradient-to-br file:from-indigo-500 file:to-indigo-600
+                            // file:px-2 file:py-2 file:m-3
+                            // file:border-none
+                            // file:rounded-full
+                            // file:text-white
+                            // file:cursor-pointer
+                            // file:shadow-lg file:shadow-indigo-600
+                            // file:focus:outline file:focus:outline-0
                           />
                         </div>
                       </div>
