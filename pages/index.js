@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { ethers } from 'ethers';
 import WALLTET from '../utils/wallet';
 
-import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json'
+import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 export default function Home() {
+  const ROUTER = useRouter();
+
   // NFT contract states
   const [maxSupply, setMaxSupply] = useState('10,000');
   const [mintedSupply, setMintedSupply] = useState('0');
@@ -93,7 +96,9 @@ export default function Home() {
           <div className="flex items-center text-center lg:text-left px-8 md:px-12 lg:w-1/2">
             <div className="flex flex-col">
               <div className="my-2">
-                <h2 className="text-3xl font-semibold text-gray-800 md:text-4xl">Collect, create, and sell <span className="text-indigo-600">priceless NFTs!</span></h2>
+                <h2 className="text-3xl font-semibold text-gray-800 md:text-4xl">
+                  Collect, create, and sell <span className="text-indigo-600">priceless NFTs!</span>
+                </h2>
               </div>
               <div className="my-2">
                 <p className="mt-2 text-sm text-gray-500 md:text-base">
@@ -110,7 +115,7 @@ export default function Home() {
                     <button onClick={mintNft} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Sell</button>
                   </div>
                   <div>
-                    <button onClick={mintNft} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Create</button>
+                    <button onClick={() => {ROUTER.push('/create')}} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Create</button>
                   </div>
                 </div>
               </div>

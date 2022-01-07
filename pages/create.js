@@ -1,7 +1,40 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { ethers } from 'ethers';
+import Image from 'next/image';
+import WALLTET from '../utils/wallet';
+import {DotsCircleHorizontalIcon, UploadIcon} from '@heroicons/react/solid';
+
+import NoImageAvailable from '../public/no-image-available.png';
+import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 export default function Create() {
+  const [isLoading, setLoading] = useState(false);
+  const [isMinted, setMinted] = useState(false);
   const [values, setValues] = useState({ category: 'Art' });
+  const [transaction, setTransaction] = useState();
+
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  useEffect(() => {
+    checkTransaction();
+  }, [transaction]);
+
+  const checkTransaction = async () => {
+    if (transaction) {
+      console.log('transaction', transaction);
+      const provider = await WALLTET.getProvider();
+      const txReceipt = await provider.getTransactionReceipt(transaction.hash);
+      if (txReceipt && txReceipt.blockNumber) {
+        console.log('txReceipt', txReceipt);
+        setTransaction();
+        setSelectedImage(null);
+        setMinted(true);
+        setLoading(false);
+      } else {
+        console.log('not yet mined');
+      }
+    }
+  };
 
   const handleName = (e) => {
     const existingValues = values;
@@ -28,104 +61,191 @@ export default function Create() {
     // console.log('values', values);
   };
 
+  const createNft = async (e) => {
+    e.preventDefault();
+    console.log('start - createNft');
+    if (!await WALLTET.isNetworkValid()) {
+      console.error('Wrong network, switch to Avalanche');
+      return;
+    }
+
+    const signer = await WALLTET.getSigner();
+    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, signer);
+    try {
+      setLoading(true);
+      const val = await contract.mint(1, values.commission);
+      setTransaction(val);
+      console.log('val', val);
+      const balance = await contract.balanceOf(val.from);
+      console.log('balance2', balance.toLocaleString(undefined,0));
+      console.log('end - createNft');
+    }
+    catch (e) {
+      console.log('Some error occurred!', e);
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="w-full flex self-start flex-col pl-4 pr-4 mt-10 mb-10">
-      <div className="w-full rounded overflow-hidden shadow-lg bg-grayDark flex flex-col p-2 md:py-8 lg:py-12 xl:py-16 md:px-8 lg:px-12 xl:px-20">
-        <div className="flex bg-grayDark" style={{minHeight: '500px'}}>
-          <div className="flex flex-col w-96">
+      <div className="w-full rounded overflow-hidden shadow-lg bg-grayDark flex flex-col p-2">
+        <div className="bg-grayDark" style={{minHeight: '500px'}}>
+          <div className="flex flex-col w-full max-w-4xl">
 
             <div className="p-2">
-              <h2 className="text-3xl font-semibold text-gray-800 md:text-4xl">Create <span className="text-indigo-600">NFT</span></h2>
+              <h2 className="text-3xl font-semibold text-gray-800">Create <span className="text-indigo-600">NFT</span></h2>
             </div>
 
-            <div className="p-2">
-              <form action="#" method="POST">
-                <div className="shadow overflow-hidden rounded-md">
-
-                  <div className="px-4 py-4 bg-white">
-
-                    <div className="my-2">
-                      <label htmlFor="nft-name" className="block text-sm font-medium text-gray-700">NFT name</label>
-                      <input
-                        type="text"
-                        name="nft-name"
-                        id="nft-name"
-                        autoComplete="given-name"
-                        required
-                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-gray-300 rounded-md"
-                        onChange={handleName}
-                      />
-                    </div>
-
-                    <div className="my-2">
-                      <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description (optional)</label>
-                      <div className="mt-1">
-                        <textarea
-                          id="description"
-                          name="description"
-                          rows={3}
-                          placeholder=""
-                          defaultValue={''}
-                          required
-                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                          onChange={handleDescription}
-                        />
-                      </div>
-                      <p className="mt-2 text-sm text-gray-500">
-                        Brief description about your NFT.
-                      </p>
-                    </div>
-
-                    <div className="my-2">
-                      <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
-                      <select
-                        id="category"
-                        name="category"
-                        autoComplete="category-name"
-                        required
-                        className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        onChange={handleCategory}
-                      >
-                        <option>Art</option>
-                        <option>Games</option>
-                        <option>Sports</option>
-                      </select>
-                    </div>
-
-                    <div className="my-2">
-                      <label htmlFor="commission" className="block text-sm font-medium text-gray-700">Commission (%)</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="99"
-                        name="commission"
-                        id="commission"
-                        autoComplete="given-name"
-                        required
-                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-gray-300 rounded-md"
-                        onChange={handleCommission}
-                      />
-                    </div>
-
-                  </div>
-
-                  <div className="px-4 py-3 bg-gray-50 text-right">
-                    <button
-                      type="submit"
-                      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Create
-                    </button>
-                  </div>
-
+            {isMinted ?
+              <div className="p-2">
+                <div className="block p-6 rounded-lg shadow-lg bg-white max-w-sm">
+                  <p className="text-gray-700 text-base mb-4">
+                    Congratulations, you have successfully minted your NFT!
+                  </p> 
+                  <button
+                    type="button"
+                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    onClick={() => {setMinted(false);}}
+                  >
+                    Create another NFT
+                  </button>
                 </div>
-              </form>
-            </div>
+              </div>
+              :
+              <div className="p-2">
+                <form onSubmit={(e) => {createNft(e)}} method="POST" className="">
+                  <div className="shadow overflow-hidden rounded-md">
+
+                    <div className="px-4 py-4 bg-white flex flex-col md:flex-row">
+
+                      <div className="w-full">
+                        <div className="my-2">
+                          <label htmlFor="name" className="block text-sm font-medium text-gray-700">NFT name</label>
+                          <input
+                            type="text"
+                            name="name"
+                            id="name"
+                            required
+                            className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                            onChange={handleName}
+                          />
+                        </div>
+
+                        <div className="my-2">
+                          <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description (optional)</label>
+                            <textarea
+                              id="description"
+                              name="description"
+                              rows={3}
+                              placeholder=""
+                              defaultValue={''}
+                              required
+                              className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                              onChange={handleDescription}
+                            />
+                          <p className="mt-2 text-sm text-gray-500">
+                            Brief description about your NFT.
+                          </p>
+                        </div>
+
+                        <div className="my-2">
+                          <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+                          <select
+                            id="category"
+                            name="category"
+                            autoComplete="category-name"
+                            required
+                            className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                            onChange={handleCategory}
+                          >
+                            <option>Art</option>
+                            <option>Games</option>
+                            <option>Sports</option>
+                          </select>
+                        </div>
+
+                        <div className="my-2">
+                          <label htmlFor="commission" className="block text-sm font-medium text-gray-700">Commission (%)</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="99"
+                            name="commission"
+                            id="commission"
+                            required
+                            className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                            onChange={handleCommission}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="hidden md:block border-r border-gray-200 mx-4"></div>
+
+                      <div className="flex flex-nowrap flex-col w-full max-w-lg">
+                        {/* <div>
+                          <h1>Upload and Display Image usign React Hook's</h1>
+                        </div> */}
+                        <div className="">
+                          {selectedImage ?
+                              <Image className="" alt='nft image' src={URL.createObjectURL(selectedImage)} layout='responsive' width={6} height={4} />
+                            :
+                              <Image className="" alt='nft image' src={NoImageAvailable} layout='responsive' />
+                          }
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="file-upload"
+                            className="inline-flex justify-center py-2 px-8 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+                          >
+                            <UploadIcon className="w-5 h-5 mr-1" aria-hidden="true" />
+                            Upload
+                          </label>
+                          <input
+                            id="file-upload"
+                            type="file"
+                            name="myImage"
+                            accept=".jpg, .jpeg, .png, .gif"
+                            required
+                            className="hidden"
+                            onChange={(event) => {
+                              console.log(event.target.files[0]);
+                              setSelectedImage(event.target.files[0]);
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                    </div>
+
+                    <div className="px-4 py-4 bg-gray-50 text-right">
+                      {isLoading ?
+                        <button
+                          disabled
+                          type="submit"
+                          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                          <DotsCircleHorizontalIcon className="animate-spin w-5 h-5 mr-2" aria-hidden="true" />
+                          Processing</button>
+                        :
+                        <button
+                          type="submit"
+                          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >Create NFT!</button>
+                      }
+                    </div>
+
+                  </div>
+                </form>
+              </div>
+            }
+
+            
 
           </div>
         </div>
       </div>
     </main>
   )
+  // }
 }
   
