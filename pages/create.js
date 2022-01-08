@@ -7,6 +7,15 @@ import {DotsCircleHorizontalIcon, UploadIcon} from '@heroicons/react/solid';
 import NoImageAvailable from '../public/no-image-available.png';
 import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
+const FormData = require('form-data');
+
+import axios from 'axios';
+
+const API = axios.create({
+	baseURL: '/api/'
+});
+const API_CANCEL = axios.CancelToken.source();
+
 export default function Create() {
   const [isLoading, setLoading] = useState(false);
   const [isMinted, setMinted] = useState(false);
@@ -108,6 +117,26 @@ export default function Create() {
       setLoading(false);
     }
   };
+
+  const ipfsUpload = async (e) => {
+    console.log('start - ipfsUpload');
+    e.preventDefault();
+
+    if (!values.image) {
+      throw "No image"
+    }
+
+    let formData = new FormData();
+    formData.append("name", values.image.name);
+    formData.append("image", values.image);
+
+    // const payload = { name: 'john', age: 23 };
+    await API.post(`ipfsUpload`, formData).then(res => {
+      console.log('res', res.data);
+    });
+
+    console.log('end - ipfsUpload');
+  }
 
   return (
     <main className="w-full flex self-start flex-col pl-4 pr-4 mt-10 mb-10">
@@ -276,6 +305,7 @@ export default function Create() {
               </div>
             }
 
+<p onClick={ipfsUpload}>Upload Image to IPFS</p>
 <p onClick={() => {console.log('values', values);}}>Click to see values</p>
 
           </div>
