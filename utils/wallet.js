@@ -40,10 +40,17 @@ const isNetworkValid = async () => {
   return false;
 };
 
+const checkTransaction = async (transaction) => {
+  const provider = await getProvider();
+  const txReceipt = await provider.getTransactionReceipt(transaction.hash);
+  return txReceipt;
+};
+
 
 module.exports = {
   getDefaultProvider,
   getProvider,
-	getSigner,
-  isNetworkValid
+  getSigner,
+  isNetworkValid,
+  checkTransaction
 }

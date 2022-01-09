@@ -8,13 +8,8 @@ import NoImageAvailable from '../public/no-image-available.png';
 import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 const FormData = require('form-data');
+import API from '../components/Api';
 
-import axios from 'axios';
-
-const API = axios.create({
-	baseURL: '/api/'
-});
-const API_CANCEL = axios.CancelToken.source();
 
 export default function Create() {
   const [isLoading, setLoading] = useState(false);
@@ -30,11 +25,8 @@ export default function Create() {
 
   const checkTransaction = async () => {
     if (transaction) {
-      console.log('transaction', transaction);
-      const provider = await WALLTET.getProvider();
-      const txReceipt = await provider.getTransactionReceipt(transaction.hash);
+      const txReceipt = await WALLTET.checkTransaction(transaction);
       if (txReceipt && txReceipt.blockNumber) {
-        console.log('txReceipt', txReceipt);
         setTransaction();
         initValues();
         setMinted(true);
@@ -42,6 +34,7 @@ export default function Create() {
       } else {
         console.log('not yet mined');
       }
+      console.log('txReceipt', txReceipt);
     }
   };
 
@@ -105,6 +98,10 @@ export default function Create() {
     const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, signer);
     try {
       setLoading(true);
+
+      // upload image to ipfs
+      ipfsUpload(e);
+
       const val = await contract.mint(1, values.commission);
       setTransaction(val);
       console.log('val', val);
@@ -126,12 +123,11 @@ export default function Create() {
       throw "No image"
     }
 
-    let formData = new FormData();
+    const formData = new FormData();
     formData.append("name", values.image.name);
     formData.append("image", values.image);
 
-    // const payload = { name: 'john', age: 23 };
-    await API.post(`ipfsUpload`, formData).then(res => {
+    await API.ipfsUpload(formData).then(res => {
       console.log('res', res.data);
     });
 
@@ -177,6 +173,7 @@ export default function Create() {
                             type="text"
                             name="name"
                             id="name"
+                            autoComplete="off"
                             required
                             className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
                             onChange={handleName}
@@ -191,7 +188,6 @@ export default function Create() {
                               rows={3}
                               placeholder=""
                               defaultValue={''}
-                              required
                               className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
                               onChange={handleDescription}
                             />
