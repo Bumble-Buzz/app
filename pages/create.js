@@ -14,7 +14,14 @@ import API from '../components/Api';
 export default function Create() {
   const [isLoading, setLoading] = useState(false);
   const [isMinted, setMinted] = useState(false);
-  const [values, setValues] = useState({ category: 'Art' });
+  const [values, setValues] = useState({
+    name: '',
+    description: '',
+    category: 'Art',
+    commission: '',
+    attributes: [],
+    image: null
+  });
   const [transaction, setTransaction] = useState();
 
   const [selectedImage, setSelectedImage] = useState(null);
@@ -37,7 +44,7 @@ export default function Create() {
       } else {
         console.log('not yet mined');
       }
-      console.log('txReceipt', txReceipt);
+      // console.log('txReceipt', txReceipt);
     }
   };
 
@@ -66,14 +73,16 @@ export default function Create() {
   };
 
   const handleAttributes = (e) => {
-    const existingAttributes = attributes;
-    existingAttributes.push({ 'trait_type':attributeType, 'value':attributeValue });
-    setAttributes(existingAttributes);
-    setAttributeType('');
-    setAttributeValue('');
-    const existingValues = values;
-    existingValues.attributes = existingAttributes;
-    setValues(existingValues);
+    if (attributeType.length > 0) {
+      const existingAttributes = attributes;
+      existingAttributes.push({ 'trait_type':attributeType, 'value':attributeValue });
+      setAttributes(existingAttributes);
+      setAttributeType('');
+      setAttributeValue('');
+      const existingValues = values;
+      existingValues.attributes = existingAttributes;
+      setValues(existingValues);
+    }
   };
 
   const handleAttributeDelete = (selectedAttribute) => {
@@ -87,9 +96,13 @@ export default function Create() {
   };
 
   const handleImage = (e) => {
+    const image = e.target.files[0];
+    if (image && image.size > 10485760) {
+      throw "Image size too big. Max 10mb."
+    }
     const existingValues = values;
-    setSelectedImage(e.target.files[0]);
-    existingValues.image = e.target.files[0];
+    setSelectedImage(image);
+    existingValues.image = image;
     setValues(existingValues);
   };
 
@@ -113,8 +126,9 @@ export default function Create() {
   };
 
   const createNft = async (e) => {
-    e.preventDefault();
     console.log('start - createNft');
+    e.preventDefault();
+
     if (!await WALLTET.isNetworkValid()) {
       console.error('Wrong network, switch to Avalanche');
       return;
@@ -126,38 +140,62 @@ export default function Create() {
       setLoading(true);
 
       // upload image to ipfs
-      ipfsUpload(e);
+      const imageCid = await uploadImage();
+
+      // upload config to ipfs
+      const configCid = await uploadConfig(imageCid);
+      console.log('configCid:', configCid);
 
       const val = await contract.mint(1, values.commission);
       setTransaction(val);
       console.log('val', val);
       const balance = await contract.balanceOf(val.from);
-      console.log('balance2', balance.toLocaleString(undefined,0));
-      console.log('end - createNft');
+      console.log('balance', balance.toLocaleString(undefined,0));
     }
     catch (e) {
-      console.log('Some error occurred!', e);
+      console.error('Some error occurred!', e);
       setLoading(false);
     }
+    console.log('end - createNft');
   };
 
-  const ipfsUpload = async (e) => {
-    console.log('start - ipfsUpload');
-    e.preventDefault();
-
-    if (!values.image) {
-      throw "No image"
-    }
-
+  const uploadImage = async () => {
     const formData = new FormData();
     formData.append("name", values.image.name);
     formData.append("image", values.image);
 
-    await API.ipfsUpload(formData).then(res => {
-      console.log('res', res.data);
-    });
+    let cid;
+    try {
+      await API.ipfsImage(formData).then(res => {
+        cid = res.data;
+      });
+    } catch (e) {
+      throw "Error uploading image to IPFS"
+    }
 
-    console.log('end - ipfsUpload');
+    return cid;
+  }
+
+  const uploadConfig = async (_imageCid) => {
+
+    const payload = {
+      name: values.name,
+      description: values.description,
+      image: `ipfs://${_imageCid}`,
+      imageHttp: `https://ipfs.io/ipfs/${_imageCid}`,
+      attributes: values.attributes
+    };
+
+    let cid;
+    try {
+      await API.ipfsConfig(payload).then(res => {
+        cid = res.data;
+      });
+    } catch (e) {
+      throw "Error uploading image to IPFS"
+    }
+
+    return cid;
   }
 
   return (
@@ -234,7 +272,11 @@ export default function Create() {
                           >
                             <option>Art</option>
                             <option>Games</option>
+                            <option>Meme</option>
+                            <option>Photography</option>
                             <option>Sports</option>
+                            <option>NSFW</option>
+                            <option>Other</option>
                           </select>
                         </div>
 
@@ -315,9 +357,6 @@ export default function Create() {
                       <div className="hidden md:block border-r border-gray-200 mx-4"></div>
 
                       <div className="flex flex-nowrap flex-col w-full max-w-lg">
-                        {/* <div className="my-2">
-                          <h1>Upload and Display Image usign React Hook's</h1>
-                        </div> */}
                         <div className="my-2">
                           {selectedImage ?
                               <Image className="" alt='nft image' src={URL.createObjectURL(selectedImage)} layout='responsive' width={6} height={4} />
@@ -326,9 +365,10 @@ export default function Create() {
                           }
                         </div>
                         <div className="my-2">
+                        <label className="block text-sm font-medium text-gray-500">Max: 10mb</label>
                           <input
                             type="file"
-                            name="nft-image"
+                            name="image"
                             accept=".jpg, .jpeg, .png, .gif"
                             required
                             className="
@@ -351,14 +391,6 @@ export default function Create() {
                               focus:outline focus:outline-0
                             "
                             onChange={handleImage}
-                            // file:bg-gradient-to-br file:from-indigo-500 file:to-indigo-600
-                            // file:px-2 file:py-2 file:m-3
-                            // file:border-none
-                            // file:rounded-full
-                            // file:text-white
-                            // file:cursor-pointer
-                            // file:shadow-lg file:shadow-indigo-600
-                            // file:focus:outline file:focus:outline-0
                           />
                         </div>
                       </div>
@@ -387,8 +419,9 @@ export default function Create() {
               </div>
             }
 
-{/* <p onClick={ipfsUpload}>Upload Image to IPFS</p>
-<p onClick={() => {console.log('values', values);}}>Click to see values</p> */}
+{/* <p onClick={uploadImage}>Upload Image to IPFS</p> */}
+{/* <p onClick={uploadConfig}>Upload config to IPFS</p> */}
+{/* <p onClick={() => {console.log('values', values);}}>Click to see values</p> */}
 
           </div>
         </div>

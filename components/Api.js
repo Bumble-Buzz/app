@@ -11,7 +11,8 @@ const API_CANCEL = axios.CancelToken.source();
 ****************************/
 
 // ipfs
-const ipfsUpload = payload => API.put(`ipfsUpload`, payload);
+const ipfsImage = payload => API.put(`ipfs/image`, payload);
+const ipfsConfig = payload => API.put(`ipfs/config`, payload);
 
 // cancel api call
 const cancelApi = () => {
@@ -20,7 +21,8 @@ const cancelApi = () => {
 
 
 const apis = {
-	ipfsUpload,
+	ipfsImage,
+	ipfsConfig,
 	cancelApi
 }
 
