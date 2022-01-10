@@ -146,13 +146,16 @@ export default function Create() {
       const configCid = await uploadConfig(imageCid);
       console.log('configCid:', configCid);
 
-      const val = await contract.mint(1, values.commission);
+      const val = await contract.mint(
+        values.commission,
+        configCid,
+        { value: ethers.utils.parseEther('0.50') }
+      );
       setTransaction(val);
-      console.log('val', val);
+      // console.log('val', val);
       const balance = await contract.balanceOf(val.from);
       console.log('balance', balance.toLocaleString(undefined,0));
-    }
-    catch (e) {
+    } catch (e) {
       console.error('Some error occurred!', e);
       setLoading(false);
     }

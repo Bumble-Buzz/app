@@ -68,7 +68,7 @@ describe("AvaxTrade - Main", () => {
 
     // set up AvaxTrade NFT 721 contract
     // contractFactory = await ethers.getContractFactory("AvaxTradeNft");
-    // NFT_CONTRACT = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://cid/');
+    // NFT_CONTRACT = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://');
     // await NFT_CONTRACT.deployed();
 
     // await NFT_CONTRACT.connect(ACCOUNTS[4]).mint(ACCOUNTS[4].address, 1, { value: ethers.utils.parseEther('0.50') });
@@ -938,10 +938,10 @@ describe("AvaxTrade - Main", () => {
   describe('Main Functions - Local', async () => {
     beforeEach(async () => {
       contractFactory = await ethers.getContractFactory("AvaxTradeNft");
-      NFT_CONTRACT = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://cid/');
+      NFT_CONTRACT = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://');
       await NFT_CONTRACT.deployed();
 
-      await NFT_CONTRACT.connect(ACCOUNTS[3]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT.connect(ACCOUNTS[3]).mint(2, 'cid', { value: ethers.utils.parseEther('0.50') });
       await NFT_CONTRACT.connect(ACCOUNTS[3])['safeTransferFrom(address,address,uint256)'](ACCOUNTS[3].address, ACCOUNTS[4].address, 1);
       await NFT_CONTRACT.connect(ACCOUNTS[4]).setApprovalForAll(CONTRACT.address, true);
 
@@ -2807,7 +2807,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('distrubute reward among all NFT holders - local', async () => {
       contractFactory = await ethers.getContractFactory("AvaxTradeNft");
-      NFT_CONTRACT = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://cid/');
+      NFT_CONTRACT = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://');
       await NFT_CONTRACT.deployed();
 
       await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
@@ -2864,7 +2864,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('distrubute reward among all NFT holders - local', async () => {
       contractFactory = await ethers.getContractFactory("AvaxTradeNft");
-      NFT_CONTRACT = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://cid/');
+      NFT_CONTRACT = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://');
       await NFT_CONTRACT.deployed();
 
       await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(

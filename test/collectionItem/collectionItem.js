@@ -69,11 +69,11 @@ describe("AvaxTrade - CollectionItem", () => {
 
       // local
       contractFactory = await ethers.getContractFactory("AvaxTradeNft");
-      NFT_CONTRACT_LOCAL = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://cid/');
+      NFT_CONTRACT_LOCAL = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://');
       await NFT_CONTRACT_LOCAL.deployed();
 
-      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
-      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(2, 'cid', { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(2, 'cid', { value: ethers.utils.parseEther('0.50') });
       await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6])['safeTransferFrom(address,address,uint256)'](ACCOUNTS[6].address, ACCOUNTS[2].address, 1);
       await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
 
@@ -614,12 +614,12 @@ describe("AvaxTrade - CollectionItem", () => {
   describe('Local collection', async () => {
     beforeEach(async () => {
       contractFactory = await ethers.getContractFactory("AvaxTradeNft");
-      NFT_CONTRACT_LOCAL = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://cid/');
+      NFT_CONTRACT_LOCAL = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://');
       await NFT_CONTRACT_LOCAL.deployed();
 
-      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
-      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
-      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(2, 'cid', { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(2, 'cid', { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(2, 'cid', { value: ethers.utils.parseEther('0.50') });
       await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6])['safeTransferFrom(address,address,uint256)'](ACCOUNTS[6].address, ACCOUNTS[2].address, 1);
       await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
 
@@ -1127,11 +1127,11 @@ describe("AvaxTrade - CollectionItem", () => {
 
       // local
       contractFactory = await ethers.getContractFactory("AvaxTradeNft");
-      NFT_CONTRACT_LOCAL = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://cid/');
+      NFT_CONTRACT_LOCAL = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://');
       await NFT_CONTRACT_LOCAL.deployed();
 
-      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
-      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(1, 2, { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(2, 'cid', { value: ethers.utils.parseEther('0.50') });
+      await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6]).mint(2, 'cid', { value: ethers.utils.parseEther('0.50') });
       await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[6])['safeTransferFrom(address,address,uint256)'](ACCOUNTS[6].address, ACCOUNTS[2].address, 1);
       await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
 
