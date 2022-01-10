@@ -23,13 +23,12 @@ contract AvaxTradeNft is ERC721Enumerable, Ownable {
   string private BASE_EXTENSION = '.json';
   string private NOT_REVEALED_URI;
   uint256 private COST = 0.5 ether;
-  uint256 private MAX_SUPPLY = 10000;
+  uint256 private MAX_SUPPLY = type(uint256).max;
   uint8 private MIN_MINT_AMMOUNT = 1;
   uint8 private MAX_MINT_AMMOUNT = 1;
   bool private PAUSED = false;
   bool private REVEALED = true;
 
-  uint8 private HONORARY_MAX_SUPPLY = 5;
 
   mapping(uint256 => ArtistDS) private ARTIST; // mapping token id to ArtistDS
   mapping(address => uint256[]) private ARTIST_NFT_LIST; // list of token ids for a user

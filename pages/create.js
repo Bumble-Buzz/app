@@ -18,6 +18,9 @@ export default function Create() {
   const [transaction, setTransaction] = useState();
 
   const [selectedImage, setSelectedImage] = useState(null);
+  const [attributes, setAttributes] = useState([]);
+  const [attributeType, setAttributeType] = useState('');
+  const [attributeValue, setAttributeValue] = useState('');
 
   useEffect(() => {
     checkTransaction();
@@ -62,6 +65,27 @@ export default function Create() {
     setValues(existingValues);
   };
 
+  const handleAttributes = (e) => {
+    const existingAttributes = attributes;
+    existingAttributes.push({ 'trait_type':attributeType, 'value':attributeValue });
+    setAttributes(existingAttributes);
+    setAttributeType('');
+    setAttributeValue('');
+    const existingValues = values;
+    existingValues.attributes = existingAttributes;
+    setValues(existingValues);
+  };
+
+  const handleAttributeDelete = (selectedAttribute) => {
+    const filteredAttributes = attributes.filter(
+      attribute => attribute['trait_type'] !== selectedAttribute['trait_type']
+    );
+    setAttributes(filteredAttributes);
+    const existingValues = values;
+    existingValues.attributes = filteredAttributes;
+    setValues(existingValues);
+  };
+
   const handleImage = (e) => {
     const existingValues = values;
     setSelectedImage(e.target.files[0]);
@@ -77,11 +101,13 @@ export default function Create() {
 
   const initValues = () => {
     setSelectedImage(null);
+    setAttributes([]);
     setValues({
       name: '',
       description: '',
       category: 'Art',
       commission: '',
+      attributes: [],
       image: null
     });
   };
@@ -168,7 +194,7 @@ export default function Create() {
 
                       <div className="w-full">
                         <div className="my-2">
-                          <label htmlFor="name" className="block text-sm font-medium text-gray-700">NFT name</label>
+                          <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
                           <input
                             type="text"
                             name="name"
@@ -225,6 +251,65 @@ export default function Create() {
                             onChange={handleCommission}
                           />
                         </div>
+
+                        <div className="my-2">
+                          <label className="block text-sm font-medium text-gray-700">Attributes (optional)</label>
+                          <div className="flex flex-col xsm:flex-row flex-wrap xsm:flex-nowrap gap-2 xsm:items-end">
+                            <div>
+                              <label htmlFor="trait-type" className="block text-sm font-medium text-gray-500">Name:</label>
+                              <input
+                                type="text"
+                                name="trait-type"
+                                id="trait-type"
+                                autoComplete="off"
+                                value={attributeType}
+                                className="mt-1 w-44 xsm:w-full inline-block focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                                onChange={(e) => {setAttributeType(e.target.value)}}
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="trait-value" className="block text-sm font-medium text-gray-500">Value:</label>
+                              <input
+                                type="text"
+                                name="trait-value"
+                                id="trait-value"
+                                autoComplete="off"
+                                value={attributeValue}
+                                className="mt-1 w-44 xsm:w-full inline-block focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                                onChange={(e) => {setAttributeValue(e.target.value)}}
+                              />
+                            </div>
+                            <div>
+                              <label
+                                className="cursor-pointer inline-flex justify-center py-2 px-4 border border-transparent shadow-sm
+                                  text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline focus:outline-0"
+                                onClick={handleAttributes}
+                              >
+                                Add
+                              </label>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-2 justify-center items-center">
+                            {attributes.length > 0 && attributes.map((attribute, index) => {
+                              return (
+                                <div className="block m-2 p-2 rounded-lg shadow-lg bg-indigo-50 max-w-sm relative w-20 min-w-fit" key={index}>
+                                  <span
+                                    className="-mx-2 -mt-3 px-1.5 text-white bg-red-700 absolute right-0 rounded-full text-xs cursor-pointer"
+                                    onClick={() => {handleAttributeDelete(attribute)}}
+                                  >
+                                    X
+                                  </span>
+                                  <p className="text-indigo-500 font-bold text-base text-center">
+                                    {attribute['trait_type']}
+                                  </p>
+                                  <p className="text-gray-700 text-base text-center">
+                                    {attribute['value']}
+                                  </p>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
                       </div>
 
                       <div className="hidden md:block border-r border-gray-200 mx-4"></div>
@@ -247,7 +332,8 @@ export default function Create() {
                             accept=".jpg, .jpeg, .png, .gif"
                             required
                             className="
-                              min-w-fit
+                              w-48
+                              xsm:min-w-fit
 
                               file:cursor-pointer
                               file:inline-flex file:justify-center
@@ -301,8 +387,8 @@ export default function Create() {
               </div>
             }
 
-<p onClick={ipfsUpload}>Upload Image to IPFS</p>
-<p onClick={() => {console.log('values', values);}}>Click to see values</p>
+{/* <p onClick={ipfsUpload}>Upload Image to IPFS</p>
+<p onClick={() => {console.log('values', values);}}>Click to see values</p> */}
 
           </div>
         </div>
