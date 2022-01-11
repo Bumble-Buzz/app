@@ -4,10 +4,10 @@ import { OverlayProvider, usePreventScroll } from 'react-aria';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import WALLTET from '../utils/wallet';
+import WALLTET from '../../utils/wallet';
 
-import Button from './Button';
-import HeadlessSlideOver from './HeadlessSlideOver';
+import Button from '../Button';
+import HeadlessSlideOver from '../HeadlessSlideOver';
 import Menu from './Menu';
 import Notification from './Notification';
 import DropDown from './DropDown';
