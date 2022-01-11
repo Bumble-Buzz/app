@@ -10,6 +10,8 @@ import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNf
 const FormData = require('form-data');
 import API from '../components/Api';
 
+import Toast from '../components/Toast';
+
 
 export default function Create() {
   const [isLoading, setLoading] = useState(false);
@@ -98,7 +100,7 @@ export default function Create() {
   const handleImage = (e) => {
     const image = e.target.files[0];
     if (image && image.size > 10485760) {
-      throw "Image size too big. Max 10mb."
+      Toast.error("Image size too big. Max 10mb");
     }
     const existingValues = values;
     setSelectedImage(image);
@@ -156,7 +158,7 @@ export default function Create() {
       const balance = await contract.balanceOf(val.from);
       console.log('balance', balance.toLocaleString(undefined,0));
     } catch (e) {
-      console.error('Some error occurred!', e);
+      Toast.error(e.message);
       setLoading(false);
     }
     console.log('end - createNft');
@@ -173,7 +175,7 @@ export default function Create() {
         cid = res.data;
       });
     } catch (e) {
-      throw "Error uploading image to IPFS"
+      Toast.error("Error uploading image to IPFS");
     }
 
     return cid;
@@ -195,7 +197,7 @@ export default function Create() {
         cid = res.data;
       });
     } catch (e) {
-      throw "Error uploading image to IPFS"
+      Toast.error("Error uploading config to IPFS");
     }
 
     return cid;
@@ -425,6 +427,7 @@ export default function Create() {
 {/* <p onClick={uploadImage}>Upload Image to IPFS</p> */}
 {/* <p onClick={uploadConfig}>Upload config to IPFS</p> */}
 {/* <p onClick={() => {console.log('values', values);}}>Click to see values</p> */}
+{/* <p onClick={() => {Toast.info('Info Notification !')}}>Notify!</p> */}
 
           </div>
         </div>
