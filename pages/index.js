@@ -90,10 +90,13 @@ export default function Home() {
   };
 
   return (
-    <main className="w-full flex self-start flex-col pl-4 pr-4 mt-10 mb-10">
-      <div className="w-full rounded overflow-hidden shadow-lg bg-grayDark flex flex-col p-6 md:py-8 lg:py-12 xl:py-16 md:px-8 lg:px-12 xl:px-20">
-        <div className="flex bg-grayDark" style={{minHeight: '500px'}}>
-          <div className="flex items-center text-center lg:text-left px-8 md:px-12 lg:w-1/2">
+    <main className="flex flex-nowrap flex-col items-center px-0 py-1 w-full">
+      <div className="flex flex-nowrap rounded shadow-lg w-full" style={{minHeight: '500px'}}>
+
+        {/* Page Content */}
+        <div className="flex flex-wrap px-8 md:px-12 items-center text-center">
+
+          <div className="lg:text-left lg:w-1/2">
             <div className="flex flex-col">
               <div className="my-2">
                 <h2 className="text-3xl font-semibold text-gray-800 md:text-4xl">
@@ -127,7 +130,9 @@ export default function Home() {
             </div> */}
             <Image src={'/avocado.jpg'} alt='avocado' width='612' height='473' />
           </div>
+
         </div>
+
       </div>
     </main>
   )
