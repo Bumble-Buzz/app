@@ -1,4 +1,6 @@
 Dockerfile
 .dockerignore
-node_modules
 .next
+cache
+node_modules
+test

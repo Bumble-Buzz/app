@@ -4,8 +4,8 @@ const slash = require('slash');
 const glob = require('glob');
 
 const ipfsClient = require('ipfs-http-client');
-const ipfs = ipfsClient.create({ host: 'localhost', port: '5001', protocol: 'http' });
-// const ipfs = ipfsClient.create({ host: 'ipfs', port: '5001', protocol: 'http' });
+// const ipfs = ipfsClient.create({ host: 'localhost', port: '5001', protocol: 'http' });
+const ipfs = ipfsClient.create({ host: 'ipfs', port: '5001', protocol: 'http' });
 
 const add = async (_inputFiles, _inDirectory = true) => {
   const inputFilesContent = [];

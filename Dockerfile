@@ -2,7 +2,8 @@ FROM node:16-slim
 
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get -y install vim
+RUN apt-get install vim -y
+RUN apt-get install procps -y
 
 
 # app
@@ -17,7 +18,7 @@ COPY . .
 
 RUN npm run build
 
-EXPOSE 3000
+EXPOSE 80
 
-# CMD [ "npm", "start" ]
-CMD [ "npm", "run", "dev" ]
+CMD [ "npm", "start" ]
+# CMD [ "npm", "run", "dev" ]
