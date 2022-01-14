@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: ipfs
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: ipfs
   ports:
