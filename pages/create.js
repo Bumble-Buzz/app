@@ -202,6 +202,24 @@ export default function Create() {
     return cid;
   }
 
+  const testBlockchain = async () => {
+    console.log('start - testBlockchain');
+
+    const provider = await WALLTET.getProvider();
+    const signer = await WALLTET.getSigner();
+
+    const currentBlockNumber = await provider.getBlockNumber();
+    console.log('current block number', currentBlockNumber);
+
+    const blocks = await provider.getBlockWithTransactions(currentBlockNumber)
+    console.log('blocks', blocks);
+
+    console.log('transactions', blocks.transactions);
+    console.log('transaction value', blocks.transactions[0].value.toString());
+
+    console.log('end - testBlockchain');
+  }
+
   return (
     <main className="flex flex-nowrap flex-col items-center px-0 py-1 w-full">
       <div className="flex flex-nowrap rounded shadow-lg w-full" style={{minHeight: '500px'}}>
@@ -431,6 +449,7 @@ export default function Create() {
 {/* <p onClick={uploadConfig}>Upload config to IPFS</p> */}
 {/* <p onClick={() => {console.log('values', values);}}>Click to see values</p> */}
 {/* <p onClick={() => {Toast.info('Info Notification !')}}>Notify!</p> */}
+{/* <p onClick={testBlockchain}>Test blockchain</p> */}
       </div>
     </main>
   )

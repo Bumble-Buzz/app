@@ -1,2 +1,103 @@
 # avaxtrade
 AVAX marketplace
+
+
+## save command in bash_profile
+echo 'export LBC_VERSION="v2.3.0"' >>  ~/.bash_profile
+~/.bash_profile
+
+
+## create Ingress controller in EKS
+
+eksctl utils associate-iam-oidc-provider \
+    --region ${AWS_REGION} \
+    --cluster nft-marketplace \
+    --approve
+
+curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.3.0/docs/install/iam_policy.json
+aws iam create-policy \
+    --policy-name AWSLoadBalancerControllerIAMPolicy \
+    --policy-document file://iam_policy.json
+
+eksctl create iamserviceaccount \
+  --cluster nft-marketplace \
+  --namespace kube-system \
+  --name aws-load-balancer-controller \
+  --attach-policy-arn arn:aws:iam::${ACCOUNT_ID}:policy/AWSLoadBalancerControllerIAMPolicy \
+  --override-existing-serviceaccounts \
+  --approve
+
+kubectl apply -k github.com/aws/eks-charts/stable/aws-load-balancer-controller/crds?ref=master
+kubectl get crd
+
+helm repo add eks https://aws.github.io/eks-charts
+helm upgrade -i aws-load-balancer-controller \
+    eks/aws-load-balancer-controller \
+    -n kube-system \
+    --set clusterName=nft-marketplace \
+    --set serviceAccount.create=false \
+    --set serviceAccount.name=aws-load-balancer-controller \
+    --set image.tag="${LBC_VERSION}"
+kubectl -n kube-system rollout status deployment aws-load-balancer-controller
+
+
+
+## Auto scaling
+
+aws autoscaling \
+    describe-auto-scaling-groups \
+    --query "AutoScalingGroups[? Tags[? (Key=='eks:cluster-name') && Value=='nft-marketplace']].[AutoScalingGroupName, MinSize, MaxSize,DesiredCapacity]" \
+    --output table
+
+### we need the ASG name
+export ASG_NAME=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[? Tags[? (Key=='eks:cluster-name') && Value=='nft-marketplace']].AutoScalingGroupName" --output text)
+
+### increase max capacity up to 4
+aws autoscaling \
+    update-auto-scaling-group \
+    --auto-scaling-group-name ${ASG_NAME} \
+    --min-size 3 \
+    --desired-capacity 3 \
+    --max-size 4
+
+### Check new values
+aws autoscaling \
+    describe-auto-scaling-groups \
+    --query "AutoScalingGroups[? Tags[? (Key=='eks:cluster-name') && Value=='nft-marketplace']].[AutoScalingGroupName, MinSize, MaxSize,DesiredCapacity]" \
+    --output table
+
+eksctl utils associate-iam-oidc-provider \
+    --region ${AWS_REGION} \
+    --cluster nft-marketplace \
+    --approve
+
+aws iam create-policy   \
+  --policy-name k8s-asg-policy \
+  --policy-document file://~/repo/avaxtrade/k8s-autoscaler/asg-policy.json
+
+eksctl create iamserviceaccount \
+    --name cluster-autoscaler \
+    --namespace kube-system \
+    --cluster nft-marketplace \
+    --attach-policy-arn "arn:aws:iam::${ACCOUNT_ID}:policy/k8s-asg-policy" \
+    --approve \
+    --override-existing-serviceaccounts
+
+kubectl -n kube-system describe sa cluster-autoscaler
+
+kubectl apply -f ~/repo/avaxtrade/k8s-autoscaler/cluster-autoscaler-autodiscover.yaml
+
+kubectl -n kube-system \
+    annotate deployment.apps/cluster-autoscaler \
+    cluster-autoscaler.kubernetes.io/safe-to-evict="false"
+
+### we need to retrieve the latest docker image available for our EKS version
+export K8S_VERSION=$(kubectl version --short | grep 'Server Version:' | sed 's/[^0-9.]*\([0-9.]*\).*/\1/' | cut -d. -f1,2)
+export AUTOSCALER_VERSION=$(curl -s "https://api.github.com/repos/kubernetes/autoscaler/releases" | grep '"tag_name":' | sed -s 's/.*-\([0-9][0-9\.]*\).*/\1/' | grep -m1 ${K8S_VERSION})
+
+kubectl -n kube-system \
+    set image deployment.apps/cluster-autoscaler \
+    cluster-autoscaler=us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:v${AUTOSCALER_VERSION}
+
+kubectl -n kube-system logs -f deployment/cluster-autoscaler
+
