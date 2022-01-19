@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-env
+data:
+  .env.local: |
+    # app environment
+    NEXT_PUBLIC_APP_ENV=dev_kind
+
+    # networks
+    NEXT_PUBLIC_CHAIN_ID=1337

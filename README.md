@@ -42,6 +42,19 @@ kubectl -n kube-system rollout status deployment aws-load-balancer-controller
 
 
 
+## Dynamo DB
+
+eksctl create iamserviceaccount \
+  --cluster nft-marketplace \
+  --namespace default \
+  --name eks-dynamodb \
+  --attach-policy-arn arn:aws:iam::817932929274:policy/EksDynamoDb \
+  --override-existing-serviceaccounts \
+  --approve
+
+eksctl create iamserviceaccount --cluster nft-marketplace --name eks-dynamodb --namespace default --attach-policy-arn arn:aws:iam::817932929274:policy/EksDynamoDb --approve --override-existing-serviceaccounts
+
+
 ## Auto scaling
 
 aws autoscaling \

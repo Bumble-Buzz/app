@@ -7,15 +7,15 @@ spec:
   selector:
     app: ipfs
   ports:
-    - name: "swarm"
-      port: 4001
-      protocol: TCP
-    - name: "api"
-      port: 5001
-      protocol: TCP
-    - name: "gateway"
-      port: 8080
-      protocol: TCP
+  - name: "swarm"
+    port: 4001
+    protocol: TCP
+  - name: "api"
+    port: 5001
+    protocol: TCP
+  - name: "gateway"
+    port: 8080
+    protocol: TCP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -24,7 +24,7 @@ metadata:
   labels:
     name: ipfs
 spec:
-  replicas: {{ .Values.replicas }}
+  replicas: {{ .Values.ipfs.replicas }}
   selector:
     matchLabels:
       app: ipfs

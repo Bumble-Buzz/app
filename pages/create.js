@@ -6,12 +6,14 @@ import FormData from 'form-data';
 import WALLTET from '../utils/wallet';
 import API from '../components/Api';
 import Toast from '../components/Toast';
+import CheckEnvironment from '../components/CheckEnvironment';
 import NoImageAvailable from '../public/no-image-available.png';
 
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
 import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
+import ListTable from '../dynamodb/scripts/listTable';
 
 export default function Create() {
   const [isLoading, setLoading] = useState(false);
@@ -218,6 +220,33 @@ export default function Create() {
     console.log('transaction value', blocks.transactions[0].value.toString());
 
     console.log('end - testBlockchain');
+  }
+
+  const testDynamoDb = async () => {
+    console.log('start - testDynamoDb');
+
+    // const results = await ListTable.listTables();
+    // console.log('results', results);
+
+    let results;
+    try {
+      await API.listTable({}).then(res => {
+        results = res.data;
+      });
+    } catch (e) {
+      Toast.error("Error trying to get listTable");
+    }
+    console.log('results', results);
+
+    console.log('end - testDynamoDb');
+  }
+
+
+  console.log('CheckEnvironment', CheckEnvironment);
+  if (CheckEnvironment.isDevMode) {
+    console.log('dev');
+  } else {
+    console.log('not dev');
   }
 
   return (
@@ -450,6 +479,7 @@ export default function Create() {
 {/* <p onClick={() => {console.log('values', values);}}>Click to see values</p> */}
 {/* <p onClick={() => {Toast.info('Info Notification !')}}>Notify!</p> */}
 {/* <p onClick={testBlockchain}>Test blockchain</p> */}
+<p onClick={testDynamoDb}>Test testDynamoDb</p>
       </div>
     </main>
   )

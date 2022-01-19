@@ -1,12 +1,14 @@
 {
-  "name": "avaxodaco",
+  "name": "avaxtrade",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "package-lock": "npm i --package-lock-only",
+    "make": "./node_modules/make/bin/make.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
@@ -34,6 +36,7 @@
     "hardhat": "^2.6.4",
     "hardhat-contract-sizer": "^2.1.1",
     "ipfs-http-client": "^50.1.2",
+    "make": "^0.8.1",
     "next": "11.1.2",
     "node-fetch": "^2.6.1",
     "react": "17.0.2",

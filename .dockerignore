@@ -4,3 +4,4 @@ Dockerfile
 cache
 node_modules
 test
+dynamodb/docker/*

@@ -7,5 +7,5 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - "./docker:/home/dynamodblocal/data"
+      - "/home/arizvi/repo/avaxtrade/docker:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
