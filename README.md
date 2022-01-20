@@ -14,10 +14,10 @@ eksctl utils associate-iam-oidc-provider \
     --cluster nft-marketplace \
     --approve
 
-curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.3.0/docs/install/iam_policy.json
+<!-- curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.3.0/docs/install/iam_policy.json -->
 aws iam create-policy \
     --policy-name AWSLoadBalancerControllerIAMPolicy \
-    --policy-document file://iam_policy.json
+    --policy-document file://~/aws/policy/AWSLoadBalancerControllerIAMPolicy.json
 
 eksctl create iamserviceaccount \
   --cluster nft-marketplace \
@@ -44,6 +44,10 @@ kubectl -n kube-system rollout status deployment aws-load-balancer-controller
 
 ## Dynamo DB
 
+aws iam create-policy \
+    --policy-name EksDynamoDb \
+    --policy-document file://~/aws/policy/EksDynamoDb.json
+
 eksctl create iamserviceaccount \
   --cluster nft-marketplace \
   --namespace default \
@@ -52,7 +56,7 @@ eksctl create iamserviceaccount \
   --override-existing-serviceaccounts \
   --approve
 
-eksctl create iamserviceaccount --cluster nft-marketplace --name eks-dynamodb --namespace default --attach-policy-arn arn:aws:iam::817932929274:policy/EksDynamoDb --approve --override-existing-serviceaccounts
+<!-- eksctl create iamserviceaccount --cluster nft-marketplace --name eks-dynamodb --namespace default --attach-policy-arn arn:aws:iam::817932929274:policy/EksDynamoDb --approve --override-existing-serviceaccounts -->
 
 
 ## Auto scaling

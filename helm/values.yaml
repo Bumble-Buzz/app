@@ -4,14 +4,14 @@
 
 
 # Release-wide Values
-env: dev # dev / aws
+env: kind # kind / aws
 version: 'latest'
 
 # Service specific Values
 app:
   replicas: 1
   image: 817932929274.dkr.ecr.us-east-1.amazonaws.com/nft-marketplace
-  imageVersion: latest
+  imageVersion: v0.1.0
 ipfs:
   replicas: 1
   image: ipfs/go-ipfs
