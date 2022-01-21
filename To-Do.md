@@ -1,39 +1,44 @@
 Things left to do:
 - Smart contract
-    - Name the app, then make the change everywhere
-    - All attributes and functions have correct access classifiers (private/internal/public)
-    - Use one specific version in the contracts, not a range (0.8.4)
-    - Remove `import "hardhat/console.sol";` from all contracts
-    - Ensure openzeppelin access control is used
-        - Main admin which can control all roles in contracts
-        - Each collection owner is an admin who can add/remove roles
-    - Monetary
-        - Add option for anyone to donate funds to the contract
-        - Dividends
-    - Make all error messages unique
-    - Change contract name from `Sale` to `Transaction`
-    - NFT contract `approve` one instead of `approve all`, give option to do both
-    - Rename `Bank > CollectionAccount > reflectionVault` to `tokenVault`?
-    - Transaction types
-        - Transfer
-            - Transfer of asset, no sale, commissions or incentives.
-            - Use ERC721 functions to do a simple transfer from one account to another
-        - Direct
-            - Need to be careful with incentives for direct sales. Risk of users selling to their own wallets and making money.
-        - Immediate
-        - Auction
-            - During the auction, buyer is not able to back out of (or cancel) the auction
-            - What to do if no buyer is foind in an auction? Only then seller is able to `reclaim` their NFT.
-    - Commissions
-        - Have an upper cap of 99%, or no need?
-        - Artist commission cap at 20%?
-    - Incentives
-        - Have an upper cap of 99%, or no need?
-        - Have different configurable variables for marketplace incentives (direct / immediate / auction)
-        - Need to be careful with incentives for direct sales. Risk of users selling to their own wallets and making money.
-    - Address all `@todo` in the code
+  - Name the app, then make the change everywhere
+  - All attributes and functions have correct access classifiers (private/internal/public)
+  - Use one specific version in the contracts, not a range (0.8.4)
+  - Remove `import "hardhat/console.sol";` from all contracts
+  - Ensure openzeppelin access control is used
+    - Main admin which can control all roles in contracts
+    - Each collection owner is an admin who can add/remove roles
+  - Monetary
+    - Add option for anyone to donate funds to the contract
+    - Dividends
+  - Make all error messages unique
+  - Change contract name from `Sale` to `Transaction`
+  - NFT contract `approve` one instead of `approve all`, give option to do both
+  - Rename `Bank > CollectionAccount > reflectionVault` to `tokenVault`?
+  - Transaction types
+    - Transfer
+      - Transfer of asset, no sale, commissions or incentives.
+      - Use ERC721 functions to do a simple transfer from one account to another
+    - Direct
+      - Need to be careful with incentives for direct sales. Risk of users selling to their own wallets and making money.
+    - Immediate
+    - Auction
+      - During the auction, buyer is not able to back out of (or cancel) the auction
+      - What to do if no buyer is foind in an auction? Only then seller is able to `reclaim` their NFT.
+  - Commissions
+    - Have an upper cap of 99%, or no need?
+    - Artist commission cap at 20%?
+  - Incentives
+    - Have an upper cap of 99%, or no need?
+    - Have different configurable variables for marketplace incentives (direct / immediate / auction)
+    - Need to be careful with incentives for direct sales. Risk of users selling to their own wallets and making money.
+  - Address all `@todo` in the code
 - Front-end dapp
-    - Easy way to set ENV variables in docker image / k8s, for contract addresses, admin accounts, etc...
+  - Easy way to set ENV variables in docker image / k8s, for contract addresses, admin accounts, etc...
+  - AWS
+    - IAM
+      - Dynamodb: Give only appropriate access as needed
+      - Only access to add/remove items in tables
+      - No access to create/delete tables
 - Social media
-    - Discord server
-    - Twitter account
+  - Discord server
+  - Twitter account

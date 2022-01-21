@@ -1,15 +1,10 @@
-const AWS = require("aws-sdk")
-// const dynamoDB = new AWS.DynamoDB({ endpoint: "http://localhost:8000" });
-const dynamoDB = new AWS.DynamoDB({
-  region: "us-east-1",
-  accessKeyId: "sample",
-  secretAccessKey: "sample",
-  endpoint: "http://dynamodb-local:8000"
-});
+const SCRIPT_ARGS = require('minimist')(process.argv.slice(2));
+process.env.NEXT_PUBLIC_APP_ENV = SCRIPT_ARGS.mode;
+const DynamoDbQuery = require('../../components/backend/db/DynamoDbQuery');
 
 
-dynamoDB
-  .createTable({
+(async () => {
+  const params = {
     AttributeDefinitions: [
       {
         AttributeName: "id",
@@ -24,7 +19,7 @@ dynamoDB
     ],
     BillingMode: "PAY_PER_REQUEST",
     TableName: "my-table",
-  })
-  .promise()
-  .then(data => console.log("Success!", data))
-  .catch(console.error)
+  };
+  const results = await DynamoDbQuery.table.create(params);
+  console.log('results', results.TableDescription.TableName);
+})();

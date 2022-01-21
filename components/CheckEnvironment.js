@@ -43,15 +43,7 @@ const isDevProdMode = () => {
 };
 
 const isK8 = () => {
-  if (process && 
-      (
-        process.env.NEXT_PUBLIC_APP_ENV === ENV_MODES.DEV_KIND ||
-        process.env.NEXT_PUBLIC_APP_ENV === ENV_MODES.DEV_KIND ||
-        process.env.NEXT_PUBLIC_APP_ENV === ENV_MODES.DEV_AWS ||
-        process.env.NEXT_PUBLIC_APP_ENV === ENV_MODES.STAGING ||
-        process.env.NEXT_PUBLIC_APP_ENV === ENV_MODES.PROD
-      )
-  ) {
+  if (process && (isDevKindMode() || isDevAwsMode() || isDevStagingMode() || isDevProdMode())) {
     return true;
   }
   return false;

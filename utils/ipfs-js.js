@@ -2,10 +2,17 @@ const fs = require("fs");
 const path = require('path');
 const slash = require('slash');
 const glob = require('glob');
+const CheckEnvironment = require('../components/CheckEnvironment');
+
 
 const ipfsClient = require('ipfs-http-client');
-// const ipfs = ipfsClient.create({ host: 'localhost', port: '5001', protocol: 'http' });
-const ipfs = ipfsClient.create({ host: 'ipfs', port: '5001', protocol: 'http' });
+let ipfs;
+if (CheckEnvironment.isK8) {
+  ipfs = ipfsClient.create({ host: 'ipfs', port: '5001', protocol: 'http' });
+} else {
+  ipfs = ipfsClient.create({ host: 'localhost', port: '5001', protocol: 'http' });
+}
+
 
 const add = async (_inputFiles, _inDirectory = true) => {
   const inputFilesContent = [];

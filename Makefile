@@ -13,14 +13,19 @@ package-lock:
 
 ###################
 
-app-run:
+dev:
 	export NEXT_PUBLIC_APP_ENV=dev; npm run dev
 
-app-build:
+build:
 	npm run build
 
-app-start:
+start:
 	npm run start
+
+###################
+
+dynamodb:
+	docker run -p 8000:8000 amazon/dynamodb-local
 
 ###################
 

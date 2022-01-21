@@ -6,14 +6,12 @@ import FormData from 'form-data';
 import WALLTET from '../utils/wallet';
 import API from '../components/Api';
 import Toast from '../components/Toast';
-import CheckEnvironment from '../components/CheckEnvironment';
 import NoImageAvailable from '../public/no-image-available.png';
 
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
 import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
-import ListTable from '../dynamodb/scripts/listTable';
 
 export default function Create() {
   const [isLoading, setLoading] = useState(false);
@@ -172,7 +170,7 @@ export default function Create() {
 
     let cid;
     try {
-      await API.ipfsImage(formData).then(res => {
+      await API.ipfs.image(formData).then(res => {
         cid = res.data;
       });
     } catch (e) {
@@ -194,7 +192,7 @@ export default function Create() {
 
     let cid;
     try {
-      await API.ipfsConfig(payload).then(res => {
+      await API.ipfs.config(payload).then(res => {
         cid = res.data;
       });
     } catch (e) {
@@ -222,31 +220,119 @@ export default function Create() {
     console.log('end - testBlockchain');
   }
 
-  const testDynamoDb = async () => {
-    console.log('start - testDynamoDb');
+  const listDbTables = async () => {
+    console.log('start - listDbTables');
 
-    // const results = await ListTable.listTables();
-    // console.log('results', results);
+    const results = await API.db.table.list({});
+    console.log('Tables:', results.data);
 
-    let results;
-    try {
-      await API.listTable({}).then(res => {
-        results = res.data;
-      });
-    } catch (e) {
-      Toast.error("Error trying to get listTable");
-    }
-    console.log('results', results);
-
-    console.log('end - testDynamoDb');
+    console.log('end - listDbTables');
   }
 
+  const createDbTable = async () => {
+    console.log('start - createDbTable');
 
-  console.log('CheckEnvironment', CheckEnvironment);
-  if (CheckEnvironment.isDevMode) {
-    console.log('dev');
-  } else {
-    console.log('not dev');
+    const payload = {
+      TableName: "my-table",
+      AttributeDefinitions: [
+        {
+          AttributeName: "id",
+          AttributeType: "S",
+        },
+      ],
+      KeySchema: [
+        {
+          AttributeName: "id",
+          KeyType: "HASH",
+        },
+      ],
+      BillingMode: "PAY_PER_REQUEST",
+    };
+    const results = await API.db.table.create(payload);
+    console.log('Created:', results.data);
+
+    console.log('end - createDbTable');
+  }
+
+  const statusDbTable = async () => {
+    console.log('start - statusDbTable');
+
+    const payload = {
+      TableName: "my-table",
+    };
+    const results = await API.db.table.status(payload);
+    console.log('Status:', results.data);
+
+    console.log('end - statusDbTable');
+  }
+
+  const deleteDbTable = async () => {
+    console.log('start - deleteDbTable');
+
+    const payload = {
+      TableName: "my-table",
+    };
+    const results = await API.db.table.delete(payload);
+    console.log('Deleted:', results.data);
+
+    console.log('end - deleteDbTable');
+  }
+
+  const scanDbTable = async () => {
+    console.log('start - scanDbTable');
+
+    const payload = {
+      TableName: "my-table",
+    };
+    const results = await API.db.table.scan(payload);
+    console.log('Scan:', results.data);
+
+    console.log('end - scanDbTable');
+  }
+
+  const getDbItem = async () => {
+    console.log('start - getDbItem');
+
+    const payload = {
+      TableName: "my-table",
+      Key: {
+        'id': 'sample_id'
+      }
+    };
+    const results = await API.db.item.get(payload);
+    console.log('Get item:', results.data);
+
+    console.log('end - getDbItem');
+  }
+
+  const putDbItem = async () => {
+    console.log('start - putDbItem');
+
+    const payload = {
+      TableName: "my-table",
+      Item: {
+        'id': 'sample_id'
+      }
+    };
+    const results = await API.db.item.put(payload);
+    console.log('Put item:', results.data);
+
+    console.log('end - putDbItem');
+  }
+
+  const deleteDbItem = async () => {
+    console.log('start - deleteDbItem');
+
+    const payload = {
+      TableName: "my-table",
+      Key: {
+        'id': 'sample_id'
+      }
+    };
+    const results = await API.db.item.delete(payload);
+    console.log('Delete item:', results.data);
+
+    console.log('end - deleteDbItem');
   }
 
   return (
@@ -474,13 +560,21 @@ export default function Create() {
           }
 
         </div>
+
+      </div>
 {/* <p onClick={uploadImage}>Upload Image to IPFS</p> */}
 {/* <p onClick={uploadConfig}>Upload config to IPFS</p> */}
 {/* <p onClick={() => {console.log('values', values);}}>Click to see values</p> */}
 {/* <p onClick={() => {Toast.info('Info Notification !')}}>Notify!</p> */}
 {/* <p onClick={testBlockchain}>Test blockchain</p> */}
-<p onClick={testDynamoDb}>Test testDynamoDb</p>
-      </div>
+<p onClick={listDbTables}>Test listDbTables</p>
+<p onClick={createDbTable}>Test createDbTable</p>
+<p onClick={statusDbTable}>Test statusDbTable</p>
+<p onClick={deleteDbTable}>Test deleteDbTable</p>
+<p onClick={scanDbTable}>Test scanDbTable</p>
+<p onClick={getDbItem}>Test getDbItem</p>
+<p onClick={putDbItem}>Test putDbItem</p>
+<p onClick={deleteDbItem}>Test deleteDbItem</p>
     </main>
   )
 }

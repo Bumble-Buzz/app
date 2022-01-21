@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-	baseURL: '/api/'
+  baseURL: '/api/'
 });
 const API_CANCEL = axios.CancelToken.source();
 
@@ -10,24 +10,32 @@ const API_CANCEL = axios.CancelToken.source();
 ******** API CALLs *********
 ****************************/
 
-// ipfs
-const ipfsImage = payload => API.put(`ipfs/image`, payload);
-const ipfsConfig = payload => API.put(`ipfs/config`, payload);
-
-// dynamo database
-const listTable = payload => API.put(`db/listTables`, payload);
-
 // cancel api call
 const cancelApi = () => {
-	API_CANCEL.cancel("Cancelling in cleanup");
+  API_CANCEL.cancel("Cancelling in cleanup");
 };
 
 
 const apis = {
-	ipfsImage,
-	ipfsConfig,
-	listTable,
-	cancelApi
+  ipfs: {
+    image: payload => API.put(`ipfs/image`, payload),
+    config: payload => API.put(`ipfs/config`, payload),
+  },
+  db: {
+    table: {
+      list: payload => API.put(`db/table/list`, payload),
+      create: payload => API.put(`db/table/create`, payload),
+      status: payload => API.put(`db/table/status`, payload),
+      delete: payload => API.put(`db/table/delete`, payload),
+      scan: payload => API.put(`db/table/scan`, payload)
+    },
+    item: {
+      get: payload => API.put(`db/item/get`, payload),
+      put: payload => API.put(`db/item/put`, payload),
+      delete: payload => API.put(`db/item/delete`, payload)
+    },
+  },
+  cancelApi
 }
 
 export default apis
