@@ -233,18 +233,18 @@ export default function Create() {
     console.log('start - createDbTable');
 
     const payload = {
-      TableName: "my-table",
+      TableName: "people",
       AttributeDefinitions: [
         {
           AttributeName: "id",
-          AttributeType: "S",
-        },
+          AttributeType: "N",
+        }
       ],
       KeySchema: [
         {
           AttributeName: "id",
           KeyType: "HASH",
-        },
+        }
       ],
       BillingMode: "PAY_PER_REQUEST",
     };
@@ -258,7 +258,7 @@ export default function Create() {
     console.log('start - statusDbTable');
 
     const payload = {
-      TableName: "my-table",
+      TableName: "people",
     };
     const results = await API.db.table.status(payload);
     console.log('Status:', results.data);
@@ -270,7 +270,7 @@ export default function Create() {
     console.log('start - deleteDbTable');
 
     const payload = {
-      TableName: "my-table",
+      TableName: "people",
     };
     const results = await API.db.table.delete(payload);
     console.log('Deleted:', results.data);
@@ -282,7 +282,7 @@ export default function Create() {
     console.log('start - scanDbTable');
 
     const payload = {
-      TableName: "my-table",
+      TableName: "people",
     };
     const results = await API.db.table.scan(payload);
     console.log('Scan:', results.data);
@@ -294,9 +294,9 @@ export default function Create() {
     console.log('start - getDbItem');
 
     const payload = {
-      TableName: "my-table",
+      TableName: "people",
       Key: {
-        'id': 'sample_id'
+        'id': 1
       }
     };
     const results = await API.db.item.get(payload);
@@ -305,13 +305,35 @@ export default function Create() {
     console.log('end - getDbItem');
   }
 
+  const getBatchDbItem = async () => {
+    console.log('start - getBatchDbItem');
+
+    const payload = {
+      RequestItems: {
+        people: {
+          Keys: [
+            { id: 1 },
+            { id: 2 },
+            { id: 3 }
+          ]
+        }
+      },
+    };
+    const results = await API.db.item.getBatch(payload);
+    console.log('Get item batch:', results.data);
+
+    console.log('end - getBatchDbItem');
+  }
+
   const putDbItem = async () => {
     console.log('start - putDbItem');
 
     const payload = {
-      TableName: "my-table",
+      TableName: "people",
       Item: {
-        'id': 'sample_id'
+        'id': 1,
+        'name': 'john',
+        'age': 123
       }
     };
     const results = await API.db.item.put(payload);
@@ -320,19 +342,93 @@ export default function Create() {
     console.log('end - putDbItem');
   }
 
+  const putBatchDbItem = async () => {
+    console.log('start - putBatchDbItem');
+
+    const payload = {
+      RequestItems: {
+        people: [
+          {
+            PutRequest: {
+              Item: {
+                'id': 2,
+                'name': 'smith',
+                'age': 456
+              }
+            }
+          },
+          {
+            PutRequest: {
+              Item: {
+                'id': 3,
+                'name': 'joe',
+                'age': 789
+              }
+            }
+          }
+        ]
+      },
+    };
+    const results = await API.db.item.putBatch(payload);
+    console.log('Put item batch:', results.data);
+
+    console.log('end - putBatchDbItem');
+  }
+
+  const updateDbItem = async () => {
+    console.log('start - updateDbItem');
+
+    const payload = {
+      TableName: "people",
+      Key: { 'id': 1 },
+      ExpressionAttributeNames: { "#myName": "name" },
+      UpdateExpression: `set #myName = :name`,
+      ExpressionAttributeValues: { ":name": "joe" }
+    };
+    const results = await API.db.item.update(payload);
+    console.log('Update item:', results.data);
+
+    console.log('end - updateDbItem');
+  }
+
   const deleteDbItem = async () => {
     console.log('start - deleteDbItem');
 
     const payload = {
-      TableName: "my-table",
+      TableName: "people",
       Key: {
-        'id': 'sample_id'
+        'id': 1
       }
     };
     const results = await API.db.item.delete(payload);
     console.log('Delete item:', results.data);
 
     console.log('end - deleteDbItem');
+  }
+
+  const deleteBatchDbItem = async () => {
+    console.log('start - deleteBatchDbItem');
+
+    const payload = {
+      RequestItems: {
+        people: [
+          {
+            DeleteRequest: {
+              Key: { id: 2 }
+            }
+          },
+          {
+            DeleteRequest: {
+              Key: { id: 3 }
+            }
+          }
+        ]
+      },
+    };
+    const results = await API.db.item.deleteBatch(payload);
+    console.log('Delete item batch:', results.data);
+
+    console.log('end - deleteBatchDbItem');
   }
 
   return (
@@ -562,19 +658,31 @@ export default function Create() {
         </div>
 
       </div>
-{/* <p onClick={uploadImage}>Upload Image to IPFS</p> */}
-{/* <p onClick={uploadConfig}>Upload config to IPFS</p> */}
-{/* <p onClick={() => {console.log('values', values);}}>Click to see values</p> */}
-{/* <p onClick={() => {Toast.info('Info Notification !')}}>Notify!</p> */}
-{/* <p onClick={testBlockchain}>Test blockchain</p> */}
-<p onClick={listDbTables}>Test listDbTables</p>
-<p onClick={createDbTable}>Test createDbTable</p>
-<p onClick={statusDbTable}>Test statusDbTable</p>
-<p onClick={deleteDbTable}>Test deleteDbTable</p>
-<p onClick={scanDbTable}>Test scanDbTable</p>
-<p onClick={getDbItem}>Test getDbItem</p>
-<p onClick={putDbItem}>Test putDbItem</p>
-<p onClick={deleteDbItem}>Test deleteDbItem</p>
+{/* <div className="flex flex-row gap-2">
+  <div>
+    <p onClick={uploadImage}>Upload Image to IPFS</p>
+    <p onClick={uploadConfig}>Upload config to IPFS</p>
+    <p onClick={() => {console.log('values', values);}}>Click to see values</p>
+    <p onClick={() => {Toast.info('Info Notification !')}}>Notify!</p>
+    <p onClick={testBlockchain}>Test blockchain</p>
+  </div>
+  <div>
+    <p onClick={listDbTables}>Test listDbTables</p>
+    <p onClick={createDbTable}>Test createDbTable</p>
+    <p onClick={statusDbTable}>Test statusDbTable</p>
+    <p onClick={deleteDbTable}>Test deleteDbTable</p>
+    <p onClick={scanDbTable}>Test scanDbTable</p>
+  </div>
+  <div>
+    <p onClick={getDbItem}>Test getDbItem</p>
+    <p onClick={getBatchDbItem}>Test getBatchDbItem</p>
+    <p onClick={putDbItem}>Test putDbItem</p>
+    <p onClick={putBatchDbItem}>Test putBatchDbItem</p>
+    <p onClick={updateDbItem}>Test updateDbItem</p>
+    <p onClick={deleteDbItem}>Test deleteDbItem</p>
+    <p onClick={deleteBatchDbItem}>Test deleteBatchDbItem</p>
+  </div>
+</div> */}
     </main>
   )
 }

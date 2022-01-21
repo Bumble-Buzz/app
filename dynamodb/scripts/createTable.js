@@ -5,20 +5,20 @@ const DynamoDbQuery = require('../../components/backend/db/DynamoDbQuery');
 
 (async () => {
   const params = {
+    TableName: "people",
     AttributeDefinitions: [
       {
         AttributeName: "id",
-        AttributeType: "S",
-      },
+        AttributeType: "N",
+      }
     ],
     KeySchema: [
       {
         AttributeName: "id",
         KeyType: "HASH",
-      },
+      }
     ],
     BillingMode: "PAY_PER_REQUEST",
-    TableName: "my-table",
   };
   const results = await DynamoDbQuery.table.create(params);
   console.log('results', results.TableDescription.TableName);

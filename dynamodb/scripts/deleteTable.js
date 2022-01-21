@@ -5,7 +5,7 @@ const DynamoDbQuery = require('../../components/backend/db/DynamoDbQuery');
 
 (async () => {
   const params = {
-    TableName: "my-table",
+    TableName: "people",
   };
   const results = await DynamoDbQuery.table.delete(params);
   console.log('results', results.TableDescription.TableName);
