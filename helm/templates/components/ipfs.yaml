@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: ipfs
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: ipfs
   ports:
@@ -15,6 +15,7 @@ spec:
     protocol: TCP
   - name: "gateway"
     port: 8080
+    targetPort: 8080
     protocol: TCP
 ---
 apiVersion: apps/v1
