@@ -1,21 +1,27 @@
-const DynamoDB = require('./DynamoDb');
+const { DynamoDBClient, DynamoDBDocumentClient } = require('./DynamoDb');
+const {
+  ListTablesCommand, CreateTableCommand, DescribeTableCommand, DeleteTableCommand, ScanCommand
+} = require("@aws-sdk/client-dynamodb");
+const {
+  GetCommand, BatchGetCommand, PutCommand, BatchWriteCommand, UpdateCommand, DeleteCommand
+} = require('@aws-sdk/lib-dynamodb');
 
 
 module.exports = {
   table: {
-    list: async params => await DynamoDB.DynamoDB.listTables(params).promise(),
-    create: async params => await DynamoDB.DynamoDB.createTable(params).promise(),
-    describe: async params => await DynamoDB.DynamoDB.describeTable(params).promise(),
-    delete: async params => await DynamoDB.DynamoDB.deleteTable(params).promise(),
-    scan: async params => await DynamoDB.DynamoDB.scan(params).promise()
+    list: async params => await DynamoDBClient.send(new ListTablesCommand(params)),
+    create: async params => await DynamoDBClient.send(new CreateTableCommand(params)),
+    describe: async params => await DynamoDBClient.send(new DescribeTableCommand(params)),
+    delete: async params => await DynamoDBClient.send(new DeleteTableCommand(params)),
+    scan: async params => await DynamoDBClient.send(new ScanCommand(params))
   },
   item: {
-    get: async params => await DynamoDB.DynamoDBClient.get(params).promise(),
-    getBatch: async params => await DynamoDB.DynamoDBClient.batchGet(params).promise(),
-    put: async params => await DynamoDB.DynamoDBClient.put(params).promise(),
-    putBatch: async params => await DynamoDB.DynamoDBClient.batchWrite(params).promise(),
-    update: async params => await DynamoDB.DynamoDBClient.update(params).promise(),
-    delete: async params => await DynamoDB.DynamoDBClient.delete(params).promise(),
-    deleteBatch: async params => await DynamoDB.DynamoDBClient.batchWrite(params).promise()
+    get: async params => await DynamoDBDocumentClient.send(new GetCommand(params)),
+    getBatch: async params => await DynamoDBDocumentClient.send(new BatchGetCommand(params)),
+    put: async params => await DynamoDBDocumentClient.send(new PutCommand(params)),
+    putBatch: async params => await DynamoDBDocumentClient.send(new BatchWriteCommand(params)),
+    update: async params => await DynamoDBDocumentClient.send(new UpdateCommand(params)),
+    delete: async params => await DynamoDBDocumentClient.send(new DeleteCommand(params)),
+    deleteBatch: async params => await DynamoDBDocumentClient.send(new BatchWriteCommand(params)),
   }
 }

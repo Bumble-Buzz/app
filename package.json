@@ -11,6 +11,8 @@
     "make": "./node_modules/make/bin/make.js"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.48.0",
+    "@aws-sdk/lib-dynamodb": "^3.48.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-brands-svg-icons": "^5.15.4",
     "@fortawesome/free-regular-svg-icons": "^5.15.4",
@@ -23,7 +25,6 @@
     "@openzeppelin/contracts": "^4.3.2",
     "@openzeppelin/contracts-upgradeable": "^4.4.1",
     "@openzeppelin/hardhat-upgrades": "^1.12.0",
-    "aws-sdk": "^2.1058.0",
     "axios": "^0.22.0",
     "chai": "^4.3.4",
     "cors": "^2.8.5",
