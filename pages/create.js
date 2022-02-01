@@ -11,9 +11,8 @@ import Toast from '../components/Toast';
 import NoImageAvailable from '../public/no-image-available.png';
 import Unauthenticated from '../components/Unauthenticated';
 
-// import WalletUtil from '../components/wallet/WalletUtil';
 
-import { useAuth, AUTH_CONTEXT_ACTIONS } from '../contexts/AuthContext'
+import { useAuth } from '../contexts/AuthContext'
 
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
@@ -43,15 +42,9 @@ export default function Create() {
   const [attributeValue, setAttributeValue] = useState('');
 
   useEffect(() => {
-    // walletInit();
     checkTransaction();
   }, [transaction]);
 
-  // const walletInit = async () => {
-  //   await WalletUtil.__init__(setNetworkValid, setAccounts);
-  //   setNetworkValid(await WalletUtil.isNetworkValid());
-  //   setAccounts(await WalletUtil.getAccounts());
-  // };
 
   const checkTransaction = async () => {
     if (transaction) {
@@ -684,9 +677,6 @@ export default function Create() {
 
       </div>
 <div className="flex flex-row gap-2">
-  {/* <div>
-    <p onClick={() => darkTheme.dispatch({ type: AUTH_CONTEXT_ACTIONS.TOGGLE })}>Toggle theme</p>
-  </div> */}
   <div>
     <p onClick={uploadImage}>Upload Image to IPFS</p>
     <p onClick={uploadConfig}>Upload config to IPFS</p>

@@ -17,10 +17,7 @@ export default NextAuth({
       //   walletId: { label: "walletId", type: "text", placeholder: "jsmith" },
       // },
       async authorize(credentials, req) {
-        // console.log('req', req);
         // console.log('credentials', credentials);
-        // const data = JSON.parse(credentials.data);
-        // console.log('data', data);
         if (credentials.walletId.toUpperCase() === credentials.recoveredAddress.toUpperCase()) {
           return {
             id: credentials.walletId,
@@ -30,7 +27,6 @@ export default NextAuth({
         }
       },
     }),
-    // ...add more providers here
   ],
   session: {
     jwt: true,
@@ -69,5 +65,4 @@ export default NextAuth({
   // },
   // adapter: DynamoDBAdapter(client),
   debug: process.env.NODE_ENV === 'development'
-  // debug: true
 })

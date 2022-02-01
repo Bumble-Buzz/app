@@ -4,8 +4,7 @@ import { ethers } from 'ethers';
 import { useSession, getSession, getProviders, signIn, signOut } from 'next-auth/react';
 import Toast from '../components/Toast';
 import WalletUtil from '../components/wallet/WalletUtil';
-
-import { useAuth, AUTH_CONTEXT_ACTIONS } from '../contexts/AuthContext'
+import { useAuth } from '../contexts/AuthContext'
 
 
 export default function SignIn() {
@@ -47,7 +46,6 @@ export default function SignIn() {
       const metamaskProvider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = metamaskProvider.getSigner();
       const signature = await signer._signTypedData(domain, types, value);
-      // const expectedSignerAddress = await signer.getAddress();
       const recoveredAddress = ethers.utils.verifyTypedData(domain, types, value, signature);
 
 
@@ -89,7 +87,7 @@ export default function SignIn() {
             </div>
 
             <div className="p-2 flex flex-col items-center text-center">
-              <div className="block p-6 rounded-lg shadow-lg bg-white max-w-md">
+              <div className="block p-6 rounded-lg shadow-lg bg-white">
                 <p className="text-gray-700 text-base mb-4">
                   Would you like to sign out?
                 </p>
@@ -128,7 +126,7 @@ export default function SignIn() {
             </div>
 
             <div className="p-2 flex flex-col items-center text-center">
-              <div className="block p-6 rounded-lg shadow-lg bg-white max-w-md">
+              <div className="block p-6 rounded-lg shadow-lg bg-white">
 
                 {!AuthContext.state.isWalletFound && (
                   <p className="text-gray-700 text-base mb-4">No Web3 wallet found</p>
@@ -160,19 +158,8 @@ export default function SignIn() {
 
                 {AuthContext.state.isWalletFound && AuthContext.state.isMetamaskFound && AuthContext.state.isNetworkValid && AuthContext.state.account && (
                   <>
-                    <p className="text-gray-700 text-base m-4">Sign in using account: {AuthContext.state.account}</p>
-                    {/* <form name="form" onSubmit={(e) => {authenticate(e)}} method="post" action="/api/auth/callback/credentials">
-                      <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
-                      <input name="walletId" type="hidden" defaultValue={AuthContext.state.account} />
-                      <input name="data" type="hidden" defaultValue='' />
-                      <button
-                        type="submit"
-                        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                      >
-                        Sign in
-                      </button>
-                    </form> */}
-                    {/* {console.log('providers.credentials.id', providers)} */}
+                    <div className="text-gray-700 text-base break-all">Sing in using account:</div>
+                    <div className="text-gray-700 text-base break-all mb-4"><b>{AuthContext.state.account}</b></div>
                     <button
                       type="submit"
                       className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

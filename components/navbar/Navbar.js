@@ -1,19 +1,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-
-import WALLTET from '../../utils/wallet';
+import { useSession, getSession } from 'next-auth/react';
 import Menu from './Menu';
 import Notification from './Notification';
 import DropDown from './DropDown';
-
 import HeadlessSlideOver from '../HeadlessSlideOver';
-
-import { useSession, getSession } from 'next-auth/react';
 import { useAuth, AUTH_CONTEXT_ACTIONS } from '../../contexts/AuthContext';
 import WalletUtil from '../../components/wallet/WalletUtil';
-
 import {
   PencilIcon, SearchIcon, MenuIcon, XIcon, BellIcon, ShoppingCartIcon
 } from '@heroicons/react/solid';
@@ -23,7 +17,6 @@ import {
 
 
 export default function Navbar() {
-  const ROUTER = useRouter();
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
   console.log('session', session, sessionStatus);
@@ -34,18 +27,8 @@ export default function Navbar() {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [menuClickTime, setMenuClickTime] = useState(0);
 
-  const [isNavOpen, setNavOpen] = useState(false);
-  const [walletState, setWalletState] = useState({
-    isConnected: false,
-    networkName: '',
-    chainId: 0,
-    address: '',
-    displayString: 'Connect'
-  });
-
   useEffect(() => {
     walletInit();
-    // connectWallet();
   }, []);
 
   const walletInit = async () => {
@@ -62,35 +45,6 @@ export default function Navbar() {
         account: (await WalletUtil.getAccounts())[0]
       }
     });
-  };
-
-  const connectWallet = async (e) => {
-    if (e) {
-      e.preventDefault();
-    }
-
-    if (!await WALLTET.isNetworkValid()) {
-      console.error('Wrong network, switch to Avalanche');
-      setWalletState({displayString: 'Network err'});
-      return;
-    }
-
-    const signer = await WALLTET.getSigner();
-
-    const address = await signer.getAddress();
-    if (signer) {
-      setWalletState({
-        isConnected: true,
-        address: address,
-        displayString: address.substring(0, 7) + '...'
-      });
-    } else {
-      setWalletState({
-        isConnected: false,
-        address: '',
-        displayString: 'Connect'
-      });
-    }
   };
 
   const getItem = (itemId) => {
@@ -222,64 +176,60 @@ export default function Navbar() {
         <Notification handleClick={handleNotificationClick}></Notification>
       </HeadlessSlideOver>
 
-      {/* <div className="flex flex-nowrap"> */}
+      {/* Logo */}
+      <div className="flex items-center text-2xl lg:text-3xl font-bold text-gray-800">
+        <Link href='/' passHref={true}><a>AvaxTrade</a></Link>
+      </div>
 
-        {/* Logo */}
-        <div className="flex items-center text-2xl lg:text-3xl font-bold text-gray-800">
-          <Link href='/' passHref={true}><a>AvaxTrade</a></Link>
+      {/* Search bar */}
+      <div className="flex flex-1 ml-2 items-center input-group relative flex items-stretch w-full">
+        <input type="search" className="hidden sm:flex form-control relative flex-auto min-w-0 block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded-l-lg transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" placeholder="Search" aria-label="Search" aria-describedby="search"></input>
+        <button className="hidden sm:flex btn px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded-r-lg shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out flex items-center" type="button" id="search">
+          <div className="h-5 w-5"><SearchIcon className="w-5 h-5 mr-2" aria-hidden="true" /></div>
+        </button>
+      </div>
+
+      {/* Right side links */}
+      <div className="flex items-center ml-2 gap-2">
+        {/* explore */}
+        <div className="hidden lg:block ml-2 text-gray-800 font-bold hover:underline">
+          <DropDown title="Explore" items={[1,2,3]} getItem={getItem}></DropDown>
         </div>
-
-        {/* Search bar */}
-        <div className="flex flex-1 ml-2 items-center input-group relative flex items-stretch w-full">
-          <input type="search" className="hidden sm:flex form-control relative flex-auto min-w-0 block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded-l-lg transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" placeholder="Search" aria-label="Search" aria-describedby="search"></input>
-          <button className="hidden sm:flex btn px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded-r-lg shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out flex items-center" type="button" id="search">
-            <div className="h-5 w-5"><SearchIcon className="w-5 h-5 mr-2" aria-hidden="true" /></div>
-          </button>
+        {/* trade */}
+        <div className="hidden lg:block ml-2 text-gray-800 font-bold hover:underline">
+          <DropDown title="Trade" items={[7,8,9]} getItem={getItem}></DropDown>
         </div>
-
-        {/* Right side links */}
-        <div className="flex items-center ml-2 gap-2">
-          {/* explore */}
-          <div className="hidden lg:block ml-2 text-gray-800 font-bold hover:underline">
-            <DropDown title="Explore" items={[1,2,3]} getItem={getItem}></DropDown>
-          </div>
-          {/* trade */}
-          <div className="hidden lg:block ml-2 text-gray-800 font-bold hover:underline">
-            <DropDown title="Trade" items={[7,8,9]} getItem={getItem}></DropDown>
-          </div>
-          {/* shopping cart */}
-          {/* notification */}
-          <div className="ml-2 h-5 w-5 cursor-pointer" onClick={() => handleNotificationClick(true)}>
-            {isNotificationOpen == true ?
-              <a title="Notification close"><BellIcon className="w-7 h-7 mr-2" aria-hidden="true" /></a> :
-              <a title="Notification open"><BellIcon className="w-7 h-7 mr-2" aria-hidden="true" /></a>
-            }
-            {notificationCount > 0 ?
-              <span className="animate-bounce text-white bg-red-700 absolute rounded-full text-xs -mt-2.5 ml-2 py-0 px-1.5">
-                {getNotificationCountString()}
-              </span>
-              :
-              <span></span>
-            }
-          </div>
-          {/* avatar */}
-          <div className="cursor-pointer ml-2">
-            {session && sessionStatus === 'authenticated' ?
-              (<DropDown title="Avatar" items={[11,12,13,15]} getItem={getItem} typeImage={true}></DropDown>)
-              :
-              (<DropDown title="Avatar" items={[11,12,13,14]} getItem={getItem} typeImage={true}></DropDown>)
-            }
-          </div>
-          {/* menu open */}
-          <div className="lg:hidden ml-2 min-w-5 h-5 w-5 cursor-pointer" onClick={() => handleMenuClick(true)}>
-            {isMenuOpen == true ?
-              <a title="Menu close"><XIcon className="w-5 h-5 mr-2" aria-hidden="true" /></a> :
-              <a title="Menu open"><MenuIcon className="w-5 h-5 mr-2" aria-hidden="true" /></a>
-            }
-          </div>
+        {/* shopping cart */}
+        {/* notification */}
+        <div className="ml-2 h-5 w-5 cursor-pointer" onClick={() => handleNotificationClick(true)}>
+          {isNotificationOpen == true ?
+            <a title="Notification close"><BellIcon className="w-7 h-7 mr-2" aria-hidden="true" /></a> :
+            <a title="Notification open"><BellIcon className="w-7 h-7 mr-2" aria-hidden="true" /></a>
+          }
+          {notificationCount > 0 ?
+            <span className="animate-bounce text-white bg-red-700 absolute rounded-full text-xs -mt-2.5 ml-2 py-0 px-1.5">
+              {getNotificationCountString()}
+            </span>
+            :
+            <span></span>
+          }
         </div>
-
-      {/* </div> */}
+        {/* avatar */}
+        <div className="cursor-pointer ml-2">
+          {session && sessionStatus === 'authenticated' ?
+            (<DropDown title="Avatar" items={[11,12,13,15]} getItem={getItem} typeImage={true}></DropDown>)
+            :
+            (<DropDown title="Avatar" items={[11,12,13,14]} getItem={getItem} typeImage={true}></DropDown>)
+          }
+        </div>
+        {/* menu open */}
+        <div className="lg:hidden ml-2 min-w-5 h-5 w-5 cursor-pointer" onClick={() => handleMenuClick(true)}>
+          {isMenuOpen == true ?
+            <a title="Menu close"><XIcon className="w-5 h-5 mr-2" aria-hidden="true" /></a> :
+            <a title="Menu open"><MenuIcon className="w-5 h-5 mr-2" aria-hidden="true" /></a>
+          }
+        </div>
+      </div>
 
     </nav>
   )

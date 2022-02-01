@@ -3,6 +3,7 @@ import { AUTH_CONTEXT_ACTIONS } from '../../contexts/AuthContext'
 
 const __init__ = async (dispatch) => {
   // register events
+
   ethereum.on('chainChanged', async (_chainId) => {
     dispatch({
       type: AUTH_CONTEXT_ACTIONS.NETWORK,
@@ -13,6 +14,7 @@ const __init__ = async (dispatch) => {
       payload: { networkVersion: await getNetworkVersion() }
     });
   });
+
   ethereum.on('accountsChanged', async (_accounts) => {
     // console.log('WalletUtil accounts:', _accounts);
     let currentAccount = null;
@@ -31,23 +33,6 @@ const __init__ = async (dispatch) => {
   });
 
 }
-
-const _handleChainChanged = async (_chainId) => {
-  console.log('new chain:', await getNetworkVersion());
-}
-
-const _handleAccountsChanged = async (_accounts) => {
-  let currentAccount = null;
-  if (_accounts.length === 0) {
-    // MetaMask is locked or the user has not connected any accounts
-    console.log('Please connect to MetaMask.');
-  } else if (_accounts[0] !== currentAccount) {
-    currentAccount = _accounts[0];
-    // Do any other work!
-  }
-  console.log('new account:', currentAccount);
-}
-
 
 const isW3WalletFound = () => {
   return typeof window.ethereum !== 'undefined'
