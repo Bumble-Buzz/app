@@ -1,93 +1,9 @@
-import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { ethers } from 'ethers';
-import WALLTET from '../utils/wallet';
+import Image from 'next/image';
 
-import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 export default function Home() {
   const ROUTER = useRouter();
-
-  // NFT contract states
-  const [maxSupply, setMaxSupply] = useState('10,000');
-  const [mintedSupply, setMintedSupply] = useState('0');
-
-  const [mintCounter, setMintCounter] = useState(1);
-  const MAX_MINT_AMOUNT = 5;
-  const MIN_MINT_AMOUNT = 1;
-  const COST = 0.5;
-
-  useEffect(() => {
-    getMaxSupply();
-    getMintedSupply();
-  }, []);
-
-  const getMaxSupply = async () => {
-    console.log('start - getMaxSupply');
-    if (!await WALLTET.isNetworkValid()) {
-      console.error('Wrong network, switch to Avalanche');
-      return;
-    }
-
-    // const provider = WALLTET.getDefaultProvider();
-    // const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, provider);
-    const signer = await WALLTET.getSigner();
-    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, signer);
-    const val = await contract.getMaxSupply();
-    setMaxSupply(val.toLocaleString(undefined,0));
-    console.log('end - getMaxSupply');
-  };
-
-  const getMintedSupply = async () => {
-    console.log('start - getMintedSupply');
-    if (!await WALLTET.isNetworkValid()) {
-      console.error('Wrong network, switch to Avalanche');
-      return;
-    }
-
-    // const provider = WALLTET.getDefaultProvider();
-    // const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, provider);
-    const signer = await WALLTET.getSigner();
-    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, signer);
-    const val = await contract.totalSupply();
-    setMintedSupply(val.toLocaleString(undefined,0));
-    console.log('end - getMintedSupply');
-  };
-
-  const mintNft = async () => {
-    console.log('start - mintNft');
-    if (!await WALLTET.isNetworkValid()) {
-      console.error('Wrong network, switch to Avalanche');
-      return;
-    }
-
-    const signer = await WALLTET.getSigner();
-    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, signer);
-
-    const finalCost = COST*mintCounter;
-    const price = ethers.utils.parseUnits(finalCost.toString(), 'ether');
-    const address = await signer.getAddress();
-    const transaction = await contract.mint(address, mintCounter, {
-      value: price
-    });
-    await transaction.wait();
-    console.log('end - mintNft');
-  };
-
-  const handleClickAdd = (e) => {
-    e.preventDefault();
-    if (mintCounter < MAX_MINT_AMOUNT) {
-      setMintCounter(mintCounter+1);
-    }
-  };
-
-  const handleClickSubtract = (e) => {
-    e.preventDefault();
-    if (mintCounter > MIN_MINT_AMOUNT) {
-      setMintCounter(mintCounter-1);
-    }
-  };
 
   return (
     <main className="flex flex-nowrap flex-col items-center px-0 py-1 w-full">
@@ -112,10 +28,10 @@ export default function Home() {
               <div className="my-2">
                 <div className="flex flex-row flex-wrap justify-center">
                   <div>
-                    <button onClick={mintNft} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Explore</button>
+                    <button className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Explore</button>
                   </div>
                   <div>
-                    <button onClick={mintNft} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Sell</button>
+                    <button className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Sell</button>
                   </div>
                   <div>
                     <button onClick={() => {ROUTER.push('/create')}} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Create</button>

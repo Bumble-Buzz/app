@@ -1,4 +1,5 @@
 ARG APP_ENV=dev
+ARG NEXTAUTH_URL=http://localhost:80
 
 # Base
 FROM node:16.13.2-alpine3.14 as base
@@ -16,6 +17,8 @@ FROM node:16.13.2-alpine3.14 as builder
 
 ARG APP_ENV
 ENV NEXT_PUBLIC_APP_ENV=${APP_ENV}
+ARG NEXTAUTH_URL
+ENV NEXTAUTH_URL=${NEXTAUTH_URL}
 
 WORKDIR /usr/src/app
 

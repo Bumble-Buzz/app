@@ -10,6 +10,10 @@ import DropDown from './DropDown';
 
 import HeadlessSlideOver from '../HeadlessSlideOver';
 
+import { useSession, getSession } from 'next-auth/react';
+import { useAuth, AUTH_CONTEXT_ACTIONS } from '../../contexts/AuthContext';
+import WalletUtil from '../../components/wallet/WalletUtil';
+
 import {
   PencilIcon, SearchIcon, MenuIcon, XIcon, BellIcon, ShoppingCartIcon
 } from '@heroicons/react/solid';
@@ -18,8 +22,11 @@ import {
 } from '@heroicons/react/outline';
 
 
-function Navbar() {
+export default function Navbar() {
   const ROUTER = useRouter();
+  const AuthContext = useAuth();
+  const { data: session, status: sessionStatus } = useSession();
+  console.log('session', session, sessionStatus);
 
   const [isNotificationOpen, setNotificationOpen] = useState(false);
   const [notificationClickTime, setNotificationClickTime] = useState(0);
@@ -37,8 +44,25 @@ function Navbar() {
   });
 
   useEffect(() => {
-    connectWallet();
-  }, [isNavOpen, ROUTER.pathname]);
+    walletInit();
+    // connectWallet();
+  }, []);
+
+  const walletInit = async () => {
+    await WalletUtil.__init__(AuthContext.dispatch);
+
+    AuthContext.dispatch({
+      type: AUTH_CONTEXT_ACTIONS.ALL,
+      payload: {
+        isWalletFound: WalletUtil.isW3WalletFound(),
+        isMetamaskFound: WalletUtil.isMetamaskFound(),
+        isConnected: WalletUtil.isConnected(),
+        isNetworkValid: await WalletUtil.isNetworkValid(),
+        networkVersion: await WalletUtil.getNetworkVersion(),
+        account: (await WalletUtil.getAccounts())[0]
+      }
+    });
+  };
 
   const connectWallet = async (e) => {
     if (e) {
@@ -134,6 +158,20 @@ function Navbar() {
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };
+      case 14:
+        return {
+          label: 'Sign in',
+          link: '/authenticate',
+          icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
+          iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
+        };
+      case 15:
+        return {
+          label: 'Sign out',
+          link: '/authenticate',
+          icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
+          iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
+        };
       default:
         return {};
     };
@@ -174,15 +212,15 @@ function Navbar() {
   return (
     <nav className="flex flex-nowrap items-center justify-between py-2 px-4 bg-white shadow-lg sticky top-0 z-10">
 
-        {/* menu slider */}
-        <HeadlessSlideOver open={isMenuOpen} setOpen={handleMenuClick}>
-          <Menu handleClick={handleMenuClick}></Menu>
-        </HeadlessSlideOver>
+      {/* menu slider */}
+      <HeadlessSlideOver open={isMenuOpen} setOpen={handleMenuClick}>
+        <Menu handleClick={handleMenuClick}></Menu>
+      </HeadlessSlideOver>
 
-        {/* notification slider */}
-        <HeadlessSlideOver open={isNotificationOpen} setOpen={handleNotificationClick}>
-          <Notification handleClick={handleNotificationClick}></Notification>
-        </HeadlessSlideOver>
+      {/* notification slider */}
+      <HeadlessSlideOver open={isNotificationOpen} setOpen={handleNotificationClick}>
+        <Notification handleClick={handleNotificationClick}></Notification>
+      </HeadlessSlideOver>
 
       {/* <div className="flex flex-nowrap"> */}
 
@@ -226,7 +264,11 @@ function Navbar() {
           </div>
           {/* avatar */}
           <div className="cursor-pointer ml-2">
-            <DropDown title="Avatar" items={[11,12,13]} getItem={getItem} typeImage={true}></DropDown>
+            {session && sessionStatus === 'authenticated' ?
+              (<DropDown title="Avatar" items={[11,12,13,15]} getItem={getItem} typeImage={true}></DropDown>)
+              :
+              (<DropDown title="Avatar" items={[11,12,13,14]} getItem={getItem} typeImage={true}></DropDown>)
+            }
           </div>
           {/* menu open */}
           <div className="lg:hidden ml-2 min-w-5 h-5 w-5 cursor-pointer" onClick={() => handleMenuClick(true)}>
@@ -235,7 +277,6 @@ function Navbar() {
               <a title="Menu open"><MenuIcon className="w-5 h-5 mr-2" aria-hidden="true" /></a>
             }
           </div>
-          
         </div>
 
       {/* </div> */}
@@ -244,4 +285,10 @@ function Navbar() {
   )
 }
 
-export default Navbar
+export async function getServerSideProps(context) {
+  return {
+    props: {
+      session: await getSession(context)
+    },
+  }
+}

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image';
+import { useRouter } from 'next/router';
+import { useSession, getSession } from 'next-auth/react';
 import { ethers } from 'ethers';
 import FormData from 'form-data';
 
@@ -7,6 +9,11 @@ import WALLTET from '../utils/wallet';
 import API from '../components/Api';
 import Toast from '../components/Toast';
 import NoImageAvailable from '../public/no-image-available.png';
+import Unauthenticated from '../components/Unauthenticated';
+
+// import WalletUtil from '../components/wallet/WalletUtil';
+
+import { useAuth, AUTH_CONTEXT_ACTIONS } from '../contexts/AuthContext'
 
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
@@ -14,6 +21,10 @@ import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNf
 
 
 export default function Create() {
+  const ROUTER = useRouter();
+  const AuthContext = useAuth();
+  const { data: session, status: sessionStatus } = useSession();
+
   const [isLoading, setLoading] = useState(false);
   const [isMinted, setMinted] = useState(false);
   const [values, setValues] = useState({
@@ -32,8 +43,15 @@ export default function Create() {
   const [attributeValue, setAttributeValue] = useState('');
 
   useEffect(() => {
+    // walletInit();
     checkTransaction();
   }, [transaction]);
+
+  // const walletInit = async () => {
+  //   await WalletUtil.__init__(setNetworkValid, setAccounts);
+  //   setNetworkValid(await WalletUtil.isNetworkValid());
+  //   setAccounts(await WalletUtil.getAccounts());
+  // };
 
   const checkTransaction = async () => {
     if (transaction) {
@@ -431,6 +449,13 @@ export default function Create() {
     console.log('end - deleteBatchDbItem');
   }
 
+
+  if (!session || sessionStatus !== 'authenticated' || session.user.id !== AuthContext.state.account || !AuthContext.state.isNetworkValid) {
+    return (
+      <Unauthenticated link={'/authenticate'}></Unauthenticated>
+    )
+  }
+
   return (
     <main className="flex flex-nowrap flex-col items-center px-0 py-1 w-full">
       <div className="flex flex-nowrap rounded shadow-lg w-full" style={{minHeight: '500px'}}>
@@ -658,7 +683,10 @@ export default function Create() {
         </div>
 
       </div>
-{/* <div className="flex flex-row gap-2">
+<div className="flex flex-row gap-2">
+  {/* <div>
+    <p onClick={() => darkTheme.dispatch({ type: AUTH_CONTEXT_ACTIONS.TOGGLE })}>Toggle theme</p>
+  </div> */}
   <div>
     <p onClick={uploadImage}>Upload Image to IPFS</p>
     <p onClick={uploadConfig}>Upload config to IPFS</p>
@@ -682,8 +710,15 @@ export default function Create() {
     <p onClick={deleteDbItem}>Test deleteDbItem</p>
     <p onClick={deleteBatchDbItem}>Test deleteBatchDbItem</p>
   </div>
-</div> */}
+</div>
     </main>
   )
 }
-  
+
+export async function getServerSideProps(context) {
+  return {
+    props: {
+      session: await getSession(context)
+    },
+  }
+}

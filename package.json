@@ -39,6 +39,8 @@
     "ipfs-http-client": "^50.1.2",
     "make": "^0.8.1",
     "next": "11.1.2",
+    "next-auth": "^4.1.2",
+    "@next-auth/dynamodb-adapter": "^1.0.2",
     "node-fetch": "^2.6.1",
     "react": "17.0.2",
     "react-aria": "^3.12.0",
