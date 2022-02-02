@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import { AUTH_CONTEXT_ACTIONS } from '../../contexts/AuthContext'
 
 
@@ -16,15 +17,12 @@ const __init__ = async (dispatch) => {
   });
 
   ethereum.on('accountsChanged', async (_accounts) => {
-    // console.log('WalletUtil accounts:', _accounts);
     let currentAccount = null;
     if (_accounts.length === 0) {
       // MetaMask is locked or the user has not connected any accounts
-      console.log('Please connect to MetaMask.');
     } else if (_accounts[0] !== currentAccount) {
       currentAccount = _accounts[0];
 
-      // console.log('WalletUtil current account:', currentAccount);
       dispatch({
         type: AUTH_CONTEXT_ACTIONS.ACCOUNT,
         payload: { account: currentAccount }
@@ -44,6 +42,10 @@ const isMetamaskFound = () => {
 
 const isConnected = () => {
   return ethereum.isConnected();
+}
+
+const isWalletGood = () => {
+  return (isW3WalletFound() && isMetamaskFound() && isConnected());
 }
 
 const getCurrentChain = async () => {
@@ -66,15 +68,44 @@ const reqAccountLogin = async () => {
   return await ethereum.request({ method: 'eth_requestAccounts' });
 }
 
+const getWalletProvider = async () => {
+  if (isWalletGood()) {
+    return new ethers.providers.Web3Provider(window.ethereum);
+  } else {
+    return null;
+  }
+}
+const getWalletSigner = async () => {
+  const provider = await getWalletProvider();
+  if (provider) {
+    return provider.getSigner();
+  } else {
+    return null;
+  }
+}
+
+const checkTransaction = async (transaction) => {
+  const provider = await getWalletProvider();
+  if (provider) {
+    return await provider.getTransactionReceipt(transaction.hash);
+  } else {
+    return null;
+  }
+};
+
 
 module.exports = {
   __init__,
   isW3WalletFound,
   isMetamaskFound,
   isConnected,
+  isWalletGood,
   getCurrentChain,
   getNetworkVersion,
   isNetworkValid,
   getAccounts,
-  reqAccountLogin
+  reqAccountLogin,
+  getWalletProvider,
+  getWalletSigner,
+  checkTransaction
 }

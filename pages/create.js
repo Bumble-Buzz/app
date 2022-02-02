@@ -1,26 +1,20 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image';
-import { useRouter } from 'next/router';
 import { useSession, getSession } from 'next-auth/react';
 import { ethers } from 'ethers';
 import FormData from 'form-data';
-
-import WALLTET from '../utils/wallet';
+import WalletUtil from '../components/wallet/WalletUtil';
+import { useAuth } from '../contexts/AuthContext';
 import API from '../components/Api';
 import Toast from '../components/Toast';
 import NoImageAvailable from '../public/no-image-available.png';
 import Unauthenticated from '../components/Unauthenticated';
-
-
-import { useAuth } from '../contexts/AuthContext'
-
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
 import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
 export default function Create() {
-  const ROUTER = useRouter();
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
 
@@ -48,7 +42,7 @@ export default function Create() {
 
   const checkTransaction = async () => {
     if (transaction) {
-      const txReceipt = await WALLTET.checkTransaction(transaction);
+      const txReceipt = await WalletUtil.checkTransaction(transaction);
       if (txReceipt && txReceipt.blockNumber) {
         setTransaction();
         initValues();
@@ -141,12 +135,7 @@ export default function Create() {
     console.log('start - createNft');
     e.preventDefault();
 
-    if (!await WALLTET.isNetworkValid()) {
-      console.error('Wrong network, switch to Avalanche');
-      return;
-    }
-
-    const signer = await WALLTET.getSigner();
+    const signer = await WalletUtil.getWalletSigner();
     const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, signer);
     try {
       setLoading(true);
@@ -216,8 +205,7 @@ export default function Create() {
   const testBlockchain = async () => {
     console.log('start - testBlockchain');
 
-    const provider = await WALLTET.getProvider();
-    const signer = await WALLTET.getSigner();
+    const provider = await WalletUtil.getWalletProvider();
 
     const currentBlockNumber = await provider.getBlockNumber();
     console.log('current block number', currentBlockNumber);

@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import { useSession, getSession, getProviders, signIn, signOut } from 'next-auth/react';
 import Toast from '../components/Toast';
 import WalletUtil from '../components/wallet/WalletUtil';
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../contexts/AuthContext';
 
 
 export default function SignIn() {
@@ -43,14 +43,12 @@ export default function SignIn() {
     };
 
     try {
-      const metamaskProvider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = metamaskProvider.getSigner();
+      const signer = await WalletUtil.getWalletSigner();
       const signature = await signer._signTypedData(domain, types, value);
       const recoveredAddress = ethers.utils.verifyTypedData(domain, types, value, signature);
 
-
-      const providers = await getProviders();
-      const signedIn = await signIn(providers.myCredentials.id, {
+      const CredProviders = await getProviders();
+      const signedIn = await signIn(CredProviders.myCredentials.id, {
         redirect: false,
         walletId: AuthContext.state.account,
         signature,
@@ -158,7 +156,7 @@ export default function SignIn() {
 
                 {AuthContext.state.isWalletFound && AuthContext.state.isMetamaskFound && AuthContext.state.isNetworkValid && AuthContext.state.account && (
                   <>
-                    <div className="text-gray-700 text-base break-all">Sing in using account:</div>
+                    <div className="text-gray-700 text-base break-all">Sign in using account:</div>
                     <div className="text-gray-700 text-base break-all mb-4"><b>{AuthContext.state.account}</b></div>
                     <button
                       type="submit"
