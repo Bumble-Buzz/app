@@ -5,6 +5,7 @@ import { useSession, getSession, getProviders, signIn, signOut } from 'next-auth
 import Toast from '../components/Toast';
 import WalletUtil from '../components/wallet/WalletUtil';
 import { useAuth } from '../contexts/AuthContext';
+import ContentWrapper from '../components/ContentWrapper';
 
 
 export default function SignIn() {
@@ -74,108 +75,100 @@ export default function SignIn() {
 
   if (session && sessionStatus === 'authenticated') {
     return (
-      <div className="flex flex-nowrap flex-col items-center px-0 py-1 w-full">
-        <div className="flex flex-nowrap rounded shadow-lg w-full" style={{minHeight: '500px'}}>
+      <ContentWrapper>
+        {/* Page Content */}
+        <div className="flex flex-col p-2 w-full">
 
-          {/* Page Content */}
-          <div className="flex flex-col p-2 w-full">
+          <div className="p-2 flex flex-col">
+            <h2 className="text-3xl font-semibold text-gray-800">Sign<span className="text-indigo-600">Out</span></h2>
+          </div>
 
-            <div className="p-2 flex flex-col">
-              <h2 className="text-3xl font-semibold text-gray-800">Sign<span className="text-indigo-600">Out</span></h2>
+          <div className="p-2 flex flex-col items-center text-center">
+            <div className="block p-6 rounded-lg shadow-lg bg-white">
+              <p className="text-gray-700 text-base mb-4">
+                Would you like to sign out?
+              </p>
+              <button
+                type="button"
+                className="inline-flex justify-center mx-2 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                onClick={() => ROUTER.back()}
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                className="inline-flex justify-center mx-2 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                onClick={handleSignOut}
+              >
+                Sign out
+              </button>
             </div>
-
-            <div className="p-2 flex flex-col items-center text-center">
-              <div className="block p-6 rounded-lg shadow-lg bg-white">
-                <p className="text-gray-700 text-base mb-4">
-                  Would you like to sign out?
-                </p>
-                <button
-                  type="button"
-                  className="inline-flex justify-center mx-2 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  onClick={() => ROUTER.back()}
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex justify-center mx-2 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  onClick={handleSignOut}
-                >
-                  Sign out
-                </button>
-              </div>
-            </div>
-
           </div>
 
         </div>
-      </div>
+      </ContentWrapper>
     )
   } else {
     return (
-      <div className="flex flex-nowrap flex-col items-center px-0 py-1 w-full">
-        <div className="flex flex-nowrap rounded shadow-lg w-full" style={{minHeight: '500px'}}>
+      <ContentWrapper>
+        {/* Page Content */}
+        <div className="flex flex-col p-2 w-full">
 
-          {/* Page Content */}
-          <div className="flex flex-col p-2 w-full">
+          <div className="p-2 flex flex-col">
+            <h2 className="text-3xl font-semibold text-gray-800">Sign<span className="text-indigo-600">In</span></h2>
+          </div>
 
-            <div className="p-2 flex flex-col">
-              <h2 className="text-3xl font-semibold text-gray-800">Sign<span className="text-indigo-600">In</span></h2>
+          <div className="p-2 flex flex-col items-center text-center">
+            <div className="block p-6 rounded-lg shadow-lg bg-white">
+
+              {!AuthContext.state.isWalletFound && (
+                <p className="text-gray-700 text-base mb-4">No Web3 wallet found</p>
+              )}
+              {!AuthContext.state.isMetamaskFound && (
+                <p className="text-gray-700 text-base mb-4">No MetaMask wallet found</p>
+              )}
+              {AuthContext.state.isWalletFound && AuthContext.state.isMetamaskFound && (
+                <Image src={'/metamask.svg'} alt='avocado' width='200' height='200' />
+              )}
+              {/* {!AuthContext.state.isConnected && (
+                <p className="text-gray-700 text-base mb-4">MetaMask is not connected to any chain</p>
+              )} */}
+              {!AuthContext.state.isNetworkValid && (
+                <p className="text-gray-700 text-base mb-4">MetaMask is not connected to Avalanche chain</p>
+              )}
+              {!AuthContext.state.account && (
+                <>
+                  <p className="text-gray-700 text-base mb-4">No account is connected.</p>
+                  <button
+                    type="button"
+                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    onClick={walletConnect}
+                  >
+                    Connect using Metamask
+                  </button>
+                </>
+              )}
+
+              {AuthContext.state.isWalletFound && AuthContext.state.isMetamaskFound && AuthContext.state.isNetworkValid && AuthContext.state.account && (
+                <>
+                  <div className="text-gray-700 text-base break-all">Sign in using account:</div>
+                  <div className="text-gray-700 text-base break-all mb-4"><b>{AuthContext.state.account}</b></div>
+                  <button
+                    type="submit"
+                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    onClick={handleSignIn}
+                  >
+                    Sign in
+                  </button>
+                </>
+              )}
+
+
             </div>
-
-            <div className="p-2 flex flex-col items-center text-center">
-              <div className="block p-6 rounded-lg shadow-lg bg-white">
-
-                {!AuthContext.state.isWalletFound && (
-                  <p className="text-gray-700 text-base mb-4">No Web3 wallet found</p>
-                )}
-                {!AuthContext.state.isMetamaskFound && (
-                  <p className="text-gray-700 text-base mb-4">No MetaMask wallet found</p>
-                )}
-                {AuthContext.state.isWalletFound && AuthContext.state.isMetamaskFound && (
-                  <Image src={'/metamask.svg'} alt='avocado' width='200' height='200' />
-                )}
-                {/* {!AuthContext.state.isConnected && (
-                  <p className="text-gray-700 text-base mb-4">MetaMask is not connected to any chain</p>
-                )} */}
-                {!AuthContext.state.isNetworkValid && (
-                  <p className="text-gray-700 text-base mb-4">MetaMask is not connected to Avalanche chain</p>
-                )}
-                {!AuthContext.state.account && (
-                  <>
-                    <p className="text-gray-700 text-base mb-4">No account is connected.</p>
-                    <button
-                      type="button"
-                      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                      onClick={walletConnect}
-                    >
-                      Connect using Metamask
-                    </button>
-                  </>
-                )}
-
-                {AuthContext.state.isWalletFound && AuthContext.state.isMetamaskFound && AuthContext.state.isNetworkValid && AuthContext.state.account && (
-                  <>
-                    <div className="text-gray-700 text-base break-all">Sign in using account:</div>
-                    <div className="text-gray-700 text-base break-all mb-4"><b>{AuthContext.state.account}</b></div>
-                    <button
-                      type="submit"
-                      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                      onClick={handleSignIn}
-                    >
-                      Sign in
-                    </button>
-                  </>
-                )}
-
-
-              </div>
-            </div>
-
           </div>
 
         </div>
-      </div>
+      </ContentWrapper>
     )
   }
 }

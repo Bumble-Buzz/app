@@ -1,12 +1,12 @@
 import { useRouter } from 'next/router';
+import ContentWrapper from './ContentWrapper';
 
 
 export default function Unauthenticated({ link }) {
   const ROUTER = useRouter();
   return (
-    <main className="flex flex-nowrap flex-col items-center px-0 py-1 w-full">
-      <div className="flex flex-nowrap rounded shadow-lg w-full" style={{minHeight: '500px'}}>
-
+    <ContentWrapper>
+        {/* Page Content */}
         <div className="flex flex-col p-2 w-full">
 
           {/* not authenticated */}
@@ -26,8 +26,6 @@ export default function Unauthenticated({ link }) {
           </div>
 
         </div>
-
-      </div>
-    </main>
+    </ContentWrapper>
   )
 }
