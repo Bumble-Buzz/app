@@ -8,6 +8,7 @@ import DropDown from './DropDown';
 import HeadlessSlideOver from '../HeadlessSlideOver';
 import { useAuth, AUTH_CONTEXT_ACTIONS } from '../../contexts/AuthContext';
 import WalletUtil from '../../components/wallet/WalletUtil';
+import Lexicon from '../../lexicon/navbar';
 import {
   PencilIcon, SearchIcon, MenuIcon, XIcon, BellIcon, ShoppingCartIcon
 } from '@heroicons/react/solid';
@@ -51,77 +52,77 @@ export default function Navbar() {
     switch(itemId) {
       case 1:
         return {
-          label: 'All NFTs',
+          label: (Lexicon.explore.allNfts),
           link: '/',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };
       case 2:
         return {
-          label: 'All Collections',
+          label: (Lexicon.explore.allCollections),
           link: '/',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };
       case 3:
         return {
-          label: 'Categories below...',
+          label: (Lexicon.explore.categoriesBelow),
           link: '/docs',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };
       case 7:
         return {
-          label: 'Create',
+          label: (Lexicon.trade.create),
           link: '/create',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };
       case 8:
         return {
-          label: 'Sell',
+          label: (Lexicon.trade.sell),
           link: '/',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };
       case 9:
         return {
-          label: 'Transfer',
+          label: (Lexicon.trade.transfer),
           link: '/',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };
       case 11:
         return {
-          label: 'Profile',
+          label: (Lexicon.avatar.profile),
           link: '/',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };
       case 12:
         return {
-          label: 'My Collections',
+          label: (Lexicon.avatar.myCollections),
           link: '/',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };
       case 13:
         return {
-          label: 'Preferences',
+          label: (Lexicon.avatar.preferences),
           link: '/',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };
       case 14:
         return {
-          label: 'Sign in',
+          label: (Lexicon.avatar.signIn),
           link: '/authenticate',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };
       case 15:
         return {
-          label: 'Sign out',
+          label: (Lexicon.avatar.signOut),
           link: '/authenticate',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
@@ -178,7 +179,7 @@ export default function Navbar() {
 
       {/* Logo */}
       <div className="flex items-center text-2xl lg:text-3xl font-bold text-gray-800">
-        <Link href='/' passHref={true}><a>AvaxTrade</a></Link>
+        <Link href='/' passHref={true}><a>{Lexicon.title}</a></Link>
       </div>
 
       {/* Search bar */}
@@ -193,18 +194,18 @@ export default function Navbar() {
       <div className="flex items-center ml-2 gap-2">
         {/* explore */}
         <div className="hidden lg:block ml-2 text-gray-800 font-bold hover:underline">
-          <DropDown title="Explore" items={[1,2,3]} getItem={getItem}></DropDown>
+          <DropDown title={Lexicon.explore.text} items={[1,2,3]} getItem={getItem}></DropDown>
         </div>
         {/* trade */}
         <div className="hidden lg:block ml-2 text-gray-800 font-bold hover:underline">
-          <DropDown title="Trade" items={[7,8,9]} getItem={getItem}></DropDown>
+          <DropDown title={Lexicon.trade.text} items={[7,8,9]} getItem={getItem}></DropDown>
         </div>
         {/* shopping cart */}
         {/* notification */}
         <div className="ml-2 h-5 w-5 cursor-pointer" onClick={() => handleNotificationClick(true)}>
           {isNotificationOpen == true ?
-            <a title="Notification close"><BellIcon className="w-7 h-7 mr-2" aria-hidden="true" /></a> :
-            <a title="Notification open"><BellIcon className="w-7 h-7 mr-2" aria-hidden="true" /></a>
+            <a title={Lexicon.notification.close}><BellIcon className="w-7 h-7 mr-2" aria-hidden="true" /></a> :
+            <a title={Lexicon.notification.open}><BellIcon className="w-7 h-7 mr-2" aria-hidden="true" /></a>
           }
           {notificationCount > 0 ?
             <span className="animate-bounce text-white bg-red-700 absolute rounded-full text-xs -mt-2.5 ml-2 py-0 px-1.5">
@@ -217,16 +218,16 @@ export default function Navbar() {
         {/* avatar */}
         <div className="cursor-pointer ml-2">
           {session && sessionStatus === 'authenticated' ?
-            (<DropDown title="Avatar" items={[11,12,13,15]} getItem={getItem} typeImage={true}></DropDown>)
+            (<DropDown title={Lexicon.avatar.text} items={[11,12,13,15]} getItem={getItem} typeImage={true}></DropDown>)
             :
-            (<DropDown title="Avatar" items={[11,12,13,14]} getItem={getItem} typeImage={true}></DropDown>)
+            (<DropDown title={Lexicon.avatar.text} items={[11,12,13,14]} getItem={getItem} typeImage={true}></DropDown>)
           }
         </div>
         {/* menu open */}
         <div className="lg:hidden ml-2 min-w-5 h-5 w-5 cursor-pointer" onClick={() => handleMenuClick(true)}>
           {isMenuOpen == true ?
-            <a title="Menu close"><XIcon className="w-5 h-5 mr-2" aria-hidden="true" /></a> :
-            <a title="Menu open"><MenuIcon className="w-5 h-5 mr-2" aria-hidden="true" /></a>
+            <a title={Lexicon.menu.close}><XIcon className="w-5 h-5 mr-2" aria-hidden="true" /></a> :
+            <a title={Lexicon.menu.open}><MenuIcon className="w-5 h-5 mr-2" aria-hidden="true" /></a>
           }
         </div>
       </div>

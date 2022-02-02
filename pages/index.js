@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import ContentWrapper from '../components/ContentWrapper';
+import Lexicon from '../lexicon/index';
 
 
 export default function Home() {
@@ -15,14 +16,11 @@ export default function Home() {
           <div className="flex flex-col">
             <div className="my-2">
               <h2 className="text-3xl font-semibold text-gray-800 md:text-4xl">
-                Collect, create, and sell <span className="text-indigo-600">priceless NFTs!</span>
+                {Lexicon.titleText} <span className="text-indigo-600">{Lexicon.titleText2}</span>
               </h2>
             </div>
             <div className="my-2">
-              <p className="mt-2 text-sm text-gray-500 md:text-base">
-                AvaxTrade is a NFT Marketplace on the Avalanche blockchain.
-                Collect a unique NFT, or create your own. Put an NFT up for sale. You can do it all on AvaxTrade!
-              </p>
+            <p className="mt-2 text-sm text-gray-500 md:text-base">{Lexicon.description}</p>
             </div>
             <div className="my-2">
               <div className="flex flex-row flex-wrap justify-center">

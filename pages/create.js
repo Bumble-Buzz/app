@@ -11,6 +11,7 @@ import NoImageAvailable from '../public/no-image-available.png';
 import Unauthenticated from '../components/Unauthenticated';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 import ContentWrapper from '../components/ContentWrapper';
+import Lexicon from '../lexicon/create';
 
 import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
@@ -444,22 +445,20 @@ export default function Create() {
       <div className="flex flex-col p-2 w-full">
 
         <div className="p-2 flex flex-col">
-          <h2 className="text-3xl font-semibold text-gray-800">Create <span className="text-indigo-600">NFT</span></h2>
+          <h2 className="text-3xl font-semibold text-gray-800">{Lexicon.title} <span className="text-indigo-600">{Lexicon.title2}</span></h2>
         </div>
 
         {isMinted ?
           <div className="p-2 flex flex-col items-center text-center">
             <div className="">
               <div className="block p-6 rounded-lg shadow-lg bg-white max-w-sm">
-                <p className="text-gray-700 text-base mb-4">
-                  Congratulations, you have successfully minted your NFT!
-                </p>
+                <p className="text-gray-700 text-base mb-4">{Lexicon.congratulations}</p>
                 <button
                   type="button"
                   className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   onClick={() => {setMinted(false);}}
                 >
-                  Create another NFT
+                  {Lexicon.createAnotherNft}
                 </button>
               </div>
             </div>
@@ -473,7 +472,7 @@ export default function Create() {
 
                   <div className="w-full">
                     <div className="my-2">
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700">{Lexicon.form.name}</label>
                       <input
                         type="text"
                         name="name"
@@ -486,7 +485,7 @@ export default function Create() {
                     </div>
 
                     <div className="my-2">
-                      <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description (optional)</label>
+                      <label htmlFor="description" className="block text-sm font-medium text-gray-700">{Lexicon.form.description.text}</label>
                         <textarea
                           id="description"
                           name="description"
@@ -496,13 +495,11 @@ export default function Create() {
                           className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
                           onChange={handleDescription}
                         />
-                      <p className="mt-2 text-sm text-gray-500">
-                        Brief description about your NFT.
-                      </p>
+                      <p className="mt-2 text-sm text-gray-500">{Lexicon.form.description.text2}</p>
                     </div>
 
                     <div className="my-2">
-                      <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+                      <label htmlFor="category" className="block text-sm font-medium text-gray-700">{Lexicon.form.category.text}</label>
                       <select
                         id="category"
                         name="category"
@@ -511,18 +508,18 @@ export default function Create() {
                         className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
                         onChange={handleCategory}
                       >
-                        <option>Art</option>
-                        <option>Games</option>
-                        <option>Meme</option>
-                        <option>Photography</option>
-                        <option>Sports</option>
-                        <option>NSFW</option>
-                        <option>Other</option>
+                        <option>{Lexicon.form.category.art}</option>
+                        <option>{Lexicon.form.category.games}</option>
+                        <option>{Lexicon.form.category.meme}</option>
+                        <option>{Lexicon.form.category.photography}</option>
+                        <option>{Lexicon.form.category.sports}</option>
+                        <option>{Lexicon.form.category.nsfw}</option>
+                        <option>{Lexicon.form.category.other}</option>
                       </select>
                     </div>
 
                     <div className="my-2">
-                      <label htmlFor="commission" className="block text-sm font-medium text-gray-700">Commission (%)</label>
+                      <label htmlFor="commission" className="block text-sm font-medium text-gray-700">{Lexicon.form.commission}</label>
                       <input
                         type="number"
                         min="0"
@@ -536,10 +533,10 @@ export default function Create() {
                     </div>
 
                     <div className="my-2">
-                      <label className="block text-sm font-medium text-gray-700">Attributes (optional)</label>
+                      <label className="block text-sm font-medium text-gray-700">{Lexicon.form.attributes.text}</label>
                       <div className="flex flex-col xsm:flex-row flex-wrap xsm:flex-nowrap gap-2 xsm:items-end">
                         <div>
-                          <label htmlFor="trait-type" className="block text-sm font-medium text-gray-500">Name:</label>
+                          <label htmlFor="trait-type" className="block text-sm font-medium text-gray-500">{Lexicon.form.attributes.name}</label>
                           <input
                             type="text"
                             name="trait-type"
@@ -551,7 +548,7 @@ export default function Create() {
                           />
                         </div>
                         <div>
-                          <label htmlFor="trait-value" className="block text-sm font-medium text-gray-500">Value:</label>
+                          <label htmlFor="trait-value" className="block text-sm font-medium text-gray-500">{Lexicon.form.attributes.value}</label>
                           <input
                             type="text"
                             name="trait-value"
@@ -568,7 +565,7 @@ export default function Create() {
                               text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline focus:outline-0"
                             onClick={handleAttributes}
                           >
-                            Add
+                            {Lexicon.form.attributes.add}
                           </label>
                         </div>
                       </div>
@@ -606,7 +603,7 @@ export default function Create() {
                       }
                     </div>
                     <div className="my-2">
-                    <label className="block text-sm font-medium text-gray-500">Max: 10mb</label>
+                    <label className="block text-sm font-medium text-gray-500">{Lexicon.form.image.limit}</label>
                       <input
                         type="file"
                         name="image"
@@ -646,12 +643,12 @@ export default function Create() {
                       className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
                       <DotsCircleHorizontalIcon className="animate-spin w-5 h-5 mr-2" aria-hidden="true" />
-                      Processing</button>
+                      {Lexicon.form.submit.processing}</button>
                     :
                     <button
                       type="submit"
                       className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >Create NFT!</button>
+                    >{Lexicon.form.submit.createNft}</button>
                   }
                 </div>
 
