@@ -176,7 +176,7 @@ export default function Create() {
         cid = res.data;
       });
     } catch (e) {
-      Toast.error("Error uploading image to IPFS");
+      throw({ message: 'Error uploading image to IPFS' });
     }
 
     return cid;
@@ -198,7 +198,7 @@ export default function Create() {
         cid = res.data;
       });
     } catch (e) {
-      Toast.error("Error uploading config to IPFS");
+      throw({ message: 'Error uploading config to IPFS' });
     }
 
     return cid;
