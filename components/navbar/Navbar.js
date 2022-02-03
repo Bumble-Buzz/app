@@ -95,7 +95,7 @@ export default function Navbar() {
       case 11:
         return {
           label: (Lexicon.avatar.profile),
-          link: '/',
+          link: '/profile',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };

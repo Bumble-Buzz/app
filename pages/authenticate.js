@@ -5,7 +5,7 @@ import { useSession, getSession, getProviders, signIn, signOut } from 'next-auth
 import Toast from '../components/Toast';
 import WalletUtil from '../components/wallet/WalletUtil';
 import { useAuth } from '../contexts/AuthContext';
-import ContentWrapper from '../components/ContentWrapper';
+import ContentWrapper from '../components/wrappers/ContentWrapper';
 
 
 export default function SignIn() {

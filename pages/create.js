@@ -10,7 +10,7 @@ import Toast from '../components/Toast';
 import NoImageAvailable from '../public/no-image-available.png';
 import Unauthenticated from '../components/Unauthenticated';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
-import ContentWrapper from '../components/ContentWrapper';
+import ContentWrapper from '../components/wrappers/ContentWrapper';
 import Lexicon from '../lexicon/create';
 
 import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import Button from '../Button';
+import Button from '../wrappers/ButtonWrapper';
 import {ChevronRightIcon, ChevronLeftIcon, PencilIcon, SearchIcon, XIcon} from '@heroicons/react/solid';
 
 

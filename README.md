@@ -8,13 +8,13 @@ echo 'export LBC_VERSION="v2.3.0"' >>  ~/.bash_profile
 
 
 ## create Ingress controller in EKS
+<!-- curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.3.0/docs/install/iam_policy.json -->
 
 eksctl utils associate-iam-oidc-provider \
     --region ${AWS_REGION} \
     --cluster nft-marketplace \
     --approve
 
-<!-- curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.3.0/docs/install/iam_policy.json -->
 aws iam create-policy \
     --policy-name AWSLoadBalancerControllerIAMPolicy \
     --policy-document file://~/aws/policy/AWSLoadBalancerControllerIAMPolicy.json
@@ -55,8 +55,6 @@ eksctl create iamserviceaccount \
   --attach-policy-arn arn:aws:iam::817932929274:policy/EksDynamoDb \
   --override-existing-serviceaccounts \
   --approve
-
-<!-- eksctl create iamserviceaccount --cluster nft-marketplace --name eks-dynamodb --namespace default --attach-policy-arn arn:aws:iam::817932929274:policy/EksDynamoDb --approve --override-existing-serviceaccounts -->
 
 
 ## Auto scaling

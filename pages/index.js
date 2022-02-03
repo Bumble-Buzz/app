@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import ContentWrapper from '../components/ContentWrapper';
+import ContentWrapper from '../components/wrappers/ContentWrapper';
 import Lexicon from '../lexicon/index';
 
 

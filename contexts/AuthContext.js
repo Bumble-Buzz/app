@@ -18,67 +18,38 @@ export const useAuth = () => {
 };
 
 const reducer = (state, action) => {
+  let newState;
   switch(action.type) {
     case AUTH_CONTEXT_ACTIONS.WALLET:
       signOut({redirect: false});
-      return {
-        isWalletFound: action.payload.isWalletFound,
-        isMetamaskFound: state.isMetamaskFound,
-        isConnected: state.isConnected,
-        isNetworkValid: state.isNetworkValid,
-        networkVersion: state.networkVersion,
-        account: state.account
-      }
+      newState = JSON.parse(JSON.stringify(state));
+      newState.isWalletFound = action.payload.isWalletFound;
+      return newState
     case AUTH_CONTEXT_ACTIONS.METAMASK:
       signOut({redirect: false});
-      return {
-        isWalletFound: state.isWalletFound,
-        isMetamaskFound: action.payload.isMetamaskFound,
-        isConnected: state.isConnected,
-        isNetworkValid: state.isNetworkValid,
-        networkVersion: state.networkVersion,
-        account: state.account
-      }
+      newState = JSON.parse(JSON.stringify(state));
+      newState.isMetamaskFound = action.payload.isMetamaskFound;
+      return newState
     case AUTH_CONTEXT_ACTIONS.CONNECTED:
       signOut({redirect: false});
-      return {
-        isWalletFound: state.isWalletFound,
-        isMetamaskFound: state.isMetamaskFound,
-        isConnected: action.payload.isConnected,
-        isNetworkValid: state.isNetworkValid,
-        networkVersion: state.networkVersion,
-        account: state.account
-      }
+      newState = JSON.parse(JSON.stringify(state));
+      newState.isConnected = action.payload.isConnected;
+      return newState
     case AUTH_CONTEXT_ACTIONS.NETWORK:
       signOut({redirect: false});
-      return {
-        isWalletFound: state.isWalletFound,
-        isMetamaskFound: state.isMetamaskFound,
-        isConnected: state.isConnected,
-        isNetworkValid: action.payload.isNetworkValid,
-        networkVersion: state.networkVersion,
-        account: state.account
-      }
+      newState = JSON.parse(JSON.stringify(state));
+      newState.isNetworkValid = action.payload.isNetworkValid;
+      return newState
     case AUTH_CONTEXT_ACTIONS.NETWORK_VERSION:
       signOut({redirect: false});
-      return {
-        isWalletFound: state.isWalletFound,
-        isMetamaskFound: state.isMetamaskFound,
-        isConnected: state.isConnected,
-        isNetworkValid: state.isNetworkValid,
-        networkVersion: action.payload.networkVersion,
-        account: state.account
-      }
+      newState = JSON.parse(JSON.stringify(state));
+      newState.networkVersion = action.payload.networkVersion;
+      return newState
     case AUTH_CONTEXT_ACTIONS.ACCOUNT:
       signOut({redirect: false});
-      return {
-        isWalletFound: state.isWalletFound,
-        isMetamaskFound: state.isMetamaskFound,
-        isConnected: state.isConnected,
-        isNetworkValid: state.isNetworkValid,
-        networkVersion: state.networkVersion,
-        account: action.payload.account
-      }
+      newState = JSON.parse(JSON.stringify(state));
+      newState.account = action.payload.account;
+      return newState
     case AUTH_CONTEXT_ACTIONS.ALL:
       return {
         isWalletFound: action.payload.isWalletFound,

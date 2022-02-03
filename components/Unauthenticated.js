@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import ContentWrapper from './ContentWrapper';
+import ContentWrapper from './wrappers/ContentWrapper';
 import Lexicon from '../lexicon/unauthenticated';
 
 
