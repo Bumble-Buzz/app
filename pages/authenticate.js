@@ -2,11 +2,39 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ethers } from 'ethers';
 import { useSession, getSession, getProviders, signIn, signOut } from 'next-auth/react';
+import API from '../components/Api';
 import Toast from '../components/Toast';
 import WalletUtil from '../components/wallet/WalletUtil';
 import { useAuth } from '../contexts/AuthContext';
 import ContentWrapper from '../components/wrappers/ContentWrapper';
 
+
+
+
+const initTableSetup = async () => {
+  console.log('start - initTableSetup');
+
+  const payload = {
+    TableName: "users",
+    AttributeDefinitions: [
+      {
+        AttributeName: "walletId",
+        AttributeType: "S",
+      }
+    ],
+    KeySchema: [
+      {
+        AttributeName: "walletId",
+        KeyType: "HASH",
+      }
+    ],
+    BillingMode: "PAY_PER_REQUEST",
+  };
+  const results = await API.db.table.create(payload);
+  console.log('Created:', results.data);
+
+  console.log('end - initTableSetup');
+}
 
 export default function SignIn() {
   const ROUTER = useRouter();
@@ -15,6 +43,40 @@ export default function SignIn() {
 
   const walletConnect = async () => {
     await WalletUtil.reqAccountLogin();
+  };
+
+  const getUsersDb = async () => {
+    const payload = {
+      TableName: "users",
+      Key: {
+        'walletId': AuthContext.state.account
+      }
+    };
+    const results = await API.db.item.get(payload);
+    return results.data;
+  };
+
+  const putUsersDb = async () => {
+    const payload = {
+      TableName: "users",
+      Item: {
+        'walletId': AuthContext.state.account,
+        'name': 'Anon',
+        'bio': '',
+        'picture': '',
+        'timestamp': ''
+      }
+    };
+    await API.db.item.put(payload);
+  };
+
+  const usersDb = async () => {
+    const data = await getUsersDb();
+    if (data) {
+      console.log('user exists, do nothing. or update timestamp?');
+    } else {
+      await putUsersDb();
+    }
   };
 
   const handleSignIn = async () => {
@@ -56,11 +118,13 @@ export default function SignIn() {
         recoveredAddress
       });
       if (signedIn && signedIn.ok) {
+        await usersDb();
         ROUTER.back();
       } else {
-        Toast.error('Authentication failed, incorrect credentials');
+        throw('Authentication failed, incorrect credentials')
       }
     } catch (e) {
+      signOut({redirect: false});
       Toast.error('Authentication failed');
       console.error(e);
     }
@@ -166,6 +230,8 @@ export default function SignIn() {
 
             </div>
           </div>
+
+<p onClick={initTableSetup}>Test initTableSetup</p>
 
         </div>
       </ContentWrapper>

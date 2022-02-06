@@ -158,6 +158,9 @@ export default function Create() {
       // console.log('val', val);
       const balance = await contract.balanceOf(val.from);
       console.log('balance', balance.toLocaleString(undefined,0));
+
+      // update contracts & createdNft tables
+
     } catch (e) {
       Toast.error(e.message);
       setLoading(false);

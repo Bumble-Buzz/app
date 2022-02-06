@@ -1,24 +1,86 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useReducer } from 'react'
 import Image from 'next/image';
 import { useSession, getSession } from 'next-auth/react';
 import { ethers } from 'ethers';
 import { useAuth } from '../contexts/AuthContext';
 import Unauthenticated from '../components/Unauthenticated';
-import FilterPanel from '../components/FilterPanel';
+import API from '../components/Api';
 import ContentWrapper from '../components/wrappers/ContentWrapper';
 import ButtonWrapper from '../components/wrappers/ButtonWrapper';
 import ProfileFactory from '../components/profile/ProfileFactory';
+import {ClipboardCopyIcon} from '@heroicons/react/solid';
+import Toast from '../components/Toast';
 import Lexicon from '../lexicon/create';
 
 
+const reducer = (state, action) => {
+  let newState;
+  switch(action.type) {
+    case 'name':
+      newState = JSON.parse(JSON.stringify(state));
+      newState.name = action.payload.name;
+      return newState
+    case 'bio':
+      newState = JSON.parse(JSON.stringify(state));
+      newState.bio = action.payload.bio;
+      return newState
+    case 'picture':
+      newState = JSON.parse(JSON.stringify(state));
+      newState.picture = action.payload.picture;
+      return newState
+    default:
+      return state
+  }
+};
+
 export default function Create() {
   const AuthContext = useAuth();
-  const [tab, setTab] = useState('wallet');
+  const [tab, setTab] = useState('created');
   const { data: session, status: sessionStatus } = useSession();
 
-  useEffect(() => {
-  }, []);
+  const [userState, dispatch] = useReducer(reducer, {
+    name: '',
+    bio: '',
+    picture: ''
+  });
 
+  useEffect(() => {
+    if (session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account && AuthContext.state.isNetworkValid) {
+      getUsersDb();
+    }
+  }, [AuthContext.state.account]);
+
+  const getUsersDb = async () => {
+    console.log('getUsersDb');
+    const payload = {
+      TableName: "users",
+      Key: {
+        'walletId': AuthContext.state.account
+      }
+    };
+    const results = await API.db.item.get(payload);
+    // console.log('Get item:', results.data);
+    dispatch({ type: 'name', payload: { name: results.data.name } });
+    dispatch({ type: 'bio', payload: { bio: results.data.bio } });
+  };
+
+  const updateUsersDb = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      TableName: "users",
+      Key: { 'walletId': AuthContext.state.account },
+      ExpressionAttributeNames: { "#myName": "name", "#myBio": "bio" },
+      UpdateExpression: `set #myName = :name, #myBio = :bio`,
+      ExpressionAttributeValues: { ":name": userState.name, ":bio": userState.bio }
+    };
+    await API.db.item.update(payload);
+  }
+
+  const walletClick = () => {
+    Toast.info('Copied wallet ID');
+    navigator.clipboard.writeText(AuthContext.state.account);
+  };
 
 
   if (!session || sessionStatus !== 'authenticated' || session.user.id !== AuthContext.state.account || !AuthContext.state.isNetworkValid) {
@@ -51,9 +113,8 @@ export default function Create() {
               />
             </div>
             <div className="block p-1 rounded-lg shadow-lg bg-white grow">
-              {/* <p className="text-gray-700 text-base">asdasdasd</p> */}
-              <form>
-                <div className="flex flex-col md:flex-row items-center px-4 py-4 bg-white">
+              <form onSubmit={(e) => {updateUsersDb(e)}} method="POST">
+                <div className="flex flex-col md:flex-row px-4 py-4 bg-white">
 
                   <div className="w-full">
                     <div className="my-2">
@@ -62,23 +123,26 @@ export default function Create() {
                         type="text"
                         name="name"
                         id="name"
+                        defaultValue={userState.name}
                         autoComplete="off"
                         className="mt-1 w-56 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                        // onChange={handleName}
+                        onChange={(e) => {dispatch({ type: 'name', payload: { name: e.target.value } })}}
                       />
                     </div>
                     <div className="my-2">
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700">Wallet ID</label>
-                      <input
-                        type="text"
-                        name="name"
-                        id="name"
-                        autoComplete="off"
-                        placeholder={AuthContext.state.account}
-                        disabled="disabled"
-                        className="mt-1 w-56 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                        // onChange={handleName}
-                      />
+                      <label htmlFor="walletId" className="block text-sm font-medium text-gray-700">Wallet ID</label>
+                      <div className="flex flex-row gap-2 items-center text-center">
+                        <input
+                          type="text"
+                          name="walletId"
+                          id="walletId"
+                          autoComplete="off"
+                          defaultValue={AuthContext.state.account}
+                          disabled="disabled"
+                          className="mt-1 w-48 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                        />
+                        <ClipboardCopyIcon className="w-5 h-5 mr-2 cursor-pointer" alt="copy" title="copy" aria-hidden="true" onClick={walletClick} />
+                      </div>
                     </div>
                   </div>
 
@@ -92,13 +156,20 @@ export default function Create() {
                         name="description"
                         rows={3}
                         placeholder=""
-                        defaultValue={''}
+                        defaultValue={userState.bio}
                         className="mt-1 w-56 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                        // onChange={handleDescription}
+                        onChange={(e) => {dispatch({ type: 'bio', payload: { bio: e.target.value } })}}
                       />
                     </div>
                   </div>
 
+                </div>
+                <div className="px-4 text-right w-full">
+                  <button
+                      type="submit"
+                      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >Update
+                  </button>
                 </div>
               </form>
             </div>

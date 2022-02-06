@@ -32,6 +32,12 @@ Things left to do:
     - Have different configurable variables for marketplace incentives (direct / immediate / auction)
     - Need to be careful with incentives for direct sales. Risk of users selling to their own wallets and making money.
   - Address all `@todo` in the code
+- Back-end
+  - Database
+    - Tables
+      - users: walletId, name, bio, picture, timestamp (pk: walletId, picture: cid)
+      - contracts: contractAddress, isVerified::bool, isLocal::bool (pk: contractAddress, able to pull everything given `isVerified`)
+      - createdNft: walletId, tokenId, commission, cid, contractAddress (pk: walletId, tokenId)
 - Front-end dapp
   - Easy way to set ENV variables in docker image / k8s, for contract addresses, admin accounts, etc...
   - AWS
