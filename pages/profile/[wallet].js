@@ -143,8 +143,9 @@ export default function Create() {
       dispatch({ type: 'picture', payload: { picture: validUrl } });
 
       // upload picture cid in database
-      updateUsersDbPic(validUrl);
+      await updateUsersDbPic(validUrl);
     } catch (e) {
+      dispatch({ type: 'picture', payload: { picture: '' } });
       Toast.error(e.message);
     }
   };
@@ -156,7 +157,7 @@ export default function Create() {
 
     let cid;
     try {
-      await API.ipfs.image(formData).then(res => {
+      await API.ipfs.put.image(formData).then(res => {
         cid = res.data;
       });
     } catch (e) {

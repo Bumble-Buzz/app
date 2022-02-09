@@ -38,6 +38,7 @@ RUN apk --no-cache add procps
 
 WORKDIR /usr/src/app
 
+COPY --from=builder /usr/src/app/.env ./
 COPY --from=builder /usr/src/app/Makefile ./
 COPY --from=builder /usr/src/app/package*.json ./
 COPY --from=builder /usr/src/app/next.config.js ./
