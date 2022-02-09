@@ -18,8 +18,10 @@ const cancelApi = () => {
 
 const apis = {
   ipfs: {
-    image: payload => API.put(`ipfs/image`, payload),
-    config: payload => API.put(`ipfs/config`, payload),
+    put: {
+      image: payload => API.put(`ipfs/image`, payload),
+      config: payload => API.put(`ipfs/config`, payload),
+    },
     get: {
       config: payload => API.post(`ipfs/get/config`, payload)
     }

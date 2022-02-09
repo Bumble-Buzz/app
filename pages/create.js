@@ -175,7 +175,7 @@ export default function Create() {
 
     let cid;
     try {
-      await API.ipfs.image(formData).then(res => {
+      await API.ipfs.put.image(formData).then(res => {
         cid = res.data;
       });
     } catch (e) {
@@ -197,7 +197,7 @@ export default function Create() {
 
     let cid;
     try {
-      await API.ipfs.config(payload).then(res => {
+      await API.ipfs.put.config(payload).then(res => {
         cid = res.data;
       });
     } catch (e) {
