@@ -36,7 +36,7 @@ Things left to do:
   - Database
     - Tables
       - users: walletId, name, bio, picture, timestamp (pk: walletId, picture: cid)
-      - contracts: contractAddress, isVerified::bool, isLocal::bool (pk: contractAddress, able to pull everything given `isVerified`)
+      - contracts: contractAddress, isVerified::bool, isLocal::bool, name, symbol (pk: contractAddress, able to pull everything given `isVerified`)
       - createdNft: walletId, tokenId, commission, cid, contractAddress (pk: walletId, tokenId)
 - Front-end dapp
   - Easy way to set ENV variables in docker image / k8s, for contract addresses, admin accounts, etc...

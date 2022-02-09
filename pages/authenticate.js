@@ -9,9 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ContentWrapper from '../components/wrappers/ContentWrapper';
 
 
-const initTableSetup = async () => {
-  console.log('start - initTableSetup');
-
+const usersDb = async () => {
   const payload = {
     TableName: "users",
     AttributeDefinitions: [
@@ -30,6 +28,34 @@ const initTableSetup = async () => {
   };
   const results = await API.db.table.create(payload);
   console.log('Created:', results.data);
+};
+
+const contractsDb = async () => {
+  const payload = {
+    TableName: "contracts",
+    AttributeDefinitions: [
+      {
+        AttributeName: "contractAddress",
+        AttributeType: "S",
+      }
+    ],
+    KeySchema: [
+      {
+        AttributeName: "contractAddress",
+        KeyType: "HASH",
+      }
+    ],
+    BillingMode: "PAY_PER_REQUEST",
+  };
+  const results = await API.db.table.create(payload);
+  console.log('Created:', results.data);
+};
+
+const initTableSetup = async () => {
+  console.log('start - initTableSetup');
+
+  await usersDb();
+  await contractsDb();
 
   console.log('end - initTableSetup');
 }

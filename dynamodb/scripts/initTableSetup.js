@@ -4,6 +4,12 @@ const ACTION = SCRIPT_ARGS.action;
 const DynamoDbQuery = require('../../components/backend/db/DynamoDbQuery');
 
 
+const list = async () => {
+  const results = await DynamoDbQuery.table.list({});
+  console.log('Tables:', results.TableNames);
+
+}
+
 const users = async () => {
   const params = {
     TableName: "users",
@@ -53,7 +59,9 @@ const cleanup = async () => {
 };
 
 (async () => {
-  if (ACTION === 'create') {
+  if (ACTION === 'list') {
+    await list();
+  } else if (ACTION === 'create') {
     await users();
   } else if (ACTION === 'delete') {
     await cleanup();

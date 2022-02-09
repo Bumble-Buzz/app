@@ -1,14 +1,37 @@
-import { useState, useReducer } from 'react';
+import { useEffect, useState, useReducer } from 'react';
+import { ethers } from 'ethers';
+import { useRouter } from 'next/router';
+import ButtonWrapper from '../wrappers/ButtonWrapper';
 import { FilterPanel, FILTER_TYPES } from '../FilterPanel';
+import Toast from '../Toast';
+import { CATEGORIES } from '../../enum/Categories';
+import WalletUtil from '../wallet/WalletUtil';
+import NftCard from '../nftAssets/NftCard';
+import API from '../Api';
+import IPFS from '../../utils/ipfs';
+import { BadgeCheckIcon, XIcon } from '@heroicons/react/solid';
+
+import AvaxTradeNftAbi from '../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
-const reducer = (state, action) => {
-  let newState;
-  switch(action.type) {
-    case 'type':
-      newState = JSON.parse(JSON.stringify(state));
-      newState.type.isSelected = !state.type.isSelected;
+const searchItems = (state, action) => {
+  switch(action.payload.item) {
+    case 'searchBar':
+      state.search.items.searchBar = action.payload.searchBar;
+      return state
+    case 'searchBarClear':
+      console.log('searchBarClear');
+      const newState = JSON.parse(JSON.stringify(state));
+      newState.search.items.searchBar = null;
       return newState
+    default:
+      return state
+  }
+};
+
+const typeItems = (state, action) => {
+  let newState;
+  switch(action.payload.item) {
     case 'buyNow':
       newState = JSON.parse(JSON.stringify(state));
       newState.type.items.buyNow = !state.type.items.buyNow;
@@ -19,56 +42,173 @@ const reducer = (state, action) => {
       newState.type.items.auction = !state.type.items.auction;
       console.log('newState.type.items.auction', newState.type.items.auction);
       return newState
-    case 'price':
-      newState = JSON.parse(JSON.stringify(state));
-      newState.price.isSelected = !state.price.isSelected;
-      return newState
+    default:
+      return state
+  }
+};
+
+const priceItems = (state, action) => {
+  switch(action.payload.item) {
     case 'min':
       state.price.items.min = action.payload.min;
       return state
     case 'max':
       state.price.items.max = action.payload.max;
       return state
+    default:
+      return state
+  }
+};
+
+const categoriesItems = (state, action) => {
+  let newState;
+  if (action.payload.item && CATEGORIES[action.payload.item]) {
+    newState = JSON.parse(JSON.stringify(state));
+    newState.categories.items[action.payload.item] = !state.categories.items[action.payload.item];
+    console.log(`newState.categories.items[${action.payload.item}]`, newState.categories.items[action.payload.item]);
+    return newState
+  } else {
+    return state
+  }
+};
+
+const reducer = (state, action) => {
+  let newState;
+  switch(action.type) {
+    case 'search':
+      newState = JSON.parse(JSON.stringify(state));
+      newState.search.isSelected = !state.search.isSelected;
+      return newState
+    case 'search-items':
+      return searchItems(state, action)
+    case 'type':
+      newState = JSON.parse(JSON.stringify(state));
+      newState.type.isSelected = !state.type.isSelected;
+      return newState
+    case 'type-items':
+      return typeItems(state, action)
+    case 'price':
+      newState = JSON.parse(JSON.stringify(state));
+      newState.price.isSelected = !state.price.isSelected;
+      return newState
+    case 'price-items':
+      return priceItems(state, action)
+    case 'categories':
+      newState = JSON.parse(JSON.stringify(state));
+      newState.categories.isSelected = !state.categories.isSelected;
+      return newState
+    case 'categories-items':
+      return categoriesItems(state, action)
     case 'update':
       newState = JSON.parse(JSON.stringify(state));
-      if (newState.price.items.min < 0) {
-        newState.price.items.min = 0;
-      }if (newState.price.items.max < 0) {
-        newState.price.items.max = 0;
-      }
-      if (newState.price.items.min > newState.price.items.max) {
-        newState.price.items.min = newState.price.items.max;
-      }
-      // console.log('newState', newState);
       return newState
     default:
       return state
   }
 };
 
-const filters = [
-  {
-    name: 'type',
-    label: 'Type',
-    items: [
-      { name: 'buyNow', label: 'Buy Now', type: FILTER_TYPES.SWITCH_BUTTON },
-      { name: 'auction', label: 'Auction', type: FILTER_TYPES.SWITCH_BUTTON }
-    ]
-  },
-  {
-    name: 'price',
-    label: 'Price',
-    items: [
-      { name: 'min', label: 'Min', type: FILTER_TYPES.INPUT_FIELD },
-      { name: 'max', label: 'Max', type: FILTER_TYPES.INPUT_FIELD }
-    ]
-  }
-];
+const getCategoriesFilters = () => {
+  let filters = [];
+  Object.getOwnPropertyNames(CATEGORIES).forEach((key) => {
+    const filter = { name: key, label: CATEGORIES[key], type: FILTER_TYPES.SWITCH };
+    filters.push(filter);
+  });
+  return filters;
+};
+
+const getCategoriesState = () => {
+  let state = {};
+  Object.getOwnPropertyNames(CATEGORIES).forEach((key) => {
+    state[key] = false;
+  });
+  return state;
+};
 
 
 export default function Wallet() {
+  const ROUTER = useRouter();
+
+  const searchFilterApply = (e, _override) => {
+    console.log('searchFilterApply');
+    e.preventDefault();
+
+    console.log('state.search.items.searchBar', state.search.items.searchBar);
+    if (state.search.items.searchBar && state.search.items.searchBar !== '' || _override) {
+      const newAssets = assets.filter((asset) => {
+        if (_override) return true;
+        return (asset.name === state.search.items.searchBar)
+      });
+      setFilteredAssets([...newAssets]);
+      console.log('newAssets', newAssets);
+    } else {
+      setFilteredAssets([...assets]);
+    }
+  }
+
+  const priceFilterApply = (e) => {
+    console.log('priceFilterApply');
+    e.preventDefault();
+
+    console.log('state.price.items', state.price.items);
+    if (!state.price.items.min && !state.price.items.max) {
+      Toast.error('Fill out one of the price ranges');
+    } else if (state.price.items.min && state.price.items.max && state.price.items.min > state.price.items.max) {
+      Toast.error('Price min value must be less than max value');
+    }
+  };
+
+  const filters = [
+    {
+      name: 'search',
+      label: 'Search',
+      payload: { onSubmit: searchFilterApply },
+      filterItem: 'search-items',
+      items: [
+        { name: 'searchBar', label: 'Search by name', type: FILTER_TYPES.SEARCH }
+      ]
+    },
+    {
+      name: 'type',
+      label: 'Type',
+      payload: {},
+      filterItem: 'type-items',
+      items: [
+        { name: 'buyNow', label: 'Buy Now', type: FILTER_TYPES.SWITCH_BUTTON },
+        { name: 'auction', label: 'Auction', type: FILTER_TYPES.SWITCH_BUTTON }
+      ]
+    },
+    {
+      name: 'price',
+      label: 'Price',
+      payload: { onSubmit: priceFilterApply },
+      filterItem: 'price-items',
+      items: [
+        { name: 'min', label: 'Min', type: FILTER_TYPES.INPUT_FIELD },
+        { name: 'max', label: 'Max', type: FILTER_TYPES.INPUT_FIELD },
+        {
+          name: 'apply',
+          label: 'Apply',
+          type: FILTER_TYPES.BUTTON,
+          payload: { type: "submit" }
+        }
+      ]
+    },
+    {
+      name: 'categories',
+      label: 'Categories',
+      payload: {},
+      filterItem: 'categories-items',
+      items: getCategoriesFilters()
+    }
+  ];
 
   const [state, dispatch] = useReducer(reducer, {
+    search: {
+      isSelected: false,
+      items: {
+        searchBar: null,
+      }
+    },
     type: {
       isSelected: false,
       items: {
@@ -79,11 +219,60 @@ export default function Wallet() {
     price: {
       isSelected: false,
       items: {
-        min: 0,
-        max: 0
+        min: null,
+        max: null
       }
+    },
+    categories: {
+      isSelected: false,
+      items: getCategoriesState()
     }
   });
+
+  const [assets, setAssets] = useState([]);
+  const [filteredAssets, setFilteredAssets] = useState([]);
+
+  useEffect(() => {
+    getCreatedNfts();
+  }, [ROUTER.query.wallet]);
+
+  const getArtistNftIds = async () => {
+    const signer = await WalletUtil.getWalletSigner();
+    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, signer);
+    let tokenIds = 0;
+    try {
+      tokenIds = await contract.getArtistNfts(ROUTER.query.wallet);
+    } catch (e) {
+      // Toast.error(e.message);
+      console.error(e);
+      throw(e);
+    }
+    return tokenIds
+  };
+
+  const getCreatedNfts = async () => {
+    const signer = await WalletUtil.getWalletSigner();
+    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, signer);
+
+    try {
+      const tokenIds = await getArtistNftIds();
+      // console.log('tokenIds', tokenIds.toLocaleString(undefined,0));
+      const configs = [];
+      await Promise.all( tokenIds.map(async (id) => {
+        const tokenURI  = await contract.tokenURI(id);
+        // console.log('tokenURI', id, tokenURI);
+        // console.log('getValidHttpUrl', IPFS.getValidHttpUrl(tokenURI));
+        const payload = { tokenURI: IPFS.getValidHttpUrl(tokenURI) };
+        const config = await API.ipfs.get.config(payload);
+        configs.push(config.data)
+      }) );
+      setAssets([...configs]);
+      setFilteredAssets([...configs]);
+    } catch (e) {
+      Toast.error(e.message);
+      console.error(e);
+    }
+  };
 
 
   return (
@@ -92,7 +281,56 @@ export default function Wallet() {
         <FilterPanel filters={filters} state={state} dispatch={dispatch} />
       </div>
       <div className="p-1 rounded-lg shadow-lg bg-white grow">
-        <p className="text-gray-700 text-base">Wallet</p>
+
+        {/* <p className="text-gray-700 text-base">Created</p> */}
+        {/* <p onClick={getArtistNftIds}>Test getArtistNftIds</p> */}
+        {/* <p onClick={getCreatedNfts}>Test getCreatedNfts</p> */}
+        {/* <p onClick={() => {console.log('assets', assets)}}>See Assets</p> */}
+        {/* <p onClick={() => {console.log('filteredAssets', filteredAssets)}}>See filteredAssets</p> */}
+
+        {state.search.items.searchBar && (
+          <div className='px-4 flex flex-wrap gap-2 justify-start items-center'>
+            <ButtonWrapper classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0" onClick={(e) => {
+              dispatch({ type: 'search-items', payload: { item: 'searchBar', searchBar: null } });
+              searchFilterApply(e, true);
+            }}>
+              {state.search.items.searchBar}
+              <XIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
+            </ButtonWrapper>
+          </div>
+        )}
+
+        <div className='flex flex-wrap gap-2 justify-center items-center'>
+          {filteredAssets && filteredAssets.length > 0 && filteredAssets.map((asset, index) => {
+            return (
+              <NftCard
+                key={index}
+                header={(<>
+                  <div className="flex-1 font-bold text-purple-500 text-xl truncate">{asset.name}</div>
+                  <div className='flex items-center'>
+                    <BadgeCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />
+                  </div>
+                </>)}
+                image={asset.image}
+                body={(<>
+                  <div className="flex flex-nowrap flex-row gap-2 text-left">
+                    <div className="flex-1 truncate">COLLECTION NAME HERE</div>
+                    <div className="truncate"></div>
+                  </div>
+                  <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
+                    <div className="flex-1 truncate">ID</div>
+                    <div className="truncate">#34</div>
+                  </div>
+                </>)}
+                footer={(<>
+                  <div className="flex-1 truncate">{asset.name}</div>
+                  <div className="truncate">{asset.name}</div>
+                </>)}
+              />
+            )
+          })}
+        </div>
+
       </div>
     </>
   )

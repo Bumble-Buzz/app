@@ -21,9 +21,6 @@ export const FILTER_TYPES = {
 
 export const FilterPanel = ({ children, filters, state, dispatch }) => {
   const [isShowing, setIsShowing] = useState(false);
-  const [activeMenu, setActiveMenu] = useState(false);
-
-  // console.log('filters', filters);
 
   const MenuItem = (props) => {
     return (

@@ -46,7 +46,7 @@ const reducer = (state, action) => {
 export default function Create() {
   const ROUTER = useRouter();
   const AuthContext = useAuth();
-  const [tab, setTab] = useState('created');
+  const [tab, setTab] = useState('wallet');
   const [walletValidity, setWalletvalidity] = useState(false);
   const inputFile = useRef(null) 
   const { data: session, status: sessionStatus } = useSession();
@@ -238,7 +238,7 @@ export default function Create() {
                           autoComplete="off"
                           defaultValue={AuthContext.state.account}
                           disabled="disabled"
-                          className="mt-1 w-48 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                          className="mt-1 w-48 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md truncate"
                         />
                         <ClipboardCopyIcon className="w-5 h-5 mr-2 cursor-pointer" alt="copy" title="copy" aria-hidden="true" onClick={walletClick} />
                       </div>
@@ -254,10 +254,11 @@ export default function Create() {
                         id="description"
                         name="description"
                         rows={3}
+                        maxLength="200"
                         disabled={ isSignInValid() ? "" : "disabled" }
                         placeholder=""
                         defaultValue={userState.bio}
-                        className="mt-1 w-56 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                        className="mt-1 w-56 xsm:w-full resize-none focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
                         onChange={(e) => {dispatch({ type: 'bio', payload: { bio: e.target.value } })}}
                       />
                     </div>
