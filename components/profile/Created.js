@@ -1,7 +1,17 @@
-import { useState, useReducer } from 'react';
+import { useEffect, useState, useReducer } from 'react';
+import { ethers } from 'ethers';
+import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { FilterPanel, FILTER_TYPES } from '../FilterPanel';
 import Toast from '../Toast';
 import { CATEGORIES } from '../../enum/Categories';
+import WalletUtil from '../wallet/WalletUtil';
+import API from '../Api';
+import IPFS from '../../utils/ipfs';
+
+import SAMPLE_IMAGE from '../../public/avocado.jpg';
+
+import AvaxTradeNftAbi from '../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
 const searchItems = (state, action) => {
@@ -111,6 +121,7 @@ const getCategoriesState = () => {
 
 
 export default function Created() {
+  const ROUTER = useRouter();
 
   const searchFilterApply = (e) => {
     console.log('searchFilterApply');
@@ -203,6 +214,49 @@ export default function Created() {
     }
   });
 
+  const [assets, setAssets] = useState([]);
+
+  useEffect(() => {
+    getCreatedNfts();
+  }, [ROUTER.query.wallet]);
+
+  const getArtistNftIds = async () => {
+    const signer = await WalletUtil.getWalletSigner();
+    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, signer);
+    let tokenIds = 0;
+    try {
+      tokenIds = await contract.getArtistNfts(ROUTER.query.wallet);
+    } catch (e) {
+      // Toast.error(e.message);
+      console.error(e);
+      throw(e);
+    }
+    return tokenIds
+  };
+
+  const getCreatedNfts = async () => {
+    const signer = await WalletUtil.getWalletSigner();
+    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, signer);
+
+    try {
+      const tokenIds = await getArtistNftIds();
+      // console.log('tokenIds', tokenIds.toLocaleString(undefined,0));
+      const configs = [];
+      await Promise.all( tokenIds.map(async (id) => {
+        const tokenURI  = await contract.tokenURI(id);
+        // console.log('tokenURI', id, tokenURI);
+        // console.log('getValidHttpUrl', IPFS.getValidHttpUrl(tokenURI));
+        const payload = { tokenURI: IPFS.getValidHttpUrl(tokenURI) };
+        const config = await API.ipfs.get.config(payload);
+        configs.push(config.data)
+      }) );
+      setAssets([...configs]);
+    } catch (e) {
+      Toast.error(e.message);
+      console.error(e);
+    }
+  };
+
 
   return (
     <>
@@ -210,7 +264,32 @@ export default function Created() {
         <FilterPanel filters={filters} state={state} dispatch={dispatch} />
       </div>
       <div className="p-1 rounded-lg shadow-lg bg-white grow">
-        <p className="text-gray-700 text-base">Created</p>
+
+        {/* <p className="text-gray-700 text-base">Created</p> */}
+        {/* <p onClick={getArtistNftIds}>Test getArtistNftIds</p> */}
+        {/* <p onClick={getCreatedNfts}>Test getCreatedNfts</p> */}
+        <p onClick={() => {console.log('assets', assets)}}>See Assets</p>
+
+        {/* <div className='flex flex-wrap gap-2 justify-center items-center'>
+          <div className='relative w-24 sm:w-64 h-24 sm:h-64 max-w-sm rounded overflow-hidden shadow-lg'>
+            <Image src={SAMPLE_IMAGE} quality={50} layout='fill' objectFit="cover" sizes='50vw' />
+          </div>
+        </div> */}
+
+        <div className='flex flex-wrap gap-2 justify-center items-center'>
+          {assets && assets.length > 0 && assets.map((asset, index) => {
+            return (
+              <div className='relative w-24 h-24 sm:w-36 sm:h-36 md:w-60 md:h-60 rounded overflow-hidden shadow-lg' key={index}>
+                <Image
+                  src={IPFS.getValidHttpUrl(asset.image)}
+                  // src={SAMPLE_IMAGE}
+                  placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="contain" sizes='50vw'
+                />
+              </div>
+            )
+          })}
+        </div>
+
       </div>
     </>
   )

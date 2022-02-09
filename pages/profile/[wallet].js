@@ -1,16 +1,20 @@
-import { useEffect, useState, useReducer } from 'react'
+import { useEffect, useState, useReducer, useRef } from 'react'
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { useSession, getSession } from 'next-auth/react';
 import { ethers } from 'ethers';
-import { useAuth } from '../contexts/AuthContext';
-import Unauthenticated from '../components/Unauthenticated';
-import API from '../components/Api';
-import ContentWrapper from '../components/wrappers/ContentWrapper';
-import ButtonWrapper from '../components/wrappers/ButtonWrapper';
-import ProfileFactory from '../components/profile/ProfileFactory';
-import {ClipboardCopyIcon} from '@heroicons/react/solid';
-import Toast from '../components/Toast';
-import Lexicon from '../lexicon/create';
+import FormData from 'form-data';
+import { useAuth } from '../../contexts/AuthContext';
+import Unauthenticated from '../../components/Unauthenticated';
+import PageError from '../../components/PageError';
+import API from '../../components/Api';
+import ContentWrapper from '../../components/wrappers/ContentWrapper';
+import ButtonWrapper from '../../components/wrappers/ButtonWrapper';
+import ProfileFactory from '../../components/profile/ProfileFactory';
+import { ClipboardCopyIcon, UploadIcon } from '@heroicons/react/solid';
+import Toast from '../../components/Toast';
+import IPFS from '../../utils/ipfs';
+import Lexicon from '../../lexicon/create';
 
 
 const reducer = (state, action) => {
@@ -28,14 +32,23 @@ const reducer = (state, action) => {
       newState = JSON.parse(JSON.stringify(state));
       newState.picture = action.payload.picture;
       return newState
+    case 'ALL':
+      return {
+        name: action.payload.name,
+        bio: action.payload.bio,
+        picture: action.payload.picture
+      }
     default:
       return state
   }
 };
 
 export default function Create() {
+  const ROUTER = useRouter();
   const AuthContext = useAuth();
   const [tab, setTab] = useState('created');
+  const [walletValidity, setWalletvalidity] = useState(false);
+  const inputFile = useRef(null) 
   const { data: session, status: sessionStatus } = useSession();
 
   const [userState, dispatch] = useReducer(reducer, {
@@ -45,23 +58,32 @@ export default function Create() {
   });
 
   useEffect(() => {
-    if (session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account && AuthContext.state.isNetworkValid) {
+    if (ROUTER && ROUTER.query && ROUTER.query.wallet) {
       getUsersDb();
     }
-  }, [AuthContext.state.account]);
+  }, [ROUTER.query.wallet]);
 
   const getUsersDb = async () => {
-    console.log('getUsersDb');
+    // console.log('getUsersDb');
     const payload = {
       TableName: "users",
       Key: {
-        'walletId': AuthContext.state.account
+        'walletId': ROUTER.query.wallet
       }
     };
     const results = await API.db.item.get(payload);
     // console.log('Get item:', results.data);
-    dispatch({ type: 'name', payload: { name: results.data.name } });
-    dispatch({ type: 'bio', payload: { bio: results.data.bio } });
+    if (results && results.data) {
+      setWalletvalidity(true);
+      dispatch({
+        type: 'ALL',
+        payload: {
+          name: results.data.name,
+          bio: results.data.bio,
+          picture: results.data.picture
+        } 
+      });
+    }
   };
 
   const updateUsersDb = async (e) => {
@@ -77,15 +99,80 @@ export default function Create() {
     await API.db.item.update(payload);
   }
 
+  const updateUsersDbPic = async (_url) => {
+    const payload = {
+      TableName: "users",
+      Key: { 'walletId': AuthContext.state.account },
+      ExpressionAttributeNames: { "#myPic": "picture" },
+      UpdateExpression: `set #myPic = :picture`,
+      ExpressionAttributeValues: { ":picture": _url }
+    };
+    await API.db.item.update(payload);
+  }
+
   const walletClick = () => {
     Toast.info('Copied wallet ID');
     navigator.clipboard.writeText(AuthContext.state.account);
   };
 
+  const isSignInValid = () => {
+    return (
+      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
+      ROUTER.query.wallet === AuthContext.state.account && AuthContext.state.isNetworkValid
+    )
+  };
 
-  if (!session || sessionStatus !== 'authenticated' || session.user.id !== AuthContext.state.account || !AuthContext.state.isNetworkValid) {
+  const triggerInputFile = () => {
+    if (isSignInValid()) {
+      inputFile.current.click();
+    }
+  };
+
+  const handleImage = async (e) => {
+    const image = e.target.files[0];
+    if (image && image.size > 10485760) {
+      Toast.error("Image size too big. Max 10mb");
+    }
+
+    try {
+      // upload image to IPFS
+      const cid = await uploadImage(image);
+
+      // update image on page
+      const validUrl = IPFS.getValidBaseUrl() + cid;
+      dispatch({ type: 'picture', payload: { picture: validUrl } });
+
+      // upload picture cid in database
+      updateUsersDbPic(validUrl);
+    } catch (e) {
+      Toast.error(e.message);
+    }
+  };
+
+  const uploadImage = async (image) => {
+    const formData = new FormData();
+    formData.append("name", image.name);
+    formData.append("image", image);
+
+    let cid;
+    try {
+      await API.ipfs.image(formData).then(res => {
+        cid = res.data;
+      });
+    } catch (e) {
+      throw({ message: 'Error uploading profile image to IPFS' });
+    }
+    return cid;
+  };
+
+
+  if (!AuthContext.state.account || !AuthContext.state.isNetworkValid) {
     return (
       <Unauthenticated link={'/authenticate'}></Unauthenticated>
+    )
+  } else if (AuthContext.state.account && AuthContext.state.isNetworkValid && !walletValidity) {
+    return (
+      <PageError>Profile not found</PageError>
     )
   }
 
@@ -102,15 +189,26 @@ export default function Create() {
 
           <div className="gap-2 flex flex-col sm:flex-row w-full">
             <div className="p-1 rounded-lg shadow-lg bg-white flex flex-col sm:flex-row items-center text-center">
-              {/* <Image
-                className="object-cover border-2 border-black-600 rounded-full"
-                src={'/avocado.jpg'} alt='Profile' title="Profile" width='50' height='50'
-              /> */}
-              {/* <Image className="" alt='nft image' src={'/avocado.jpg'} layout='responsive' /> */}
-              <img
-                className="object-cover w-20 sm:w-32 md:w-44 lg:w-60 h-20 sm:h-32 md:h-44 lg:h-60 border-2 border-black-600 rounded-full"
-                src={'/avocado.jpg'} alt="Profile" title="Profile"
-              />
+              <div className="relative w-20 sm:w-32 md:w-44 lg:w-60 h-20 sm:h-32 md:h-44 lg:h-60">
+                {isSignInValid() && (
+                  <>
+                    <input
+                      type="file"
+                      name="image"
+                      accept=".jpg, .jpeg, .png, .gif"
+                      ref={inputFile}
+                      style={{display: 'none'}}
+                      onChange={handleImage}
+                    />
+                    <UploadIcon className="w-5 h-5 mr-2 absolute right-0 bottom-0 cursor-pointer" alt="upload" title="upload" aria-hidden="true" />
+                  </>
+                )}
+                <Image
+                  src={ userState.picture === '' ? '/person.png' : userState.picture } alt='profile' aria-hidden="true"
+                  placeholder='blur' blurDataURL='/avocado.jpg' layout="fill" objectFit="contain" sizes='50vw'
+                  title="Click to upload new image" onClick={triggerInputFile} className={ isSignInValid() ? "cursor-pointer" : "" }
+                />
+              </div>
             </div>
             <div className="block p-1 rounded-lg shadow-lg bg-white grow">
               <form onSubmit={(e) => {updateUsersDb(e)}} method="POST">
@@ -123,6 +221,7 @@ export default function Create() {
                         type="text"
                         name="name"
                         id="name"
+                        disabled={ isSignInValid() ? "" : "disabled" }
                         defaultValue={userState.name}
                         autoComplete="off"
                         className="mt-1 w-56 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
@@ -155,6 +254,7 @@ export default function Create() {
                         id="description"
                         name="description"
                         rows={3}
+                        disabled={ isSignInValid() ? "" : "disabled" }
                         placeholder=""
                         defaultValue={userState.bio}
                         className="mt-1 w-56 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
@@ -165,11 +265,14 @@ export default function Create() {
 
                 </div>
                 <div className="px-4 text-right w-full">
-                  <button
+                  {isSignInValid() && (
+                    <button
                       type="submit"
                       className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >Update
-                  </button>
+                    </button>
+                  )}
+                  
                 </div>
               </form>
             </div>
@@ -196,9 +299,6 @@ export default function Create() {
               :
               (<ButtonWrapper classes="grow bg-indigo-600 hover:bg-indigo-800" onClick={() => setTab('listings')}>Listings</ButtonWrapper>)
             }
-            {/* <ButtonWrapper classes="grow" onClick={() => setTab('collections')}>Collections</ButtonWrapper> */}
-            {/* <ButtonWrapper classes="grow" onClick={() => setTab('created')}>Created</ButtonWrapper> */}
-            {/* <ButtonWrapper classes="grow" onClick={() => setTab('listings')}>Listings</ButtonWrapper> */}
           </div>
 
           <div className="gap-2 flex flex-col sm:flex-row w-full">

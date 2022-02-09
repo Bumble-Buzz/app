@@ -26,6 +26,9 @@ contract AvaxTradeNft is ERC721Enumerable, Ownable {
   uint256 private MAX_SUPPLY = type(uint256).max;
   bool private PAUSED = false;
 
+  // events
+  event onNftMint(address owner, uint256 tokenId);
+
 
   mapping(uint256 => ArtistDS) private ARTIST; // mapping token id to ArtistDS
   mapping(address => uint256[]) private ARTIST_NFT_LIST; // list of token ids for a user
@@ -73,6 +76,8 @@ contract AvaxTradeNft is ERC721Enumerable, Ownable {
     ARTIST_NFT_LIST[msg.sender].push(totalSupply() + 1);
 
     _safeMint(msg.sender, totalSupply() + 1);
+
+    emit onNftMint(msg.sender, totalSupply() + 1);
   }
 
   function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {

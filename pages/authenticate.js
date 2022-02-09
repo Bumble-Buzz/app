@@ -9,8 +9,6 @@ import { useAuth } from '../contexts/AuthContext';
 import ContentWrapper from '../components/wrappers/ContentWrapper';
 
 
-
-
 const initTableSetup = async () => {
   console.log('start - initTableSetup');
 

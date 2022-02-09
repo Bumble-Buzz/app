@@ -20,6 +20,9 @@ const apis = {
   ipfs: {
     image: payload => API.put(`ipfs/image`, payload),
     config: payload => API.put(`ipfs/config`, payload),
+    get: {
+      config: payload => API.post(`ipfs/get/config`, payload)
+    }
   },
   db: {
     table: {

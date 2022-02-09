@@ -606,7 +606,7 @@ export default function Create() {
                       }
                     </div>
                     <div className="my-2">
-                    <label className="block text-sm font-medium text-gray-500">{Lexicon.form.image.limit}</label>
+                      <label className="block text-sm font-medium text-gray-500">{Lexicon.form.image.limit}</label>
                       <input
                         type="file"
                         name="image"

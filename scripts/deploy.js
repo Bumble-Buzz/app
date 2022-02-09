@@ -56,7 +56,7 @@ const collectionItem = async () => {
 
 const avaxTradeNft = async () => {
   CONTRACT_FACTORY = await ethers.getContractFactory("AvaxTradeNft");
-  NFT_CONTRACT = await CONTRACT_FACTORY.deploy('Local AvaxTrade', 'LAX', 'ipfs://cid/');
+  NFT_CONTRACT = await CONTRACT_FACTORY.deploy('Local AvaxTrade', 'LAX', 'ipfs://');
   await NFT_CONTRACT.deployed();
 };
 
