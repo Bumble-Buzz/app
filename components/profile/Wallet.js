@@ -136,7 +136,7 @@ export default function Wallet() {
     if (state.search.items.searchBar && state.search.items.searchBar !== '' || _override) {
       const newAssets = assets.filter((asset) => {
         if (_override) return true;
-        return (asset.name === state.search.items.searchBar)
+        return (asset.name.includes(state.search.items.searchBar));
       });
       setFilteredAssets([...newAssets]);
       console.log('newAssets', newAssets);
