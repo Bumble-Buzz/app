@@ -66,8 +66,8 @@ export default function Created() {
         const config = await API.ipfs.get.config(payload);
         configs.push(config.data)
       }) );
-      setAssets([...configs]);
-      setFilteredAssets([...configs]);
+      setAssets(configs);
+      setFilteredAssets(configs);
     } catch (e) {
       Toast.error(e.message);
       console.error(e);
