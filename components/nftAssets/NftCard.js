@@ -6,7 +6,7 @@ import IPFS from '../../utils/ipfs';
 export default function NftCard({children, header, image, body, footer}) {
 
   return (
-    <div className='w-24 sm:w-36 md:w-60 max-w-sm border rounded-lg overflow-hidden shadow-lg'>
+    <div className='w-24 sm:w-36 md:w-60 max-w-sm max-h-sm border rounded-lg overflow-hidden shadow-lg'>
       {header && (<>
         <div className="pl-2 pr-1 flex flex-nowrap flex-row gap-2 text-left">
           {header}
@@ -21,7 +21,7 @@ export default function NftCard({children, header, image, body, footer}) {
       </div>
       {body && (<>
         <hr />
-        <div className="px-2 flex flex-col h-18">
+        <div className="px-2 flex flex-col h-20">
           {body}
         </div>
       </>)}

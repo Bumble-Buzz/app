@@ -20,18 +20,23 @@ export default function Created() {
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    getCreatedNfts();
-  }, [ROUTER.query.wallet]);
+  useEffect(async () => {
+    await getCreatedNfts();
+  }, []);
+
+  // useEffect(() => {
+  //   // console.log('assets', assets);
+  //   // console.log('filteredAssets', filteredAssets);
+  //   const newAssets = assets.filter((asset) => asset.name.toLowerCase().indexOf(search.toLowerCase()) >= 0);
+  //   setFilteredAssets(newAssets);
+  // }, [search]);
 
   const updateFilteredAssets = (_value) => {
     if (_value && _value !== '') {
-      const newAssets = assets.filter((asset) => {
-        return (asset.name.includes(_value));
-      });
-      setFilteredAssets([...newAssets]);
+      const newAssets = assets.filter((asset) => asset.name.toLowerCase().indexOf(_value.toLowerCase()) >= 0);
+      setFilteredAssets(newAssets);
     } else {
-      setFilteredAssets([...assets]);
+      setFilteredAssets(assets);
     }
   };
 
@@ -74,28 +79,18 @@ export default function Created() {
     <>
       <div className="p-1 rounded-lg shadow-lg bg-white grow">
 
-        <div className='py-2 flex flex-wrap gap-2 justify-start items-center'>
-          {search && (<div className="">
-            <ButtonWrapper classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0" onClick={() => {
-              setSearch(''); updateFilteredAssets('');
-            }}>
-              {search}
-              <XIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
-            </ButtonWrapper>
-          </div>)}
-          <div className="flex-1">
-            <InputWrapper
-              type="search"
-              id="created-search"
-              name="created-search"
-              placeholder="Search by name"
-              aria-label="created-search"
-              aria-describedby="created-search"
-              classes="w-full"
-              value={search}
-              onChange={(e) => {setSearch(e.target.value); updateFilteredAssets(e.target.value);}}
-            />
-          </div>
+        <div className='py-2 flex flex-nowrap gap-2 justify-start items-center'>
+          <InputWrapper
+            type="search"
+            id="created-search"
+            name="created-search"
+            placeholder="Search by name"
+            aria-label="created-search"
+            aria-describedby="created-search"
+            classes="w-full"
+            value={search}
+            onChange={(e) => {setSearch(e.target.value); updateFilteredAssets(e.target.value); }}
+          />
         </div>
 
         <div className='flex flex-wrap gap-2 justify-center items-center'>
