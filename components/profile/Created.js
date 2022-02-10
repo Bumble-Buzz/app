@@ -88,7 +88,7 @@ export default function Created() {
             aria-label="created-search"
             aria-describedby="created-search"
             classes="w-full"
-            value={search}
+            // value={search}
             onChange={(e) => {setSearch(e.target.value); updateFilteredAssets(e.target.value); }}
           />
         </div>

@@ -32,11 +32,66 @@ const users = async () => {
 };
 
 const scan = async () => {
+  let ExclusiveStartKey;
+  let dbData = [];
   const payload = {
-    TableName: "users",
+    TableName: "contracts",
+    ExclusiveStartKey,
+    Limit: 10
   };
-  const results = await DynamoDbQuery.table.scan(payload);
-  console.log('Scan:', results.Items);
+  let results = await DynamoDbQuery.table.scan(payload);
+  dbData = [...dbData, ...results.Items];
+  console.log('ExclusiveStartKey', results.LastEvaluatedKey);
+  console.log('dbData', dbData.length);
+
+  payload.ExclusiveStartKey = results.LastEvaluatedKey;
+  results = await DynamoDbQuery.table.scan(payload);
+  dbData = [...dbData, ...results.Items];
+  console.log('ExclusiveStartKey', results.LastEvaluatedKey);
+  console.log('dbData', dbData.length);
+
+  payload.ExclusiveStartKey = results.LastEvaluatedKey;
+  results = await DynamoDbQuery.table.scan(payload);
+  dbData = [...dbData, ...results.Items];
+  console.log('ExclusiveStartKey', results.LastEvaluatedKey);
+  console.log('dbData', dbData.length);
+
+  payload.ExclusiveStartKey = results.LastEvaluatedKey;
+  results = await DynamoDbQuery.table.scan(payload);
+  dbData = [...dbData, ...results.Items];
+  console.log('ExclusiveStartKey', results.LastEvaluatedKey);
+  console.log('dbData', dbData.length);
+
+  // console.log('dbData', dbData);
+  console.log('dbData', dbData[9]);
+  console.log('dbData', dbData[10]);
+  console.log('dbData', dbData[11]);
+  console.log('dbData', dbData[19]);
+  console.log('dbData', dbData[20]);
+  console.log('dbData', dbData[21]);
+  // console.log('dbData', dbData[299]);
+  // console.log('dbData', dbData[300]);
+  // console.log('dbData', dbData[301]);
+};
+
+const scan2 = async () => {
+  let ExclusiveStartKey;
+  let dbData = [];
+  const payload = {
+    TableName: "contracts",
+    ExclusiveStartKey,
+    Limit: 100
+  };
+  let results = await DynamoDbQuery.item.scan(payload);
+  dbData = [...dbData, ...results.Items];
+  console.log('dbData', dbData.length);
+
+  ExclusiveStartKey = results.LastEvaluatedKey;
+  results = await DynamoDbQuery.item.scan(payload);
+  dbData = [...dbData, ...results.Items];
+  console.log('dbData', dbData.length);
+
+  console.log('dbData', dbData);
 };
 
 const get = async () => {
@@ -48,6 +103,16 @@ const get = async () => {
   };
   const results = await DynamoDbQuery.item.get(payload);
   console.log('Get item:', results.Item);
+};
+
+const put = async (val) => {
+  const payload = {
+    TableName: "contracts",
+    Item: {
+      'contractAddress': val,
+    }
+  };
+  const results = await DynamoDbQuery.item.put(payload);
 };
 
 const cleanup = async () => {
@@ -66,8 +131,17 @@ const cleanup = async () => {
   } else if (ACTION === 'delete') {
     await cleanup();
   } else if (ACTION === 'scan') {
-    await scan();
+    await scan2();
   } else if (ACTION === 'get') {
     await get();
+  } else if (ACTION === 'put') {
+    let val = '';
+    for (let i = 0; i < 100; i++) {
+      val = "sample"
+      val += i;
+      await put(val);
+      console.log(val);
+    }
+    // await put('sample');
   } else {}
 })();

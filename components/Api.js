@@ -41,7 +41,8 @@ const apis = {
       putBatch: payload => API.put(`db/item/putBatch`, payload),
       update: payload => API.put(`db/item/update`, payload),
       delete: payload => API.put(`db/item/delete`, payload),
-      deleteBatch: payload => API.put(`db/item/deleteBatch`, payload)
+      deleteBatch: payload => API.put(`db/item/deleteBatch`, payload),
+      scan: payload => API.put(`db/item/scan`, payload)
     },
   },
   cancelApi
