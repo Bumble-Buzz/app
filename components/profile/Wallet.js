@@ -2,6 +2,7 @@ import { useEffect, useState, useReducer } from 'react';
 import { ethers } from 'ethers';
 import { useRouter } from 'next/router';
 import ButtonWrapper from '../wrappers/ButtonWrapper';
+import InputWrapper from '../wrappers/InputWrapper';
 import { FilterPanel, FILTER_TYPES } from '../FilterPanel';
 import Toast from '../Toast';
 import { CATEGORIES } from '../../enum/Categories';
@@ -133,16 +134,6 @@ export default function Wallet() {
     e.preventDefault();
 
     console.log('state.search.items.searchBar', state.search.items.searchBar);
-    if (state.search.items.searchBar && state.search.items.searchBar !== '' || _override) {
-      const newAssets = assets.filter((asset) => {
-        if (_override) return true;
-        return (asset.name.includes(state.search.items.searchBar));
-      });
-      setFilteredAssets([...newAssets]);
-      console.log('newAssets', newAssets);
-    } else {
-      setFilteredAssets([...assets]);
-    }
   }
 
   const priceFilterApply = (e) => {
@@ -231,10 +222,22 @@ export default function Wallet() {
 
   const [assets, setAssets] = useState([]);
   const [filteredAssets, setFilteredAssets] = useState([]);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     getCreatedNfts();
   }, [ROUTER.query.wallet]);
+
+  const updateFilteredAssets = (_value) => {
+    if (_value && _value !== '') {
+      const newAssets = assets.filter((asset) => {
+        return (asset.name.includes(_value));
+      });
+      setFilteredAssets([...newAssets]);
+    } else {
+      setFilteredAssets([...assets]);
+    }
+  };
 
   const getArtistNftIds = async () => {
     const signer = await WalletUtil.getWalletSigner();
@@ -288,17 +291,29 @@ export default function Wallet() {
         {/* <p onClick={() => {console.log('assets', assets)}}>See Assets</p> */}
         {/* <p onClick={() => {console.log('filteredAssets', filteredAssets)}}>See filteredAssets</p> */}
 
-        {state.search.items.searchBar && (
-          <div className='px-4 flex flex-wrap gap-2 justify-start items-center'>
-            <ButtonWrapper classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0" onClick={(e) => {
-              dispatch({ type: 'search-items', payload: { item: 'searchBar', searchBar: null } });
-              searchFilterApply(e, true);
+        <div className='py-2 flex flex-wrap gap-2 justify-start items-center'>
+          {search && (<div className="">
+            <ButtonWrapper classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0" onClick={() => {
+              setSearch(''); updateFilteredAssets('');
             }}>
-              {state.search.items.searchBar}
+              {search}
               <XIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
             </ButtonWrapper>
+          </div>)}
+          <div className="flex-1">
+            <InputWrapper
+              type="search"
+              id="created-search"
+              name="created-search"
+              placeholder="Search by name"
+              aria-label="created-search"
+              aria-describedby="created-search"
+              classes="w-full"
+              value={search}
+              onChange={(e) => {setSearch(e.target.value); updateFilteredAssets(e.target.value);}}
+            />
           </div>
-        )}
+        </div>
 
         <div className='flex flex-wrap gap-2 justify-center items-center'>
           {filteredAssets && filteredAssets.length > 0 && filteredAssets.map((asset, index) => {

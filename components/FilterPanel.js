@@ -58,15 +58,15 @@ export const FilterPanel = ({ children, filters, state, dispatch }) => {
   const SearchBar = ({item, filterItem}) => {
     return (
       <InputWrapper
-      type="search"
-      id={item.name}
-      name={item.name}
-      placeholder={item.label}
-      aria-label={item.name}
-      aria-describedby={item.name}
-      classes="w-full sm:w-52"
-      onChange={(e) => dispatch({ type: filterItem, payload: { item: item.name, [item.name]: e.target.value } })}
-    />
+        type="search"
+        id={item.name}
+        name={item.name}
+        placeholder={item.label}
+        aria-label={item.name}
+        aria-describedby={item.name}
+        classes="w-full sm:w-52"
+        onChange={(e) => dispatch({ type: filterItem, payload: { item: item.name, [item.name]: e.target.value } })}
+      />
     )
   };
 

@@ -21,11 +21,10 @@ export default function NftCard({children, header, image, body, footer}) {
       </div>
       {body && (<>
         <hr />
-        <div className="px-2 flex flex-col h-16">
+        <div className="px-2 flex flex-col h-18">
           {body}
         </div>
       </>)}
-      
       {footer && (<>
         <hr />
         <div className="px-2 flex flex-nowrap flex-row gap-2 text-left">

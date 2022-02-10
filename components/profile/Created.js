@@ -1,8 +1,8 @@
-import { useEffect, useState, useReducer } from 'react';
+import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { useRouter } from 'next/router';
 import ButtonWrapper from '../wrappers/ButtonWrapper';
-import { FilterPanel, FILTER_TYPES } from '../FilterPanel';
+import InputWrapper from '../wrappers/InputWrapper';
 import Toast from '../Toast';
 import WalletUtil from '../wallet/WalletUtil';
 import NftCard from '../nftAssets/NftCard';
@@ -13,75 +13,27 @@ import { BadgeCheckIcon, XIcon } from '@heroicons/react/solid';
 import AvaxTradeNftAbi from '../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
-const searchItems = (state, action) => {
-  switch(action.payload.item) {
-    case 'searchBar':
-      state.search.items.searchBar = action.payload.searchBar;
-      return state
-    default:
-      return state
-  }
-};
-
-const reducer = (state, action) => {
-  let newState;
-  switch(action.type) {
-    case 'search':
-      newState = JSON.parse(JSON.stringify(state));
-      newState.search.isSelected = !state.search.isSelected;
-      return newState
-    case 'search-items':
-      return searchItems(state, action)
-    default:
-      return state
-  }
-};
-
-
 export default function Created() {
   const ROUTER = useRouter();
 
-  const searchFilterApply = (e, _override) => {
-    e.preventDefault();
+  const [assets, setAssets] = useState([]);
+  const [filteredAssets, setFilteredAssets] = useState([]);
+  const [search, setSearch] = useState('');
 
-    if (state.search.items.searchBar && state.search.items.searchBar !== '' || _override) {
+  useEffect(() => {
+    getCreatedNfts();
+  }, [ROUTER.query.wallet]);
+
+  const updateFilteredAssets = (_value) => {
+    if (_value && _value !== '') {
       const newAssets = assets.filter((asset) => {
-        if (_override) return true;
-        return (asset.name.includes(state.search.items.searchBar));
+        return (asset.name.includes(_value));
       });
       setFilteredAssets([...newAssets]);
     } else {
       setFilteredAssets([...assets]);
     }
   };
-
-  const filters = [
-    {
-      name: 'search',
-      label: 'Search',
-      payload: { onSubmit: searchFilterApply },
-      filterItem: 'search-items',
-      items: [
-        { name: 'searchBar', label: 'Search by name', type: FILTER_TYPES.SEARCH }
-      ]
-    }
-  ];
-
-  const [state, dispatch] = useReducer(reducer, {
-    search: {
-      isSelected: true,
-      items: {
-        searchBar: null,
-      }
-    }
-  });
-
-  const [assets, setAssets] = useState([]);
-  const [filteredAssets, setFilteredAssets] = useState([]);
-
-  useEffect(() => {
-    getCreatedNfts();
-  }, [ROUTER.query.wallet]);
 
   const getArtistNftIds = async () => {
     const signer = await WalletUtil.getWalletSigner();
@@ -120,22 +72,31 @@ export default function Created() {
 
   return (
     <>
-      <div className="-p-2 -ml-2 rounded-lg shadow-lg bg-white">
-        <FilterPanel filters={filters} state={state} dispatch={dispatch} />
-      </div>
       <div className="p-1 rounded-lg shadow-lg bg-white grow">
 
-        {state.search.items.searchBar && (
-          <div className='px-4 flex flex-wrap gap-2 justify-start items-center'>
-            <ButtonWrapper classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0" onClick={(e) => {
-              dispatch({ type: 'search-items', payload: { item: 'searchBar', searchBar: null } });
-              searchFilterApply(e, true);
+        <div className='py-2 flex flex-wrap gap-2 justify-start items-center'>
+          {search && (<div className="">
+            <ButtonWrapper classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0" onClick={() => {
+              setSearch(''); updateFilteredAssets('');
             }}>
-              {state.search.items.searchBar}
+              {search}
               <XIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
             </ButtonWrapper>
+          </div>)}
+          <div className="flex-1">
+            <InputWrapper
+              type="search"
+              id="created-search"
+              name="created-search"
+              placeholder="Search by name"
+              aria-label="created-search"
+              aria-describedby="created-search"
+              classes="w-full"
+              value={search}
+              onChange={(e) => {setSearch(e.target.value); updateFilteredAssets(e.target.value);}}
+            />
           </div>
-        )}
+        </div>
 
         <div className='flex flex-wrap gap-2 justify-center items-center'>
           {filteredAssets && filteredAssets.length > 0 && filteredAssets.map((asset, index) => {
@@ -155,8 +116,8 @@ export default function Created() {
                     <div className="truncate"></div>
                   </div>
                   <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
-                    <div className="flex-1 truncate">ID</div>
-                    <div className="truncate">#34</div>
+                    <div className="flex-1 truncate">Owner</div>
+                    <div className="truncate">walletId</div>
                   </div>
                 </>)}
                 footer={(<>
