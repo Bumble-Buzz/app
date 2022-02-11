@@ -9,27 +9,6 @@ import { useAuth } from '../contexts/AuthContext';
 import ContentWrapper from '../components/wrappers/ContentWrapper';
 
 
-const usersDb = async () => {
-  const payload = {
-    TableName: "users",
-    AttributeDefinitions: [
-      {
-        AttributeName: "walletId",
-        AttributeType: "S",
-      }
-    ],
-    KeySchema: [
-      {
-        AttributeName: "walletId",
-        KeyType: "HASH",
-      }
-    ],
-    BillingMode: "PAY_PER_REQUEST",
-  };
-  const results = await API.db.table.create(payload);
-  console.log('Created:', results.data);
-};
-
 const contractsDb = async () => {
   const payload = {
     TableName: "contracts",
@@ -51,11 +30,63 @@ const contractsDb = async () => {
   console.log('Created:', results.data);
 };
 
+const usersDb = async () => {
+  const payload = {
+    TableName: "users",
+    AttributeDefinitions: [
+      {
+        AttributeName: "walletId",
+        AttributeType: "S",
+      }
+    ],
+    KeySchema: [
+      {
+        AttributeName: "walletId",
+        KeyType: "HASH",
+      }
+    ],
+    BillingMode: "PAY_PER_REQUEST",
+  };
+  const results = await API.db.table.create(payload);
+  console.log('Created:', results.data);
+};
+
+const createdAssets = async () => {
+  const payload = {
+    TableName: "created-assets",
+    AttributeDefinitions: [
+      { AttributeName: "walletId", AttributeType: "S" },
+      { AttributeName: "contractAddress", AttributeType: "S" },
+      { AttributeName: "tokenId", AttributeType: "N" }
+    ],
+    KeySchema: [
+      { AttributeName: "walletId", KeyType: "HASH" },
+      { AttributeName: "contractAddress", KeyType: "RANGE" }
+    ],
+    LocalSecondaryIndexes: [
+      {
+        IndexName: "tokenId",
+        KeySchema: [
+          { AttributeName: "walletId", KeyType: "HASH" },
+          { AttributeName: "tokenId", KeyType: "RANGE" }
+        ],
+        Projection: {
+          NonKeyAttributes: [],
+          ProjectionType: "ALL"
+        }
+      }
+    ],
+    BillingMode: "PAY_PER_REQUEST",
+  };
+  const results = await API.db.table.create(payload);
+  console.log('Created:', results.data);
+};
+
 const initTableSetup = async () => {
   console.log('start - initTableSetup');
 
-  await usersDb();
   await contractsDb();
+  await usersDb();
 
   console.log('end - initTableSetup');
 }

@@ -34,10 +34,31 @@ Things left to do:
   - Address all `@todo` in the code
 - Back-end
   - Database
-    - Tables
-      - users: walletId, name, bio, picture, timestamp (pk: walletId, picture: cid)
-      - contracts: contractAddress, isVerified::bool, isLocal::bool, name, symbol (pk: contractAddress, able to pull everything given `isVerified`)
-      - createdNft: walletId, tokenId, commission, cid, contractAddress (pk: walletId, tokenId)
+    - Tables (per network)
+      - users: User information
+        - walletId, name, bio, picture, timestamp
+        - PK: walletId
+        - LSI: timestamp ?
+        - GSI: 
+      - created-assets: NFTs created on the marketplace
+        - walletId, contractAddress, tokenId, commission, cid
+        - PK: walletId, contractAddress
+        - LSI: tokenId
+        - GSI: 
+      <!-- - contracts: All known contracts (need to be updated constantly) -->
+        <!-- - contractAddress, isVerified::bool, isLocal::bool, name, symbol (pk: contractAddress, able to pull everything given `isVerified`) -->
+      - collections: List of collections
+        - category, contractAddress, id, name, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active
+        - PK: category, contractAddress
+        - LSI: id, owner, collectionType, active
+        - GSI: contractAddress, owner
+      - assets: List of assets on sale in marketplace
+        - contractAddress, tokenId, id, collectionId, seller, buyer, price, commission, creator, sold, active, onSale::boolean
+        - PK: contractAddress, tokenId
+        - LSI: collectionId, seller, creator, sold, onSale
+        - GSI: id
+      <!-- - assets: List of assets (NFT on sale or not) -->
+        <!-- - contractAddress, tokenId, creator, owner,  -->
 - Front-end dapp
   - Easy way to set ENV variables in docker image / k8s, for contract addresses, admin accounts, etc...
   - AWS
