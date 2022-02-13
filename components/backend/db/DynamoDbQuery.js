@@ -3,7 +3,7 @@ const {
   ListTablesCommand, CreateTableCommand, DescribeTableCommand, DeleteTableCommand
 } = require("@aws-sdk/client-dynamodb");
 const {
-  GetCommand, BatchGetCommand, PutCommand, BatchWriteCommand, UpdateCommand, DeleteCommand, ScanCommand
+  GetCommand, BatchGetCommand, PutCommand, BatchWriteCommand, UpdateCommand, DeleteCommand, ScanCommand, QueryCommand
 } = require('@aws-sdk/lib-dynamodb');
 
 
@@ -24,5 +24,6 @@ module.exports = {
     delete: async params => await DynamoDBDocumentClient.send(new DeleteCommand(params)),
     deleteBatch: async params => await DynamoDBDocumentClient.send(new BatchWriteCommand(params)),
     scan: async params => await DynamoDBDocumentClient.send(new ScanCommand(params)),
+    query: async params => await DynamoDBDocumentClient.send(new QueryCommand(params))
   }
 }

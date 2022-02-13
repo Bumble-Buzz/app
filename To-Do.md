@@ -35,28 +35,33 @@ Things left to do:
 - Back-end
   - Database
     - Tables (per network)
-      - users: User information
-        - walletId, name, bio, picture, timestamp
+      - user: User information
+        - walletId, name, bio, picture, [notifications], timestamp
         - PK: walletId
         - LSI: timestamp ?
         - GSI: 
-      - created-assets: NFTs created on the marketplace
+      - created-asset: NFTs created on the marketplace (do we need this? asset table can cover this?)
         - walletId, contractAddress, tokenId, commission, cid
         - PK: walletId, contractAddress
         - LSI: tokenId
         - GSI: 
       <!-- - contracts: All known contracts (need to be updated constantly) -->
         <!-- - contractAddress, isVerified::bool, isLocal::bool, name, symbol (pk: contractAddress, able to pull everything given `isVerified`) -->
-      - collections: List of collections
-        - category, contractAddress, id, name, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active
-        - PK: category, contractAddress
-        - LSI: id, owner, collectionType, active
-        - GSI: contractAddress, owner
-      - assets: List of assets on sale in marketplace
-        - contractAddress, tokenId, id, collectionId, seller, buyer, price, commission, creator, sold, active, onSale::boolean
+      - collection: List of collections
+        - category, contractAddress, id, name, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number
+        - PK: category, active
+        - LSI: id, contractAddress, owner, collectionType, name
+        - GSI: id, owner + active
+      - asset: List of assets
+        - contractAddress, tokenId, collectionId, commission, creator, owner, cid
         - PK: contractAddress, tokenId
-        - LSI: collectionId, seller, creator, sold, onSale
-        - GSI: id
+        - LSI: creator, owner
+        - GSI: 
+      - sales: List of assets on sale in marketplace
+        - contractAddress, tokenId, id, collectionId, seller, buyer, price, sold, active::number
+        - PK: contractAddress, tokenId
+        - LSI: active
+        - GSI: id + active
       <!-- - assets: List of assets (NFT on sale or not) -->
         <!-- - contractAddress, tokenId, creator, owner,  -->
 - Front-end dapp
