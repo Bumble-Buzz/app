@@ -53,24 +53,36 @@ const users = async () => {
   console.log('table created:', results.TableDescription.TableName);
 };
 
-const createdAssets = async () => {
+const assets = async () => {
   const payload = {
-    TableName: "created-assets",
+    TableName: "asset",
     AttributeDefinitions: [
-      { AttributeName: "walletId", AttributeType: "S" },
       { AttributeName: "contractAddress", AttributeType: "S" },
-      { AttributeName: "tokenId", AttributeType: "N" }
+      { AttributeName: "tokenId", AttributeType: "N" },
+      { AttributeName: "creator", AttributeType: "S" },
+      { AttributeName: "owner", AttributeType: "S" }
     ],
     KeySchema: [
-      { AttributeName: "walletId", KeyType: "HASH" },
-      { AttributeName: "contractAddress", KeyType: "RANGE" }
+      { AttributeName: "contractAddress", KeyType: "HASH" },
+      { AttributeName: "tokenId", KeyType: "RANGE" }
     ],
     LocalSecondaryIndexes: [
       {
-        IndexName: "tokenId-index",
+        IndexName: "creator-lsi",
         KeySchema: [
-          { AttributeName: "walletId", KeyType: "HASH" },
-          { AttributeName: "tokenId", KeyType: "RANGE" }
+          { AttributeName: "contractAddress", KeyType: "HASH" },
+          { AttributeName: "creator", KeyType: "RANGE" }
+        ],
+        Projection: {
+          NonKeyAttributes: [],
+          ProjectionType: "ALL"
+        }
+      },
+      {
+        IndexName: "owner-lsi",
+        KeySchema: [
+          { AttributeName: "contractAddress", KeyType: "HASH" },
+          { AttributeName: "owner", KeyType: "RANGE" }
         ],
         Projection: {
           NonKeyAttributes: [],
@@ -88,33 +100,20 @@ const collection = async () => {
   const payload = {
     TableName: "collection",
     AttributeDefinitions: [
-      { AttributeName: "category", AttributeType: "S" },
-      { AttributeName: "active", AttributeType: "N" },
       { AttributeName: "id", AttributeType: "N" },
-      { AttributeName: "owner", AttributeType: "S" }
+      { AttributeName: "category", AttributeType: "S" },
+      { AttributeName: "owner", AttributeType: "S" },
+      { AttributeName: "active", AttributeType: "N" }
     ],
     KeySchema: [
-      { AttributeName: "category", KeyType: "HASH" },
-      { AttributeName: "active", KeyType: "RANGE" }
-    ],
-    LocalSecondaryIndexes: [
-      {
-        IndexName: "id-lsi",
-        KeySchema: [
-          { AttributeName: "category", KeyType: "HASH" },
-          { AttributeName: "id", KeyType: "RANGE" }
-        ],
-        Projection: {
-          NonKeyAttributes: [],
-          ProjectionType: "ALL"
-        }
-      }
+      { AttributeName: "id", KeyType: "HASH" },
     ],
     GlobalSecondaryIndexes: [
       {
-        IndexName: "id-gsi",
+        IndexName: "category-gsi",
         KeySchema: [
-          { AttributeName: "id", KeyType: "HASH" }
+          { AttributeName: "category", KeyType: "HASH" },
+          { AttributeName: "active", KeyType: "RANGE" }
         ],
         Projection: {
           NonKeyAttributes: [],
@@ -125,6 +124,36 @@ const collection = async () => {
         IndexName: "owner-gsi",
         KeySchema: [
           { AttributeName: "owner", KeyType: "HASH" },
+          { AttributeName: "active", KeyType: "RANGE" }
+        ],
+        Projection: {
+          NonKeyAttributes: [],
+          ProjectionType: "ALL"
+        }
+      }
+    ],
+    BillingMode: "PAY_PER_REQUEST",
+  };
+  const results = await DynamoDbQuery.table.create(payload);
+  console.log('table created:', results.TableDescription.TableName);
+};
+
+const sales = async () => {
+  const payload = {
+    TableName: "sales",
+    AttributeDefinitions: [
+      { AttributeName: "id", AttributeType: "N" },
+      { AttributeName: "category", AttributeType: "S" },
+      { AttributeName: "active", AttributeType: "N" }
+    ],
+    KeySchema: [
+      { AttributeName: "id", KeyType: "HASH" }
+    ],
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: "category-gsi",
+        KeySchema: [
+          { AttributeName: "category", KeyType: "HASH" },
           { AttributeName: "active", KeyType: "RANGE" }
         ],
         Projection: {
@@ -155,9 +184,9 @@ const usersDelete = async () => {
   console.log('table deleted:', results.TableDescription.TableName);
 };
 
-const createdAssetsDelete = async () => {
+const assetsDelete = async () => {
   const payload = {
-    TableName: "created-assets"
+    TableName: "asset"
   };
   const results = await DynamoDbQuery.table.delete(payload);
   console.log('table deleted:', results.TableDescription.TableName);
@@ -171,19 +200,28 @@ const collectionDelete = async () => {
   console.log('table deleted:', results.TableDescription.TableName);
 };
 
+const salesDelete = async () => {
+  const payload = {
+    TableName: "sales"
+  };
+  const results = await DynamoDbQuery.table.delete(payload);
+  console.log('table deleted:', results.TableDescription.TableName);
+};
 
 const create = async () => {
   // await contracts();
   // await users();
-  await createdAssets();
+  await assets();
   // await collection();
+  // await sales();
 };
 
 const cleanup = async () => {
   // await contractsDelete();
   // await usersDelete();
-  await createdAssetsDelete();
+  await assetsDelete();
   // await collectionDelete();
+  // await salesDelete();
 };
 
 const scan = async () => {
@@ -214,24 +252,24 @@ const scanLazy = async () => {
   console.log('dbData', dbData);
 };
 
-const queryCreatedAssets = async () => {
+const queryAssets = async () => {
   const payload = {
-    TableName: "created-assets",
-    ExpressionAttributeNames: { '#walletId': 'walletId', '#contractAddress': 'contractAddress' },
-    ExpressionAttributeValues: { ':walletId': '0xda121ab48c7675e4f25e28636e3efe602e49eec6', ':contractAddress': 'contract-address' },
-    KeyConditionExpression: '#walletId = :walletId AND #contractAddress = :contractAddress'
+    TableName: "asset",
+    ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
+    ExpressionAttributeValues: { ':contractAddress': 'contract-address', ':tokenId': 123 },
+    KeyConditionExpression: '#contractAddress = :contractAddress AND #tokenId = :tokenId'
   };
   const results = await DynamoDbQuery.item.query(payload);
   console.log('Query item:', results.Items);
 };
 
-const queryCreatedAssetsLsi = async () => {
+const queryAssetsLsi = async () => {
   const payload = {
-    TableName: "created-assets",
-    IndexName: 'tokenId-index',
-    ExpressionAttributeNames: { '#walletId': 'walletId', '#tokenId': 'tokenId' },
-    ExpressionAttributeValues: { ':walletId': '0xda121ab48c7675e4f25e28636e3efe602e49eec6', ':tokenId': 123 },
-    KeyConditionExpression: '#walletId = :walletId AND #tokenId = :tokenId'
+    TableName: "asset",
+    IndexName: 'creator-lsi',
+    ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#creator': 'creator' },
+    ExpressionAttributeValues: { ':contractAddress': 'contract-address', ':creator': '0xda121ab48c7675e4f25e28636e3efe602e49eec6' },
+    KeyConditionExpression: '#contractAddress = :contractAddress AND #creator = :creator'
   };
   const results = await DynamoDbQuery.item.query(payload);
   console.log('Query item:', results.Items);
@@ -240,21 +278,9 @@ const queryCreatedAssetsLsi = async () => {
 const queryCollection = async () => {
   const payload = {
     TableName: "collection",
-    ExpressionAttributeNames: { '#category': 'category', '#active': 'active' },
-    ExpressionAttributeValues: { ':category': 'photography', ':active': 0 },
-    KeyConditionExpression: '#category = :category AND #active = :active'
-  };
-  const results = await DynamoDbQuery.item.query(payload);
-  console.log('Query item:', results.Items);
-};
-
-const queryCollectionLsi = async () => {
-  const payload = {
-    TableName: "collection",
-    IndexName: 'id-lsi',
-    ExpressionAttributeNames: { '#category': 'category', '#id': 'id' },
-    ExpressionAttributeValues: { ':category': 'photography', ':id': 123 },
-    KeyConditionExpression: '#category = :category AND #id = :id'
+    ExpressionAttributeNames: { '#id': 'id' },
+    ExpressionAttributeValues: { ':id': 123 },
+    KeyConditionExpression: '#id = :id'
   };
   const results = await DynamoDbQuery.item.query(payload);
   console.log('Query item:', results.Items);
@@ -263,10 +289,10 @@ const queryCollectionLsi = async () => {
 const queryCollectionGsi = async () => {
   const payload = {
     TableName: "collection",
-    IndexName: 'id-gsi',
-    ExpressionAttributeNames: { '#id': 'id' },
-    ExpressionAttributeValues: { ':id': 456 },
-    KeyConditionExpression: '#id = :id'
+    IndexName: 'category-gsi',
+    ExpressionAttributeNames: { '#category': 'category', '#active': 'active' },
+    ExpressionAttributeValues: { ':category': 'photography', ':active': 0 },
+    KeyConditionExpression: '#category = :category AND #active = :active'
   };
   const results = await DynamoDbQuery.item.query(payload);
   console.log('Query item:', results.Items);
@@ -277,20 +303,44 @@ const queryCollectionGsi2 = async () => {
     TableName: "collection",
     IndexName: 'owner-gsi',
     ExpressionAttributeNames: { '#owner': 'owner', '#active': 'active' },
-    ExpressionAttributeValues: { ':owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6', ':active': 0 },
+    ExpressionAttributeValues: { ':owner': '0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED', ':active': 1 },
     KeyConditionExpression: '#owner = :owner AND #active = :active'
   };
   const results = await DynamoDbQuery.item.query(payload);
   console.log('Query item:', results.Items);
 };
 
+const querySales = async () => {
+  const payload = {
+    TableName: "sales",
+    ExpressionAttributeNames: { '#id': 'id' },
+    ExpressionAttributeValues: { ':id': 1 },
+    KeyConditionExpression: '#id = :id'
+  };
+  const results = await DynamoDbQuery.item.query(payload);
+  console.log('Query item:', results.Items);
+};
+
+const querySalesGsi = async () => {
+  const payload = {
+    TableName: "sales",
+    IndexName: 'category-gsi',
+    ExpressionAttributeNames: { '#category': 'category', '#active': 'active' },
+    ExpressionAttributeValues: { ':category': 'photography', ':active': 0 },
+    KeyConditionExpression: '#category = :category AND #active = :active'
+  };
+  const results = await DynamoDbQuery.item.query(payload);
+  console.log('Query item:', results.Items);
+};
+
 const query = async () => {
-  // await queryCreatedAssets();
-  await queryCreatedAssetsLsi();
+  // await queryAssets();
+  // await queryAssetsLsi();
   // await queryCollection();
-  // await queryCollectionLsi();
   // await queryCollectionGsi();
   // await queryCollectionGsi2();
+  // await querySales();
+  await querySalesGsi();
 };
 
 const getUsers = async () => {
@@ -310,7 +360,6 @@ const getCreatedAssets = async () => {
     Key: {
       'walletId': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
       'contractAddress': 'contract-address',
-      // 'tokenId': 123,
     }
   };
   const results = await DynamoDbQuery.item.get(payload);
@@ -350,38 +399,38 @@ const putUsers = async (val) => {
   const results = await DynamoDbQuery.item.put(payload);
 };
 
-const putCreatedAssets = async (val) => {
+const putAssets = async (val) => {
   let payload = {
-    TableName: "created-assets",
+    TableName: "asset",
     Item: {
-      'walletId': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
       'contractAddress': 'contract-address',
       'tokenId': 123,
-      'commission': 2,
+      'creator': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
+      'owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
       'cid': 'c-i-d'
     }
   };
   await DynamoDbQuery.item.put(payload);
 
   payload = {
-    TableName: "created-assets",
+    TableName: "asset",
     Item: {
-      'walletId': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
-      'contractAddress': 'contract-address2',
-      'tokenId': 123,
-      'commission': 2,
-      'cid': 'c-i-d'
-    }
-  };
-  await DynamoDbQuery.item.put(payload);
-
-  payload = {
-    TableName: "created-assets",
-    Item: {
-      'walletId': '0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED',
-      'contractAddress': 'contract-address2',
+      'contractAddress': 'contract-address',
       'tokenId': 456,
-      'commission': 2,
+      'creator': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
+      'owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
+      'cid': 'c-i-d'
+    }
+  };
+  await DynamoDbQuery.item.put(payload);
+
+  payload = {
+    TableName: "asset",
+    Item: {
+      'contractAddress': 'contract-address2',
+      'tokenId': 789,
+      'creator': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
+      'owner': '0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED',
       'cid': 'c-i-d-2'
     }
   };
@@ -392,10 +441,11 @@ const putCollection = async (val) => {
   const payload = {
     TableName: "collection",
     Item: {
-      'category': 'photography',
-      'active': 0,
       'id': 123,
-      'owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6'
+      'category': 'photography',
+      'owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
+      'commission': 2,
+      'active': 0
     }
   };
   await DynamoDbQuery.item.put(payload);
@@ -403,20 +453,69 @@ const putCollection = async (val) => {
   const payload2 = {
     TableName: "collection",
     Item: {
-      'category': 'meme',
-      'active': 1,
       'id': 456,
-      'owner': '0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED'
+      'category': 'meme',
+      'owner': '0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED',
+      'commission': 3,
+      'active': 1
     }
   };
   await DynamoDbQuery.item.put(payload2);
 };
 
+const putSales = async (val) => {
+  let payload = {
+    TableName: "sales",
+    Item: {
+      'id': 1,
+      'contractAddress': 'contract-address',
+      'tokenId': 123,
+      'category': 'photography',
+      'seller': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
+      'buyer': 'buyer-address',
+      'commission': 2,
+      'active': 0
+    }
+  };
+  await DynamoDbQuery.item.put(payload);
+
+  payload = {
+    TableName: "sales",
+    Item: {
+      'id': 2,
+      'contractAddress': 'contract-address',
+      'tokenId': 456,
+      'category': 'photography',
+      'seller': '0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED',
+      'buyer': '',
+      'commission': 3,
+      'active': 0
+    }
+  };
+  await DynamoDbQuery.item.put(payload);
+
+  payload = {
+    TableName: "sales",
+    Item: {
+      'id': 3,
+      'contractAddress': 'contract-address2',
+      'tokenId': 789,
+      'category': 'meme',
+      'seller': '0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED',
+      'buyer': '',
+      'commission': 3,
+      'active': 1
+    }
+  };
+  await DynamoDbQuery.item.put(payload);
+};
+
 const put = async (val) => {
   // await putContracts();
   // await putUsers();
-  await putCreatedAssets();
+  await putAssets();
   // await putCollection();
+  // await putSales();
 };
 
 (async () => {

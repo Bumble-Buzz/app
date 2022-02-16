@@ -51,24 +51,108 @@ const usersDb = async () => {
   console.log('Created:', results.data);
 };
 
-const createdAssets = async () => {
+const collection = async () => {
   const payload = {
-    TableName: "created-assets",
+    TableName: "collection",
     AttributeDefinitions: [
-      { AttributeName: "walletId", AttributeType: "S" },
-      { AttributeName: "contractAddress", AttributeType: "S" },
-      { AttributeName: "tokenId", AttributeType: "N" }
+      { AttributeName: "id", AttributeType: "N" },
+      { AttributeName: "category", AttributeType: "S" },
+      { AttributeName: "owner", AttributeType: "S" },
+      { AttributeName: "active", AttributeType: "N" }
     ],
     KeySchema: [
-      { AttributeName: "walletId", KeyType: "HASH" },
-      { AttributeName: "contractAddress", KeyType: "RANGE" }
+      { AttributeName: "id", KeyType: "HASH" },
+    ],
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: "category-gsi",
+        KeySchema: [
+          { AttributeName: "category", KeyType: "HASH" },
+          { AttributeName: "active", KeyType: "RANGE" }
+        ],
+        Projection: {
+          NonKeyAttributes: [],
+          ProjectionType: "ALL"
+        }
+      },
+      {
+        IndexName: "owner-gsi",
+        KeySchema: [
+          { AttributeName: "owner", KeyType: "HASH" },
+          { AttributeName: "active", KeyType: "RANGE" }
+        ],
+        Projection: {
+          NonKeyAttributes: [],
+          ProjectionType: "ALL"
+        }
+      }
+    ],
+    BillingMode: "PAY_PER_REQUEST",
+  };
+  const results = await API.db.table.create(payload);
+  console.log('Created:', results.data);
+};
+
+const asset = async () => {
+  const payload = {
+    TableName: "asset",
+    AttributeDefinitions: [
+      { AttributeName: "contractAddress", AttributeType: "S" },
+      { AttributeName: "tokenId", AttributeType: "N" },
+      { AttributeName: "creator", AttributeType: "S" },
+      { AttributeName: "owner", AttributeType: "S" }
+    ],
+    KeySchema: [
+      { AttributeName: "contractAddress", KeyType: "HASH" },
+      { AttributeName: "tokenId", KeyType: "RANGE" }
     ],
     LocalSecondaryIndexes: [
       {
-        IndexName: "tokenId",
+        IndexName: "creator-lsi",
         KeySchema: [
-          { AttributeName: "walletId", KeyType: "HASH" },
-          { AttributeName: "tokenId", KeyType: "RANGE" }
+          { AttributeName: "contractAddress", KeyType: "HASH" },
+          { AttributeName: "creator", KeyType: "RANGE" }
+        ],
+        Projection: {
+          NonKeyAttributes: [],
+          ProjectionType: "ALL"
+        }
+      },
+      {
+        IndexName: "owner-lsi",
+        KeySchema: [
+          { AttributeName: "contractAddress", KeyType: "HASH" },
+          { AttributeName: "owner", KeyType: "RANGE" }
+        ],
+        Projection: {
+          NonKeyAttributes: [],
+          ProjectionType: "ALL"
+        }
+      }
+    ],
+    BillingMode: "PAY_PER_REQUEST",
+  };
+  const results = await API.db.table.create(payload);
+  console.log('Created:', results.data);
+};
+
+const sales = async () => {
+  const payload = {
+    TableName: "sales",
+    AttributeDefinitions: [
+      { AttributeName: "id", AttributeType: "N" },
+      { AttributeName: "category", AttributeType: "S" },
+      { AttributeName: "active", AttributeType: "N" }
+    ],
+    KeySchema: [
+      { AttributeName: "id", KeyType: "HASH" }
+    ],
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: "category-gsi",
+        KeySchema: [
+          { AttributeName: "category", KeyType: "HASH" },
+          { AttributeName: "active", KeyType: "RANGE" }
         ],
         Projection: {
           NonKeyAttributes: [],
@@ -85,8 +169,11 @@ const createdAssets = async () => {
 const initTableSetup = async () => {
   console.log('start - initTableSetup');
 
-  await contractsDb();
+  // await contractsDb();
   await usersDb();
+  await collection();
+  await asset();
+  await sales();
 
   console.log('end - initTableSetup');
 }

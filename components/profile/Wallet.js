@@ -12,6 +12,8 @@ import API from '../Api';
 import IPFS from '../../utils/ipfs';
 import { BadgeCheckIcon, XIcon } from '@heroicons/react/solid';
 
+import useSWR from 'swr';
+
 import AvaxTradeNftAbi from '../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
@@ -226,7 +228,7 @@ export default function Wallet() {
 
   useEffect(() => {
     getCreatedNfts();
-  }, [ROUTER.query.wallet]);
+  }, []);
 
   const updateFilteredAssets = (_value) => {
     if (_value && _value !== '') {
@@ -264,6 +266,7 @@ export default function Wallet() {
         // console.log('tokenURI', id, tokenURI);
         // console.log('getValidHttpUrl', IPFS.getValidHttpUrl(tokenURI));
         const payload = { tokenURI: IPFS.getValidHttpUrl(tokenURI) };
+        // console.log('payload', payload);
         const config = await API.ipfs.get.config(payload);
         configs.push(config.data)
       }) );
@@ -274,6 +277,8 @@ export default function Wallet() {
       console.error(e);
     }
   };
+
+  const {data: myData} = useSWR(API.swr.db.table.list('asd','asd123'), API.swr.fetcher, API.swr.db.table.options || API.swr.options);
 
 
   return (
@@ -288,6 +293,8 @@ export default function Wallet() {
         {/* <p onClick={getCreatedNfts}>Test getCreatedNfts</p> */}
         {/* <p onClick={() => {console.log('assets', assets)}}>See Assets</p> */}
         {/* <p onClick={() => {console.log('filteredAssets', filteredAssets)}}>See filteredAssets</p> */}
+        {/* <p onClick={() => {console.log('filteredAssets', API.ipfs.get.config2({ tokenURI: "http://localhost:8080/ipfs/QmaUfK7FpWNvBEBHxFnG7Qrsa7QuShS9vjuEvfq7CchdcA" }))}}>SWR data fetch</p> */}
+        <p onClick={() => {console.log('filteredAssets', myData)}}>SWR data fetch</p>
 
         <div className='py-2 flex flex-wrap gap-2 justify-start items-center'>
           {search && (<div className="">

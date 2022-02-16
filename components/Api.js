@@ -1,4 +1,6 @@
 import axios from 'axios';
+import useSWR from 'swr';
+
 
 const API = axios.create({
   baseURL: '/api/'
@@ -17,6 +19,22 @@ const cancelApi = () => {
 
 
 const apis = {
+  swr: {
+    fetcher: (url) => API.get(url).then(res => res.data),
+    options: {
+      refreshInterval: 0, // disable auto api call
+      dedupingInterval: 9000, // 9 seconds
+      revalidateOnFocus: false,
+    },
+    ipfs: {
+      config: (key,param) => `ipfs/get/config?${key}=${param}`
+    },
+    db: {
+      table: {
+        list: (key,param) => `db/table/list?${key}=${param}`
+      }
+    }
+  },
   ipfs: {
     put: {
       image: payload => API.put(`ipfs/image`, payload),

@@ -22,7 +22,7 @@ contract AvaxTradeNft is ERC721Enumerable, Ownable {
   // state variables
   string private BASE_URI;
   string private BASE_EXTENSION = '.json';
-  uint256 private COST = 0.5 ether;
+  uint256 private COST = 0.0 ether;
   uint256 private MAX_SUPPLY = type(uint256).max;
   bool private PAUSED = false;
 
@@ -77,7 +77,7 @@ contract AvaxTradeNft is ERC721Enumerable, Ownable {
 
     _safeMint(msg.sender, totalSupply() + 1);
 
-    emit onNftMint(msg.sender, totalSupply() + 1);
+    emit onNftMint(msg.sender, totalSupply());
   }
 
   function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {

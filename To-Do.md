@@ -40,28 +40,31 @@ Things left to do:
         - PK: walletId
         - LSI: timestamp ?
         - GSI: 
-      - created-asset: NFTs created on the marketplace (do we need this? asset table can cover this?)
+      <!-- - created-asset: NFTs created on the marketplace (do we need this? asset table can cover this?)
         - walletId, contractAddress, tokenId, commission, cid
         - PK: walletId, contractAddress
         - LSI: tokenId
+        - GSI:  -->
+      - contracts: All known contracts (need to be updated constantly)
+        - [contractAddress], chain, name, symbol, isVerified::number
+        - PK: arbitrary-number, chain
+        - LSI: isVerified
         - GSI: 
-      <!-- - contracts: All known contracts (need to be updated constantly) -->
-        <!-- - contractAddress, isVerified::bool, isLocal::bool, name, symbol (pk: contractAddress, able to pull everything given `isVerified`) -->
       - collection: List of collections
-        - category, contractAddress, id, name, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number
-        - PK: category, active
-        - LSI: id, contractAddress, owner, collectionType, name
-        - GSI: id, owner + active
+        - contractAddress, id, name, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number, category
+        - PK: id
+        - LSI: 
+        - GSI: category + active, owner + active (only get data that you need)
       - asset: List of assets
         - contractAddress, tokenId, collectionId, commission, creator, owner, cid
         - PK: contractAddress, tokenId
         - LSI: creator, owner
         - GSI: 
       - sales: List of assets on sale in marketplace
-        - contractAddress, tokenId, id, collectionId, seller, buyer, price, sold, active::number
-        - PK: contractAddress, tokenId
-        - LSI: active
-        - GSI: id + active
+        - contractAddress, tokenId, id, collectionId, seller, buyer, price, sold, active::number, category
+        - PK: id
+        - LSI: 
+        - GSI: category + active (only get data that you need)
       <!-- - assets: List of assets (NFT on sale or not) -->
         <!-- - contractAddress, tokenId, creator, owner,  -->
 - Front-end dapp

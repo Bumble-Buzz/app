@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useReducer } from 'react'
 import Image from 'next/image';
 import { useSession, getSession } from 'next-auth/react';
 import { ethers } from 'ethers';
@@ -22,7 +22,57 @@ export default function Create() {
 
   const [isLoading, setLoading] = useState(false);
   const [isMinted, setMinted] = useState(false);
-  const [values, setValues] = useState({
+  const [attributeType, setAttributeType] = useState('');
+  const [attributeValue, setAttributeValue] = useState('');
+
+  const reducer = (state, action) => {
+    let newState;
+    switch(action.type) {
+      case 'name':
+        state.name = action.payload.name;
+        return state
+      case 'description':
+        state.description = action.payload.description;
+        return state
+      case 'category':
+        state.category = action.payload.category;
+        return state
+      case 'commission':
+        state.commission = action.payload.commission;
+        return state
+      case 'attributes':
+        newState = JSON.parse(JSON.stringify(state));
+        if (attributeType.length > 0) {
+          newState.attributes.push({ 'trait_type': attributeType, 'value': attributeValue });
+        }
+        setAttributeType('');
+        setAttributeValue('');
+        return newState
+      case 'attributesDelete':
+        newState = JSON.parse(JSON.stringify(state));
+        newState.attributes = newState.attributes.filter(
+          attribute => attribute['trait_type'] !== action.payload.value['trait_type']
+        );
+        return newState
+      case 'image':
+        newState = JSON.parse(JSON.stringify(state));
+        newState.image = action.payload.value;
+        return newState
+      case 'clear':
+        return {
+          name: '',
+          description: '',
+          category: 'Art',
+          commission: '',
+          attributes: [],
+          image: null
+        }
+      default:
+        return state
+    }
+  };
+
+  const [state, dispatch] = useReducer(reducer, {
     name: '',
     description: '',
     category: 'Art',
@@ -30,108 +80,7 @@ export default function Create() {
     attributes: [],
     image: null
   });
-  const [transaction, setTransaction] = useState();
 
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [attributes, setAttributes] = useState([]);
-  const [attributeType, setAttributeType] = useState('');
-  const [attributeValue, setAttributeValue] = useState('');
-
-  useEffect(() => {
-    checkTransaction();
-  }, [transaction]);
-
-
-  const checkTransaction = async () => {
-    if (transaction) {
-      const txReceipt = await WalletUtil.checkTransaction(transaction);
-      if (txReceipt && txReceipt.blockNumber) {
-        setTransaction();
-        initValues();
-        setMinted(true);
-        setLoading(false);
-      } else {
-        console.log('not yet mined');
-      }
-    }
-  };
-
-  const handleName = (e) => {
-    const existingValues = values;
-    existingValues.name = e.target.value;
-    setValues(existingValues);
-  };
-
-  const handleDescription = (e) => {
-    const existingValues = values;
-    existingValues.description = e.target.value;
-    setValues(existingValues);
-  };
-
-  const handleCategory = (e) => {
-    const existingValues = values;
-    existingValues.category = e.target.value;
-    setValues(existingValues);
-  };
-
-  const handleCommission = (e) => {
-    const existingValues = values;
-    existingValues.commission = e.target.value;
-    setValues(existingValues);
-  };
-
-  const handleAttributes = (e) => {
-    if (attributeType.length > 0) {
-      const existingAttributes = attributes;
-      existingAttributes.push({ 'trait_type':attributeType, 'value':attributeValue });
-      setAttributes(existingAttributes);
-      setAttributeType('');
-      setAttributeValue('');
-      const existingValues = values;
-      existingValues.attributes = existingAttributes;
-      setValues(existingValues);
-    }
-  };
-
-  const handleAttributeDelete = (selectedAttribute) => {
-    const filteredAttributes = attributes.filter(
-      attribute => attribute['trait_type'] !== selectedAttribute['trait_type']
-    );
-    setAttributes(filteredAttributes);
-    const existingValues = values;
-    existingValues.attributes = filteredAttributes;
-    setValues(existingValues);
-  };
-
-  const handleImage = (e) => {
-    const image = e.target.files[0];
-    if (image && image.size > 10485760) {
-      Toast.error("Image size too big. Max 10mb");
-    }
-    const existingValues = values;
-    setSelectedImage(image);
-    existingValues.image = image;
-    setValues(existingValues);
-  };
-
-  const updateValue = (property, value) => {
-    const existingValues = values;
-    existingValues[property] = value;
-    setValues(existingValues);
-  };
-
-  const initValues = () => {
-    setSelectedImage(null);
-    setAttributes([]);
-    setValues({
-      name: '',
-      description: '',
-      category: 'Art',
-      commission: '',
-      attributes: [],
-      image: null
-    });
-  };
 
   const createNft = async (e) => {
     console.log('start - createNft');
@@ -150,16 +99,26 @@ export default function Create() {
       console.log('configCid:', configCid);
 
       const val = await contract.mint(
-        values.commission,
+        state.commission,
         configCid,
-        { value: ethers.utils.parseEther('0.50') }
+        { value: ethers.utils.parseEther('0.0') }
       );
-      setTransaction(val);
-      // console.log('val', val);
-      const balance = await contract.balanceOf(val.from);
-      console.log('balance', balance.toLocaleString(undefined,0));
 
-      // update contracts & createdNft tables
+      const txReceipt = await WalletUtil.checkTransaction(val);
+      if (txReceipt && txReceipt.blockNumber) {
+        contract.on("onNftMint", async (_owner, _tokenId) => {
+          console.log('found event: ', _owner, _tokenId.toNumber());
+          const balance = await contract.balanceOf(val.from);
+          console.log('balance', balance.toLocaleString(undefined,0));
+
+          // update contracts & createdNft tables
+          await addAsset(_tokenId.toNumber(), _owner, imageCid);
+
+          dispatch({ type: 'clear' });
+          setMinted(true);
+          setLoading(false);
+        });
+      }
 
     } catch (e) {
       Toast.error(e.message);
@@ -170,8 +129,8 @@ export default function Create() {
 
   const uploadImage = async () => {
     const formData = new FormData();
-    formData.append("name", values.image.name);
-    formData.append("image", values.image);
+    formData.append("name", state.image.name);
+    formData.append("image", state.image);
 
     let cid;
     try {
@@ -183,16 +142,16 @@ export default function Create() {
     }
 
     return cid;
-  }
+  };
 
   const uploadConfig = async (_imageCid) => {
 
     const payload = {
-      name: values.name,
-      description: values.description,
+      name: state.name,
+      description: state.description,
       image: `ipfs://${_imageCid}`,
       imageHttp: `https://ipfs.io/ipfs/${_imageCid}`,
-      attributes: values.attributes
+      attributes: state.attributes
     };
 
     let cid;
@@ -205,7 +164,23 @@ export default function Create() {
     }
 
     return cid;
-  }
+  };
+
+  const addAsset = async (_tokenId, _creator, _cid) => {
+    const payload = {
+      TableName: "asset",
+      Item: {
+        'contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS,
+        'tokenId': _tokenId,
+        'creator': _creator,
+        'owner': _creator,
+        'cid': _cid
+      }
+    };
+    await API.db.item.put(payload);
+  };
+
+
 
   const testBlockchain = async () => {
     console.log('start - testBlockchain');
@@ -483,7 +458,7 @@ export default function Create() {
                         autoComplete="off"
                         required
                         className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                        onChange={handleName}
+                        onChange={(e) => dispatch({ type: 'name', payload: { name: e.target.value } })}
                       />
                     </div>
 
@@ -496,7 +471,7 @@ export default function Create() {
                           placeholder=""
                           defaultValue={''}
                           className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                          onChange={handleDescription}
+                          onChange={(e) => dispatch({ type: 'description', payload: { description: e.target.value } })}
                         />
                       <p className="mt-2 text-sm text-gray-500">{Lexicon.form.description.text2}</p>
                     </div>
@@ -509,7 +484,7 @@ export default function Create() {
                         autoComplete="category-name"
                         required
                         className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                        onChange={handleCategory}
+                        onChange={(e) => dispatch({ type: 'category', payload: { category: e.target.value } })}
                       >
                         <option>{Lexicon.form.category.art}</option>
                         <option>{Lexicon.form.category.games}</option>
@@ -531,7 +506,7 @@ export default function Create() {
                         id="commission"
                         required
                         className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                        onChange={handleCommission}
+                        onChange={(e) => dispatch({ type: 'commission', payload: { commission: e.target.value } })}
                       />
                     </div>
 
@@ -566,19 +541,19 @@ export default function Create() {
                           <label
                             className="cursor-pointer inline-flex justify-center py-2 px-4 border border-transparent shadow-sm
                               text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline focus:outline-0"
-                            onClick={handleAttributes}
+                            onClick={() => dispatch({ type: 'attributes' })}
                           >
                             {Lexicon.form.attributes.add}
                           </label>
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-2 justify-center items-center">
-                        {attributes.length > 0 && attributes.map((attribute, index) => {
+                        {state.attributes && state.attributes.length > 0 && state.attributes.map((attribute, index) => {
                           return (
                             <div className="block m-2 p-2 rounded-lg shadow-lg bg-indigo-50 max-w-sm relative w-20 min-w-fit" key={index}>
                               <span
                                 className="-mx-2 -mt-3 px-1.5 text-white bg-red-700 absolute right-0 rounded-full text-xs cursor-pointer"
-                                onClick={() => {handleAttributeDelete(attribute)}}
+                                onClick={() => dispatch({ type: 'attributesDelete', payload: { value: attribute } })}
                               >
                                 X
                               </span>
@@ -599,8 +574,8 @@ export default function Create() {
 
                   <div className="flex flex-nowrap flex-col w-full max-w-lg">
                     <div className="my-2 border">
-                      {selectedImage ?
-                          <Image className="" alt='nft image' src={URL.createObjectURL(selectedImage)} layout='responsive' width={6} height={4} />
+                      {state.image ?
+                          <Image className="" alt='nft image' src={URL.createObjectURL(state.image)} layout='responsive' width={6} height={4} />
                         :
                           <Image className="" alt='nft image' src={NoImageAvailable} layout='responsive' />
                       }
@@ -631,7 +606,14 @@ export default function Create() {
                           shadow-xl shadow-gray-400/60
                           focus:outline focus:outline-0
                         "
-                        onChange={handleImage}
+                        onChange={(e) => {
+                          const image = e.target.files[0];
+                          if (image && image.size > 10485760) {
+                            Toast.error("Image size too big. Max 10mb");
+                          } else {
+                            dispatch({ type: 'image', payload: { value: image } });
+                          }
+                        }}
                       />
                     </div>
                   </div>
@@ -663,7 +645,7 @@ export default function Create() {
   <div>
     <p onClick={uploadImage}>Upload Image to IPFS</p>
     <p onClick={uploadConfig}>Upload config to IPFS</p>
-    <p onClick={() => {console.log('values', values);}}>Click to see values</p>
+    <p onClick={() => {console.log('state', state);}}>Click to see state</p>
     <p onClick={() => {Toast.info('Info Notification !')}}>Notify!</p>
     <p onClick={testBlockchain}>Test blockchain</p>
   </div>

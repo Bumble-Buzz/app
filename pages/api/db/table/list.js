@@ -21,7 +21,7 @@ function runMiddleware(req, res, fn) {
 };
 
 export default async function handler(req, res) {
-  const results = await DynamoDbQuery.table.list(req.body);
+  const results = await DynamoDbQuery.table.list({});
 
   res.status(200).json(results.TableNames);
 }
