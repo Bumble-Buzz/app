@@ -212,16 +212,24 @@ export default function SignIn() {
     await API.db.item.put(payload);
   };
 
-  const usersDb = async () => {
+  const handleSignIn = async () => {
+    let userInfo = {
+      name: 'Anon',
+      wallet: AuthContext.state.account,
+      bio: '',
+      picture: '',
+      timestamp: ''
+    };
     const data = await getUsersDb();
     if (data) {
       console.log('user exists, do nothing. or update timestamp?');
-    } else {
-      await putUsersDb();
+      userInfo.name = data.name;
+      userInfo.bio = data.bio;
+      userInfo.picture = data.picture;
+      userInfo.timestamp = data.timestamp;
+      console.log('userInfo', userInfo);
     }
-  };
 
-  const handleSignIn = async () => {
     const domain = {
       name: 'AvaxTrade',
       version: '1',
@@ -242,7 +250,7 @@ export default function SignIn() {
     const value = {
       content: 'User Authentication',
       user: {
-        name: 'Anon',
+        name: userInfo.name,
         wallet: AuthContext.state.account
       },
     };
@@ -260,7 +268,9 @@ export default function SignIn() {
         recoveredAddress
       });
       if (signedIn && signedIn.ok) {
-        await usersDb();
+        if (!data) {
+          await putUsersDb();
+        }
         ROUTER.back();
       } else {
         throw('Authentication failed, incorrect credentials')
