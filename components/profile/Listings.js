@@ -22,8 +22,8 @@ export default function Listings() {
   const [allAssets, setAllAssets] = useState([]);
   const [assets, setAssets] = useState([]);
   const [search, setSearch] = useState('');
-  const [exclusiveStartKey, setExclusiveStartKey] = useState({ 'uid': 1, 'chain': null });
   const [apiSortKey, setApiSortKey] = useState({ 'uid': 1, 'chain': null });
+  const [exclusiveStartKey, setExclusiveStartKey] = useState(apiSortKey);
 
   // on scroll fetch data
   const { observe } = useInView({
