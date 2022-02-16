@@ -15,16 +15,12 @@ const contracts = async () => {
   const payload = {
     TableName: "contracts",
     AttributeDefinitions: [
-      {
-        AttributeName: "contractAddress",
-        AttributeType: "S",
-      }
+      { AttributeName: "uid", AttributeType: "S" },
+      { AttributeName: "chain", AttributeType: "S" }
     ],
     KeySchema: [
-      {
-        AttributeName: "contractAddress",
-        KeyType: "HASH",
-      }
+      { AttributeName: "uid", KeyType: "HASH" },
+      { AttributeName: "chain", KeyType: "RANGE" }
     ],
     BillingMode: "PAY_PER_REQUEST",
   };
@@ -209,17 +205,17 @@ const salesDelete = async () => {
 };
 
 const create = async () => {
-  // await contracts();
+  await contracts();
   // await users();
-  await assets();
+  // await assets();
   // await collection();
   // await sales();
 };
 
 const cleanup = async () => {
-  // await contractsDelete();
+  await contractsDelete();
   // await usersDelete();
-  await assetsDelete();
+  // await assetsDelete();
   // await collectionDelete();
   // await salesDelete();
 };
@@ -371,14 +367,19 @@ const get = async () => {
   // await getCreatedAssets();
 };
 
-const putContracts = async (val) => {
-  const payload = {
-    TableName: "contracts",
-    Item: {
-      'contractAddress': val,
-    }
-  };
-  const results = await DynamoDbQuery.item.put(payload);
+const putContracts = async (_val) => {
+  for (let i = 0; i < 90; i++) {
+    // console.log(`${_val}${i}`);
+    const payload = {
+      TableName: "contracts",
+      Item: {
+        'uid': `1`,
+        'chain': `${i}`,
+        'contractAddress': `${_val}${i}`,
+      }
+    };
+    await DynamoDbQuery.item.put(payload);
+  }
 };
 
 const putUsers = async (val) => {
@@ -511,9 +512,9 @@ const putSales = async (val) => {
 };
 
 const put = async (val) => {
-  // await putContracts();
+  await putContracts(val);
   // await putUsers();
-  await putAssets();
+  // await putAssets();
   // await putCollection();
   // await putSales();
 };
@@ -532,13 +533,6 @@ const put = async (val) => {
   } else if (ACTION === 'get') {
     await get();
   } else if (ACTION === 'put') {
-    // let val = '';
-    // for (let i = 0; i < 100; i++) {
-    //   val = "sample"
-    //   val += i;
-    //   await put(val);
-    //   console.log(val);
-    // }
     await put('sample');
   } else {}
 })();

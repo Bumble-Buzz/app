@@ -11,7 +11,7 @@ import IPFS from '../../utils/ipfs';
 import { BadgeCheckIcon, XIcon } from '@heroicons/react/solid';
 
 import useInView from "react-cool-inview";
-
+import useSWRInfinite from 'swr/infinite'
 
 import AvaxTradeNftAbi from '../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
@@ -22,23 +22,37 @@ export default function Listings() {
   const [allAssets, setAllAssets] = useState([]);
   const [assets, setAssets] = useState([]);
   const [search, setSearch] = useState('');
-  const [exclusiveStartKey, setExclusiveStartKey] = useState(null);
+  const [exclusiveStartKey, setExclusiveStartKey] = useState({ 'uid': 1, 'chain': null });
+  const [apiSortKey, setApiSortKey] = useState({ 'uid': 1, 'chain': null });
 
+  // on scroll fetch data
   const { observe } = useInView({
     threshold: 0,
     onEnter: async ({ unobserve }) => {
       if (!search) {
-        const lastEvaluatedKey = await contractsDb(true);
-        if (!lastEvaluatedKey) {
+        if (!exclusiveStartKey) {
           unobserve();
         }
+        setApiSortKey(exclusiveStartKey);
       }
     },
   });
 
-  useEffect(async () => {
-    await getDbData();
-  }, []);
+  // fetch data from database using SWR
+  const { data, size, setSize } = useSWRInfinite(
+    (pageIndex, previousPageData) => {
+      return `contracts?limit=22&uid=${apiSortKey.uid}&chain=${apiSortKey.chain}`
+    },
+    API.swr.fetcher,
+    {
+      onSuccess: (_data) => {
+        const lastEle = _data[_data.length - 1];
+        setAssets([...assets, ...lastEle.Items]);
+        setAllAssets([...allAssets, ...lastEle.Items]);
+        setExclusiveStartKey(lastEle.LastEvaluatedKey);
+      }
+    }
+  );
 
   useEffect(() => {
     // console.log('assets', assets);
@@ -56,40 +70,12 @@ export default function Listings() {
     }
   };
 
-  const contractsDb = async (_lazyLoad) => {
-    const payload = {
-      TableName: "contracts",
-      ExclusiveStartKey: exclusiveStartKey,
-      Limit: 22
-    };
-    const results = await API.db.item.scan(payload);
-    const {items, lastEvaluatedKey} = results.data;
-    console.log('results', {items, lastEvaluatedKey});
-
-    if (!_lazyLoad) {
-      // if first time
-      console.log('undefined');
-      setAllAssets(items);
-      setAssets(items);
-    } else {
-      console.log('defined');
-      setAllAssets([...assets, ...items]);
-      setAssets([...assets, ...items]);
-    }
-    setExclusiveStartKey(lastEvaluatedKey);
-    return lastEvaluatedKey;
-  };
-
-  const getDbData = async () => {
-    await contractsDb();
-  };
-
-
   return (
     <>
       <div className="p-1 rounded-lg shadow-lg bg-white grow">
 
         <p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p>
+        <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p>
         <p onClick={() => {console.log('assets', assets)}}>See assets</p>
 
         <div className='py-2 flex flex-nowrap gap-2 justify-start items-center'>

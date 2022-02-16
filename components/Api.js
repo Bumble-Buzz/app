@@ -35,6 +35,7 @@ const apis = {
       }
     }
   },
+  contracts: (limit,uid,chain) => API.get(`contracts?limit=${limit}&uid=${uid}&page=${chain}`),
   ipfs: {
     put: {
       image: payload => API.put(`ipfs/image`, payload),
