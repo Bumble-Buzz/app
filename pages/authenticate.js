@@ -234,7 +234,7 @@ export default function SignIn() {
       name: 'AvaxTrade',
       version: '1',
       chainId: process.env.NEXT_PUBLIC_CHAIN_ID,
-      verifyingContract: '0x1111111111111111111111111111111111111111', // contract address
+      verifyingContract: process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, // contract address
       salt: '0xf2d857f4a3edcb9b78b4d503bfe733db1e3f6cdc2b7971ee739626c97e86a558'
     };
     const types = {
