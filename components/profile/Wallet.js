@@ -9,10 +9,9 @@ import { CATEGORIES } from '../../enum/Categories';
 import WalletUtil from '../wallet/WalletUtil';
 import NftCard from '../nftAssets/NftCard';
 import API from '../Api';
+import useSWR from 'swr';
 import IPFS from '../../utils/ipfs';
 import { BadgeCheckIcon, XIcon } from '@heroicons/react/solid';
-
-import useSWR from 'swr';
 
 import AvaxTradeNftAbi from '../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
@@ -227,7 +226,7 @@ export default function Wallet() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    getCreatedNfts();
+    // getCreatedNfts();
   }, []);
 
   const updateFilteredAssets = (_value) => {

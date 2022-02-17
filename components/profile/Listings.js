@@ -9,21 +9,20 @@ import NftCard from '../nftAssets/NftCard';
 import API from '../Api';
 import IPFS from '../../utils/ipfs';
 import { BadgeCheckIcon, XIcon } from '@heroicons/react/solid';
-
-import useInView from "react-cool-inview";
-import useSWRInfinite from 'swr/infinite'
+import useInView from 'react-cool-inview';
+import useSWRInfinite from 'swr/infinite';
 
 import AvaxTradeNftAbi from '../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
-export default function Listings() {
+export default function Listings({ initialData }) {
   const ROUTER = useRouter();
 
   const [allAssets, setAllAssets] = useState([]);
   const [assets, setAssets] = useState([]);
   const [search, setSearch] = useState('');
-  const [apiSortKey, setApiSortKey] = useState({ 'uid': 1, 'chain': null });
-  const [exclusiveStartKey, setExclusiveStartKey] = useState(apiSortKey);
+  const [apiSortKey, setApiSortKey] = useState(null);
+  const [exclusiveStartKey, setExclusiveStartKey] = useState(null);
 
   // on scroll fetch data
   const { observe } = useInView({
@@ -41,7 +40,7 @@ export default function Listings() {
   // fetch data from database using SWR
   const { data, size, setSize } = useSWRInfinite(
     (pageIndex, previousPageData) => {
-      return `contracts?limit=22&uid=${apiSortKey.uid}&chain=${apiSortKey.chain}`
+      return API.swr.contracts(20, apiSortKey.uid, apiSortKey.chain);
     },
     API.swr.fetcher,
     {
@@ -50,16 +49,23 @@ export default function Listings() {
         setAssets([...assets, ...lastEle.Items]);
         setAllAssets([...allAssets, ...lastEle.Items]);
         setExclusiveStartKey(lastEle.LastEvaluatedKey);
-      }
+      },
+      ...API.swr.options
     }
   );
 
   useEffect(() => {
-    // console.log('assets', assets);
-    // console.log('filteredAssets', filteredAssets);
-    const newAssets = allAssets.filter((asset) => asset.contractAddress.toLowerCase().indexOf(search.toLowerCase()) >= 0);
-    setAssets(newAssets);
-  }, [search]);
+    setAssets(initialData.Items);
+    setAllAssets(initialData.Items);
+    setExclusiveStartKey(initialData.LastEvaluatedKey);
+  }, []);
+
+  // useEffect(() => {
+  //   // console.log('assets', assets);
+  //   // console.log('filteredAssets', filteredAssets);
+  //   const newAssets = allAssets.filter((asset) => asset.contractAddress.toLowerCase().indexOf(search.toLowerCase()) >= 0);
+  //   setAssets(newAssets);
+  // }, [search]);
 
   const updateFilteredAssets = (_value) => {
     if (_value && _value !== '') {
@@ -69,6 +75,7 @@ export default function Listings() {
       setAllAssets(allAssets);
     }
   };
+
 
   return (
     <>
@@ -88,7 +95,7 @@ export default function Listings() {
             aria-describedby="created-search"
             classes="w-full"
             // value={search}
-            onChange={(e) => {setSearch(e.target.value);  }}
+            onChange={(e) => {setSearch(e.target.value); updateFilteredAssets(e.target.value); }}
           />
         </div>
 

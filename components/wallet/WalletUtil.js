@@ -21,7 +21,7 @@ const __init__ = async (dispatch) => {
     if (_accounts.length === 0) {
       // MetaMask is locked or the user has not connected any accounts
     } else if (_accounts[0] !== currentAccount) {
-      currentAccount = _accounts[0];
+      currentAccount = ethers.utils.getAddress(_accounts[0]);
 
       dispatch({
         type: AUTH_CONTEXT_ACTIONS.ACCOUNT,
@@ -60,8 +60,10 @@ const isNetworkValid = async () => {
   return await getNetworkVersion() === process.env.NEXT_PUBLIC_CHAIN_ID;
 }
 
-const getAccounts = async () => {
-  return await ethereum.request({ method: 'eth_accounts' });
+const getAccount = async () => {
+  const accounts = await ethereum.request({ method: 'eth_accounts' });
+  const firstAccount = accounts[0];
+  return ethers.utils.getAddress(firstAccount);
 }
 
 const reqAccountLogin = async () => {
@@ -103,7 +105,7 @@ module.exports = {
   getCurrentChain,
   getNetworkVersion,
   isNetworkValid,
-  getAccounts,
+  getAccount,
   reqAccountLogin,
   getWalletProvider,
   getWalletSigner,

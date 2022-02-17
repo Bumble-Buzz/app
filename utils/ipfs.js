@@ -1,14 +1,14 @@
 import CheckEnvironment from '../components/CheckEnvironment';
 
 
-const getValidBaseUrl = () => {
+const getValidBaseUrl = (val = '') => {
   let baseUrl;
   if (CheckEnvironment.isDevMode) {
-    baseUrl = "http://localhost:8080/ipfs/";
+    baseUrl = `http://localhost:8080/ipfs/${val}`;
   } else if (CheckEnvironment.isDevKindMode) {
-    baseUrl = "http://ipfs:8080/ipfs/";
+    baseUrl = `http://ipfs:8080/ipfs/${val}`;
   } else {
-    baseUrl = "http://ipfs:8080/ipfs/";
+    baseUrl = `http://ipfs:8080/ipfs/${val}`;
   }
   return baseUrl;
 };

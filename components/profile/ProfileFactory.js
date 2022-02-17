@@ -5,8 +5,8 @@ import Listings from './Listings';
 
 
 module.exports = {
-  wallet: <Wallet />,
-  collections: <Collections />,
-  created: <Created />,
-  listings: <Listings />
+  wallet: props => <Wallet {...props} />,
+  collections: props => <Collections {...props} />,
+  created: props => <Created {...props} />,
+  listings: props => <Listings {...props} />
 }

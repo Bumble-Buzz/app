@@ -330,13 +330,13 @@ const querySalesGsi = async () => {
 };
 
 const query = async () => {
-  // await queryAssets();
+  await queryAssets();
   // await queryAssetsLsi();
   // await queryCollection();
   // await queryCollectionGsi();
   // await queryCollectionGsi2();
   // await querySales();
-  await querySalesGsi();
+  // await querySalesGsi();
 };
 
 const getUsers = async () => {
@@ -519,6 +519,38 @@ const put = async (val) => {
   // await putSales();
 };
 
+const mockAssets = async () => {
+  const pk = '0x0789a8D7c2D9cb50Fc59413ca404026eB6D34251';
+  const sk = 1;
+  let payload = {
+    TableName: "asset",
+    ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
+    ExpressionAttributeValues: { ':contractAddress': pk, ':tokenId': sk },
+    KeyConditionExpression: '#contractAddress = :contractAddress AND #tokenId = :tokenId'
+  };
+  const results = await DynamoDbQuery.item.query(payload);
+  console.log('Query item:', results.Items);
+  const item = results.Items[0];
+
+  for (let i = 1; i < 99; i++) {
+    payload = {
+      TableName: "asset",
+      Item: {
+        'contractAddress': pk,
+        'tokenId': i,
+        'creator': item.creator,
+        'owner': item.owner,
+        'cid': item.cid
+      }
+    };
+    await DynamoDbQuery.item.put(payload);
+  }
+};
+
+const mock = async () => {
+  await mockAssets();
+};
+
 (async () => {
   if (ACTION === 'list') {
     await list();
@@ -534,5 +566,7 @@ const put = async (val) => {
     await get();
   } else if (ACTION === 'put') {
     await put('sample');
+  } else if (ACTION === 'mock') {
+    await mock();
   } else {}
 })();

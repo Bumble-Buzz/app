@@ -23,7 +23,6 @@ const apis = {
     fetcher: (url) => API.get(url).then(res => res.data),
     options: {
       refreshInterval: 0, // disable auto api call
-      dedupingInterval: 9000, // 9 seconds
       revalidateOnFocus: false,
     },
     ipfs: {
@@ -33,9 +32,12 @@ const apis = {
       table: {
         list: (key,param) => `db/table/list?${key}=${param}`
       }
-    }
+    },
+    assets: {
+      created: (id,tokenId,limit) => `assets/created/${id}?tokenId=${tokenId}&limit=${limit}`,
+    },
+    contracts: (limit,uid,chain) => `contracts?limit=${limit}&uid=${uid}&chain=${chain}`,
   },
-  contracts: (limit,uid,chain) => API.get(`contracts?limit=${limit}&uid=${uid}&page=${chain}`),
   ipfs: {
     put: {
       image: payload => API.put(`ipfs/image`, payload),

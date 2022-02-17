@@ -38,7 +38,7 @@ export default async function handler(req, res) {
   // console.log('api param:', limit, uid, chain);
 
   let exclusiveStartKey = undefined;
-  if (JSON.parse(chain)) {
+  if (chain && JSON.parse(chain)) {
     exclusiveStartKey = { 'uid': uid, 'chain': chain };
   }
 

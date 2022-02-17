@@ -1,4 +1,5 @@
 import Cors from 'cors';
+import { ethers } from 'ethers';
 import DynamoDbQuery from '../../../../components/backend/db/DynamoDbQuery';
 
 
@@ -34,18 +35,30 @@ export default async function handler(req, res) {
   // console.log('req.query', req.query);
   // console.log('req.param', req.param);
 
-  const { id } = req.query
-  console.log('api param:', id);
+  const { id, limit, tokenId } = req.query
+  // console.log('api param:', id, tokenId, limit);
+
+  //check params
+  if (!id) return res.status(400).json({ invalid: id });
+  const checkSumId = ethers.utils.getAddress(id);
+
+  let exclusiveStartKey = undefined;
+  if (id && tokenId && Number.isInteger(parseInt(tokenId,10))) {
+    exclusiveStartKey = { 'contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, 'creator': checkSumId, 'tokenId': parseInt(tokenId,10) };
+  }
 
   const payload = {
     TableName: "asset",
     IndexName: 'creator-lsi',
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#creator': 'creator' },
-    ExpressionAttributeValues: { ':contractAddress': '0x0789a8D7c2D9cb50Fc59413ca404026eB6D34251', ':creator': id },
-    KeyConditionExpression: '#contractAddress = :contractAddress AND #creator = :creator'
+    ExpressionAttributeValues: { ':contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, ':creator': checkSumId },
+    KeyConditionExpression: '#contractAddress = :contractAddress AND #creator = :creator',
+    ExclusiveStartKey: exclusiveStartKey,
+    Limit: limit
   };
   const results = await DynamoDbQuery.item.query(payload);
-  console.log('results', results.Items);
+  const {Items, LastEvaluatedKey, Count, ScannedCount} = results;
+  // console.log('results', Items);
 
-  res.status(200).json({ test: 'api2' });
+  res.status(200).json({ Items, LastEvaluatedKey, Count, ScannedCount });
 }

@@ -8,6 +8,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import Unauthenticated from '../../components/Unauthenticated';
 import PageError from '../../components/PageError';
 import API from '../../components/Api';
+import useSWR from 'swr';
 import ContentWrapper from '../../components/wrappers/ContentWrapper';
 import ButtonWrapper from '../../components/wrappers/ButtonWrapper';
 import ProfileFactory from '../../components/profile/ProfileFactory';
@@ -50,6 +51,10 @@ export default function Create() {
   const [walletValidity, setWalletvalidity] = useState(false);
   const inputFile = useRef(null) 
   const { data: session, status: sessionStatus } = useSession();
+
+  // swr call to fetch initial data
+  const {data: createdAssets} = useSWR(API.swr.assets.created(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
+  const {data: contracts} = useSWR(API.swr.contracts(20, 1, null), API.swr.fetcher, API.swr.options);
 
   const [userState, dispatch] = useReducer(reducer, {
     name: '',
@@ -304,7 +309,10 @@ export default function Create() {
           </div>
 
           <div className="gap-2 flex flex-col sm:flex-row w-full">
-            {ProfileFactory[tab]}
+            {tab === 'wallet' && ProfileFactory[tab]()}
+            {tab === 'collections' && ProfileFactory[tab]()}
+            {tab === 'created' && ProfileFactory[tab]({ initialData: createdAssets })}
+            {tab === 'listings' && ProfileFactory[tab]({ initialData: contracts })}
           </div>
 
         </div>

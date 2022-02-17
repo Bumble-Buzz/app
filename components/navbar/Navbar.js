@@ -43,7 +43,7 @@ export default function Navbar() {
         isConnected: WalletUtil.isConnected(),
         isNetworkValid: await WalletUtil.isNetworkValid(),
         networkVersion: await WalletUtil.getNetworkVersion(),
-        account: (await WalletUtil.getAccounts())[0]
+        account: await WalletUtil.getAccount()
       }
     });
   };
