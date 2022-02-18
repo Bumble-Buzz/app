@@ -55,10 +55,12 @@ export default function Created({ initialData }) {
   );
 
   useEffect(() => {
-    setAssets(initialData.Items);
-    setFilteredAssets(initialData.Items);
-    setExclusiveStartKey(initialData.LastEvaluatedKey);
-  }, []);
+    if (initialData) {
+      setAssets(initialData.Items);
+      setFilteredAssets(initialData.Items);
+      setExclusiveStartKey(initialData.LastEvaluatedKey);
+    }
+  }, [initialData]);
 
   // useEffect(() => {
   //   // console.log('assets', assets);

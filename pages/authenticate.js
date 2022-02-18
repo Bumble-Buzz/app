@@ -71,7 +71,6 @@ const collection = async () => {
           { AttributeName: "active", KeyType: "RANGE" }
         ],
         Projection: {
-          NonKeyAttributes: [],
           ProjectionType: "ALL"
         }
       },
@@ -82,7 +81,6 @@ const collection = async () => {
           { AttributeName: "active", KeyType: "RANGE" }
         ],
         Projection: {
-          NonKeyAttributes: [],
           ProjectionType: "ALL"
         }
       }
@@ -114,7 +112,6 @@ const asset = async () => {
           { AttributeName: "creator", KeyType: "RANGE" }
         ],
         Projection: {
-          NonKeyAttributes: [],
           ProjectionType: "ALL"
         }
       },
@@ -125,7 +122,6 @@ const asset = async () => {
           { AttributeName: "owner", KeyType: "RANGE" }
         ],
         Projection: {
-          NonKeyAttributes: [],
           ProjectionType: "ALL"
         }
       }
@@ -155,7 +151,6 @@ const sales = async () => {
           { AttributeName: "active", KeyType: "RANGE" }
         ],
         Projection: {
-          NonKeyAttributes: [],
           ProjectionType: "ALL"
         }
       }
@@ -176,7 +171,54 @@ const initTableSetup = async () => {
   await sales();
 
   console.log('end - initTableSetup');
-}
+};
+
+const populateCollection = async () => {
+
+  // dummy collection data
+  let payload = {
+    TableName: "collection",
+    Item: {
+      'id': 1,
+      'name': 'unverified collection',
+      'totalSupply': 0,
+      'reflection': 0,
+      'commission': 0,
+      'incentive': 0,
+      'owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
+      'collectionType': 'unverified',
+      'ownerIncentiveAccess': false,
+      'active': 1,
+      'category': 'none'
+    }
+  };
+  await API.db.item.put(payload);
+  payload = {
+    TableName: "collection",
+    Item: {
+      'id': 2,
+      'name': 'verified collection',
+      'totalSupply': 0,
+      'reflection': 0,
+      'commission': 0,
+      'incentive': 0,
+      'owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
+      'collectionType': 'verified',
+      'ownerIncentiveAccess': false,
+      'active': 1,
+      'category': 'none'
+    }
+  };
+  await API.db.item.put(payload);
+};
+
+const populateData = async () => {
+  console.log('start - populateData');
+
+  await populateCollection();
+
+  console.log('end - populateData');
+};
 
 export default function SignIn() {
   const ROUTER = useRouter();
@@ -385,6 +427,7 @@ export default function SignIn() {
           </div>
 
 <p onClick={initTableSetup}>Test initTableSetup</p>
+<p onClick={populateData}>Test populateData</p>
 
         </div>
       </ContentWrapper>

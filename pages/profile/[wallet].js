@@ -66,7 +66,7 @@ export default function Create() {
     if (ROUTER && ROUTER.query && ROUTER.query.wallet) {
       getUsersDb();
     }
-  }, [ROUTER.query.wallet]);
+  }, []);
 
   const getUsersDb = async () => {
     // console.log('getUsersDb');
@@ -310,7 +310,7 @@ export default function Create() {
 
           <div className="gap-2 flex flex-col sm:flex-row w-full">
             {tab === 'wallet' && ProfileFactory[tab]()}
-            {tab === 'collections' && ProfileFactory[tab]()}
+            {tab === 'collections' && ProfileFactory[tab]({ initialData: createdAssets })}
             {tab === 'created' && ProfileFactory[tab]({ initialData: createdAssets })}
             {tab === 'listings' && ProfileFactory[tab]({ initialData: {} })}
             {/* {tab === 'listings' && ProfileFactory[tab]({ initialData: contracts })} */}

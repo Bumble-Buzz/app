@@ -16,6 +16,9 @@ package-lock:
 dev:
 	export NEXT_PUBLIC_APP_ENV=dev; npm run dev
 
+devStart:
+	export NEXT_PUBLIC_APP_ENV=dev && npm run build && npm run start
+
 build:
 	npm run build
 

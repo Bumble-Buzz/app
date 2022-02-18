@@ -55,10 +55,12 @@ export default function Listings({ initialData }) {
   );
 
   useEffect(() => {
-    setAssets(initialData.Items);
-    setAllAssets(initialData.Items);
-    setExclusiveStartKey(initialData.LastEvaluatedKey);
-  }, []);
+    if (initialData) {
+      setAssets(initialData.Items);
+      setAllAssets(initialData.Items);
+      setExclusiveStartKey(initialData.LastEvaluatedKey);
+    }
+  }, [initialData]);
 
   // useEffect(() => {
   //   // console.log('assets', assets);
