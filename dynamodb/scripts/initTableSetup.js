@@ -205,17 +205,17 @@ const salesDelete = async () => {
 };
 
 const create = async () => {
-  await contracts();
+  // await contracts();
   // await users();
-  // await assets();
+  await assets();
   // await collection();
   // await sales();
 };
 
 const cleanup = async () => {
-  await contractsDelete();
+  // await contractsDelete();
   // await usersDelete();
-  // await assetsDelete();
+  await assetsDelete();
   // await collectionDelete();
   // await salesDelete();
 };
@@ -362,9 +362,24 @@ const getCreatedAssets = async () => {
   console.log('Get item:', results.Item);
 };
 
+const getCollection = async () => {
+  const payload = {
+    TableName: "collection",
+    Key: {
+      'id': 2
+    }
+  };
+  const results = await DynamoDbQuery.item.get(payload);
+  console.log('Get item:', results.Item);
+};
+
 const get = async () => {
-  await getUsers();
+  // await getUsers();
   // await getCreatedAssets();
+  await getCollection();
+};
+
+const getBatch = async () => {
 };
 
 const putContracts = async (_val) => {
@@ -408,7 +423,7 @@ const putAssets = async (val) => {
       'tokenId': 123,
       'creator': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
       'owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
-      'cid': 'c-i-d'
+      'config': 'c-o-n-f-i-g'
     }
   };
   await DynamoDbQuery.item.put(payload);
@@ -420,7 +435,7 @@ const putAssets = async (val) => {
       'tokenId': 456,
       'creator': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
       'owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
-      'cid': 'c-i-d'
+      'config': 'c-o-n-f-i-g'
     }
   };
   await DynamoDbQuery.item.put(payload);
@@ -432,7 +447,7 @@ const putAssets = async (val) => {
       'tokenId': 789,
       'creator': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
       'owner': '0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED',
-      'cid': 'c-i-d-2'
+      'config': 'c-o-n-f-i-g-2'
     }
   };
   await DynamoDbQuery.item.put(payload);
@@ -442,7 +457,8 @@ const putCollection = async (val) => {
   const payload = {
     TableName: "collection",
     Item: {
-      'id': 123,
+      'id': 1,
+      'name': 'unverified collection',
       'category': 'photography',
       'owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
       'commission': 2,
@@ -454,7 +470,8 @@ const putCollection = async (val) => {
   const payload2 = {
     TableName: "collection",
     Item: {
-      'id': 456,
+      'id': 2,
+      'name': 'verified collection',
       'category': 'meme',
       'owner': '0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED',
       'commission': 3,
@@ -512,16 +529,16 @@ const putSales = async (val) => {
 };
 
 const put = async (val) => {
-  await putContracts(val);
+  // await putContracts(val);
   // await putUsers();
   // await putAssets();
-  // await putCollection();
+  await putCollection();
   // await putSales();
 };
 
 const mockAssets = async () => {
   const pk = '0x0789a8D7c2D9cb50Fc59413ca404026eB6D34251';
-  const sk = 1;
+  const sk = 13;
   let payload = {
     TableName: "asset",
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
@@ -532,15 +549,17 @@ const mockAssets = async () => {
   console.log('Query item:', results.Items);
   const item = results.Items[0];
 
-  for (let i = 1; i < 99; i++) {
+  for (let i = sk+1; i < 99; i++) {
     payload = {
       TableName: "asset",
       Item: {
         'contractAddress': pk,
         'tokenId': i,
+        'collectionId': item.collectionId,
+        'commission': item.commission,
         'creator': item.creator,
         'owner': item.owner,
-        'cid': item.cid
+        'config': item.config
       }
     };
     await DynamoDbQuery.item.put(payload);
@@ -564,6 +583,8 @@ const mock = async () => {
     await query();
   } else if (ACTION === 'get') {
     await get();
+  } else if (ACTION === 'getBatch') {
+    await getBatch();
   } else if (ACTION === 'put') {
     await put('sample');
   } else if (ACTION === 'mock') {

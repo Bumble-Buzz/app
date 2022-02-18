@@ -15,7 +15,7 @@ export default function NftCard({children, innerRef, header, image, body, footer
       </>)}
       <div className='relative h-24 sm:h-36 md:h-60'>
         <Image
-          src={IPFS.getValidBaseUrl(image)}
+          src={IPFS.getValidHttpUrl(image)}
           placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="contain" sizes='50vw'
         />
       </div>

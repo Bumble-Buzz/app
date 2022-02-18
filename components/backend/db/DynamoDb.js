@@ -18,8 +18,8 @@ if (CheckEnvironment.isDevMode) {
   props.endpoint = "http://dynamodb-local:8000";
 }
 
-console.log('CheckEnvironment', CheckEnvironment);
-console.log('DynamoDB props', props);
+// console.log('CheckEnvironment', CheckEnvironment);
+// console.log('DynamoDB props', props);
 
 const DynamoDBClient = new DynamoDB.DynamoDBClient(props);
 const DynamoDBDocumentClient = DynamoDBLib.DynamoDBDocumentClient.from(DynamoDBClient);

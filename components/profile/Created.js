@@ -8,7 +8,7 @@ import WalletUtil from '../wallet/WalletUtil';
 import NftCard from '../nftAssets/NftCard';
 import API from '../Api';
 import IPFS from '../../utils/ipfs';
-import { BadgeCheckIcon, XIcon } from '@heroicons/react/solid';
+import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/solid';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
 
@@ -38,7 +38,7 @@ export default function Created({ initialData }) {
   });
 
   // fetch data from database using SWR
-  const { mutate } = useSWRInfinite(
+  useSWRInfinite(
     (pageIndex, previousPageData) => {
       return API.swr.assets.created(ROUTER.query.wallet, apiSortKey.tokenId, 20);
     },
@@ -63,13 +63,13 @@ export default function Created({ initialData }) {
   // useEffect(() => {
   //   // console.log('assets', assets);
   //   // console.log('filteredAssets', filteredAssets);
-  //   const newAssets = assets.filter((asset) => asset.tokenId.toString().toLowerCase().indexOf(search.toString().toLowerCase()) >= 0);
+  //   const newAssets = assets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(search.toString().toLowerCase()) >= 0);
   //   setFilteredAssets(newAssets);
   // }, [search]);
 
   const updateFilteredAssets = (_value) => {
     if (_value && _value !== '') {
-      const newAssets = assets.filter((asset) => asset.tokenId.toString().toLowerCase().indexOf(_value.toString().toLowerCase()) >= 0);
+      const newAssets = assets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(_value.toString().toLowerCase()) >= 0);
       setFilteredAssets(newAssets);
     } else {
       setFilteredAssets(assets);
@@ -106,25 +106,26 @@ export default function Created({ initialData }) {
                 key={index}
                 innerRef={index === filteredAssets.length - 1 ? observe : null}
                 header={(<>
-                  <div className="flex-1 font-bold text-purple-500 text-xl truncate">{asset.tokenId}</div>
+                  <div className="flex-1 font-bold text-purple-500 text-xl truncate">{asset.config.name}</div>
                   <div className='flex items-center'>
-                    <BadgeCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />
+                    {asset.collectionId === 1 && <ShieldExclamationIcon className="w-5 h-5" fill="#ff3838" alt="unverified" title="unverified" aria-hidden="true" />}
+                    {asset.collectionId !== 1 && <ShieldCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />}
                   </div>
                 </>)}
-                image={asset.cid}
+                image={asset.config.image}
                 body={(<>
                   <div className="flex flex-nowrap flex-row gap-2 text-left">
-                    <div className="flex-1 truncate">COLLECTION NAME HERE</div>
+                    <div className="flex-1 truncate">{asset.collectionName}</div>
                     <div className="truncate"></div>
                   </div>
                   <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
-                    <div className="flex-1 truncate">Owner</div>
-                    <div className="truncate">walletId</div>
+                    <div className="grow w-full truncate">Owner</div>
+                    <div className="truncate">{asset.owner}</div>
                   </div>
                 </>)}
                 footer={(<>
-                  <div className="flex-1 truncate">{asset.tokenId}</div>
-                  <div className="truncate">{asset.tokenId}</div>
+                  <div className="flex-1 truncate">{asset.config.name}</div>
+                  <div className="truncate">{asset.config.name}</div>
                 </>)}
               />
             )

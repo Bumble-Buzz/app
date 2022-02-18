@@ -257,6 +257,7 @@ export default function SignIn() {
 
     try {
       const signer = await WalletUtil.getWalletSigner();
+      if (!signer) throw('Authentication failed, issue with wallet')
       const signature = await signer._signTypedData(domain, types, value);
       const recoveredAddress = ethers.utils.verifyTypedData(domain, types, value, signature);
 

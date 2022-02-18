@@ -95,7 +95,14 @@ export default function Create() {
       const imageCid = await uploadImage();
 
       // upload config to ipfs
-      const configCid = await uploadConfig(imageCid);
+      const config = {
+        name: state.name,
+        description: state.description,
+        image: `ipfs://${imageCid}`,
+        imageHttp: `https://ipfs.io/ipfs/${imageCid}`,
+        attributes: state.attributes
+      };
+      const configCid = await uploadConfig(config);
       console.log('configCid:', configCid);
 
       const val = await contract.mint(
@@ -111,8 +118,8 @@ export default function Create() {
           const balance = await contract.balanceOf(val.from);
           console.log('balance', balance.toLocaleString(undefined,0));
 
-          // update contracts & createdNft tables
-          await addAsset(_tokenId.toNumber(), _owner, imageCid);
+          // update db - sometimes called multiple times
+          await addAsset(_tokenId, state.commission, _owner, config);
 
           dispatch({ type: 'clear' });
           setMinted(true);
@@ -144,19 +151,10 @@ export default function Create() {
     return cid;
   };
 
-  const uploadConfig = async (_imageCid) => {
-
-    const payload = {
-      name: state.name,
-      description: state.description,
-      image: `ipfs://${_imageCid}`,
-      imageHttp: `https://ipfs.io/ipfs/${_imageCid}`,
-      attributes: state.attributes
-    };
-
+  const uploadConfig = async (_payload) => {
     let cid;
     try {
-      await API.ipfs.put.config(payload).then(res => {
+      await API.ipfs.put.config(_payload).then(res => {
         cid = res.data;
       });
     } catch (e) {
@@ -166,15 +164,17 @@ export default function Create() {
     return cid;
   };
 
-  const addAsset = async (_tokenId, _creator, _cid) => {
+  const addAsset = async (_tokenId, _commission, _creator, _config) => {
     const payload = {
       TableName: "asset",
       Item: {
         'contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS,
-        'tokenId': _tokenId,
+        'tokenId': _tokenId.toNumber(),
+        'collectionId': parseInt(process.env.NEXT_PUBLIC_LOCAL_COLLECTION_ID,10),
+        'commission': parseInt(_commission,10),
         'creator': _creator,
         'owner': _creator,
-        'cid': _cid
+        'config': _config
       }
     };
     await API.db.item.put(payload);
@@ -476,7 +476,7 @@ export default function Create() {
                       <p className="mt-2 text-sm text-gray-500">{Lexicon.form.description.text2}</p>
                     </div>
 
-                    <div className="my-2">
+                    {/* <div className="my-2">
                       <label htmlFor="category" className="block text-sm font-medium text-gray-700">{Lexicon.form.category.text}</label>
                       <select
                         id="category"
@@ -494,7 +494,7 @@ export default function Create() {
                         <option>{Lexicon.form.category.nsfw}</option>
                         <option>{Lexicon.form.category.other}</option>
                       </select>
-                    </div>
+                    </div> */}
 
                     <div className="my-2">
                       <label htmlFor="commission" className="block text-sm font-medium text-gray-700">{Lexicon.form.commission}</label>

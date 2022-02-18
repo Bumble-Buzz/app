@@ -46,9 +46,9 @@ Things left to do:
         - LSI: tokenId
         - GSI:  -->
       - contracts: All known contracts (need to be updated constantly)
-        - [contractAddress], chain, name, symbol, isVerified::number
+        - [contractAddress]::set, chain, name, symbol, isVerified::number, type::721
         - PK: arbitrary-number, chain
-        - LSI: isVerified
+        - LSI: isVerified, type
         - GSI: 
       - collection: List of collections
         - contractAddress, id, name, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number, category
@@ -56,7 +56,7 @@ Things left to do:
         - LSI: 
         - GSI: category + active, owner + active (only get data that you need)
       - asset: List of assets
-        - contractAddress, tokenId, collectionId, commission, creator, owner, cid
+        - contractAddress, tokenId, collectionId, commission, creator, owner, config
         - PK: contractAddress, tokenId
         - LSI: creator, owner
         - GSI: 

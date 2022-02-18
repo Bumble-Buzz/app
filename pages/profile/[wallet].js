@@ -47,14 +47,14 @@ const reducer = (state, action) => {
 export default function Create() {
   const ROUTER = useRouter();
   const AuthContext = useAuth();
-  const [tab, setTab] = useState('wallet');
+  const [tab, setTab] = useState('collections');
   const [walletValidity, setWalletvalidity] = useState(false);
   const inputFile = useRef(null) 
   const { data: session, status: sessionStatus } = useSession();
 
   // swr call to fetch initial data
   const {data: createdAssets} = useSWR(API.swr.assets.created(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
-  const {data: contracts} = useSWR(API.swr.contracts(20, 1, null), API.swr.fetcher, API.swr.options);
+  // const {data: contracts} = useSWR(API.swr.contracts(20, 1, null), API.swr.fetcher, API.swr.options);
 
   const [userState, dispatch] = useReducer(reducer, {
     name: '',
@@ -312,7 +312,8 @@ export default function Create() {
             {tab === 'wallet' && ProfileFactory[tab]()}
             {tab === 'collections' && ProfileFactory[tab]()}
             {tab === 'created' && ProfileFactory[tab]({ initialData: createdAssets })}
-            {tab === 'listings' && ProfileFactory[tab]({ initialData: contracts })}
+            {tab === 'listings' && ProfileFactory[tab]({ initialData: {} })}
+            {/* {tab === 'listings' && ProfileFactory[tab]({ initialData: contracts })} */}
           </div>
 
         </div>

@@ -47,7 +47,7 @@ export default async function handler(req, res) {
     exclusiveStartKey = { 'contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, 'creator': checkSumId, 'tokenId': parseInt(tokenId,10) };
   }
 
-  const payload = {
+  let payload = {
     TableName: "asset",
     IndexName: 'creator-lsi',
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#creator': 'creator' },
@@ -56,9 +56,32 @@ export default async function handler(req, res) {
     ExclusiveStartKey: exclusiveStartKey,
     Limit: limit
   };
-  const results = await DynamoDbQuery.item.query(payload);
+  let results = await DynamoDbQuery.item.query(payload);
   const {Items, LastEvaluatedKey, Count, ScannedCount} = results;
-  // console.log('results', Items);
+
+  // for each item, get unique list of collectionIds, and also return collection names
+  let collectionIds = {};
+  Items.forEach(item => collectionIds[item.collectionId] = item.collectionId);
+  const payloadKeys = Object.values(collectionIds).map(id => ({'id': id}));
+  payload = {
+    RequestItems: {
+      collection: {
+        Keys: payloadKeys,
+        ExpressionAttributeNames: { '#id': 'id', '#name': 'name' },
+        ProjectionExpression: "#id, #name"
+      }
+    },
+  };
+  results = await DynamoDbQuery.item.getBatch(payload);
+  const collections = results.Responses.collection;
+  console.log('collections:', collections);
+  collections.forEach(collection => {
+    Items.forEach(item => {
+      if (item.collectionId === collection.id) {
+        item['collectionName'] = collection.name
+      }
+    });
+  });
 
   res.status(200).json({ Items, LastEvaluatedKey, Count, ScannedCount });
 }
