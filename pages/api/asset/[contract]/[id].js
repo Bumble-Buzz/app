@@ -4,20 +4,20 @@ import DynamoDbQuery from '../../../../components/backend/db/DynamoDbQuery';
 
 
 export default async function handler(req, res) {
-  console.log('req.body', req.body);
-  console.log('req.url', req.url);
-  console.log('req.query', req.query);
-  console.log('req.param', req.param);  
+  // console.log('req.body', req.body);
+  // console.log('req.url', req.url);
+  // console.log('req.query', req.query);
+  // console.log('req.param', req.param);
 
   const { contract, id } = req.query
-  console.log('api param:', contract, id);
+  // console.log('api param:', contract, id);
 
   //check params
   if (!contract) return res.status(400).json({ invalid: contract });
   if (!id || !Number.isInteger(Number(id))) return res.status(400).json({ error: `token id '${id}' is invalid` });
 
   const contractAddress = ethers.utils.getAddress(contract);
-  const tokenId = parseInt(id,10);
+  const tokenId = Number(id);
 
   let payload = {
     TableName: "asset",
@@ -30,6 +30,7 @@ export default async function handler(req, res) {
 
   res.status(200).json({ Items, LastEvaluatedKey, Count, ScannedCount });
 };
+
 
 // Initializing the cors middleware
 const cors = Cors({

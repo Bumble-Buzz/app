@@ -181,15 +181,17 @@ const populateCollection = async () => {
     Item: {
       'id': 1,
       'name': 'unverified collection',
+      'description': '',
       'totalSupply': 0,
       'reflection': 0,
       'commission': 0,
       'incentive': 0,
-      'owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
+      'owner': process.env.NEXT_PUBLIC_ADMIN_WALLET_ID,
       'collectionType': 'unverified',
       'ownerIncentiveAccess': false,
       'active': 1,
-      'category': 'none'
+      'category': 'none',
+      'image': ''
     }
   };
   await API.db.item.put(payload);
@@ -197,16 +199,18 @@ const populateCollection = async () => {
     TableName: "collection",
     Item: {
       'id': 2,
-      'name': 'verified collection',
+      'name': 'local collection',
+      'description': '',
       'totalSupply': 0,
       'reflection': 0,
       'commission': 0,
       'incentive': 0,
-      'owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
-      'collectionType': 'verified',
+      'owner': process.env.NEXT_PUBLIC_ADMIN_WALLET_ID,
+      'collectionType': 'local',
       'ownerIncentiveAccess': false,
       'active': 1,
-      'category': 'none'
+      'category': 'none',
+      'image': ''
     }
   };
   await API.db.item.put(payload);

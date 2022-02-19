@@ -51,7 +51,7 @@ Things left to do:
         - LSI: isVerified, type
         - GSI: 
       - collection: List of collections
-        - contractAddress, id, name, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number, category
+        - contractAddress, id, name, description, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number, category, image
         - PK: id
         - LSI: 
         - GSI: category + active, owner + active (only get data that you need)

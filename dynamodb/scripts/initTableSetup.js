@@ -538,7 +538,7 @@ const put = async (val) => {
 
 const mockAssets = async () => {
   const pk = '0x0789a8D7c2D9cb50Fc59413ca404026eB6D34251';
-  const sk = 13;
+  const sk = 1;
   let payload = {
     TableName: "asset",
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
@@ -548,8 +548,10 @@ const mockAssets = async () => {
   const results = await DynamoDbQuery.item.query(payload);
   console.log('Query item:', results.Items);
   const item = results.Items[0];
+  const itemConfig = item.config;
 
   for (let i = sk+1; i < 99; i++) {
+    itemConfig.name = `asd${i}`
     payload = {
       TableName: "asset",
       Item: {
@@ -559,7 +561,40 @@ const mockAssets = async () => {
         'commission': item.commission,
         'creator': item.creator,
         'owner': item.owner,
-        'config': item.config
+        'config': itemConfig
+      }
+    };
+    await DynamoDbQuery.item.put(payload);
+  }
+};
+
+const mockCollections = async () => {
+  const pk = 2;
+  let payload = {
+    TableName: "collection",
+    ExpressionAttributeNames: { '#id': 'id' },
+    ExpressionAttributeValues: { ':id': pk },
+    KeyConditionExpression: '#id = :id'
+  };
+  const results = await DynamoDbQuery.item.query(payload);
+  console.log('Query item:', results.Items);
+  const item = results.Items[0];
+
+  for (let i = pk+1; i < 65; i++) {
+    payload = {
+      TableName: "collection",
+      Item: {
+        'id': i,
+        'name': 'verified collection',
+        'totalSupply': 0,
+        'reflection': 0,
+        'commission': 0,
+        'incentive': 0,
+        'owner': item.owner,
+        'collectionType': 'verified',
+        'ownerIncentiveAccess': false,
+        'active': 1,
+        'category': 'meme'
       }
     };
     await DynamoDbQuery.item.put(payload);
@@ -568,6 +603,7 @@ const mockAssets = async () => {
 
 const mock = async () => {
   await mockAssets();
+  // await mockCollections();
 };
 
 (async () => {

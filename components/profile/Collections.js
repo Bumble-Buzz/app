@@ -1,18 +1,10 @@
 import { useEffect, useState } from 'react';
-import { ethers } from 'ethers';
 import { useRouter } from 'next/router';
-import ButtonWrapper from '../wrappers/ButtonWrapper';
 import InputWrapper from '../wrappers/InputWrapper';
-import Toast from '../Toast';
-import WalletUtil from '../wallet/WalletUtil';
-import NftCard from '../nftAssets/NftCard';
+import CollectionCard from '../nftAssets/CollectionCard';
 import API from '../Api';
-import IPFS from '../../utils/ipfs';
-import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/solid';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
-
-import AvaxTradeNftAbi from '../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
 export default function Collections({ initialData }) {
@@ -40,7 +32,7 @@ export default function Collections({ initialData }) {
   // fetch data from database using SWR
   useSWRInfinite(
     (pageIndex, previousPageData) => {
-      return API.swr.assets.created(ROUTER.query.wallet, apiSortKey.tokenId, 20);
+      return API.swr.collection.owned(ROUTER.query.wallet, apiSortKey.id, 20);
     },
     API.swr.fetcher,
     {
@@ -62,16 +54,9 @@ export default function Collections({ initialData }) {
     }
   }, [initialData]);
 
-  // useEffect(() => {
-  //   // console.log('assets', assets);
-  //   // console.log('filteredAssets', filteredAssets);
-  //   const newAssets = assets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(search.toString().toLowerCase()) >= 0);
-  //   setFilteredAssets(newAssets);
-  // }, [search]);
-
   const updateFilteredAssets = (_value) => {
     if (_value && _value !== '') {
-      const newAssets = assets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(_value.toString().toLowerCase()) >= 0);
+      const newAssets = assets.filter((asset) => asset.name.toString().toLowerCase().indexOf(_value.toString().toLowerCase()) >= 0);
       setFilteredAssets(newAssets);
     } else {
       setFilteredAssets(assets);
@@ -101,33 +86,22 @@ export default function Collections({ initialData }) {
         <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p>
         <p onClick={() => {console.log('assets', assets)}}>See assets</p>
 
-        <div className='flex flex-wrap gap-2 justify-center items-center'>
+        <div className='flex flex-wrap gap-4 gap-x-20 justify-center items-center'>
           {filteredAssets.map((asset, index) => {
             return (
-              <NftCard
+              <CollectionCard
                 key={index}
                 innerRef={index === filteredAssets.length - 1 ? observe : null}
-                header={(<>
-                  <div className="flex-1 font-bold text-purple-500 text-xl truncate">{asset.config.name}</div>
-                  <div className='flex items-center'>
-                    {asset.collectionId === 1 && <ShieldExclamationIcon className="w-5 h-5" fill="#ff3838" alt="unverified" title="unverified" aria-hidden="true" />}
-                    {asset.collectionId !== 1 && <ShieldCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />}
-                  </div>
-                </>)}
-                image={asset.config.image}
+                image={asset.image}
                 body={(<>
-                  <div className="flex flex-nowrap flex-row gap-2 text-left">
-                    <div className="flex-1 truncate">{asset.collectionName}</div>
-                    <div className="truncate"></div>
+                  <div className="flex flex-nowrap flex-col gap-2">
+                    <div className="grow w-full truncate">{asset.name}</div>
+                    <div className="grow w-full truncate">by alias name || wallet id</div>
+                    <div className="grow w-full line-clamp-3">
+                      Description asdkhsadakals dka dkahd kahsdkah sdasdssd  kasjd aks ashksh ada sdasdasd asdas kj sdkjh aj
+                      asdjhag d asdg ajds asjdg ajdsg ajsd ajsdhg ajsdgh ajhsdg ajsdg jahsdg jasgd jasg djasgd jahsdg ajhsdg aj
+                    </div>
                   </div>
-                  <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
-                    <div className="grow w-full truncate">Owner</div>
-                    <div className="truncate">{asset.owner}</div>
-                  </div>
-                </>)}
-                footer={(<>
-                  <div className="flex-1 truncate">{asset.config.name}</div>
-                  <div className="truncate">{asset.config.name}</div>
                 </>)}
               />
             )

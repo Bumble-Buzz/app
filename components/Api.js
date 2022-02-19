@@ -33,10 +33,14 @@ const apis = {
         list: (key,param) => `db/table/list?${key}=${param}`
       }
     },
-    assets: {
-      created: (id,tokenId,limit) => `assets/created/${id}?tokenId=${tokenId}&limit=${limit}`,
+    asset: {
+      created: (id,tokenId,limit) => `asset/created/${id}?tokenId=${tokenId}&limit=${limit}`
     },
-    contracts: (limit,uid,chain) => `contracts?limit=${limit}&uid=${uid}&chain=${chain}`,
+    collection: {
+      id: (id) => `collection/${id}`,
+      owned: (owner,id,limit) => `collection/owned/${owner}?id=${id}&limit=${limit}`
+    },
+    contracts: (limit,uid,chain) => `contracts?limit=${limit}&uid=${uid}&chain=${chain}`
   },
   ipfs: {
     put: {

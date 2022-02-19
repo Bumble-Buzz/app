@@ -53,7 +53,8 @@ export default function Create() {
   const { data: session, status: sessionStatus } = useSession();
 
   // swr call to fetch initial data
-  const {data: createdAssets} = useSWR(API.swr.assets.created(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
+  const {data: collectionInit} = useSWR(API.swr.collection.owned(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
+  const {data: createdInit} = useSWR(API.swr.asset.created(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
   // const {data: contracts} = useSWR(API.swr.contracts(20, 1, null), API.swr.fetcher, API.swr.options);
 
   const [userState, dispatch] = useReducer(reducer, {
@@ -310,8 +311,8 @@ export default function Create() {
 
           <div className="gap-2 flex flex-col sm:flex-row w-full">
             {tab === 'wallet' && ProfileFactory[tab]()}
-            {tab === 'collections' && ProfileFactory[tab]({ initialData: createdAssets })}
-            {tab === 'created' && ProfileFactory[tab]({ initialData: createdAssets })}
+            {tab === 'collections' && ProfileFactory[tab]({ initialData: collectionInit })}
+            {tab === 'created' && ProfileFactory[tab]({ initialData: createdInit })}
             {tab === 'listings' && ProfileFactory[tab]({ initialData: {} })}
             {/* {tab === 'listings' && ProfileFactory[tab]({ initialData: contracts })} */}
           </div>

@@ -1,18 +1,11 @@
 import { useEffect, useState } from 'react';
-import { ethers } from 'ethers';
 import { useRouter } from 'next/router';
-import ButtonWrapper from '../wrappers/ButtonWrapper';
 import InputWrapper from '../wrappers/InputWrapper';
-import Toast from '../Toast';
-import WalletUtil from '../wallet/WalletUtil';
 import NftCard from '../nftAssets/NftCard';
 import API from '../Api';
-import IPFS from '../../utils/ipfs';
 import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/solid';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
-
-import AvaxTradeNftAbi from '../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
 export default function Created({ initialData }) {
@@ -40,7 +33,7 @@ export default function Created({ initialData }) {
   // fetch data from database using SWR
   useSWRInfinite(
     (pageIndex, previousPageData) => {
-      return API.swr.assets.created(ROUTER.query.wallet, apiSortKey.tokenId, 20);
+      return API.swr.asset.created(ROUTER.query.wallet, apiSortKey.tokenId, 20);
     },
     API.swr.fetcher,
     {
@@ -101,7 +94,7 @@ export default function Created({ initialData }) {
         <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p>
         <p onClick={() => {console.log('assets', assets)}}>See assets</p>
 
-        <div className='flex flex-wrap gap-2 justify-center items-center'>
+        <div className='flex flex-wrap gap-4 justify-center items-center'>
           {filteredAssets.map((asset, index) => {
             return (
               <NftCard
