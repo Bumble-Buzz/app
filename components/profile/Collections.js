@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import InputWrapper from '../wrappers/InputWrapper';
 import CollectionCard from '../nftAssets/CollectionCard';
 import API from '../Api';
@@ -68,6 +69,10 @@ export default function Collections({ initialData }) {
     <>
       <div className="p-1 rounded-lg shadow-lg bg-white grow">
 
+<p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p>
+<p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p>
+<p onClick={() => {console.log('assets', assets)}}>See assets</p>
+
         <div className='py-2 flex flex-nowrap gap-2 justify-start items-center'>
           <InputWrapper
             type="search"
@@ -82,10 +87,6 @@ export default function Collections({ initialData }) {
           />
         </div>
 
-        <p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p>
-        <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p>
-        <p onClick={() => {console.log('assets', assets)}}>See assets</p>
-
         <div className='flex flex-wrap gap-4 gap-x-20 justify-center items-center'>
           {filteredAssets.map((asset, index) => {
             return (
@@ -95,12 +96,16 @@ export default function Collections({ initialData }) {
                 image={asset.image}
                 body={(<>
                   <div className="flex flex-nowrap flex-col gap-2">
-                    <div className="grow w-full truncate">{asset.name}</div>
-                    <div className="grow w-full truncate">by alias name || wallet id</div>
-                    <div className="grow w-full line-clamp-3">
-                      Description asdkhsadakals dka dkahd kahsdkah sdasdssd  kasjd aks ashksh ada sdasdasd asdas kj sdkjh aj
-                      asdjhag d asdg ajds asjdg ajdsg ajsd ajsdhg ajsdgh ajhsdg ajsdg jahsdg jasgd jasg djasgd jahsdg ajhsdg aj
+                    <div className="grow w-full font-bold truncate">{asset.name}</div>
+                    <div className="grow w-full -mt-2 truncate">
+                      <p>
+                        by <Link href={`/profile/${asset.owner}`} passHref={true}><a className='text-blue-500'>
+                          {asset.ownerName &&  asset.ownerName }
+                          {!asset.ownerName &&  asset.owner }
+                        </a></Link>
+                      </p>
                     </div>
+                    <div className="grow w-full line-clamp-3">{asset.description}</div>
                   </div>
                 </>)}
               />

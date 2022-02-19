@@ -76,6 +76,10 @@ export default function Created({ initialData }) {
     <>
       <div className="p-1 rounded-lg shadow-lg bg-white grow">
 
+<p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p>
+<p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p>
+<p onClick={() => {console.log('assets', assets)}}>See assets</p>
+
         <div className='py-2 flex flex-nowrap gap-2 justify-start items-center'>
           <InputWrapper
             type="search"
@@ -89,10 +93,6 @@ export default function Created({ initialData }) {
             onChange={(e) => {setSearch(e.target.value); updateFilteredAssets(e.target.value); }}
           />
         </div>
-
-        <p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p>
-        <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p>
-        <p onClick={() => {console.log('assets', assets)}}>See assets</p>
 
         <div className='flex flex-wrap gap-4 justify-center items-center'>
           {filteredAssets.map((asset, index) => {

@@ -181,7 +181,7 @@ const populateCollection = async () => {
     Item: {
       'id': 1,
       'name': 'unverified collection',
-      'description': '',
+      'description': 'This is an unverified collection. In this collection, all unverified NFTs are stored.',
       'totalSupply': 0,
       'reflection': 0,
       'commission': 0,
@@ -200,7 +200,7 @@ const populateCollection = async () => {
     Item: {
       'id': 2,
       'name': 'local collection',
-      'description': '',
+      'description': 'This is a local collection. In this collection, all NFTs created from this website are stored. Some randome data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data',
       'totalSupply': 0,
       'reflection': 0,
       'commission': 0,

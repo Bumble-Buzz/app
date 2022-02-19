@@ -585,13 +585,14 @@ const mockCollections = async () => {
       TableName: "collection",
       Item: {
         'id': i,
-        'name': 'verified collection',
+        'name': item.name,
+        'description': item.description,
         'totalSupply': 0,
         'reflection': 0,
         'commission': 0,
         'incentive': 0,
         'owner': item.owner,
-        'collectionType': 'verified',
+        'collectionType': item.collectionType,
         'ownerIncentiveAccess': false,
         'active': 1,
         'category': 'meme'
@@ -602,8 +603,8 @@ const mockCollections = async () => {
 };
 
 const mock = async () => {
-  await mockAssets();
-  // await mockCollections();
+  // await mockAssets();
+  await mockCollections();
 };
 
 (async () => {

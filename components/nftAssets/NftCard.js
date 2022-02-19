@@ -5,7 +5,7 @@ import IPFS from '../../utils/ipfs';
 export default function NftCard({children, innerRef, header, image, body, footer}) {
 
   return (
-    <div className='w-full xsm:grow xsm:w-40 sm:w-60 max-w-xs border rounded-lg overflow-hidden shadow-lg' ref={innerRef}>
+    <div className='w-full grow xsm:w-40 sm:w-60 max-w-xs border rounded-lg overflow-hidden shadow-lg transform transition duration-500 hover:scale-105' ref={innerRef}>
       {header && (<>
         <div className="pl-2 pr-1 flex flex-nowrap flex-row gap-2 text-left">
           {header}
