@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import ButtonWrapper from '../wrappers/ButtonWrapper';
 import InputWrapper from '../wrappers/InputWrapper';
 import CollectionCard from '../nftAssets/CollectionCard';
 import API from '../Api';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
+import { ArrowRightIcon } from '@heroicons/react/solid';
 
 
 export default function Collections({ initialData }) {
@@ -68,6 +70,16 @@ export default function Collections({ initialData }) {
   return (
     <>
       <div className="p-1 rounded-lg shadow-lg bg-white grow">
+
+      <div className='py-2 flex flex-nowrap gap-2 justify-start items-center'>
+        <ButtonWrapper
+          classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0"
+          onClick={() => ROUTER.push('/collection/request')}
+        >
+          Create new collection
+          <ArrowRightIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
+        </ButtonWrapper>
+      </div>
 
 <p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p>
 <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p>

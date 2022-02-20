@@ -35,7 +35,7 @@ Things left to do:
 - Back-end
   - Database
     - Tables (per network)
-      - user: User information
+      - users: User information
         - walletId, name, bio, picture, [notifications], timestamp
         - PK: walletId
         - LSI: timestamp ?
@@ -49,6 +49,11 @@ Things left to do:
         - [contractAddress]::set, chain, name, symbol, isVerified::number, type::721
         - PK: arbitrary-number, chain
         - LSI: isVerified, type
+        - GSI: 
+      - pending-collection: List of pending collections
+        - contractAddress, name, description, totalSupply, reflection, commission, owner, ownerIncentiveAccess, category, image, status::pending/accepted/rejected
+        - PK: contractAddress, status
+        - LSI: category, owner
         - GSI: 
       - collection: List of collections
         - contractAddress, id, name, description, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number, category, image
@@ -74,6 +79,9 @@ Things left to do:
       - Dynamodb: Give only appropriate access as needed
       - Only access to add/remove items in tables
       - No access to create/delete tables
+  - Security
+    - Pages: admin / mod auth check
+    - APIs: admin / mod auth check
 - Social media
   - Discord server
   - Twitter account

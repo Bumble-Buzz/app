@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Switch } from '@headlessui/react'
 
-export default function HeadlessSwitch({ children, enabled, filterItem, item, dispatch }) {
+export default function HeadlessSwitch({ children, enabled, onChange }) {
   // const [enabled, setEnabled] = useState(false)
 
   return (
@@ -9,7 +9,7 @@ export default function HeadlessSwitch({ children, enabled, filterItem, item, di
       <div className="py-1 flex flex-row flex-nowrap flex-1 items-center justify-between shadow overflow-hidden rounded-md hover:bg-gray-50">
         <Switch
           checked={enabled}
-          onChange={() => dispatch({ type: filterItem, payload: { item: item.name } })}
+          onChange={onChange}
           className={`${
             enabled ? 'bg-cyan-500' : 'bg-gray-200'
           } relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none`}

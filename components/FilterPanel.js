@@ -120,9 +120,7 @@ export const FilterPanel = ({ children, filters, state, dispatch }) => {
       <HeadlessSwitch
         classes=""
         enabled={state[filterName].items[item.name]}
-        filterItem={filterItem}
-        item={item}
-        dispatch={dispatch}
+        onChange={() => dispatch({ type: filterItem, payload: { item: item.name } })}
       >
         {item.label}
       </HeadlessSwitch>

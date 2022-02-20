@@ -92,6 +92,49 @@ const assets = async () => {
   console.log('table created:', results.TableDescription.TableName);
 };
 
+const pendingCollection = async () => {
+  const payload = {
+    TableName: "pending-collection",
+    AttributeDefinitions: [
+      { AttributeName: "contractAddress", AttributeType: "S" },
+      { AttributeName: "status", AttributeType: "S" },
+      { AttributeName: "category", AttributeType: "S" },
+      { AttributeName: "owner", AttributeType: "S" }
+    ],
+    KeySchema: [
+      { AttributeName: "contractAddress", KeyType: "HASH" },
+      { AttributeName: "status", KeyType: "RANGE" }
+    ],
+    LocalSecondaryIndexes: [
+      {
+        IndexName: "category-lsi",
+        KeySchema: [
+          { AttributeName: "contractAddress", KeyType: "HASH" },
+          { AttributeName: "category", KeyType: "RANGE" }
+        ],
+        Projection: {
+          NonKeyAttributes: [],
+          ProjectionType: "ALL"
+        }
+      },
+      {
+        IndexName: "owner-lsi",
+        KeySchema: [
+          { AttributeName: "contractAddress", KeyType: "HASH" },
+          { AttributeName: "owner", KeyType: "RANGE" }
+        ],
+        Projection: {
+          NonKeyAttributes: [],
+          ProjectionType: "ALL"
+        }
+      }
+    ],
+    BillingMode: "PAY_PER_REQUEST",
+  };
+  const results = await DynamoDbQuery.table.create(payload);
+  console.log('table created:', results.TableDescription.TableName);
+};
+
 const collection = async () => {
   const payload = {
     TableName: "collection",
@@ -188,6 +231,14 @@ const assetsDelete = async () => {
   console.log('table deleted:', results.TableDescription.TableName);
 };
 
+const pendingCollectionDelete = async () => {
+  const payload = {
+    TableName: "pending-collection"
+  };
+  const results = await DynamoDbQuery.table.delete(payload);
+  console.log('table deleted:', results.TableDescription.TableName);
+};
+
 const collectionDelete = async () => {
   const payload = {
     TableName: "collection"
@@ -207,7 +258,8 @@ const salesDelete = async () => {
 const create = async () => {
   // await contracts();
   // await users();
-  await assets();
+  // await assets();
+  await pendingCollection();
   // await collection();
   // await sales();
 };
@@ -215,7 +267,8 @@ const create = async () => {
 const cleanup = async () => {
   // await contractsDelete();
   // await usersDelete();
-  await assetsDelete();
+  // await assetsDelete();
+  await pendingCollectionDelete();
   // await collectionDelete();
   // await salesDelete();
 };
@@ -453,6 +506,26 @@ const putAssets = async (val) => {
   await DynamoDbQuery.item.put(payload);
 };
 
+const putPendingCollection = async (val) => {
+  const payload = {
+    TableName: "pending-collection",
+    Item: {
+      'contractAddress': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
+      'name': 'my collection',
+      'description': 'this is my collection',
+      'totalSupply': 10000,
+      'reflection': 2,
+      'commission': 3,
+      'owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
+      'ownerIncentiveAccess': false,
+      'category': 'photography',
+      'image': 'c-i-d',
+      'status': 'pending'
+    }
+  };
+  await DynamoDbQuery.item.put(payload);
+};
+
 const putCollection = async (val) => {
   const payload = {
     TableName: "collection",
@@ -532,7 +605,8 @@ const put = async (val) => {
   // await putContracts(val);
   // await putUsers();
   // await putAssets();
-  await putCollection();
+  await putPendingCollection();
+  // await putCollection();
   // await putSales();
 };
 
