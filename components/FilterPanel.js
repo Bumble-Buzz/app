@@ -129,7 +129,7 @@ export const FilterPanel = ({ children, filters, state, dispatch }) => {
 
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col sticky top-16">
       {/* {console.log('isShowing', isShowing)} */}
       {isShowing ?
         (<MenuItem
