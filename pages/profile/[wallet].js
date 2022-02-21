@@ -128,6 +128,10 @@ export default function Create() {
     )
   };
 
+  const isUserAdmin = () => {
+    return (isSignInValid() && AuthContext.state.account === process.env.NEXT_PUBLIC_ADMIN_WALLET_ID)
+  };
+
   const triggerInputFile = () => {
     if (isSignInValid()) {
       inputFile.current.click();
@@ -286,34 +290,47 @@ export default function Create() {
             </div>
           </div>
 
-          <div className="px-4 gap-2 flex flex-col xsm:flex-row w-full">
-            {tab === 'wallet' ?
-              (<ButtonWrapper classes="grow bg-indigo-800 hover:bg-indigo-600" onClick={() => setTab('wallet')}>Wallet</ButtonWrapper>)
-              :
-              (<ButtonWrapper classes="grow bg-indigo-600 hover:bg-indigo-800" onClick={() => setTab('wallet')}>Wallet</ButtonWrapper>)
-            }
-            {tab === 'collections' ?
-              (<ButtonWrapper classes="grow bg-indigo-800 hover:bg-indigo-600" onClick={() => setTab('collections')}>Collections</ButtonWrapper>)
-              :
-              (<ButtonWrapper classes="grow bg-indigo-600 hover:bg-indigo-800" onClick={() => setTab('collections')}>Collections</ButtonWrapper>)
-            }
-            {tab === 'created' ?
-              (<ButtonWrapper classes="grow bg-indigo-800 hover:bg-indigo-600" onClick={() => setTab('created')}>Created</ButtonWrapper>)
-              :
-              (<ButtonWrapper classes="grow bg-indigo-600 hover:bg-indigo-800" onClick={() => setTab('created')}>Created</ButtonWrapper>)
-            }
-            {tab === 'listings' ?
-              (<ButtonWrapper classes="grow bg-indigo-800 hover:bg-indigo-600" onClick={() => setTab('listings')}>Listings</ButtonWrapper>)
-              :
-              (<ButtonWrapper classes="grow bg-indigo-600 hover:bg-indigo-800" onClick={() => setTab('listings')}>Listings</ButtonWrapper>)
-            }
+          <div className="px-4 gap-2 flex flex-col xsm:flex-row flex-wrap w-max items-center text-center">
+              {tab === 'general' ?
+                (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('general')}>General</button>)
+                :
+                (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('general')}>General</button>)
+              }
+              {tab === 'wallet' ?
+                (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('wallet')}>Wallet</button>)
+                :
+                (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('wallet')}>Wallet</button>)
+              }
+              {tab === 'collections' ?
+                (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('collections')}>Collections</button>)
+                :
+                (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('collections')}>Collections</button>)
+              }
+              {tab === 'created' ?
+                (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('created')}>Created</button>)
+                :
+                (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('created')}>Created</button>)
+              }
+              {tab === 'listings' ?
+                (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('listings')}>Listings</button>)
+                :
+                (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('listings')}>Listings</button>)
+              }
+              {isUserAdmin() && (
+                tab === 'admin' ?
+                  (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('admin')}>Admin</button>)
+                  :
+                  (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('admin')}>Admin</button>)
+              )}
           </div>
 
           <div className="gap-2 flex flex-col sm:flex-row w-full">
+            {tab === 'general' && ProfileFactory[tab]()}
             {tab === 'wallet' && ProfileFactory[tab]()}
             {tab === 'collections' && ProfileFactory[tab]({ initialData: collectionInit })}
             {tab === 'created' && ProfileFactory[tab]({ initialData: createdInit })}
             {tab === 'listings' && ProfileFactory[tab]({ initialData: {} })}
+            {tab === 'admin' && ProfileFactory[tab]({ initialData: {} })}
             {/* {tab === 'listings' && ProfileFactory[tab]({ initialData: contracts })} */}
           </div>
 
