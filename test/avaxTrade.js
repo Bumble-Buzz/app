@@ -313,7 +313,7 @@ describe("AvaxTrade - Main", () => {
     it('create market sale - non-contract address passed in', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, ACCOUNTS[3].address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
-      ).should.be.rejectedWith('Transaction reverted: function call to a non-contract account');
+      ).should.be.rejectedWith('Transaction reverted: function returned an unexpected amount of data');
     });
     it('create market sale - not owner of item', async () => {
       await CONTRACT.connect(ACCOUNTS[5]).createMarketSale(
@@ -1023,7 +1023,7 @@ describe("AvaxTrade - Main", () => {
     it('create market sale - non-contract address passed in', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, ACCOUNTS[3].address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
-      ).should.be.rejectedWith('Transaction reverted: function call to a non-contract account');
+      ).should.be.rejectedWith('Transaction reverted: function returned an unexpected amount of data');
     });
     it('create market sale - not owner of item', async () => {
       await CONTRACT.connect(ACCOUNTS[5]).createMarketSale(
@@ -1755,7 +1755,7 @@ describe("AvaxTrade - Main", () => {
     it('create market sale - non-contract address passed in', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, ACCOUNTS[3].address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
-      ).should.be.rejectedWith('Transaction reverted: function call to a non-contract account');
+      ).should.be.rejectedWith('Transaction reverted: function returned an unexpected amount of data');
     });
     it('create market sale - not owner of item', async () => {
       await CONTRACT.connect(ACCOUNTS[5]).createMarketSale(
