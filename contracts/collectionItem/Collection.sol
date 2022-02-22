@@ -106,7 +106,7 @@ contract Collection {
 
   function __Collection_init() internal {
     // initialize state variables
-    MAX_COLLECTION_SIZE = 9999;
+    MAX_COLLECTION_SIZE = type(uint256).max;
     UNVERIFIED_COLLECTION_ID = 1;
   }
 
@@ -164,6 +164,8 @@ contract Collection {
     * @dev Create local collection
   */
   function _createLocalCollection(string memory _name, address _contractAddress, address _owner) internal {
+    require(_getCollectionForContract(_contractAddress) == 0, "Collection: Collection with this address already exists");
+
     COLLECTION_ID_POINTER.increment();
     uint256 id = COLLECTION_ID_POINTER.current();
     COLLECTIONS[id] = CollectionDS({
@@ -196,6 +198,8 @@ contract Collection {
     require(_totalSupply > 0, "Collection: Total supply must be > 0");
     require(_reflection < 100, "Collection: Reflection percent must be < 100");
     require(_commission < 100, "Collection: Commission percent must be < 100");
+    require(_getCollectionForContract(_contractAddress) == 0, "Collection: Collection with this address already exists");
+
 
     COLLECTION_ID_POINTER.increment();
     uint256 id = COLLECTION_ID_POINTER.current();
@@ -210,14 +214,12 @@ contract Collection {
       owner: _owner,
       collectionType: COLLECTION_TYPE.verified,
       ownerIncentiveAccess: _ownerIncentiveAccess,
-      active: true
+      active: false
     });
 
-    _addActiveCollectionId(id);
     _addVerifiedCollectionId(id);
     _addCollectionForOwner(_owner, id);
     _assignContractToCollection(_contractAddress, id);
-    // _addCollectionReflectionVault(id, _totalSupply);
   }
 
   /**
@@ -480,14 +482,6 @@ contract Collection {
   */
   function _activateCollection(uint256 _id) internal checkCollection(_id) {
     _addActiveCollectionId(_id);
-    COLLECTION_TYPE collectionType = COLLECTIONS[_id].collectionType;
-    if (collectionType == COLLECTION_TYPE.local) {
-      _addLocalCollectionId(_id);
-    } else if (collectionType == COLLECTION_TYPE.verified) {
-      _addVerifiedCollectionId(_id);
-    } else if (collectionType == COLLECTION_TYPE.unverified) {
-      _addUnverifiedCollectionId(_id);
-    }
     _updateCollectionActive(_id, true);
   }
 
@@ -495,7 +489,7 @@ contract Collection {
     * @dev Deactivate collection
   */
   function _deactivateCollection(uint256 _id) internal checkCollection(_id) {
-    _removeCollectionId(_id);
+    _removeActiveCollectionId(_id);
     _updateCollectionActive(_id, false);
   }
 
@@ -526,6 +520,13 @@ contract Collection {
   */
   function _getActiveCollectionIds() internal view returns (uint256[] memory) {
     return COLLECTION_IDS.active;
+  }
+
+  /**
+    * @dev Remove a active collection
+  */
+  function _removeActiveCollectionId(uint256 _id) internal {
+    COLLECTION_IDS.active = _removeSpecificCollectionId(_id, COLLECTION_IDS.active);
   }
 
   /**
@@ -582,7 +583,9 @@ contract Collection {
   */
   function _removeCollectionId(uint256 _id) internal checkCollection(_id) {
     // COLLECTION_IDS.active = data;
-    COLLECTION_IDS.active = _removeSpecificCollectionId(_id, COLLECTION_IDS.active);
+    if (_getCollectionActive(_id)) {
+      COLLECTION_IDS.active = _removeSpecificCollectionId(_id, COLLECTION_IDS.active);
+    }
 
     // remove from collection type specific array
     COLLECTION_TYPE collectionType = COLLECTIONS[_id].collectionType;
@@ -671,7 +674,7 @@ contract Collection {
   /**
     * @dev Get collection id for given contract address
   */
-  function _getCllectionForContract(address _contract) internal view returns (uint256) {
+  function _getCollectionForContract(address _contract) internal view returns (uint256) {
     return COLLECTION_CONTRACTS[_contract];
   }
 

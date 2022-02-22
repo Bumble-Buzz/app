@@ -514,7 +514,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
     * @dev Withdraw from collection incentive vault
   */
   function withdrawIncentiveCollectionAccount(address _contractAddress, uint256 _amount) external nonReentrant() {
-    uint256 collectionId = CollectionItem(CONTRACTS.collectionItem).getCllectionForContract(_contractAddress);
+    uint256 collectionId = CollectionItem(CONTRACTS.collectionItem).getCollectionForContract(_contractAddress);
     Collection.CollectionDS memory collection = CollectionItem(CONTRACTS.collectionItem).getCollection(collectionId);
     // address collectionOwner = CollectionItem(CONTRACTS.collectionItem).getOwnerOfCollection(collectionId);
 
@@ -581,8 +581,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
   function createVerifiedCollection(
     string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission,
     address _owner, bool _ownerIncentiveAccess
-  ) external onlyRole(ADMIN_ROLE) {
-    // todo require _totalSupply to be > 0
+  ) external {
 
     CollectionItem(CONTRACTS.collectionItem).createVerifiedCollection(
       _name, _contractAddress, _totalSupply, _reflection, _commission, _owner, _ownerIncentiveAccess

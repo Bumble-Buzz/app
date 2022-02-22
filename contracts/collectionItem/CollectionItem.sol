@@ -116,8 +116,8 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
   function addItemToCollection(
     uint256 _tokenId, address _contractAddress, address _seller, address _buyer, uint256 _price
   ) public onlyRole(ADMIN_ROLE) returns (uint256) {
-    uint256 collectionId = _getCllectionForContract(_contractAddress);
-    if (collectionId == 0) {
+    uint256 collectionId = _getCollectionForContract(_contractAddress);
+    if (collectionId == 0 || (collectionId > 0 && !_getCollectionActive(collectionId))) {
       // this means this is an unvarified item, so we will use the unvarified collection
       collectionId = UNVERIFIED_COLLECTION_ID;
     }
@@ -173,7 +173,7 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
     _createLocalCollection(_name, _contractAddress, _owner);
 
     // create collection role
-    uint256 id = _getCllectionForContract(_contractAddress);
+    uint256 id = _getCollectionForContract(_contractAddress);
     bytes memory encodedId = abi.encodePacked(id);
     COLLECTION_ROLES[id] = keccak256(encodedId);
     _setRoleAdmin(COLLECTION_ROLES[id], ADMIN_ROLE);
@@ -190,7 +190,7 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
     _createVerifiedCollection(_name, _contractAddress, _totalSupply, _reflection, _commission, _owner, _ownerIncentiveAccess);
 
     // create collection role
-    uint256 id = _getCllectionForContract(_contractAddress);
+    uint256 id = _getCollectionForContract(_contractAddress);
     bytes memory encodedId = abi.encodePacked(id);
     COLLECTION_ROLES[id] = keccak256(encodedId);
     _setRoleAdmin(COLLECTION_ROLES[id], ADMIN_ROLE);
@@ -449,8 +449,8 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
   /**
     * @dev Get collection id for given contract address
   */
-  function getCllectionForContract(address _contract) external view returns (uint256) {
-    return _getCllectionForContract(_contract);
+  function getCollectionForContract(address _contract) external view returns (uint256) {
+    return _getCollectionForContract(_contract);
   }
 
 
