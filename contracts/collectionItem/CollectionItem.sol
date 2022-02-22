@@ -224,6 +224,13 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
   }
 
   /**
+    * @dev Disable owner access to collectiton incentive pool
+  */
+  function disableCollectionOwnerIncentiveAccess(uint256 _id) external onlyRole(COLLECTION_ROLES[_id]) {
+    return _updateCollectionOwnerIncentiveAccess(_id, false);
+  }
+
+  /**
     * @dev Activate collection
   */
   function activateCollection(uint256 _collectionId) external onlyRole(ADMIN_ROLE) {

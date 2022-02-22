@@ -653,6 +653,22 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(collection.collectionType).to.be.equal(2);
     });
 
+    it('Disable owner access to collectiton incentive pool - not owner (regular user)', async () => {
+      await CONTRACT.connect(ACCOUNTS[2]).disableCollectionOwnerIncentiveAccess(1).should.be.rejectedWith(
+        'AccessControl: account 0x5ca6ec5718ac9ac8916b8cecab2c0d6051dbba92 is missing role 0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6'
+      );
+    });
+    it('Disable owner access to collectiton incentive pool - not owner (contract owner)', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).disableCollectionOwnerIncentiveAccess(1).should.be.rejectedWith(
+        'AccessControl: account 0xda121ab48c7675e4f25e28636e3efe602e49eec6 is missing role 0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6'
+      );
+    });
+    it('Disable owner access to collectiton incentive pool - yes owner', async () => {
+      await CONTRACT.connect(ACCOUNTS[1]).disableCollectionOwnerIncentiveAccess(1);
+      const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(1);
+      expect(collection.ownerIncentiveAccess).to.be.equal(false);
+    });
+
   });
 
   describe('Local collection', async () => {
@@ -904,6 +920,24 @@ describe("AvaxTrade - CollectionItem", () => {
       expect(collection.name).to.be.equal('collection name 2');
     });
 
+    it('Disable owner access to collectiton incentive pool - not owner (regular user)', async () => {
+      await CONTRACT.connect(ACCOUNTS[1]).disableCollectionOwnerIncentiveAccess(2).should.be.rejectedWith(
+        'AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
+      );
+    });
+    it('Disable owner access to collectiton incentive pool - not owner (contract owner)', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).disableCollectionOwnerIncentiveAccess(2).should.be.rejectedWith(
+        'AccessControl: account 0xda121ab48c7675e4f25e28636e3efe602e49eec6 is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
+      );
+    });
+    it('Disable owner access to collectiton incentive pool - yes owner', async () => {
+      let collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(2);
+      expect(collection.ownerIncentiveAccess).to.be.equal(false);
+      await CONTRACT.connect(ACCOUNTS[6]).disableCollectionOwnerIncentiveAccess(2);
+      collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(2);
+      expect(collection.ownerIncentiveAccess).to.be.equal(false);
+    });
+
   });
 
   describe('Verified collection', async () => {
@@ -1149,6 +1183,27 @@ describe("AvaxTrade - CollectionItem", () => {
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(2);
       expect(collection.collectionType).to.be.equal(1);
       expect(collection.name).to.be.equal('collection name 2');
+    });
+
+    it('Disable owner access to collectiton incentive pool - not owner (regular user)', async () => {
+      await CONTRACT.connect(ACCOUNTS[1]).disableCollectionOwnerIncentiveAccess(2).should.be.rejectedWith(
+        'AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
+      );
+    });
+    it('Disable owner access to collectiton incentive pool - not owner (contract owner)', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).disableCollectionOwnerIncentiveAccess(2).should.be.rejectedWith(
+        'AccessControl: account 0xda121ab48c7675e4f25e28636e3efe602e49eec6 is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
+      );
+    });
+    it('Disable owner access to collectiton incentive pool - yes owner', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
+        'collection name', ACCOUNTS[2].address, 100, 2, 3, ACCOUNTS[2].address, true
+      );
+      let collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
+      expect(collection.ownerIncentiveAccess).to.be.equal(true);
+      await CONTRACT.connect(ACCOUNTS[2]).disableCollectionOwnerIncentiveAccess(3);
+      collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
+      expect(collection.ownerIncentiveAccess).to.be.equal(false);
     });
 
   });
