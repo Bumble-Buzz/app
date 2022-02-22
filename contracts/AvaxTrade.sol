@@ -62,6 +62,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
 
   // events
   event onERC721ReceivedEvent(address operator, address from, uint256 tokenId, bytes data);
+  event onCollectionCreate(address indexed owner, address indexed contractAddress, string indexed collectionType, uint256 id);
 
 
   function initialize(address _owner) initializer public {
@@ -569,10 +570,12 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
   /**
     * @dev Create local collection
   */
-  function createLocalCollection(string memory _name, address _contractAddress) external onlyRole(ADMIN_ROLE) {
-    // todo update so local address can be passed in
-    CollectionItem(CONTRACTS.collectionItem).createLocalCollection(_name, _contractAddress, msg.sender);
+  function createLocalCollection(string memory _name, address _contractAddress) external onlyRole(ADMIN_ROLE) returns (uint256) {
+    uint256 id = CollectionItem(CONTRACTS.collectionItem).createLocalCollection(_name, _contractAddress, msg.sender);
     Bank(CONTRACTS.bank).addBank(msg.sender); // this is okay even if bank account already exists
+
+    emit onCollectionCreate(msg.sender, _contractAddress, "local", id);
+    return id;
   }
 
   /**
@@ -581,24 +584,26 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
   function createVerifiedCollection(
     string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission,
     address _owner, bool _ownerIncentiveAccess
-  ) external {
-
-    CollectionItem(CONTRACTS.collectionItem).createVerifiedCollection(
+  ) external returns (uint256) {
+    uint256 id = CollectionItem(CONTRACTS.collectionItem).createVerifiedCollection(
       _name, _contractAddress, _totalSupply, _reflection, _commission, _owner, _ownerIncentiveAccess
     );
-    // Bank(CONTRACTS.bank).addBank(_contractAddress); // this is okay even if bank account already exists
+    Bank(CONTRACTS.bank).addBank(_contractAddress); // this is okay even if bank account already exists
     Bank(CONTRACTS.bank).initReflectionVaultCollectionAccount(_contractAddress, _totalSupply);
+
+    emit onCollectionCreate(msg.sender, _contractAddress, "verified", id);
+    return id;
   }
 
   /**
     * @dev Create unvarivied collection
   */
-  function createUnvariviedCollection(string memory _name) external onlyRole(ADMIN_ROLE) {
-    // todo update so local address can be passed in
-    /**uint256 id = */CollectionItem(CONTRACTS.collectionItem).createUnvariviedCollection(_name, msg.sender);
+  function createUnvariviedCollection(string memory _name) external onlyRole(ADMIN_ROLE) returns (uint256) {
+    uint256 id = CollectionItem(CONTRACTS.collectionItem).createUnvariviedCollection(_name, msg.sender);
     Bank(CONTRACTS.bank).addBank(msg.sender); // this is okay even if bank account already exists
 
-    // todo event of collection id?
+    emit onCollectionCreate(msg.sender, address(0), "unvarivied", id);
+    return id;
   }
 
 

@@ -209,6 +209,7 @@ const initTableSetup = async () => {
 
   // await contractsDb();
   await usersDb();
+  await pendingCollection();
   await collection();
   await asset();
   await sales();

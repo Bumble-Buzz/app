@@ -642,6 +642,40 @@ const mockAssets = async () => {
   }
 };
 
+const mockPendingCollections = async () => {
+  const pk = 2;
+  let payload = {
+    TableName: "pending-collection",
+    ExpressionAttributeNames: { '#status': 'status' },
+    ExpressionAttributeValues: { ':status': 'pending' },
+    KeyConditionExpression: '#status = :status'
+  };
+  const results = await DynamoDbQuery.item.query(payload);
+  console.log('Query item:', results.Items);
+  const item = results.Items[0];
+
+  // for (let i = pk+1; i < 65; i++) {
+  //   payload = {
+  //     TableName: "collection",
+  //     Item: {
+  //       'id': i,
+  //       'name': item.name,
+  //       'description': item.description,
+  //       'totalSupply': 0,
+  //       'reflection': 0,
+  //       'commission': 0,
+  //       'incentive': 0,
+  //       'owner': item.owner,
+  //       'collectionType': item.collectionType,
+  //       'ownerIncentiveAccess': false,
+  //       'active': 1,
+  //       'category': 'meme'
+  //     }
+  //   };
+  //   await DynamoDbQuery.item.put(payload);
+  // }
+};
+
 const mockCollections = async () => {
   const pk = 2;
   let payload = {
@@ -678,7 +712,8 @@ const mockCollections = async () => {
 
 const mock = async () => {
   // await mockAssets();
-  await mockCollections();
+  await mockPendingCollections();
+  // await mockCollections();
 };
 
 (async () => {

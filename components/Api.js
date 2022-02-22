@@ -33,6 +33,9 @@ const apis = {
         list: (key,param) => `db/table/list?${key}=${param}`
       }
     },
+    user: {
+      id: (id) => `user/${id}`
+    },
     asset: {
       created: (id,tokenId,limit) => `asset/created/${id}?tokenId=${tokenId}&limit=${limit}`
     },

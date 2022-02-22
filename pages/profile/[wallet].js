@@ -29,6 +29,10 @@ const reducer = (state, action) => {
       newState = JSON.parse(JSON.stringify(state));
       newState.bio = action.payload.bio;
       return newState
+    case 'wallet':
+      newState = JSON.parse(JSON.stringify(state));
+      newState.wallet = action.payload.wallet;
+      return newState
     case 'picture':
       newState = JSON.parse(JSON.stringify(state));
       newState.picture = action.payload.picture;
@@ -37,6 +41,7 @@ const reducer = (state, action) => {
       return {
         name: action.payload.name,
         bio: action.payload.bio,
+        wallet: action.payload.wallet,
         picture: action.payload.picture
       }
     default:
@@ -47,12 +52,13 @@ const reducer = (state, action) => {
 export default function Create() {
   const ROUTER = useRouter();
   const AuthContext = useAuth();
-  const [tab, setTab] = useState('collections');
+  const [tab, setTab] = useState('admin');
   const [walletValidity, setWalletvalidity] = useState(false);
   const inputFile = useRef(null) 
   const { data: session, status: sessionStatus } = useSession();
 
   // swr call to fetch initial data
+  const {data: userData} = useSWR(API.swr.user.id(ROUTER.query.wallet), API.swr.fetcher, API.swr.options);
   const {data: collectionInit} = useSWR(API.swr.collection.owned(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
   const {data: createdInit} = useSWR(API.swr.asset.created(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
   // const {data: contracts} = useSWR(API.swr.contracts(20, 1, null), API.swr.fetcher, API.swr.options);
@@ -60,37 +66,23 @@ export default function Create() {
   const [userState, dispatch] = useReducer(reducer, {
     name: '',
     bio: '',
+    wallet: '',
     picture: ''
   });
 
   useEffect(() => {
-    if (ROUTER && ROUTER.query && ROUTER.query.wallet) {
-      getUsersDb();
-    }
-  }, []);
-
-  const getUsersDb = async () => {
-    // console.log('getUsersDb');
-    const payload = {
-      TableName: "users",
-      Key: {
-        'walletId': ROUTER.query.wallet
-      }
-    };
-    const results = await API.db.item.get(payload);
-    // console.log('Get item:', results.data);
-    if (results && results.data) {
-      setWalletvalidity(true);
-      dispatch({
+    if (userData) {
+      setWalletvalidity(true);dispatch({
         type: 'ALL',
         payload: {
-          name: results.data.name,
-          bio: results.data.bio,
-          picture: results.data.picture
-        } 
+          name: userData.Item.name,
+          bio: userData.Item.bio,
+          wallet: userData.Item.walletId,
+          picture: userData.Item.picture
+        }
       });
     }
-  };
+  }, [userData]);
 
   const updateUsersDb = async (e) => {
     e.preventDefault();
@@ -118,7 +110,7 @@ export default function Create() {
 
   const walletClick = () => {
     Toast.info('Copied wallet ID');
-    navigator.clipboard.writeText(AuthContext.state.account);
+    navigator.clipboard.writeText(userState.wallet);
   };
 
   const isSignInValid = () => {
@@ -192,6 +184,11 @@ export default function Create() {
       {/* Page Content */}
       <div className="flex flex-col w-full">
 
+        <p onClick={() => {console.log('userData', userData)}}>See userData</p>
+        <p onClick={() => {console.log('userState', userState)}}>See userState</p>
+        <p onClick={() => ROUTER.push('/profile/0xdA121aB48c7675E4F25E28636e3Efe602e49eec6')}>user 0xdA121aB48c7675E4F25E28636e3Efe602e49eec6</p>
+        <p onClick={() => ROUTER.push('/profile/0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED')}>user 0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED</p>
+
         <div className="p-2">
           <h2 className="text-3xl font-semibold text-gray-800">Pro<span className="text-indigo-600">file</span></h2>
         </div>
@@ -233,7 +230,7 @@ export default function Create() {
                         name="name"
                         id="name"
                         disabled={ isSignInValid() ? "" : "disabled" }
-                        defaultValue={userState.name}
+                        value={userState.name}
                         autoComplete="off"
                         className="mt-1 w-56 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
                         onChange={(e) => {dispatch({ type: 'name', payload: { name: e.target.value } })}}
@@ -247,7 +244,7 @@ export default function Create() {
                           name="walletId"
                           id="walletId"
                           autoComplete="off"
-                          defaultValue={AuthContext.state.account}
+                          value={userState.wallet}
                           disabled="disabled"
                           className="mt-1 w-48 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md truncate"
                         />
@@ -268,7 +265,7 @@ export default function Create() {
                         maxLength="200"
                         disabled={ isSignInValid() ? "" : "disabled" }
                         placeholder=""
-                        defaultValue={userState.bio}
+                        value={userState.bio}
                         className="mt-1 w-56 xsm:w-full resize-none focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
                         onChange={(e) => {dispatch({ type: 'bio', payload: { bio: e.target.value } })}}
                       />

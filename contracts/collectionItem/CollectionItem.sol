@@ -169,15 +169,16 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
   /**
     * @dev Create local collection
   */
-  function createLocalCollection(string memory _name, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) {
-    _createLocalCollection(_name, _contractAddress, _owner);
+  function createLocalCollection(string memory _name, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) returns (uint256) {
+    uint256 id = _createLocalCollection(_name, _contractAddress, _owner);
 
     // create collection role
-    uint256 id = _getCollectionForContract(_contractAddress);
     bytes memory encodedId = abi.encodePacked(id);
     COLLECTION_ROLES[id] = keccak256(encodedId);
     _setRoleAdmin(COLLECTION_ROLES[id], ADMIN_ROLE);
     _setupRole(COLLECTION_ROLES[id], _owner);
+
+    return id;
   }
 
   /**
@@ -186,25 +187,25 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
   function createVerifiedCollection(
     string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission,
     address _owner, bool _ownerIncentiveAccess
-  ) public onlyRole(ADMIN_ROLE) {
-    _createVerifiedCollection(_name, _contractAddress, _totalSupply, _reflection, _commission, _owner, _ownerIncentiveAccess);
+  ) public onlyRole(ADMIN_ROLE) returns (uint256) {
+    uint256 id = _createVerifiedCollection(_name, _contractAddress, _totalSupply, _reflection, _commission, _owner, _ownerIncentiveAccess);
 
     // create collection role
-    uint256 id = _getCollectionForContract(_contractAddress);
     bytes memory encodedId = abi.encodePacked(id);
     COLLECTION_ROLES[id] = keccak256(encodedId);
     _setRoleAdmin(COLLECTION_ROLES[id], ADMIN_ROLE);
     _setupRole(COLLECTION_ROLES[id], _owner);
+
+    return id;
   }
 
   /**
     * @dev Create unvarivied collection
   */
   function createUnvariviedCollection(string memory _name, address _owner) public onlyRole(ADMIN_ROLE) returns (uint256) {
-    _createUnvariviedCollection(_name, _owner);
+    uint256 id = _createUnvariviedCollection(_name, _owner);
 
     // create collection role
-    uint256 id = UNVERIFIED_COLLECTION_ID;
     bytes memory encodedId = abi.encodePacked(id);
     COLLECTION_ROLES[id] = keccak256(encodedId);
     _setRoleAdmin(COLLECTION_ROLES[id], ADMIN_ROLE);

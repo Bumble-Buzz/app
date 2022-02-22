@@ -11,7 +11,9 @@
     "make": "./node_modules/make/bin/make.js",
     "hh-compile": "npx hardhat compile",
     "hh-size": "npx hardhat size-contracts",
-    "hh-test": "npx hardhat test"
+    "hh-test": "npx hardhat test",
+    "hh-node": "npx hardhat node",
+    "hh-deploy": "npx hardhat run scripts/deploy.js --network localhost"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.48.0",

@@ -119,14 +119,15 @@ export default function Create() {
           console.log('balance', balance.toLocaleString(undefined,0));
 
           // update db - sometimes called multiple times
-          await addAsset(_tokenId, state.commission, _owner, config);
+          if (session.user.id === _owner) {
+            await addAsset(_tokenId, state.commission, _owner, config);
 
-          dispatch({ type: 'clear' });
-          setMinted(true);
-          setLoading(false);
+            dispatch({ type: 'clear' });
+            setMinted(true);
+            setLoading(false);
+          }
         });
       }
-
     } catch (e) {
       Toast.error(e.message);
       setLoading(false);

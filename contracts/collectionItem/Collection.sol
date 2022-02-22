@@ -163,7 +163,7 @@ contract Collection {
   /**
     * @dev Create local collection
   */
-  function _createLocalCollection(string memory _name, address _contractAddress, address _owner) internal {
+  function _createLocalCollection(string memory _name, address _contractAddress, address _owner) internal returns (uint256) {
     require(_getCollectionForContract(_contractAddress) == 0, "Collection: Collection with this address already exists");
 
     COLLECTION_ID_POINTER.increment();
@@ -186,6 +186,7 @@ contract Collection {
     _addLocalCollectionId(id);
     _addCollectionForOwner(_owner, id);
     _assignContractToCollection(_contractAddress, id);
+    return id;
   }
 
   /**
@@ -194,7 +195,7 @@ contract Collection {
   function _createVerifiedCollection(
     string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission,
     address _owner, bool _ownerIncentiveAccess
-  ) internal {
+  ) internal returns (uint256) {
     require(_totalSupply > 0, "Collection: Total supply must be > 0");
     require(_reflection < 100, "Collection: Reflection percent must be < 100");
     require(_commission < 100, "Collection: Commission percent must be < 100");
@@ -220,12 +221,13 @@ contract Collection {
     _addVerifiedCollectionId(id);
     _addCollectionForOwner(_owner, id);
     _assignContractToCollection(_contractAddress, id);
+    return id;
   }
 
   /**
     * @dev Create unvarivied collection
   */
-  function _createUnvariviedCollection(string memory _name, address _owner) internal {
+  function _createUnvariviedCollection(string memory _name, address _owner) internal returns (uint256) {
     COLLECTION_ID_POINTER.increment();
     uint256 id = COLLECTION_ID_POINTER.current();
     COLLECTIONS[id] = CollectionDS({
@@ -245,7 +247,8 @@ contract Collection {
     _addActiveCollectionId(id);
     _addUnverifiedCollectionId(id);
     _addCollectionForOwner(_owner, id);
-    _assignContractToCollection(address(0), id); // todo dont think we need this, better to remove?
+    _assignContractToCollection(address(0), id);
+    return id;
   }
 
   /**
