@@ -238,6 +238,13 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
   }
 
   /**
+    * @dev Remove collection
+  */
+  function removeCollection(uint256 _collectionId) external onlyRole(ADMIN_ROLE) {
+    return _removeCollection(_collectionId);
+  }
+
+  /**
     * @dev Deactivate item
   */
   function activateItem(uint256 _itemId) external onlyRole(ADMIN_ROLE) {
