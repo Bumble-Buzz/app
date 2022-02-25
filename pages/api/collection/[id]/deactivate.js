@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   if (!id) return res.status(400).json({ 'error': 'invalid request parameters' });
   if (!Number.isInteger(Number(id))) return res.status(400).json({ 'error': 'invalid request parameters' });
   if (!session) return res.status(401).json({ 'error': 'not authenticated' });
-  if (session.user.id !== NEXT_PUBLIC_ADMIN_WALLET_ID) return res.status(401).json({ 'error': 'not authenticated' });
+  if (session.user.id !== process.env.NEXT_PUBLIC_ADMIN_WALLET_ID) return res.status(401).json({ 'error': 'not authenticated' });
 
   const payload = {
     TableName: "collection",

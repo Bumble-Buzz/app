@@ -9,13 +9,15 @@ import CollectionsComponent from './CollectionsComponent';
 export default function Collections({ activeCollections, inactiveCollections }) {
 
   const activeApi = (id, limit) => API.swr.collection.active(id, limit);
-  const deactivate = async () => {
+  const deactivate = async (asset) => {
     console.log('deactivate');
+    await API.collection.deactivate(asset.id);
   };
 
   const inactiveApi = (id, limit) => API.swr.collection.inactive(id, limit);
-  const activate = async () => {
+  const activate = async (asset) => {
     console.log('activate');
+    await API.collection.activate(asset.id);
   };
 
   return (

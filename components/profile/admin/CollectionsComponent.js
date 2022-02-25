@@ -67,6 +67,16 @@ export default function CollectionsComponent({ initialData, title, api, action }
     }
   };
 
+  const removeAsset = (asset) => {
+    const id = asset.id;
+
+    const newAssets = assets.filter((asset) => asset.id.toString().toLowerCase().indexOf(id.toString().toLowerCase()) < 0);
+    setAssets(newAssets);
+
+    const newFilteredAssets = assets.filter((asset) => asset.id.toString().toLowerCase().indexOf(id.toString().toLowerCase()) < 0);
+    setFilteredAssets(newFilteredAssets);
+  };
+
 
   return (
     <>
@@ -109,7 +119,7 @@ export default function CollectionsComponent({ initialData, title, api, action }
               </div>
               {filteredAssets.map((asset, index) => {
                 return (
-                  <div key={index} ref={index === filteredAssets.length - 1 ? observe : null} className='grid grid-cols-11'>
+                  <div key={index} ref={index === filteredAssets.length - 1 ? observe : null} className='grid grid-cols-11 visited:text-purple-600 odd:bg-zinc-100'>
                     <div className="border px-1 py-1">{asset.name}</div>
                     <div className="border px-1 py-1">{asset.owner}</div>
                     <div className="border px-1 py-1">{asset.id}</div>
@@ -122,9 +132,9 @@ export default function CollectionsComponent({ initialData, title, api, action }
                     <div className="border px-1 py-1">{asset.image}</div>
                     <div className="border px-1 py-1">
                       {asset.active > 0 ?
-                        <ButtonWrapper classes='px-1 py-1' onClick={() => action(asset)}>Deactivate</ButtonWrapper>
+                        <ButtonWrapper classes='px-1 py-1' onClick={() => {action(asset); removeAsset(asset);}}>Deactivate</ButtonWrapper>
                         :
-                        <ButtonWrapper classes='px-1 py-1' onClick={() => action(asset)}>Activate</ButtonWrapper>
+                        <ButtonWrapper classes='px-1 py-1' onClick={() => {action(asset); removeAsset(asset);}}>Activate</ButtonWrapper>
                       }
                     </div>
                   </div>

@@ -58,9 +58,9 @@ const apis = {
     }
   },
   collection: {
-    create: payload => API.put(`collection/create`, payload),
-    activate: id => API.put(`collection/${id}/activate`),
-    deactivate: id => API.put(`collection/${id}/deactivate`)
+    create: payload => API.post(`collection/create`, payload),
+    activate: id => API.post(`collection/${id}/activate`),
+    deactivate: id => API.post(`collection/${id}/deactivate`)
   },
   db: {
     table: {
