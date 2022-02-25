@@ -96,21 +96,22 @@ const pendingCollection = async () => {
   const payload = {
     TableName: "pending-collection",
     AttributeDefinitions: [
+      { AttributeName: "owner", AttributeType: "S" },
       { AttributeName: "contractAddress", AttributeType: "S" },
-      { AttributeName: "status", AttributeType: "S" },
-      { AttributeName: "category", AttributeType: "S" },
-      { AttributeName: "owner", AttributeType: "S" }
+      { AttributeName: "id", AttributeType: "N" },
+      { AttributeName: "collectionType", AttributeType: "S" },
+      { AttributeName: "category", AttributeType: "S" }
     ],
     KeySchema: [
-      { AttributeName: "contractAddress", KeyType: "HASH" },
-      { AttributeName: "status", KeyType: "RANGE" }
+      { AttributeName: "owner", KeyType: "HASH" },
+      { AttributeName: "contractAddress", KeyType: "RANGE" }
     ],
     LocalSecondaryIndexes: [
       {
-        IndexName: "category-lsi",
+        IndexName: "id-lsi",
         KeySchema: [
-          { AttributeName: "contractAddress", KeyType: "HASH" },
-          { AttributeName: "category", KeyType: "RANGE" }
+          { AttributeName: "owner", KeyType: "HASH" },
+          { AttributeName: "id", KeyType: "RANGE" }
         ],
         Projection: {
           NonKeyAttributes: [],
@@ -118,10 +119,21 @@ const pendingCollection = async () => {
         }
       },
       {
-        IndexName: "owner-lsi",
+        IndexName: "collectionType-lsi",
         KeySchema: [
-          { AttributeName: "contractAddress", KeyType: "HASH" },
-          { AttributeName: "owner", KeyType: "RANGE" }
+          { AttributeName: "owner", KeyType: "HASH" },
+          { AttributeName: "collectionType", KeyType: "RANGE" }
+        ],
+        Projection: {
+          NonKeyAttributes: [],
+          ProjectionType: "ALL"
+        }
+      },
+      {
+        IndexName: "category-lsi",
+        KeySchema: [
+          { AttributeName: "owner", KeyType: "HASH" },
+          { AttributeName: "category", KeyType: "RANGE" }
         ],
         Projection: {
           NonKeyAttributes: [],
@@ -140,14 +152,23 @@ const collection = async () => {
     TableName: "collection",
     AttributeDefinitions: [
       { AttributeName: "id", AttributeType: "N" },
+      { AttributeName: "active", AttributeType: "N" },
       { AttributeName: "category", AttributeType: "S" },
-      { AttributeName: "owner", AttributeType: "S" },
-      { AttributeName: "active", AttributeType: "N" }
+      { AttributeName: "owner", AttributeType: "S" }
     ],
     KeySchema: [
       { AttributeName: "id", KeyType: "HASH" },
     ],
     GlobalSecondaryIndexes: [
+      {
+        IndexName: "active-gsi",
+        KeySchema: [
+          { AttributeName: "active", KeyType: "HASH" }
+        ],
+        Projection: {
+          ProjectionType: "ALL"
+        }
+      },
       {
         IndexName: "category-gsi",
         KeySchema: [
@@ -155,7 +176,6 @@ const collection = async () => {
           { AttributeName: "active", KeyType: "RANGE" }
         ],
         Projection: {
-          NonKeyAttributes: [],
           ProjectionType: "ALL"
         }
       },
@@ -166,7 +186,6 @@ const collection = async () => {
           { AttributeName: "active", KeyType: "RANGE" }
         ],
         Projection: {
-          NonKeyAttributes: [],
           ProjectionType: "ALL"
         }
       }
@@ -259,8 +278,8 @@ const create = async () => {
   // await contracts();
   // await users();
   // await assets();
-  await pendingCollection();
-  // await collection();
+  // await pendingCollection();
+  await collection();
   // await sales();
 };
 
@@ -268,8 +287,8 @@ const cleanup = async () => {
   // await contractsDelete();
   // await usersDelete();
   // await assetsDelete();
-  await pendingCollectionDelete();
-  // await collectionDelete();
+  // await pendingCollectionDelete();
+  await collectionDelete();
   // await salesDelete();
 };
 
@@ -510,13 +529,14 @@ const putPendingCollection = async (val) => {
   const payload = {
     TableName: "pending-collection",
     Item: {
-      'contractAddress': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
+      'owner': '0xdA121aB48c7675E4F25E28636e3Efe602e49eec6',
+      'contractAddress': '0xb18d41108AB1b661726079a95543390532F2Bea5',
+      'id': 1,
       'name': 'my collection',
       'description': 'this is my collection',
       'totalSupply': 10000,
       'reflection': 2,
       'commission': 3,
-      'owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
       'ownerIncentiveAccess': false,
       'category': 'photography',
       'image': 'c-i-d',
@@ -531,27 +551,35 @@ const putCollection = async (val) => {
     TableName: "collection",
     Item: {
       'id': 1,
+      'contractAddress': '',
       'name': 'unverified collection',
-      'category': 'photography',
-      'owner': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
-      'commission': 2,
-      'active': 0
+      'description': 'This is an unverified collection. In this collection, all unverified NFTs are stored.',
+      'totalSupply': 0,
+      'reflection': 0,
+      'commission': 0,
+      'incentive': 0,
+      'owner': '0xdA121aB48c7675E4F25E28636e3Efe602e49eec6',
+      'collectionType': 'unverified',
+      'ownerIncentiveAccess': false,
+      'active': 1,
+      'category': 'none',
+      'image': ''
     }
   };
   await DynamoDbQuery.item.put(payload);
 
-  const payload2 = {
-    TableName: "collection",
-    Item: {
-      'id': 2,
-      'name': 'verified collection',
-      'category': 'meme',
-      'owner': '0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED',
-      'commission': 3,
-      'active': 1
-    }
-  };
-  await DynamoDbQuery.item.put(payload2);
+  // const payload2 = {
+  //   TableName: "collection",
+  //   Item: {
+  //     'id': 2,
+  //     'name': 'verified collection',
+  //     'category': 'meme',
+  //     'owner': '0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED',
+  //     'commission': 3,
+  //     'active': 1
+  //   }
+  // };
+  // await DynamoDbQuery.item.put(payload2);
 };
 
 const putSales = async (val) => {
@@ -605,8 +633,8 @@ const put = async (val) => {
   // await putContracts(val);
   // await putUsers();
   // await putAssets();
-  await putPendingCollection();
-  // await putCollection();
+  // await putPendingCollection();
+  await putCollection();
   // await putSales();
 };
 
@@ -643,41 +671,41 @@ const mockAssets = async () => {
 };
 
 const mockPendingCollections = async () => {
-  const pk = 2;
+  const id = 2;
   let payload = {
     TableName: "pending-collection",
-    ExpressionAttributeNames: { '#status': 'status' },
-    ExpressionAttributeValues: { ':status': 'pending' },
-    KeyConditionExpression: '#status = :status'
+    ExpressionAttributeNames: { '#owner': 'owner' },
+    ExpressionAttributeValues: { ':owner': '0xdA121aB48c7675E4F25E28636e3Efe602e49eec6' },
+    KeyConditionExpression: '#owner = :owner'
   };
   const results = await DynamoDbQuery.item.query(payload);
   console.log('Query item:', results.Items);
   const item = results.Items[0];
 
-  // for (let i = pk+1; i < 65; i++) {
-  //   payload = {
-  //     TableName: "collection",
-  //     Item: {
-  //       'id': i,
-  //       'name': item.name,
-  //       'description': item.description,
-  //       'totalSupply': 0,
-  //       'reflection': 0,
-  //       'commission': 0,
-  //       'incentive': 0,
-  //       'owner': item.owner,
-  //       'collectionType': item.collectionType,
-  //       'ownerIncentiveAccess': false,
-  //       'active': 1,
-  //       'category': 'meme'
-  //     }
-  //   };
-  //   await DynamoDbQuery.item.put(payload);
-  // }
+  for (let i = id+1; i < 65; i++) {
+    payload = {
+      TableName: "pending-collection",
+      Item: {
+        'owner': item.owner,
+        'contractAddress': `${item.contractAddress}${i}`,
+        'id': id,
+        'name': `asd ${id}`,
+        'description': item.description,
+        'totalSupply': item.totalSupply,
+        'reflection': item.reflection,
+        'commission': item.commission,
+        'ownerIncentiveAccess': item.ownerIncentiveAccess,
+        'category': item.category,
+        'image': item.image,
+        'status': item.status
+      }
+    };
+    await DynamoDbQuery.item.put(payload);
+  }
 };
 
 const mockCollections = async () => {
-  const pk = 2;
+  const pk = 64;
   let payload = {
     TableName: "collection",
     ExpressionAttributeNames: { '#id': 'id' },
@@ -688,32 +716,35 @@ const mockCollections = async () => {
   console.log('Query item:', results.Items);
   const item = results.Items[0];
 
-  for (let i = pk+1; i < 65; i++) {
+  for (let i = pk+1; i < 115; i++) {
     payload = {
       TableName: "collection",
       Item: {
         'id': i,
+        'contractAddress': '0xBDDf875B6f5Aa1C64aEA75c3bDf19b2b46215E29',
         'name': item.name,
         'description': item.description,
-        'totalSupply': 0,
-        'reflection': 0,
-        'commission': 0,
-        'incentive': 0,
+        'totalSupply': item.totalSupply,
+        'reflection': item.reflection,
+        'commission': item.commission,
+        'incentive': item.incentive,
         'owner': item.owner,
-        'collectionType': item.collectionType,
+        'collectionType': 'verified',
         'ownerIncentiveAccess': false,
         'active': 1,
-        'category': 'meme'
+        'category': 'meme',
+        'image': 'ashdkashdkjahsdkahsdkjahsdkajshdkajshda'
       }
     };
+    console.log('payload', payload);
     await DynamoDbQuery.item.put(payload);
   }
 };
 
 const mock = async () => {
   // await mockAssets();
-  await mockPendingCollections();
-  // await mockCollections();
+  // await mockPendingCollections();
+  await mockCollections();
 };
 
 (async () => {

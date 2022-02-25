@@ -41,7 +41,10 @@ const apis = {
     },
     collection: {
       id: (id) => `collection/${id}`,
-      owned: (owner,id,limit) => `collection/owned/${owner}?id=${id}&limit=${limit}`
+      owned: (owner,id,limit) => `collection/owned/${owner}?id=${id}&limit=${limit}`,
+      pending: (owner,address,limit) => `collection/pending?owner=${owner}&address=${address}&limit=${limit}`,
+      active: (id,limit) => `collection/active?id=${id}&limit=${limit}`,
+      inactive: (id,limit) => `collection/inactive?id=${id}&limit=${limit}`
     },
     contracts: (limit,uid,chain) => `contracts?limit=${limit}&uid=${uid}&chain=${chain}`
   },
@@ -53,6 +56,11 @@ const apis = {
     get: {
       config: payload => API.post(`ipfs/get/config`, payload)
     }
+  },
+  collection: {
+    create: payload => API.put(`collection/create`, payload),
+    activate: id => API.put(`collection/${id}/activate`),
+    deactivate: id => API.put(`collection/${id}/deactivate`)
   },
   db: {
     table: {

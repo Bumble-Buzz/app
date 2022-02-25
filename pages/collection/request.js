@@ -17,7 +17,7 @@ import ContentWrapper from '../../components/wrappers/ContentWrapper';
 import HeadlessSwitch from '../../components/HeadlessSwitch';
 import Lexicon from '../../lexicon/create';
 
-import AvaxTradeNftAbi from '../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
+import AvaxTradeAbi from '../../artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 
 const reducer = (state, action) => {
@@ -42,7 +42,7 @@ const reducer = (state, action) => {
       state.reflection = action.payload.reflection;
       return state
     case 'address':
-      state.address = action.payload.address;
+      state.address = ethers.utils.getAddress(action.payload.address);
       return state
     case 'incentive':
       newState = JSON.parse(JSON.stringify(state));
@@ -76,7 +76,43 @@ export default function RequestCollection() {
   const { data: session, status: sessionStatus } = useSession();
 
   const [isLoading, setLoading] = useState(false);
-  const [isRequestSent, setRequestSent] = useState(false);
+  const [blockchainResults, setBlockchainResults] = useState(null);
+  const [isCollectionCreated, setCollectionCreated] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      if (!blockchainResults) return;
+
+      try {
+        // upload image to ipfs
+        const imageCid = await uploadImage();
+
+        const tempId = blockchainResults.id;
+        const payload = {
+          'id': tempId,
+          'contractAddress': state.address,
+          'name': state.name,
+          'description': state.description,
+          'totalSupply': Number(state.supply),
+          'reflection': Number(state.reflection),
+          'commission': Number(state.commission),
+          'owner': AuthContext.state.account,
+          'ownerIncentiveAccess': state.incentive,
+          'category': state.category,
+          'image': imageCid,
+        };
+        await API.collection.create(payload);
+
+        dispatch({ type: 'clear' });
+        setCollectionCreated(true);
+        setLoading(false);
+        setBlockchainResults(null);
+      } catch (e) {
+        Toast.error(e.message);
+        setLoading(false);
+      }
+    })();
+  }, [blockchainResults]);
 
   const [state, dispatch] = useReducer(reducer, {
     name: '',
@@ -95,36 +131,28 @@ export default function RequestCollection() {
     console.log('start - addCollection');
     e.preventDefault();
 
+    const signer = await WalletUtil.getWalletSigner();
+    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
     try {
       setLoading(true);
 
-      // upload image to ipfs
-      const imageCid = await uploadImage();
+      // add collection in blockchain
+      const val = await contract.createVerifiedCollection(
+        state.name, state.address, state.supply, state.reflection, state.commission,
+        AuthContext.state.account, state.incentive
+      );
 
-      // update db
-      const payload = {
-        TableName: "pending-collection",
-        Item: {
-          'contractAddress': state.address,
-          'name': state.name,
-          'description': state.description,
-          'totalSupply': Number(state.supply),
-          'reflection': Number(state.reflection),
-          'commission': Number(state.commission),
-          'owner': AuthContext.state.account,
-          'ownerIncentiveAccess': state.incentive,
-          'category': state.category,
-          'image': imageCid,
-          'status': 'pending'
-        }
-      };
-      await API.db.item.put(payload);
-
-      dispatch({ type: 'clear' });
-      setRequestSent(true);
-      setLoading(false);
-
+      const txReceipt = await WalletUtil.checkTransaction(val);
+      if (txReceipt && txReceipt.blockNumber) {
+        contract.on("onCollectionCreate", async (owner, contractAddress, collectionType, id) => {
+          console.log('found event: ', owner, contractAddress, collectionType, id.toNumber());
+          if (session.user.id === owner && state.address === ethers.utils.getAddress(contractAddress)) {
+            setBlockchainResults({ owner, contractAddress, collectionType, id: id.toNumber() });
+          }
+        });
+      }
     } catch (e) {
+      console.error('e', e);
       Toast.error(e.message);
       setLoading(false);
     }
@@ -164,7 +192,7 @@ export default function RequestCollection() {
           <h2 className="text-3xl font-semibold text-gray-800">Request <span className="text-indigo-600">Collection</span></h2>
         </div>
 
-        {isRequestSent ?
+        {isCollectionCreated ?
           <div className="p-2 flex flex-col items-center text-center">
             <div className="">
               <div className="block p-6 rounded-lg shadow-lg bg-white max-w-sm">
@@ -177,7 +205,7 @@ export default function RequestCollection() {
                 <button
                   type="button"
                   className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  onClick={() => {setRequestSent(false);}}
+                  onClick={() => {setCollectionCreated(false);}}
                 >
                   Add another collection
                 </button>
@@ -260,7 +288,7 @@ export default function RequestCollection() {
                           id="total-supply"
                           required
                           className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                          onChange={(e) => dispatch({ type: 'commission', payload: { commission: e.target.value } })}
+                          onChange={(e) => dispatch({ type: 'supply', payload: { supply: e.target.value } })}
                         />
                       </div>
 
@@ -288,7 +316,7 @@ export default function RequestCollection() {
                           id="reflection"
                           required
                           className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                          onChange={(e) => dispatch({ type: 'commission', payload: { commission: e.target.value } })}
+                          onChange={(e) => dispatch({ type: 'reflection', payload: { reflection: e.target.value } })}
                         />
                       </div>
 
@@ -405,6 +433,7 @@ export default function RequestCollection() {
 <div className="flex flex-row gap-2">
   <div>
     <p onClick={() => {console.log('state', state);}}>Click to see state</p>
+    <p onClick={() => {console.log('blockchainResults', blockchainResults);}}>Click to see blockchainResults</p>
   </div>
 </div>
       </div>

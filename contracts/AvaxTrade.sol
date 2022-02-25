@@ -62,7 +62,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
 
   // events
   event onERC721ReceivedEvent(address operator, address from, uint256 tokenId, bytes data);
-  event onCollectionCreate(address indexed owner, address indexed contractAddress, string indexed collectionType, uint256 id);
+  event onCollectionCreate(address indexed owner, address indexed contractAddress, string collectionType, uint256 id);
 
 
   function initialize(address _owner) initializer public {

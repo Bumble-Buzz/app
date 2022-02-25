@@ -99,14 +99,23 @@ const collection = async () => {
     TableName: "collection",
     AttributeDefinitions: [
       { AttributeName: "id", AttributeType: "N" },
+      { AttributeName: "active", AttributeType: "N" },
       { AttributeName: "category", AttributeType: "S" },
-      { AttributeName: "owner", AttributeType: "S" },
-      { AttributeName: "active", AttributeType: "N" }
+      { AttributeName: "owner", AttributeType: "S" }
     ],
     KeySchema: [
       { AttributeName: "id", KeyType: "HASH" },
     ],
     GlobalSecondaryIndexes: [
+      {
+        IndexName: "active-gsi",
+        KeySchema: [
+          { AttributeName: "active", KeyType: "HASH" }
+        ],
+        Projection: {
+          ProjectionType: "ALL"
+        }
+      },
       {
         IndexName: "category-gsi",
         KeySchema: [
@@ -224,6 +233,7 @@ const populateCollection = async () => {
     TableName: "collection",
     Item: {
       'id': 1,
+      'contractAddress': '',
       'name': 'unverified collection',
       'description': 'This is an unverified collection. In this collection, all unverified NFTs are stored.',
       'totalSupply': 0,
@@ -238,25 +248,26 @@ const populateCollection = async () => {
       'image': ''
     }
   };
-  await API.db.item.put(payload);
-  payload = {
-    TableName: "collection",
-    Item: {
-      'id': 2,
-      'name': 'local collection',
-      'description': 'This is a local collection. In this collection, all NFTs created from this website are stored. Some randome data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data',
-      'totalSupply': 0,
-      'reflection': 0,
-      'commission': 0,
-      'incentive': 0,
-      'owner': process.env.NEXT_PUBLIC_ADMIN_WALLET_ID,
-      'collectionType': 'local',
-      'ownerIncentiveAccess': false,
-      'active': 1,
-      'category': 'none',
-      'image': ''
-    }
-  };
+  // await API.db.item.put(payload);
+  // payload = {
+  //   TableName: "collection",
+  //   Item: {
+  //     'id': 123,
+  //     'contractAddress': '0x0789a8D7c2D9cb50Fc59413ca404026eB6D34251',
+  //     'name': 'local collection',
+  //     'description': 'This is a local collection. In this collection, all NFTs created from this website are stored. Some randome data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data',
+  //     'totalSupply': 0,
+  //     'reflection': 0,
+  //     'commission': 0,
+  //     'incentive': 0,
+  //     'owner': process.env.NEXT_PUBLIC_ADMIN_WALLET_ID,
+  //     'collectionType': 'local',
+  //     'ownerIncentiveAccess': false,
+  //     'active': 1,
+  //     'category': 'none',
+  //     'image': ''
+  //   }
+  // };
   await API.db.item.put(payload);
 };
 

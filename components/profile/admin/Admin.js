@@ -8,15 +8,14 @@ import AdminFactory from './AdminFactory';
 
 export default function Admin() {
   const ROUTER = useRouter();
-  const [tab, setTab] = useState('collections');
+  const [tab, setTab] = useState('general');
 
-  const {data: collectionInit} = useSWR(API.swr.collection.owned(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
+  const {data: activeCollections} = useSWR(API.swr.collection.active('null', 10), API.swr.fetcher, API.swr.options);
+  const {data: inactiveCollections} = useSWR(API.swr.collection.inactive('null', 10), API.swr.fetcher, API.swr.options);
 
   return (
     <>
       <div className="p-1 rounded-lg shadow-lg bg-white grow">
-
-      <p onClick={() => {console.log('assets', collectionInit)}}>See assets</p>
 
         <div className="px-4 gap-2 flex flex-col xsm:flex-row flex-wrap w-max items-center text-center">
           {tab === 'general' ?
@@ -33,7 +32,7 @@ export default function Admin() {
 
         <div className="gap-2 flex flex-col sm:flex-row w-full">
             {tab === 'general' && AdminFactory[tab]({ })}
-            {tab === 'collections' && AdminFactory[tab]({ })}
+            {tab === 'collections' && AdminFactory[tab]({ activeCollections, inactiveCollections })}
           </div>
 
       </div>

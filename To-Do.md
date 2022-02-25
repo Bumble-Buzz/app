@@ -50,16 +50,16 @@ Things left to do:
         - PK: arbitrary-number, chain
         - LSI: isVerified, type
         - GSI: 
-      - pending-collection: List of pending collections
-        - contractAddress, name, description, totalSupply, reflection, commission, owner, ownerIncentiveAccess, category, image, status::pending/accepted/rejected
-        - PK: contractAddress, status
-        - LSI: category, owner
-        - GSI: 
+      <!-- - pending-collection: List of pending collections
+        - contractAddress, id, name, description, totalSupply, reflection, commission, owner, collectionType, ownerIncentiveAccess, category, image, status::pending/completed
+        - PK: owner, contractAddress
+        - LSI: id, collectionType, category
+        - GSI:  -->
       - collection: List of collections
         - contractAddress, id, name, description, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number, category, image
         - PK: id
         - LSI: 
-        - GSI: category + active, owner + active (only get data that you need)
+        - GSI: active, category + active, owner + active (only get data that you need)
       - asset: List of assets
         - contractAddress, tokenId, collectionId, commission, creator, owner, config
         - PK: contractAddress, tokenId
@@ -74,6 +74,9 @@ Things left to do:
         <!-- - contractAddress, tokenId, creator, owner,  -->
 - Front-end dapp
   - Easy way to set ENV variables in docker image / k8s, for contract addresses, admin accounts, etc...
+  - API
+    - Make sure secure APIs are only accessable who is allowed to
+    - Ensure to check blockchain in API calls when necessary
   - AWS
     - IAM
       - Dynamodb: Give only appropriate access as needed
