@@ -1,9 +1,6 @@
-import { useEffect, useState, useRef } from 'react';
-import useInView from 'react-cool-inview';
-import useSWRInfinite from 'swr/infinite';
-import ButtonWrapper from '../../wrappers/ButtonWrapper';
-import API from '../../Api';
-import CollectionsComponent from './CollectionsComponent';
+import API from '../../../Api';
+import ActiveInactive from './ActiveInactive';
+import Specific from './Specific';
 
 
 export default function Collections({ activeCollections, inactiveCollections }) {
@@ -23,8 +20,9 @@ export default function Collections({ activeCollections, inactiveCollections }) 
   return (
     <>
       <div className='py-4 flex flex-col gap-2'>
-        <CollectionsComponent initialData={inactiveCollections} title='Inactive' api={inactiveApi} action={activate} />
-        <CollectionsComponent initialData={activeCollections} title='Active' api={activeApi} action={deactivate} />
+        <Specific />
+        <ActiveInactive initialData={inactiveCollections} title='Inactive collections' api={inactiveApi} action={activate} />
+        <ActiveInactive initialData={activeCollections} title='Active collections' api={activeApi} action={deactivate} />
       </div>
     </>
   )

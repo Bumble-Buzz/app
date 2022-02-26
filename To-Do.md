@@ -56,10 +56,10 @@ Things left to do:
         - LSI: id, collectionType, category
         - GSI:  -->
       - collection: List of collections
-        - contractAddress, id, name, description, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number, category, image
+        - id, name, contractAddress, description, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number, category, image
         - PK: id
         - LSI: 
-        - GSI: active, category + active, owner + active (only get data that you need)
+        - GSI: active, category + active, owner + active (only get data that you need) -> maybe for `name` and `contractAddress` for search results?
       - asset: List of assets
         - contractAddress, tokenId, collectionId, commission, creator, owner, config
         - PK: contractAddress, tokenId

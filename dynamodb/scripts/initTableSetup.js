@@ -705,7 +705,7 @@ const mockPendingCollections = async () => {
 };
 
 const mockCollections = async () => {
-  const pk = 64;
+  const pk = 98;
   let payload = {
     TableName: "collection",
     ExpressionAttributeNames: { '#id': 'id' },
@@ -716,7 +716,7 @@ const mockCollections = async () => {
   console.log('Query item:', results.Items);
   const item = results.Items[0];
 
-  for (let i = pk+1; i < 115; i++) {
+  for (let i = pk+1; i < 199; i++) {
     payload = {
       TableName: "collection",
       Item: {

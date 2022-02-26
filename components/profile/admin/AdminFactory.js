@@ -1,5 +1,5 @@
 import General from './General';
-import Collections from './Collections';
+import Collections from './collections/Collections';
 
 
 module.exports = {

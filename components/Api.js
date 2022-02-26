@@ -58,6 +58,7 @@ const apis = {
     }
   },
   collection: {
+    id: id => API.get(`collection/${id}`),
     create: payload => API.post(`collection/create`, payload),
     activate: id => API.post(`collection/${id}/activate`),
     deactivate: id => API.post(`collection/${id}/deactivate`)

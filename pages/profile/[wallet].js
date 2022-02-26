@@ -321,7 +321,7 @@ export default function Create() {
               )}
           </div>
 
-          <div className="gap-2 flex flex-col sm:flex-row w-full">
+          <div className="gap-2 flex flex-col w-full">
             {tab === 'general' && ProfileFactory[tab]()}
             {tab === 'wallet' && ProfileFactory[tab]()}
             {tab === 'collections' && ProfileFactory[tab]({ initialData: collectionInit })}
