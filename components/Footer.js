@@ -1,55 +1,59 @@
-import Link from 'next/link';
-import { config, library } from '@fortawesome/fontawesome-svg-core';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGithub, faTwitter, faDiscord } from '@fortawesome/free-brands-svg-icons';
-import { faUsers } from '@fortawesome/free-solid-svg-icons';
+import Image from 'next/image';
 
-
-// Tell Font Awesome to skip adding the CSS automatically since it's being imported above
-config.autoAddCss = false;
-library.add(faGithub, faTwitter, faDiscord, faUsers);
 
 function Footer() {
   return (
-    <footer className="relative bg-blueGray-200 pb-5">
-      <hr className="border-blueGray-300"></hr>
-      <div className="container mx-auto py-3 px-4">
-        <div className="flex">
-          <div className="w-full text-left xs:w-6/12 px-4">
-            <h4 className="text-2xl md:text-3xl fonat-semibold text-blueGray-700">Let&#39;s keep in touch!</h4>
-            <h5 className="text-mg md:text-lg mt-0 mb-2 text-blueGray-600">
-              Find us on any of these platforms.
-            </h5>
-          </div>
-          <div className="w-full text-right content-end xs:w-6/12 px-4">
-            <ul className="flex flex-row-reverse text-right overflow-hidden my-6">
-            <li className="bg-white text-blueGray-800 shadow-lg font-normal h-10 w-10 items-center justify-center align-center rounded-full outline-none focus:outline-none mr-2" type="button">
-                <Link href="https://google.ca/" passHref={true}>
-                  <a target="_blank" title="Discord"><FontAwesomeIcon icon={['fab', 'discord']} /></a>
-                </Link>
-              </li>
-              <li className="bg-white text-blueGray-800 shadow-lg font-normal h-10 w-10 items-center justify-center align-center rounded-full outline-none focus:outline-none mr-2" type="button">
-                <Link href="https://google.ca/" passHref={true}>
-                  <a target="_blank" title="Twitter"><FontAwesomeIcon icon={['fab', 'twitter']} /></a>
-                </Link>
-              </li>
-              {/* <li className="bg-white text-blueGray-800 shadow-lg font-normal h-10 w-10 items-center justify-center align-center rounded-full outline-none focus:outline-none mr-2" type="button">
-                <Link href='/about-us'>
-                  <a title="About the team"><FontAwesomeIcon icon={['fas', 'users']} /></a>
-                </Link>
-              </li> */}
-            </ul>
+    <footer className="flex flex-nowrap flex-col gap-2 items-center px-0 py-1 w-full">
+
+      <div className="py-2 flex flex-col justify-between items-center xsm:flex-row gap-2 w-full">
+        <div className="px-4 flex-1 text-center">
+          <h4 className="text-2xl md:text-3xl text-blueGray-700">Let&#39;s keep in touch!</h4>
+          <h5 className="text-mg md:text-lg mt-0 mb-2 text-blueGray-600">
+            Find us on any of these platforms.
+          </h5>
+          <div className='flex flex-row gap-2 justify-center'>
+            <a href="https://google.ca/" target='blank' className='relative h-10 w-10 cursor-pointer'>
+              <Image
+                src={'/socials/discord.svg'} placeholder='blur' blurDataURL='/avocado.jpg'
+                alt='discord' layout="fill" objectFit="contain" sizes='50vw'
+              />
+            </a>
+            <a href="https://google.ca/" target='blank' className='relative h-10 w-10 cursor-pointer'>
+              <Image
+                src={'/socials/twitter.svg'} placeholder='blur' blurDataURL='/avocado.jpg'
+                alt='discord' layout="fill" objectFit="contain" sizes='50vw'
+              />
+            </a>
           </div>
         </div>
-        <hr className="border-blueGray-300"></hr>
-        <div className="flex flex-wrap items-center md:justify-between justify-center">
-          <div className="w-full py-4 px-4 mx-auto text-center">
-            <div className="text-sm text-blueGray-500 font-semibold py-1">
-              Copyright © 2021 Avoaxcado Team
+        <div className="px-4 flex-1 text-center">
+          <div className='flex flex-row gap-2'>
+            <div className='flex flex-col flex-1 text-left'>
+              <div className='font-bold'>Helpful Links</div>
+              <div>Partners</div>
+              <div>Analytics</div>
+              <div>Documentation</div>
+            </div>
+            <div className='flex flex-col flex-1 text-left'>
+              <div className='font-bold'>AvaxTrade</div>
+              <div>About</div>
+              <div>Feedback</div>
+              <div>Report Issue</div>
             </div>
           </div>
         </div>
       </div>
+
+      <hr className="w-full border-blueGray-300" />
+
+      <div className="flex flex-col justify-between items-center xsm:flex-row gap-2 w-full">
+        <div className="w-full py-4 px-4 mx-auto text-center">
+          <div className="text-sm text-blueGray-500 font-semibold py-1">
+            Copyright © 2021 Avoaxcado Team
+          </div>
+        </div>
+      </div>
+
     </footer>
   )
 }
