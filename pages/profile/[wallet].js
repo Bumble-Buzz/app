@@ -52,7 +52,7 @@ const reducer = (state, action) => {
 export default function Create() {
   const ROUTER = useRouter();
   const AuthContext = useAuth();
-  const [tab, setTab] = useState('admin');
+  const [tab, setTab] = useState('general');
   const [walletValidity, setWalletvalidity] = useState(false);
   const inputFile = useRef(null) 
   const { data: session, status: sessionStatus } = useSession();
@@ -61,7 +61,6 @@ export default function Create() {
   const {data: userData} = useSWR(API.swr.user.id(ROUTER.query.wallet), API.swr.fetcher, API.swr.options);
   const {data: collectionInit} = useSWR(API.swr.collection.owned(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
   const {data: createdInit} = useSWR(API.swr.asset.created(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
-  // const {data: contracts} = useSWR(API.swr.contracts(20, 1, null), API.swr.fetcher, API.swr.options);
 
   const [userState, dispatch] = useReducer(reducer, {
     name: '',

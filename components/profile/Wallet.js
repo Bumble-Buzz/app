@@ -281,7 +281,7 @@ export default function Wallet() {
 
 
   return (
-    <>
+    <div className='flex flex-col sm:flex-row'>
       <div className="-p-2 -ml-2 rounded-lg shadow-lg bg-white">
         <FilterPanel filters={filters} state={state} dispatch={dispatch} />
       </div>
@@ -293,7 +293,7 @@ export default function Wallet() {
         {/* <p onClick={() => {console.log('assets', assets)}}>See Assets</p> */}
         {/* <p onClick={() => {console.log('filteredAssets', filteredAssets)}}>See filteredAssets</p> */}
         {/* <p onClick={() => {console.log('filteredAssets', API.ipfs.get.config2({ tokenURI: "http://localhost:8080/ipfs/QmaUfK7FpWNvBEBHxFnG7Qrsa7QuShS9vjuEvfq7CchdcA" }))}}>SWR data fetch</p> */}
-        <p onClick={() => {console.log('filteredAssets', myData)}}>SWR data fetch</p>
+        {/* <p onClick={() => {console.log('filteredAssets', myData)}}>SWR data fetch</p> */}
 
         <div className='py-2 flex flex-wrap gap-2 justify-start items-center'>
           {search && (<div className="">
@@ -351,6 +351,6 @@ export default function Wallet() {
         </div>
 
       </div>
-    </>
+    </div>
   )
 }

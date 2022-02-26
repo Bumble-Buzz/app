@@ -20,7 +20,7 @@ import {
 export default function Navbar() {
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
-  console.log('session', session, sessionStatus);
+  // console.log('session', session, sessionStatus);
 
   const [isNotificationOpen, setNotificationOpen] = useState(false);
   const [notificationClickTime, setNotificationClickTime] = useState(0);
