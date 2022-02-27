@@ -14,7 +14,7 @@ export default function Admin() {
   const {data: inactiveCollections} = useSWR(API.swr.collection.inactive('null', 10), API.swr.fetcher, API.swr.options);
 
   return (
-    <div className="p-1 rounded-lg shadow-lg bg-white">
+    <>
 
       <div className="px-4 gap-2 flex flex-col xsm:flex-row flex-wrap w-max items-center text-center">
         {tab === 'general' ?
@@ -32,9 +32,9 @@ export default function Admin() {
       <div className="gap-2 flex flex-col">
           {tab === 'general' && AdminFactory[tab]({ })}
           {tab === 'collections' && AdminFactory[tab]({ activeCollections, inactiveCollections })}
-        </div>
+      </div>
 
-    </div>
+    </>
   )
 }
 

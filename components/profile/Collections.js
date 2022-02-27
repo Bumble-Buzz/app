@@ -69,7 +69,9 @@ export default function Collections({ initialData }) {
 
   return (
     <>
-      <div className="p-1 rounded-lg shadow-lg bg-white grow">
+{/* <p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p>
+<p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p>
+<p onClick={() => {console.log('assets', assets)}}>See assets</p> */}
 
       <div className='py-2 flex flex-nowrap gap-2 justify-start items-center'>
         <ButtonWrapper
@@ -81,51 +83,46 @@ export default function Collections({ initialData }) {
         </ButtonWrapper>
       </div>
 
-<p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p>
-<p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p>
-<p onClick={() => {console.log('assets', assets)}}>See assets</p>
-
-        <div className='py-2 flex flex-nowrap gap-2 justify-start items-center'>
-          <InputWrapper
-            type="search"
-            id="created-search"
-            name="created-search"
-            placeholder="Search by name"
-            aria-label="created-search"
-            aria-describedby="created-search"
-            classes="w-full"
-            // value={search}
-            onChange={(e) => {setSearch(e.target.value); updateFilteredAssets(e.target.value); }}
-          />
-        </div>
-
-        <div className='flex flex-wrap gap-4 gap-x-20 justify-center items-center'>
-          {filteredAssets.map((asset, index) => {
-            return (
-              <CollectionCard
-                key={index}
-                innerRef={index === filteredAssets.length - 1 ? observe : null}
-                image={asset.image}
-                body={(<>
-                  <div className="flex flex-nowrap flex-col gap-2">
-                    <div className="grow w-full font-bold truncate">{asset.name}</div>
-                    <div className="grow w-full -mt-2 truncate">
-                      <p>
-                        by <Link href={`/profile/${asset.owner}`} passHref={true}><a className='text-blue-500'>
-                          {asset.ownerName &&  asset.ownerName }
-                          {!asset.ownerName &&  asset.owner }
-                        </a></Link>
-                      </p>
-                    </div>
-                    <div className="grow w-full line-clamp-3">{asset.description}</div>
-                  </div>
-                </>)}
-              />
-            )
-          })}
-        </div>
-
+      <div className='py-2 flex flex-nowrap gap-2 justify-start items-center'>
+        <InputWrapper
+          type="search"
+          id="created-search"
+          name="created-search"
+          placeholder="Search by name"
+          aria-label="created-search"
+          aria-describedby="created-search"
+          classes="w-full"
+          // value={search}
+          onChange={(e) => {setSearch(e.target.value); updateFilteredAssets(e.target.value); }}
+        />
       </div>
+
+      <div className='py-2 flex flex-wrap gap-4 gap-x-20 justify-center items-center'>
+        {filteredAssets.map((asset, index) => {
+          return (
+            <CollectionCard
+              key={index}
+              innerRef={index === filteredAssets.length - 1 ? observe : null}
+              image={asset.image}
+              body={(<>
+                <div className="flex flex-nowrap flex-col gap-2">
+                  <div className="grow w-full font-bold truncate">{asset.name}</div>
+                  <div className="grow w-full -mt-2 truncate">
+                    <p>
+                      by <Link href={`/profile/${asset.owner}`} passHref={true}><a className='text-blue-500'>
+                        {asset.ownerName &&  asset.ownerName }
+                        {!asset.ownerName &&  asset.owner }
+                      </a></Link>
+                    </p>
+                  </div>
+                  <div className="grow w-full line-clamp-3">{asset.description}</div>
+                </div>
+              </>)}
+            />
+          )
+        })}
+      </div>
+
     </>
   )
 }

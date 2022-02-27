@@ -74,11 +74,9 @@ export default function Created({ initialData }) {
 
   return (
     <>
-      <div className="p-1 rounded-lg shadow-lg bg-white grow">
-
-<p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p>
+{/* <p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p>
 <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p>
-<p onClick={() => {console.log('assets', assets)}}>See assets</p>
+<p onClick={() => {console.log('assets', assets)}}>See assets</p> */}
 
         <div className='py-2 flex flex-nowrap gap-2 justify-start items-center'>
           <InputWrapper
@@ -94,7 +92,7 @@ export default function Created({ initialData }) {
           />
         </div>
 
-        <div className='flex flex-wrap gap-4 justify-center items-center'>
+        <div className='py-2 flex flex-wrap gap-4 justify-center items-center'>
           {filteredAssets.map((asset, index) => {
             return (
               <NftCard
@@ -127,7 +125,6 @@ export default function Created({ initialData }) {
           })}
         </div>
 
-      </div>
     </>
   )
 }

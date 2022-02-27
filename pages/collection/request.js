@@ -12,7 +12,7 @@ import Toast from '../../components/Toast';
 import NoImageAvailable from '../../public/no-image-available.png';
 import ButtonWrapper from '../../components/wrappers/ButtonWrapper';
 import Unauthenticated from '../../components/Unauthenticated';
-import { DotsCircleHorizontalIcon, ArrowRightIcon } from '@heroicons/react/solid';
+import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 import ContentWrapper from '../../components/wrappers/ContentWrapper';
 import HeadlessSwitch from '../../components/HeadlessSwitch';
 import Lexicon from '../../lexicon/create';

@@ -129,7 +129,7 @@ export const FilterPanel = ({ children, filters, state, dispatch }) => {
 
 
   return (
-    <div className="flex flex-col sticky top-16">
+    <div className="flex flex-col sticky top-16 overflow-y-auto sm:[height:calc(100vh-4rem)] h-fit">
       {/* {console.log('isShowing', isShowing)} */}
       {isShowing ?
         (<MenuItem

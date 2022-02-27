@@ -19,7 +19,7 @@ import AvaxTradeNftAbi from '../../artifacts/contracts/AvaxTradeNft.sol/AvaxTrad
 export default function General() {
   return (
     <>
-      <div className="p-1 rounded-lg shadow-lg bg-white grow">
+      <div className="">
         General dashboard info. Place where users can redeem funds/rewards.
       </div>
     </>

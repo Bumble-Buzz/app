@@ -81,8 +81,6 @@ export default function Listings({ initialData }) {
 
   return (
     <>
-      <div className="p-1 rounded-lg shadow-lg bg-white grow">
-
         <p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p>
         <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p>
         <p onClick={() => {console.log('assets', assets)}}>See assets</p>
@@ -101,7 +99,7 @@ export default function Listings({ initialData }) {
           />
         </div>
 
-        <div className='flex flex-wrap flex-col gap-2 justify-center items-center'>
+        <div className='py-2 flex flex-wrap flex-col gap-2 justify-center items-center'>
           {assets.map((asset, index) => (
             <div key={index} ref={index === assets.length - 1 ? observe : null}>
               {asset.contractAddress && (asset.contractAddress) }
@@ -109,7 +107,6 @@ export default function Listings({ initialData }) {
           ))}
         </div>
 
-      </div>
     </>
   )
 }

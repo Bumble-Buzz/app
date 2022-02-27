@@ -59,6 +59,7 @@ export default function Create() {
 
   // swr call to fetch initial data
   const {data: userData} = useSWR(API.swr.user.id(ROUTER.query.wallet), API.swr.fetcher, API.swr.options);
+  const {data: walletInit} = useSWR(API.swr.asset.created(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
   const {data: collectionInit} = useSWR(API.swr.collection.owned(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
   const {data: createdInit} = useSWR(API.swr.asset.created(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
 
@@ -322,7 +323,7 @@ export default function Create() {
 
           <div className="gap-2 flex flex-col w-full">
             {tab === 'general' && ProfileFactory[tab]()}
-            {tab === 'wallet' && ProfileFactory[tab]()}
+            {tab === 'wallet' && ProfileFactory[tab]({ initialData: walletInit })}
             {tab === 'collections' && ProfileFactory[tab]({ initialData: collectionInit })}
             {tab === 'created' && ProfileFactory[tab]({ initialData: createdInit })}
             {tab === 'listings' && ProfileFactory[tab]({ initialData: {} })}

@@ -639,7 +639,7 @@ const put = async (val) => {
 };
 
 const mockAssets = async () => {
-  const pk = '0x0789a8D7c2D9cb50Fc59413ca404026eB6D34251';
+  const pk = '0x640C20ff0F34b75BDA2fCdB4334Acca32B599A81';
   const sk = 1;
   let payload = {
     TableName: "asset",
@@ -666,6 +666,7 @@ const mockAssets = async () => {
         'config': itemConfig
       }
     };
+    // console.log('payload', payload);
     await DynamoDbQuery.item.put(payload);
   }
 };
@@ -742,9 +743,9 @@ const mockCollections = async () => {
 };
 
 const mock = async () => {
-  // await mockAssets();
+  await mockAssets();
   // await mockPendingCollections();
-  await mockCollections();
+  // await mockCollections();
 };
 
 (async () => {

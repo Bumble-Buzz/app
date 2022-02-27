@@ -10,6 +10,8 @@ import WalletUtil from '../wallet/WalletUtil';
 import NftCard from '../nftAssets/NftCard';
 import API from '../Api';
 import useSWR from 'swr';
+import useInView from 'react-cool-inview';
+import useSWRInfinite from 'swr/infinite';
 import IPFS from '../../utils/ipfs';
 import { BadgeCheckIcon, XIcon } from '@heroicons/react/solid';
 
@@ -127,7 +129,7 @@ const getCategoriesState = () => {
 };
 
 
-export default function Wallet() {
+export default function Wallet({ initialData }) {
   const ROUTER = useRouter();
 
   const searchFilterApply = (e, _override) => {
@@ -224,14 +226,54 @@ export default function Wallet() {
   const [assets, setAssets] = useState([]);
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [search, setSearch] = useState('');
+  const [apiSortKey, setApiSortKey] = useState(null);
+  const [exclusiveStartKey, setExclusiveStartKey] = useState(null);
+
+  // on scroll fetch data
+  const { observe } = useInView({
+    threshold: 0,
+    onEnter: async ({ unobserve }) => {
+      if (!search) {
+        if (!exclusiveStartKey) {
+          unobserve();
+        }
+        setApiSortKey(exclusiveStartKey);
+      }
+    },
+  });
+
+  // fetch data from database using SWR
+  useSWRInfinite(
+    (pageIndex, previousPageData) => {
+      return API.swr.asset.created(ROUTER.query.wallet, apiSortKey.tokenId, 20);
+    },
+    API.swr.fetcher,
+    {
+      onSuccess: (_data) => {
+        const lastEle = _data[_data.length - 1];
+        setAssets([...assets, ...lastEle.Items]);
+        setFilteredAssets([...filteredAssets, ...lastEle.Items]);
+        setExclusiveStartKey(lastEle.LastEvaluatedKey);
+      },
+      ...API.swr.options
+    }
+  );
 
   useEffect(() => {
-    // getCreatedNfts();
-  }, []);
+    if (initialData) {
+      setAssets(initialData.Items);
+      setFilteredAssets(initialData.Items);
+      setExclusiveStartKey(initialData.LastEvaluatedKey);
+    }
+  }, [initialData]);
+
+  // useEffect(() => {
+  //   getCreatedNfts();
+  // }, []);
 
   const updateFilteredAssets = (_value) => {
     if (_value && _value !== '') {
-      const newAssets = assets.filter((asset) => asset.name.toLowerCase().indexOf(_value.toLowerCase()) >= 0);
+      const newAssets = assets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(_value.toString().toLowerCase()) >= 0);
       setFilteredAssets(newAssets);
     } else {
       setFilteredAssets(assets);
@@ -282,20 +324,22 @@ export default function Wallet() {
 
   return (
     <div className='flex flex-col sm:flex-row'>
-      <div className="-p-2 -ml-2 rounded-lg shadow-lg bg-white">
+
+  {/* <p className="text-gray-700 text-base">Created</p> */}
+  {/* <p onClick={getArtistNftIds}>Test getArtistNftIds</p> */}
+  {/* <p onClick={getCreatedNfts}>Test getCreatedNfts</p> */}
+  {/* <p onClick={() => {console.log('assets', assets)}}>See Assets</p> */}
+  {/* <p onClick={() => {console.log('filteredAssets', filteredAssets)}}>See filteredAssets</p> */}
+  {/* <p onClick={() => {console.log('filteredAssets', API.ipfs.get.config2({ tokenURI: "http://localhost:8080/ipfs/QmaUfK7FpWNvBEBHxFnG7Qrsa7QuShS9vjuEvfq7CchdcA" }))}}>SWR data fetch</p> */}
+  {/* <p onClick={() => {console.log('filteredAssets', myData)}}>SWR data fetch</p> */}
+
+      <div className="-px-2 -ml-2 bg-white">
         <FilterPanel filters={filters} state={state} dispatch={dispatch} />
       </div>
-      <div className="p-1 rounded-lg shadow-lg bg-white grow">
 
-        {/* <p className="text-gray-700 text-base">Created</p> */}
-        {/* <p onClick={getArtistNftIds}>Test getArtistNftIds</p> */}
-        {/* <p onClick={getCreatedNfts}>Test getCreatedNfts</p> */}
-        {/* <p onClick={() => {console.log('assets', assets)}}>See Assets</p> */}
-        {/* <p onClick={() => {console.log('filteredAssets', filteredAssets)}}>See filteredAssets</p> */}
-        {/* <p onClick={() => {console.log('filteredAssets', API.ipfs.get.config2({ tokenURI: "http://localhost:8080/ipfs/QmaUfK7FpWNvBEBHxFnG7Qrsa7QuShS9vjuEvfq7CchdcA" }))}}>SWR data fetch</p> */}
-        {/* <p onClick={() => {console.log('filteredAssets', myData)}}>SWR data fetch</p> */}
+      <div className="px-2 bg-white w-full">
 
-        <div className='py-2 flex flex-wrap gap-2 justify-start items-center'>
+        <div className='flex flex-wrap gap-2 justify-start items-top'>
           {search && (<div className="">
             <ButtonWrapper classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0" onClick={() => {
               setSearch(''); updateFilteredAssets('');
@@ -319,18 +363,20 @@ export default function Wallet() {
           </div>
         </div>
 
-        <div className='flex flex-wrap gap-2 justify-center items-center'>
-          {filteredAssets && filteredAssets.length > 0 && filteredAssets.map((asset, index) => {
+        <div className='py-2 flex flex-wrap gap-4 justify-center items-center'>
+          {filteredAssets.map((asset, index) => {
             return (
               <NftCard
                 key={index}
+                innerRef={index === filteredAssets.length - 1 ? observe : null}
                 header={(<>
-                  <div className="flex-1 font-bold text-purple-500 text-xl truncate">{asset.name}</div>
+                  <div className="flex-1 font-bold text-purple-500 text-xl truncate">{asset.config.name}</div>
                   <div className='flex items-center'>
                     <BadgeCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />
                   </div>
                 </>)}
-                image={asset.image}
+                // image={asset.image}
+                image={asset.config.image}
                 body={(<>
                   <div className="flex flex-nowrap flex-row gap-2 text-left">
                     <div className="flex-1 truncate">COLLECTION NAME HERE</div>
@@ -342,8 +388,8 @@ export default function Wallet() {
                   </div>
                 </>)}
                 footer={(<>
-                  <div className="flex-1 truncate">{asset.name}</div>
-                  <div className="truncate">{asset.name}</div>
+                  <div className="flex-1 truncate">{asset.config.name}</div>
+                  <div className="truncate">{asset.config.name}</div>
                 </>)}
               />
             )
