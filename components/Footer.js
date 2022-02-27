@@ -29,14 +29,14 @@ function Footer() {
         <div className="px-4 flex-1 text-center">
           <div className='flex flex-row gap-2'>
             <div className='flex flex-col flex-1 text-left'>
-              <div className='font-bold'>Helpful Links</div>
+              {/* <div className='font-bold'>About Us</div> */}
+              <div>Team</div>
               <div>Partners</div>
-              <div>Analytics</div>
               <div>Documentation</div>
             </div>
             <div className='flex flex-col flex-1 text-left'>
-              <div className='font-bold'>AvaxTrade</div>
-              <div>About</div>
+              {/* <div className='font-bold'>Additional Info</div> */}
+              <div>Analytics</div>
               <div>Feedback</div>
               <div>Report Issue</div>
             </div>
