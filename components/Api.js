@@ -57,6 +57,9 @@ const apis = {
       config: payload => API.post(`ipfs/get/config`, payload)
     }
   },
+  asset: {
+    create: payload => API.post(`asset/create`, payload),
+  },
   collection: {
     id: id => API.get(`collection/${id}`),
     create: payload => API.post(`collection/create`, payload),

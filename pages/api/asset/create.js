@@ -1,9 +1,8 @@
 import Cors from 'cors';
-// const { ethers } = require("hardhat");
 import { ethers } from 'ethers';
 import { getSession } from "next-auth/react";
 import DynamoDbQuery from '../../../components/backend/db/DynamoDbQuery';
-import CollectionItemAbi from '../../../artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
+import AvaxTradeNftAbi from '../../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
 const COLLECTION_TYPE = [ 'local', 'verified', 'unverified' ];
@@ -13,18 +12,22 @@ const COLLECTION_TYPE = [ 'local', 'verified', 'unverified' ];
  * We will need to use the databse to make sure when a collection is active, no one can modify it's main keys except
  * for the owner, or the admin.
 **/
-const checkBlockchain = async (collection) => {
+const checkBlockchainOwner = async (data) => {
   const RPC = 'http://localhost:8545';
   const provider = new ethers.providers.JsonRpcProvider(RPC);
-  const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, provider);
-  const onChainData = await contract.getCollection(collection.id);
+  const contract = new ethers.Contract(ethers.utils.getAddress(data.contractAddress), AvaxTradeNftAbi.abi, provider);
+  const onChainData = await contract.ownerOf(Number(data.tokenId));
 
-  const collectionType = Number(onChainData.collectionType);
-  const isActive = Number(onChainData.active);
-  return (
-    collection.id === Number(onChainData.id) && collection.name === onChainData.name && collection.contractAddress === onChainData.contractAddress &&
-    collection.owner === onChainData.owner && COLLECTION_TYPE[collectionType] === 'verified' && isActive === 0
-  );
+  return (data.owner === ethers.utils.getAddress(onChainData));
+};
+
+const checkBlockchainCreator = async (data) => {
+  const RPC = 'http://localhost:8545';
+  const provider = new ethers.providers.JsonRpcProvider(RPC);
+  const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, provider);
+  const onChainData = await contract.getNftArtist(Number(data.tokenId));
+
+  return (data.owner === ethers.utils.getAddress(onChainData));
 };
 
 export default async function handler(req, res) {
@@ -37,30 +40,26 @@ export default async function handler(req, res) {
   if (!session) return res.status(401).json({ 'error': 'not authenticated' });
 
   // @todo This can only be run locally at the moment. Once deployed on testnet/mainnet, this needs to run
-  if (!(await checkBlockchain(data))) return res.status(400).json({ 'error': 'record not found on blockchain' });
+  if (!(await checkBlockchainOwner(data))) return res.status(400).json({ 'error': 'record not found on blockchain' });
+  if (ethers.utils.getAddress(data.contractAddress) === process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS) {
+    if (!(await checkBlockchainCreator(data))) return res.status(400).json({ 'error': 'record not found on blockchain' });
+  }
 
   // ensure if id already exists, we don't overwrite the record
   const payload = {
-    TableName: "collection",
+    TableName: "asset",
     Item: {
-      'id': data.id,
-      'contractAddress': data.contractAddress,
-      'name': data.name,
-      'description': data.description,
-      'totalSupply': data.totalSupply,
-      'reflection': data.reflection,
-      'commission': data.commission,
-      'incentive': 0,
-      'owner': data.owner,
-      'collectionType': 'verified',
-      'ownerIncentiveAccess': data.ownerIncentiveAccess,
-      'category': data.category,
-      'image': data.image,
-      'active': 0
+      'contractAddress': ethers.utils.getAddress(data.contractAddress),
+      'tokenId': Number(data.tokenId),
+      'collectionId': Number(data.collectionId),
+      'commission': Number(data.commission),
+      'creator': ethers.utils.getAddress(data.creator),
+      'owner': ethers.utils.getAddress(data.owner),
+      'config': data.config
     },
-    ExpressionAttributeNames: { '#id': 'id' },
-    ExpressionAttributeValues: { ':id': data.id },
-    ConditionExpression: "#id <> :id"
+    ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
+    ExpressionAttributeValues: { ':contractAddress': data.contractAddress, ':tokenId': data.tokenId },
+    ConditionExpression: "#contractAddress <> :contractAddress AND #tokenId <> :tokenId"
   };
   await DynamoDbQuery.item.put(payload);
 

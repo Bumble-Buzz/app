@@ -20,7 +20,9 @@ export default function Create() {
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
 
+  let dbTriggered = false;
   const [isLoading, setLoading] = useState(false);
+  const [blockchainResults, setBlockchainResults] = useState(null);
   const [isMinted, setMinted] = useState(false);
   const [attributeType, setAttributeType] = useState('');
   const [attributeValue, setAttributeValue] = useState('');
@@ -81,9 +83,34 @@ export default function Create() {
     image: null
   });
 
+  useEffect(() => {
+    (async () => {
+      if (!blockchainResults || dbTriggered) return;
+
+      try {
+        const payload = {
+          'contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS,
+          'tokenId': Number(blockchainResults.tokenId),
+          'collectionId': Number(process.env.NEXT_PUBLIC_LOCAL_COLLECTION_ID),
+          'commission': Number(state.commission),
+          'creator': blockchainResults.owner,
+          'owner': blockchainResults.owner,
+          'config': blockchainResults.config
+        };
+        await API.asset.create(payload);
+
+        dispatch({ type: 'clear' });
+        setMinted(true);
+        setLoading(false);
+        setBlockchainResults(null);
+      } catch (e) {
+        Toast.error(e.message);
+        setLoading(false);
+      }
+    })();
+  }, [blockchainResults]);
 
   const createNft = async (e) => {
-    console.log('start - createNft');
     e.preventDefault();
 
     const signer = await WalletUtil.getWalletSigner();
@@ -113,18 +140,13 @@ export default function Create() {
 
       const txReceipt = await WalletUtil.checkTransaction(val);
       if (txReceipt && txReceipt.blockNumber) {
-        contract.on("onNftMint", async (_owner, _tokenId) => {
-          console.log('found event: ', _owner, _tokenId.toNumber());
-          const balance = await contract.balanceOf(val.from);
-          console.log('balance', balance.toLocaleString(undefined,0));
+        contract.on("onNftMint", async (owner, tokenId) => {
+          console.log('found event: ', owner, tokenId.toNumber());
 
           // update db - sometimes called multiple times
-          if (session.user.id === _owner) {
-            await addAsset(_tokenId, state.commission, _owner, config);
-
-            dispatch({ type: 'clear' });
-            setMinted(true);
-            setLoading(false);
+          if (!dbTriggered && session.user.id === owner) {
+            dbTriggered = true;
+            setBlockchainResults({ owner, tokenId, config });
           }
         });
       }
@@ -132,7 +154,6 @@ export default function Create() {
       Toast.error(e.message);
       setLoading(false);
     }
-    console.log('end - createNft');
   };
 
   const uploadImage = async () => {
@@ -163,22 +184,6 @@ export default function Create() {
     }
 
     return cid;
-  };
-
-  const addAsset = async (_tokenId, _commission, _creator, _config) => {
-    const payload = {
-      TableName: "asset",
-      Item: {
-        'contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS,
-        'tokenId': _tokenId.toNumber(),
-        'collectionId': parseInt(process.env.NEXT_PUBLIC_LOCAL_COLLECTION_ID,10),
-        'commission': parseInt(_commission,10),
-        'creator': _creator,
-        'owner': _creator,
-        'config': _config
-      }
-    };
-    await API.db.item.put(payload);
   };
 
 
@@ -420,6 +425,7 @@ export default function Create() {
 
   return (
     <ContentWrapper>
+      <p onClick={() => {console.log('dbTriggered', dbTriggered)}}>See dbTriggered</p>
       {/* Page Content */}
       <div className="flex flex-col p-2 w-full">
 

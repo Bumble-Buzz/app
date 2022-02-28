@@ -75,21 +75,21 @@ export default function RequestCollection() {
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
 
+  let dbTriggered = false;
   const [isLoading, setLoading] = useState(false);
   const [blockchainResults, setBlockchainResults] = useState(null);
   const [isCollectionCreated, setCollectionCreated] = useState(false);
 
   useEffect(() => {
     (async () => {
-      if (!blockchainResults) return;
+      if (!blockchainResults || dbTriggered) return;
 
       try {
         // upload image to ipfs
         const imageCid = await uploadImage();
 
-        const tempId = blockchainResults.id;
         const payload = {
-          'id': tempId,
+          'id': blockchainResults.id,
           'contractAddress': state.address,
           'name': state.name,
           'description': state.description,
@@ -99,7 +99,7 @@ export default function RequestCollection() {
           'owner': AuthContext.state.account,
           'ownerIncentiveAccess': state.incentive,
           'category': state.category,
-          'image': imageCid,
+          'image': `ipfs://${imageCid}`,
         };
         await API.collection.create(payload);
 
@@ -146,7 +146,8 @@ export default function RequestCollection() {
       if (txReceipt && txReceipt.blockNumber) {
         contract.on("onCollectionCreate", async (owner, contractAddress, collectionType, id) => {
           console.log('found event: ', owner, contractAddress, collectionType, id.toNumber());
-          if (session.user.id === owner && state.address === ethers.utils.getAddress(contractAddress)) {
+          if (!dbTriggered && session.user.id === owner && state.address === ethers.utils.getAddress(contractAddress)) {
+            dbTriggered = true;
             setBlockchainResults({ owner, contractAddress, collectionType, id: id.toNumber() });
           }
         });
