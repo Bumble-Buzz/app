@@ -106,7 +106,11 @@ export default function Collections({ initialData }) {
               image={asset.image}
               body={(<>
                 <div className="flex flex-nowrap flex-col gap-2">
-                  <div className="grow w-full font-bold truncate">{asset.name}</div>
+                  {asset.collectionType === 'local' || asset.collectionType === 'unverified' ?
+                    (<div className="grow w-full font-bold truncate">{asset.name} - {asset.collectionType}</div>)
+                    :
+                    (<div className="grow w-full font-bold truncate">{asset.name}</div>)
+                  }
                   <div className="grow w-full -mt-2 truncate">
                     <p>
                       by <Link href={`/profile/${asset.owner}`} passHref={true}><a className='text-blue-500'>
