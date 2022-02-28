@@ -74,7 +74,7 @@ export default function Navbar() {
       case 7:
         return {
           label: (Lexicon.trade.create),
-          link: '/create',
+          link: '/asset/create',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };

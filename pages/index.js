@@ -31,7 +31,7 @@ export default function Home() {
                   <button className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Sell</button>
                 </div>
                 <div>
-                  <button onClick={() => {ROUTER.push('/create')}} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Create</button>
+                  <button onClick={() => {ROUTER.push('/asset/create')}} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Create</button>
                 </div>
               </div>
             </div>

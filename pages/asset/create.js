@@ -3,19 +3,19 @@ import Image from 'next/image';
 import { useSession, getSession } from 'next-auth/react';
 import { ethers } from 'ethers';
 import FormData from 'form-data';
-import WalletUtil from '../components/wallet/WalletUtil';
+import WalletUtil from '../../components/wallet/WalletUtil';
 import { useRouter } from 'next/router';
-import { useAuth } from '../contexts/AuthContext';
-import API from '../components/Api';
-import Toast from '../components/Toast';
-import NoImageAvailable from '../public/no-image-available.png';
-import Unauthenticated from '../components/Unauthenticated';
+import { useAuth } from '../../contexts/AuthContext';
+import API from '../../components/Api';
+import Toast from '../../components/Toast';
+import NoImageAvailable from '../../public/no-image-available.png';
+import Unauthenticated from '../../components/Unauthenticated';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
-import ContentWrapper from '../components/wrappers/ContentWrapper';
-import ButtonWrapper from '../components/wrappers/ButtonWrapper';
-import Lexicon from '../lexicon/create';
+import ContentWrapper from '../../components/wrappers/ContentWrapper';
+import ButtonWrapper from '../../components/wrappers/ButtonWrapper';
+import Lexicon from '../../lexicon/create';
 
-import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
+import AvaxTradeNftAbi from '../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
 export default function Create() {
