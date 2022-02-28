@@ -51,49 +51,6 @@ const usersDb = async () => {
   console.log('Created:', results.data);
 };
 
-const pendingCollection = async () => {
-  const payload = {
-    TableName: "pending-collection",
-    AttributeDefinitions: [
-      { AttributeName: "contractAddress", AttributeType: "S" },
-      { AttributeName: "status", AttributeType: "S" },
-      { AttributeName: "category", AttributeType: "S" },
-      { AttributeName: "owner", AttributeType: "S" }
-    ],
-    KeySchema: [
-      { AttributeName: "contractAddress", KeyType: "HASH" },
-      { AttributeName: "status", KeyType: "RANGE" }
-    ],
-    LocalSecondaryIndexes: [
-      {
-        IndexName: "category-lsi",
-        KeySchema: [
-          { AttributeName: "contractAddress", KeyType: "HASH" },
-          { AttributeName: "category", KeyType: "RANGE" }
-        ],
-        Projection: {
-          NonKeyAttributes: [],
-          ProjectionType: "ALL"
-        }
-      },
-      {
-        IndexName: "owner-lsi",
-        KeySchema: [
-          { AttributeName: "contractAddress", KeyType: "HASH" },
-          { AttributeName: "owner", KeyType: "RANGE" }
-        ],
-        Projection: {
-          NonKeyAttributes: [],
-          ProjectionType: "ALL"
-        }
-      }
-    ],
-    BillingMode: "PAY_PER_REQUEST",
-  };
-  const results = await API.db.table.create(payload);
-  console.log('Created:', results.data);
-};
-
 const collection = async () => {
   const payload = {
     TableName: "collection",
@@ -218,7 +175,6 @@ const initTableSetup = async () => {
 
   // await contractsDb();
   await usersDb();
-  await pendingCollection();
   await collection();
   await asset();
   await sales();

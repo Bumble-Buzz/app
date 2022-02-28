@@ -190,7 +190,7 @@ export default function RequestCollection() {
       <div className="flex flex-col p-2 w-full">
 
         <div className="p-2 flex flex-col">
-          <h2 className="text-3xl font-semibold text-gray-800">Request <span className="text-indigo-600">Collection</span></h2>
+          <h2 className="text-3xl font-semibold text-gray-800">Create <span className="text-indigo-600">Collection</span></h2>
         </div>
 
         {isCollectionCreated ?
@@ -422,7 +422,7 @@ export default function RequestCollection() {
                       <button
                         type="submit"
                         className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                      >Add Collection</button>
+                      >Create</button>
                     }
                   </div>
                 </div>
