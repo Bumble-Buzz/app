@@ -13,6 +13,7 @@ import ButtonWrapper from '../../../components/wrappers/ButtonWrapper';
 import Unauthenticated from '../../../components/Unauthenticated';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 import ContentWrapper from '../../../components/wrappers/ContentWrapper';
+import HeadlessSwitch from '../../../components/HeadlessSwitch';
 import Lexicon from '../../../lexicon/create';
 
 import AvaxTradeAbi from '../../../artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
@@ -29,6 +30,11 @@ const reducer = (state, action) => {
     case 'description':
       state.description = action.payload.description;
       return state
+    case 'dbOnly':
+      newState = JSON.parse(JSON.stringify(state));
+      newState.image = state.image;
+      newState.dbOnly = !newState.dbOnly;
+      return newState
     case 'image':
       newState = JSON.parse(JSON.stringify(state));
       newState.image = action.payload.value;
@@ -85,6 +91,7 @@ export default function Unverified() {
   const [state, dispatch] = useReducer(reducer, {
     name: '',
     description: '',
+    dbOnly: false,
     image: null
   });
 
@@ -92,23 +99,29 @@ export default function Unverified() {
   const addCollection = async (e) => {
     e.preventDefault();
 
-    const signer = await WalletUtil.getWalletSigner();
-    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
     try {
       setLoading(true);
 
-      // add collection in blockchain
-      const val = await contract.createUnvariviedCollection(state.name);
-
-      const txReceipt = await WalletUtil.checkTransaction(val);
-      if (txReceipt && txReceipt.blockNumber) {
-        contract.on("onCollectionCreate", async (owner, contractAddress, collectionType, id) => {
-          console.log('found event: ', owner, contractAddress, collectionType, id.toNumber());
-          if (!dbTriggered && session.user.id === owner && EMPTY_ADDRESS === ethers.utils.getAddress(contractAddress)) {
-            dbTriggered = true;
-            setBlockchainResults({ owner, contractAddress, collectionType, id });
-          }
+      if (state.dbOnly) {
+        setBlockchainResults({
+          owner: AuthContext.state.account, EMPTY_ADDRESS, collectionType: 'unverified', id: process.env.NEXT_PUBLIC_UNVERIFIED_COLLECTION_ID
         });
+      } else {
+        const signer = await WalletUtil.getWalletSigner();
+        const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
+        // add collection in blockchain
+        const val = await contract.createUnvariviedCollection(state.name);
+
+        const txReceipt = await WalletUtil.checkTransaction(val);
+        if (txReceipt && txReceipt.blockNumber) {
+          contract.on("onCollectionCreate", async (owner, contractAddress, collectionType, id) => {
+            console.log('found event: ', owner, contractAddress, collectionType, id.toNumber());
+            if (!dbTriggered && session.user.id === owner && EMPTY_ADDRESS === ethers.utils.getAddress(contractAddress)) {
+              dbTriggered = true;
+              setBlockchainResults({ owner, contractAddress, collectionType, id });
+            }
+          });
+        }
       }
     } catch (e) {
       console.error('e', e);
@@ -194,6 +207,16 @@ export default function Unverified() {
                           className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
                           onChange={(e) => dispatch({ type: 'name', payload: { name: e.target.value } })}
                         />
+                      </div>
+
+                      <div className="my-2">
+                        <HeadlessSwitch
+                          classes=""
+                          enabled={state.dbOnly}
+                          onChange={() => dispatch({ type: 'dbOnly' })}
+                        >
+                          DB push only
+                        </HeadlessSwitch>
                       </div>
                     </div>
 
