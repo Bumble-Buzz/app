@@ -101,7 +101,7 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
         {filteredAssets && filteredAssets.length > 0 && (
           <div className={`flex flex-col overflow-x-scroll overflow-y-scroll h-96 ${classes}`}>
             <div className='w-max'>
-              <div className='grid grid-cols-11'>
+              <div className='grid grid-cols-12'>
                 <div className="bg-blue-100 border text-left px-1 py-1 sm:sticky sm:left-0">ID</div>
                 <div className="bg-blue-100 border text-left px-1 py-1">Name</div>
                 <div className="bg-blue-100 border text-left px-1 py-1">Owner</div>
@@ -112,11 +112,12 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
                 <div className="bg-blue-100 border text-left px-1 py-1">Owner Incentive Access</div>
                 <div className="bg-blue-100 border text-left px-1 py-1">Category</div>
                 <div className="bg-blue-100 border text-left px-1 py-1">Image</div>
+                <div className="bg-blue-100 border text-left px-1 py-1">Collection Type</div>
                 <div className="bg-blue-100 border text-left px-1 py-1">Action</div>
               </div>
               {filteredAssets.map((asset, index) => {
                 return (
-                  <div key={index} ref={index === filteredAssets.length - 1 ? observe : null} className='grid grid-cols-11 odd:bg-zinc-100'>
+                  <div key={index} ref={index === filteredAssets.length - 1 ? observe : null} className='grid grid-cols-12 odd:bg-zinc-100'>
                     <div className="bg-blue-50 border px-1 py-1 sm:sticky sm:left-0">{asset.id}</div>
                     <div className="border px-1 py-1">{asset.name}</div>
                     <div className="border px-1 py-1">{asset.owner}</div>
@@ -127,6 +128,7 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
                     <div className="border px-1 py-1">{asset.ownerIncentiveAccess.toString()}</div>
                     <div className="border px-1 py-1">{asset.category}</div>
                     <div className="border px-1 py-1">{asset.image}</div>
+                    <div className="border px-1 py-1">{asset.collectionType}</div>
                     <div className="border px-1 py-1">
                       {asset.active > 0 ?
                         <ButtonWrapper classes='px-1 py-1' onClick={() => {action(asset); removeAsset(asset);}}>Deactivate</ButtonWrapper>

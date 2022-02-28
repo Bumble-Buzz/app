@@ -76,7 +76,7 @@ export default function Collections({ initialData }) {
       <div className='py-2 flex flex-nowrap gap-2 justify-start items-center'>
         <ButtonWrapper
           classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0"
-          onClick={() => ROUTER.push('/collection/create')}
+          onClick={() => ROUTER.push('/collection/create/verified')}
         >
           Create new collection
           <ArrowRightIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />

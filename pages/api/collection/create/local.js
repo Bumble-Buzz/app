@@ -2,8 +2,8 @@ import Cors from 'cors';
 // const { ethers } = require("hardhat");
 import { ethers } from 'ethers';
 import { getSession } from "next-auth/react";
-import DynamoDbQuery from '../../../components/backend/db/DynamoDbQuery';
-import CollectionItemAbi from '../../../artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
+import DynamoDbQuery from '../../../../components/backend/db/DynamoDbQuery';
+import CollectionItemAbi from '../../../../artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
 
 
 const COLLECTION_TYPE = [ 'local', 'verified', 'unverified' ];
@@ -23,7 +23,7 @@ const checkBlockchain = async (collection) => {
   const isActive = Number(onChainData.active);
   return (
     collection.id === Number(onChainData.id) && collection.name === onChainData.name && collection.contractAddress === onChainData.contractAddress &&
-    collection.owner === onChainData.owner && COLLECTION_TYPE[collectionType] === 'verified' && isActive === 0
+    collection.owner === onChainData.owner && COLLECTION_TYPE[collectionType] === 'local' && isActive === 1
   );
 };
 
@@ -35,6 +35,7 @@ export default async function handler(req, res) {
   // check parameters
   if (!data) return res.status(400).json({ 'error': 'invalid request parameters' });
   if (!session) return res.status(401).json({ 'error': 'not authenticated' });
+  if (session.user.id !== process.env.NEXT_PUBLIC_ADMIN_WALLET_ID) return res.status(401).json({ 'error': 'not authenticated' });
 
   // @todo This can only be run locally at the moment. Once deployed on testnet/mainnet, this needs to run
   if (!(await checkBlockchain(data))) return res.status(400).json({ 'error': 'record not found on blockchain' });
@@ -43,20 +44,20 @@ export default async function handler(req, res) {
   const payload = {
     TableName: "collection",
     Item: {
-      'id': data.id,
-      'contractAddress': data.contractAddress,
+      'id': Number(data.id),
+      'contractAddress': ethers.utils.getAddress(data.contractAddress),
       'name': data.name,
       'description': data.description,
-      'totalSupply': data.totalSupply,
-      'reflection': data.reflection,
-      'commission': data.commission,
+      'totalSupply': 0,
+      'reflection': 0,
+      'commission': 0,
       'incentive': 0,
       'owner': data.owner,
-      'collectionType': 'verified',
-      'ownerIncentiveAccess': data.ownerIncentiveAccess,
-      'category': data.category,
+      'collectionType': 'local',
+      'ownerIncentiveAccess': false,
+      'category': 'none',
       'image': data.image,
-      'active': 0
+      'active': 1
     },
     ExpressionAttributeNames: { '#id': 'id' },
     ExpressionAttributeValues: { ':id': data.id },
