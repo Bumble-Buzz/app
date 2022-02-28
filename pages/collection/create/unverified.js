@@ -29,9 +29,6 @@ const reducer = (state, action) => {
     case 'description':
       state.description = action.payload.description;
       return state
-    case 'address':
-      state.address = ethers.utils.getAddress(action.payload.address);
-      return state
     case 'image':
       newState = JSON.parse(JSON.stringify(state));
       newState.image = action.payload.value;

@@ -1,5 +1,4 @@
 import { useEffect, useState, useReducer } from 'react';
-import _ from 'lodash';
 import Image from 'next/image';
 import { useSession, getSession } from 'next-auth/react';
 import { ethers } from 'ethers';
@@ -42,7 +41,7 @@ const reducer = (state, action) => {
       state.reflection = action.payload.reflection;
       return state
     case 'address':
-      state.address = ethers.utils.getAddress(action.payload.address);
+      state.address = action.payload.address;
       return state
     case 'incentive':
       newState = JSON.parse(JSON.stringify(state));
@@ -90,7 +89,7 @@ export default function Verified() {
 
         const payload = {
           'id': Number(blockchainResults.id),
-          'contractAddress': state.address,
+          'contractAddress': ethers.utils.getAddress(state.address),
           'name': state.name,
           'description': state.description,
           'totalSupply': Number(state.supply),
@@ -145,7 +144,7 @@ export default function Verified() {
       if (txReceipt && txReceipt.blockNumber) {
         contract.on("onCollectionCreate", async (owner, contractAddress, collectionType, id) => {
           console.log('found event: ', owner, contractAddress, collectionType, id.toNumber());
-          if (!dbTriggered && session.user.id === owner && state.address === ethers.utils.getAddress(contractAddress)) {
+          if (!dbTriggered && session.user.id === owner && ethers.utils.getAddress(state.address) === ethers.utils.getAddress(contractAddress)) {
             dbTriggered = true;
             setBlockchainResults({ owner, contractAddress, collectionType, id });
           }

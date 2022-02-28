@@ -4,6 +4,7 @@ import { useSession, getSession } from 'next-auth/react';
 import { ethers } from 'ethers';
 import FormData from 'form-data';
 import WalletUtil from '../components/wallet/WalletUtil';
+import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
 import API from '../components/Api';
 import Toast from '../components/Toast';
@@ -11,12 +12,14 @@ import NoImageAvailable from '../public/no-image-available.png';
 import Unauthenticated from '../components/Unauthenticated';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 import ContentWrapper from '../components/wrappers/ContentWrapper';
+import ButtonWrapper from '../components/wrappers/ButtonWrapper';
 import Lexicon from '../lexicon/create';
 
 import AvaxTradeNftAbi from '../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
 export default function Create() {
+  const ROUTER = useRouter();
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
 
@@ -44,6 +47,7 @@ export default function Create() {
         return state
       case 'attributes':
         newState = JSON.parse(JSON.stringify(state));
+        newState.image = state.image;
         if (attributeType.length > 0) {
           newState.attributes.push({ 'trait_type': attributeType, 'value': attributeValue });
         }
@@ -52,6 +56,7 @@ export default function Create() {
         return newState
       case 'attributesDelete':
         newState = JSON.parse(JSON.stringify(state));
+        newState.image = state.image;
         newState.attributes = newState.attributes.filter(
           attribute => attribute['trait_type'] !== action.payload.value['trait_type']
         );
@@ -425,7 +430,6 @@ export default function Create() {
 
   return (
     <ContentWrapper>
-      <p onClick={() => {console.log('dbTriggered', dbTriggered)}}>See dbTriggered</p>
       {/* Page Content */}
       <div className="flex flex-col p-2 w-full">
 
@@ -445,6 +449,13 @@ export default function Create() {
                 >
                   {Lexicon.createAnotherNft}
                 </button>
+                <br /><br />
+                <ButtonWrapper
+                  classes=""
+                  onClick={() => ROUTER.back()}
+                >
+                  Return to previous page
+                </ButtonWrapper>
               </div>
             </div>
           </div>
@@ -453,138 +464,128 @@ export default function Create() {
             <form onSubmit={(e) => {createNft(e)}} method="POST" className="">
               <div className="shadow overflow-hidden rounded-md">
 
-                <div className="flex flex-col md:flex-row items-center px-4 py-4 bg-white">
+                <div className="flex flex-col items-center px-4 py-4 gap-2 bg-white">
 
-                  <div className="w-full">
-                    <div className="my-2">
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700">{Lexicon.form.name}</label>
-                      <input
-                        type="text"
-                        name="name"
-                        id="name"
-                        autoComplete="off"
-                        required
-                        className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                        onChange={(e) => dispatch({ type: 'name', payload: { name: e.target.value } })}
-                      />
-                    </div>
-
-                    <div className="my-2">
-                      <label htmlFor="description" className="block text-sm font-medium text-gray-700">{Lexicon.form.description.text}</label>
-                        <textarea
-                          id="description"
-                          name="description"
-                          rows={3}
-                          placeholder=""
-                          defaultValue={''}
+                  <div className="flex flex-col md:flex-row">
+                    <div className="w-full">
+                      <div className="my-2">
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">{Lexicon.form.name}</label>
+                        <input
+                          type="text"
+                          name="name"
+                          id="name"
+                          autoComplete="off"
+                          required
                           className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                          onChange={(e) => dispatch({ type: 'description', payload: { description: e.target.value } })}
+                          onChange={(e) => dispatch({ type: 'name', payload: { name: e.target.value } })}
                         />
-                      <p className="mt-2 text-sm text-gray-500">{Lexicon.form.description.text2}</p>
-                    </div>
-
-                    {/* <div className="my-2">
-                      <label htmlFor="category" className="block text-sm font-medium text-gray-700">{Lexicon.form.category.text}</label>
-                      <select
-                        id="category"
-                        name="category"
-                        autoComplete="category-name"
-                        required
-                        className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                        onChange={(e) => dispatch({ type: 'category', payload: { category: e.target.value } })}
-                      >
-                        <option>{Lexicon.form.category.art}</option>
-                        <option>{Lexicon.form.category.games}</option>
-                        <option>{Lexicon.form.category.meme}</option>
-                        <option>{Lexicon.form.category.photography}</option>
-                        <option>{Lexicon.form.category.sports}</option>
-                        <option>{Lexicon.form.category.nsfw}</option>
-                        <option>{Lexicon.form.category.other}</option>
-                      </select>
-                    </div> */}
-
-                    <div className="my-2">
-                      <label htmlFor="commission" className="block text-sm font-medium text-gray-700">{Lexicon.form.commission}</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="99"
-                        name="commission"
-                        id="commission"
-                        required
-                        className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                        onChange={(e) => dispatch({ type: 'commission', payload: { commission: e.target.value } })}
-                      />
-                    </div>
-
-                    <div className="my-2">
-                      <label className="block text-sm font-medium text-gray-700">{Lexicon.form.attributes.text}</label>
-                      <div className="flex flex-col xsm:flex-row flex-wrap xsm:flex-nowrap gap-2 xsm:items-end">
-                        <div>
-                          <label htmlFor="trait-type" className="block text-sm font-medium text-gray-500">{Lexicon.form.attributes.name}</label>
-                          <input
-                            type="text"
-                            name="trait-type"
-                            id="trait-type"
-                            autoComplete="off"
-                            value={attributeType}
-                            className="mt-1 w-44 xsm:w-full inline-block focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                            onChange={(e) => {setAttributeType(e.target.value)}}
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="trait-value" className="block text-sm font-medium text-gray-500">{Lexicon.form.attributes.value}</label>
-                          <input
-                            type="text"
-                            name="trait-value"
-                            id="trait-value"
-                            autoComplete="off"
-                            value={attributeValue}
-                            className="mt-1 w-44 xsm:w-full inline-block focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                            onChange={(e) => {setAttributeValue(e.target.value)}}
-                          />
-                        </div>
-                        <div>
-                          <label
-                            className="cursor-pointer inline-flex justify-center py-2 px-4 border border-transparent shadow-sm
-                              text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline focus:outline-0"
-                            onClick={() => dispatch({ type: 'attributes' })}
-                          >
-                            {Lexicon.form.attributes.add}
-                          </label>
-                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-2 justify-center items-center">
-                        {state.attributes && state.attributes.length > 0 && state.attributes.map((attribute, index) => {
-                          return (
-                            <div className="block m-2 p-2 rounded-lg shadow-lg bg-indigo-50 max-w-sm relative w-20 min-w-fit" key={index}>
-                              <span
-                                className="-mx-2 -mt-3 px-1.5 text-white bg-red-700 absolute right-0 rounded-full text-xs cursor-pointer"
-                                onClick={() => dispatch({ type: 'attributesDelete', payload: { value: attribute } })}
-                              >
-                                X
-                              </span>
-                              <p className="text-indigo-500 font-bold text-base text-center">
-                                {attribute['trait_type']}
-                              </p>
-                              <p className="text-gray-700 text-base text-center">
-                                {attribute['value']}
-                              </p>
-                            </div>
-                          )
-                        })}
+
+                      <div className="my-2">
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-700">{Lexicon.form.description.text}</label>
+                          <textarea
+                            id="description"
+                            name="description"
+                            rows={3}
+                            placeholder=""
+                            defaultValue={''}
+                            className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                            onChange={(e) => dispatch({ type: 'description', payload: { description: e.target.value } })}
+                          />
+                        <p className="mt-2 text-sm text-gray-500">{Lexicon.form.description.text2}</p>
+                      </div>
+                    </div>
+
+                    <div className="hidden md:block border-r border-gray-200 mx-4"></div>
+
+                    <div className="w-full">
+                      <div className="my-2">
+                        <label htmlFor="commission" className="block text-sm font-medium text-gray-700">{Lexicon.form.commission}</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="99"
+                          name="commission"
+                          id="commission"
+                          required
+                          className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                          onChange={(e) => dispatch({ type: 'commission', payload: { commission: e.target.value } })}
+                        />
+                      </div>
+
+                      <div className="my-2">
+                        <label className="block text-sm font-medium text-gray-700">{Lexicon.form.attributes.text}</label>
+                        <div className="flex flex-col xsm:flex-row flex-wrap xsm:flex-nowrap gap-2 xsm:items-end">
+                          <div>
+                            <label htmlFor="trait-type" className="block text-sm font-medium text-gray-500">{Lexicon.form.attributes.name}</label>
+                            <input
+                              type="text"
+                              name="trait-type"
+                              id="trait-type"
+                              autoComplete="off"
+                              value={attributeType}
+                              className="mt-1 w-44 xsm:w-full inline-block focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                              onChange={(e) => {setAttributeType(e.target.value)}}
+                            />
+                          </div>
+                          <div>
+                            <label htmlFor="trait-value" className="block text-sm font-medium text-gray-500">{Lexicon.form.attributes.value}</label>
+                            <input
+                              type="text"
+                              name="trait-value"
+                              id="trait-value"
+                              autoComplete="off"
+                              value={attributeValue}
+                              className="mt-1 w-44 xsm:w-full inline-block focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                              onChange={(e) => {setAttributeValue(e.target.value)}}
+                            />
+                          </div>
+                          <div>
+                            <label
+                              className="cursor-pointer inline-flex justify-center py-2 px-4 border border-transparent shadow-sm
+                                text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline focus:outline-0"
+                              onClick={() => dispatch({ type: 'attributes' })}
+                            >
+                              {Lexicon.form.attributes.add}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2 justify-center items-center">
+                          {state.attributes && state.attributes.length > 0 && state.attributes.map((attribute, index) => {
+                            return (
+                              <div className="block m-2 p-2 rounded-lg shadow-lg bg-indigo-50 max-w-sm relative w-20 min-w-fit" key={index}>
+                                <span
+                                  className="-mx-2 -mt-3 px-1.5 text-white bg-red-700 absolute right-0 rounded-full text-xs cursor-pointer"
+                                  onClick={() => dispatch({ type: 'attributesDelete', payload: { value: attribute } })}
+                                >
+                                  X
+                                </span>
+                                <p className="text-indigo-500 font-bold text-base text-center">
+                                  {attribute['trait_type']}
+                                </p>
+                                <p className="text-gray-700 text-base text-center">
+                                  {attribute['value']}
+                                </p>
+                              </div>
+                            )
+                          })}
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="hidden md:block border-r border-gray-200 mx-4"></div>
-
-                  <div className="flex flex-nowrap flex-col w-full max-w-lg">
-                    <div className="my-2 border">
+                  <div className="flex flex-nowrap flex-col">
+                    <div className='relative h-24 sm:h-30 md:h-40 border border-1'>
                       {state.image ?
-                          <Image className="" alt='nft image' src={URL.createObjectURL(state.image)} layout='responsive' width={6} height={4} />
-                        :
-                          <Image className="" alt='nft image' src={NoImageAvailable} layout='responsive' />
+                        <Image
+                          className="" alt='nft image' src={URL.createObjectURL(state.image)}
+                          placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="contain" sizes='50vw'
+                        />
+                      :
+                        <Image
+                          className="" alt='nft image' src={NoImageAvailable}
+                          placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw'
+                        />
                       }
                     </div>
                     <div className="my-2">
@@ -627,28 +628,38 @@ export default function Create() {
 
                 </div>
 
-                <div className="px-4 py-4 bg-gray-50 text-right">
-                  {isLoading ?
-                    <button
-                      disabled
-                      type="submit"
-                      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                <div className="flex flex-row items-center justify-between gap-2 px-4 py-4 bg-gray-50 text-right">
+                  <div>
+                    <ButtonWrapper
+                      classes=""
+                      onClick={() => ROUTER.back()}
                     >
-                      <DotsCircleHorizontalIcon className="animate-spin w-5 h-5 mr-2" aria-hidden="true" />
-                      {Lexicon.form.submit.processing}</button>
-                    :
-                    <button
-                      type="submit"
-                      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >{Lexicon.form.submit.createNft}</button>
-                  }
+                      Back
+                    </ButtonWrapper>
+                  </div>
+                  <div>
+                    {isLoading ?
+                      <button
+                        disabled
+                        type="submit"
+                        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >
+                        <DotsCircleHorizontalIcon className="animate-spin w-5 h-5 mr-2" aria-hidden="true" />
+                        {Lexicon.form.submit.processing}</button>
+                      :
+                      <button
+                        type="submit"
+                        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >{Lexicon.form.submit.createNft}</button>
+                    }
+                  </div>
                 </div>
 
               </div>
             </form>
           </div>
         }
-<div className="flex flex-row gap-2">
+{/* <div className="flex flex-row gap-2">
   <div>
     <p onClick={uploadImage}>Upload Image to IPFS</p>
     <p onClick={uploadConfig}>Upload config to IPFS</p>
@@ -672,7 +683,7 @@ export default function Create() {
     <p onClick={deleteDbItem}>Test deleteDbItem</p>
     <p onClick={deleteBatchDbItem}>Test deleteBatchDbItem</p>
   </div>
-</div>
+</div> */}
       </div>
     </ContentWrapper>
   )
