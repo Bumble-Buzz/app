@@ -103,6 +103,7 @@ export default function Collections({ initialData }) {
             <CollectionCard
               key={index}
               innerRef={index === filteredAssets.length - 1 ? observe : null}
+              link={`/collection/${asset.id}`}
               image={asset.image}
               body={(<>
                 <div className="flex flex-nowrap flex-col gap-2">

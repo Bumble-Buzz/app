@@ -1,11 +1,17 @@
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import IPFS from '../../utils/ipfs';
 
 
-export default function NftCard({children, innerRef, header, image, body, footer}) {
+export default function NftCard({children, innerRef, link, header, image, body, footer}) {
+  const ROUTER = useRouter();
 
   return (
-    <div className='w-full grow md:w-80 lg:w-96 max-w-md border rounded-lg overflow-hidden shadow-lg transform transition duration-500 hover:scale-105' ref={innerRef}>
+    <div
+      className='w-full grow md:w-80 lg:w-96 max-w-md border rounded-lg overflow-hidden shadow-lg transform transition duration-500 hover:scale-105 cursor-pointer'
+      ref={innerRef}
+      onClick={() => ROUTER.push(link)}
+    >
       {header && (<>
         <div className="pl-2 pr-1 flex flex-nowrap flex-row gap-2 text-left">
           {header}
