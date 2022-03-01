@@ -2,7 +2,6 @@ import { useEffect, useState, useReducer, useRef } from 'react'
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useSession, getSession } from 'next-auth/react';
-import { ethers } from 'ethers';
 import FormData from 'form-data';
 import { useAuth } from '../../contexts/AuthContext';
 import Unauthenticated from '../../components/Unauthenticated';
@@ -10,7 +9,6 @@ import PageError from '../../components/PageError';
 import API from '../../components/Api';
 import useSWR from 'swr';
 import ContentWrapper from '../../components/wrappers/ContentWrapper';
-import ButtonWrapper from '../../components/wrappers/ButtonWrapper';
 import ProfileFactory from '../../components/profile/ProfileFactory';
 import { ClipboardCopyIcon, UploadIcon } from '@heroicons/react/solid';
 import Toast from '../../components/Toast';
@@ -52,10 +50,14 @@ const reducer = (state, action) => {
 export default function Create() {
   const ROUTER = useRouter();
   const AuthContext = useAuth();
-  const [tab, setTab] = useState('general');
+  const [tab, setTab] = useState(ROUTER.query.tab || 'general');
   const [walletValidity, setWalletvalidity] = useState(false);
   const inputFile = useRef(null) 
   const { data: session, status: sessionStatus } = useSession();
+
+  useEffect(() => {
+    setTab(ROUTER.query.tab);
+  }, [ROUTER.query.tab]);
 
   // swr call to fetch initial data
   const {data: userData} = useSWR(API.swr.user.id(ROUTER.query.wallet), API.swr.fetcher, API.swr.options);
@@ -166,6 +168,16 @@ export default function Create() {
       throw({ message: 'Error uploading profile image to IPFS' });
     }
     return cid;
+  };
+
+  const updateTab = async (tab) => {
+    setTab(tab);
+    ROUTER.push({
+      pathname: ROUTER.query.wallet,
+      query: { tab: tab }
+    },
+    undefined, { shallow: true }
+    )
   };
 
 
@@ -291,33 +303,33 @@ export default function Create() {
               {tab === 'general' ?
                 (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('general')}>General</button>)
                 :
-                (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('general')}>General</button>)
+                (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => updateTab('general')}>General</button>)
               }
               {tab === 'wallet' ?
                 (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('wallet')}>Wallet</button>)
                 :
-                (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('wallet')}>Wallet</button>)
+                  (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => updateTab('wallet')}>Wallet</button>)
               }
               {tab === 'collections' ?
                 (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('collections')}>Collections</button>)
                 :
-                (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('collections')}>Collections</button>)
+                (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => updateTab('collections')}>Collections</button>)
               }
               {tab === 'created' ?
                 (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('created')}>Created</button>)
                 :
-                (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('created')}>Created</button>)
+                (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => updateTab('created')}>Created</button>)
               }
               {tab === 'listings' ?
                 (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('listings')}>Listings</button>)
                 :
-                (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('listings')}>Listings</button>)
+                (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => updateTab('listings')}>Listings</button>)
               }
               {isUserAdmin() && (
                 tab === 'admin' ?
                   (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('admin')}>Admin</button>)
                   :
-                  (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('admin')}>Admin</button>)
+                  (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => updateTab('admin')}>Admin</button>)
               )}
           </div>
 

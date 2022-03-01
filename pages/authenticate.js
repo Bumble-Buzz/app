@@ -284,7 +284,7 @@ export default function SignIn() {
       userInfo.bio = data.bio;
       userInfo.picture = data.picture;
       userInfo.timestamp = data.timestamp;
-      console.log('userInfo', userInfo);
+      // console.log('userInfo', userInfo);
     }
 
     const domain = {
