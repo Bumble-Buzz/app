@@ -1,9 +1,6 @@
-import { useEffect, useState } from 'react';
-import useInView from 'react-cool-inview';
-import useSWRInfinite from 'swr/infinite';
+import { useState } from 'react';
 import API from '../../../Api';
 import Toast from '../../../Toast';
-import ButtonWrapper from '../../../wrappers/ButtonWrapper';
 import ActiveInactive from './ActiveInactive';
 
 export default function Specific({ }) {
@@ -26,15 +23,6 @@ export default function Specific({ }) {
   };
 
   const activeApi = () => '';
-  const action = async (asset) => {
-    if (asset.active) {
-      console.log('collection is active, deactivate it?');
-      await API.collection.deactivate(asset.id);
-    } else {
-      console.log('collection is not active,activate it?');
-      await API.collection.activate(asset.id);
-    }
-  };
 
 
   return (
@@ -87,7 +75,7 @@ export default function Specific({ }) {
         </div>
       </form>
 
-      <ActiveInactive initialData={assets} isSearch={false} classes='h-fit' api={activeApi} action={action} />
+      <ActiveInactive initialData={assets} isSearch={false} classes='h-auto' api={activeApi} />
 
     </>
   )

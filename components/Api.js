@@ -62,8 +62,10 @@ const apis = {
   },
   collection: {
     id: id => API.get(`collection/${id}`),
-    activate: id => API.post(`collection/${id}/activate`),
-    deactivate: id => API.post(`collection/${id}/deactivate`),
+    active: {
+      activate: payload => API.post(`collection/active/activate`, payload),
+      deactivate: payload => API.post(`collection/active/deactivate`, payload)
+    },
     create: {
       local: payload => API.post(`collection/create/local`, payload),
       verified: payload => API.post(`collection/create/verified`, payload),

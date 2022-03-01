@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react';
+import { ethers } from 'ethers';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
 import API from '../../../Api';
+import Toast from '../../../Toast';
+import WalletUtil from '../../..//wallet/WalletUtil';
 import ButtonWrapper from '../../../wrappers/ButtonWrapper';
 import InputWrapper from '../../../wrappers/InputWrapper';
 
-export default function ActiveInactive({ initialData, title, isSearch = true, classes, api, action }) {
+import CollectionItemAbi from '../../../../artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
+
+
+export default function ActiveInactive({ initialData, title, isSearch = true, classes, api }) {
   const [assets, setAssets] = useState([]);
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [search, setSearch] = useState('');
@@ -66,13 +72,85 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
     }
   };
 
-  const removeAsset = (asset) => {
-    const id = asset.id;
+  let dbTriggered = false;
+  const [blockchainResults, setBlockchainResults] = useState(null);
+
+  const removeAsset = (id) => {
     const newAssets = assets.filter((asset) => asset.id.toString().toLowerCase().indexOf(id.toString().toLowerCase()) < 0);
     setAssets(newAssets);
     const newFilteredAssets = assets.filter((asset) => asset.id.toString().toLowerCase().indexOf(id.toString().toLowerCase()) < 0);
     setFilteredAssets(newFilteredAssets);
   };
+
+  const deactivate = async (_asset, _contract) => {
+    console.log('deactivate');
+    // deactivate collection in blockchain
+    const val = await _contract.deactivateCollection(_asset.id);
+
+    const txReceipt = await WalletUtil.checkTransaction(val);
+    if (txReceipt && txReceipt.blockNumber) {
+      _contract.on("onActivation", async (id, active) => {
+        if (!dbTriggered && _asset.id === Number(id) && !active) {
+          dbTriggered = true;
+          setBlockchainResults({ asset: _asset });
+        }
+      });
+    }
+  };
+
+  const activate = async (_asset, _contract) => {
+    console.log('activate');
+    // activate collection in blockchain
+    const val = await _contract.activateCollection(_asset.id);
+
+    const txReceipt = await WalletUtil.checkTransaction(val);
+    if (txReceipt && txReceipt.blockNumber) {
+      _contract.on("onActivation", async (id, active) => {
+        if (!dbTriggered && _asset.id === Number(id) && active) {
+          dbTriggered = true;
+          setBlockchainResults({ asset: _asset });
+        }
+      });
+    }
+  };
+
+  const action = async (_asset, _activate) => {
+    try {
+      const signer = await WalletUtil.getWalletSigner();
+      const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, signer);
+
+      if (_activate) {
+        activate(_asset, contract);
+      } else {
+        deactivate(_asset, contract);
+      }
+    } catch (e) {
+      console.error('e', e);
+      Toast.error(e.message);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      if (!blockchainResults || dbTriggered) return;
+
+      try {
+        const asset = blockchainResults.asset;
+        const payload = { 'id': Number(asset.id) };
+        if (asset.active > 0) {
+          await API.collection.active.deactivate(payload);
+        } else {
+          await API.collection.active.activate(payload);
+        }
+        removeAsset(Number(asset.id));
+
+        setBlockchainResults(null);
+        dbTriggered = false;
+      } catch (e) {
+        Toast.error(e.message);
+      }
+    })();
+  }, [blockchainResults]);
 
 
   return (
@@ -131,9 +209,9 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
                     <div className="border px-1 py-1">{asset.collectionType}</div>
                     <div className="border px-1 py-1">
                       {asset.active > 0 ?
-                        <ButtonWrapper classes='px-1 py-1' onClick={() => {action(asset); removeAsset(asset);}}>Deactivate</ButtonWrapper>
+                        <ButtonWrapper classes='px-1 py-1' onClick={async () => await action(asset,false)}>Deactivate</ButtonWrapper>
                         :
-                        <ButtonWrapper classes='px-1 py-1' onClick={() => {action(asset); removeAsset(asset);}}>Activate</ButtonWrapper>
+                        <ButtonWrapper classes='px-1 py-1' onClick={async () => await action(asset,true)}>Activate</ButtonWrapper>
                       }
                     </div>
                   </div>

@@ -38,6 +38,9 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
   mapping(uint256 => uint256[]) private COLLECTION_ITEMS; // mapping collection id to list of item ids
   mapping(uint256 => bytes32) private COLLECTION_ROLES; // mapping collection id to collection role id
 
+  // events
+  event onActivation(uint256 indexed id, bool indexed active);
+
 
   /**
     * @dev Check if collection item exists
@@ -235,14 +238,16 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
     * @dev Activate collection
   */
   function activateCollection(uint256 _collectionId) external onlyRole(ADMIN_ROLE) {
-    return _activateCollection(_collectionId);
+    _activateCollection(_collectionId);
+    emit onActivation(_collectionId, _getCollectionActive(_collectionId));
   }
 
   /**
     * @dev Deactivate collection
   */
   function deactivateCollection(uint256 _collectionId) external onlyRole(ADMIN_ROLE) {
-    return _deactivateCollection(_collectionId);
+    _deactivateCollection(_collectionId);
+    emit onActivation(_collectionId, _getCollectionActive(_collectionId));
   }
 
   /**

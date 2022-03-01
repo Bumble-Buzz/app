@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
-import API from '../../../Api';
 import ActiveInactive from './ActiveInactive';
 import Specific from './Specific';
+import API from '../../../Api';
 import ButtonWrapper from '../../../wrappers/ButtonWrapper';
 import { ArrowRightIcon } from '@heroicons/react/solid';
 
@@ -10,16 +10,7 @@ export default function Collections({ activeCollections, inactiveCollections }) 
   const ROUTER = useRouter();
 
   const activeApi = (id, limit) => API.swr.collection.active(id, limit);
-  const deactivate = async (asset) => {
-    console.log('deactivate');
-    await API.collection.deactivate(asset.id);
-  };
-
   const inactiveApi = (id, limit) => API.swr.collection.inactive(id, limit);
-  const activate = async (asset) => {
-    console.log('activate');
-    await API.collection.activate(asset.id);
-  };
 
   return (
     <>
@@ -48,8 +39,8 @@ export default function Collections({ activeCollections, inactiveCollections }) 
       </div>
       <div className='py-4 flex flex-col gap-2'>
         <Specific />
-        <ActiveInactive initialData={inactiveCollections} title='Inactive collections' api={inactiveApi} action={activate} />
-        <ActiveInactive initialData={activeCollections} title='Active collections' api={activeApi} action={deactivate} />
+        <ActiveInactive initialData={inactiveCollections} title='Inactive collections' api={inactiveApi} />
+        <ActiveInactive initialData={activeCollections} title='Active collections' api={activeApi} />
       </div>
     </>
   )
