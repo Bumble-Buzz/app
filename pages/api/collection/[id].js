@@ -25,6 +25,18 @@ export default async function handler(req, res) {
   let results = await DynamoDbQuery.item.query(payload);
   const {Items, LastEvaluatedKey, Count, ScannedCount} = results;
 
+  if (Items.length > 0) {
+    payload = {
+      TableName: "users",
+      Key: {
+        'walletId': Items[0].owner
+      }
+    };
+    results = await DynamoDbQuery.item.get(payload);
+    const { Item } = results;
+    if (Item) Items[0].ownerName = Item.name;
+  }
+
   res.status(200).json({ Items, LastEvaluatedKey, Count, ScannedCount });
 };
 

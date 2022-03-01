@@ -114,7 +114,7 @@ export default function Collections({ initialData }) {
                   }
                   <div className="grow w-full -mt-2 truncate">
                     <p>
-                      by <Link href={`/profile/${asset.owner}`} passHref={true}><a className='text-blue-500'>
+                      created by <Link href={`/profile/${asset.owner}`} passHref={true}><a className='text-blue-500'>
                         {asset.ownerName &&  asset.ownerName }
                         {!asset.ownerName &&  asset.owner }
                       </a></Link>

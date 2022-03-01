@@ -14,13 +14,13 @@ function Footer() {
           <div className='flex flex-row gap-2 justify-center'>
             <a href="https://google.ca/" target='blank' className='relative h-10 w-10 cursor-pointer'>
               <Image
-                src={'/socials/discord.svg'} placeholder='blur' blurDataURL='/avocado.jpg'
+                src={'/socials/discord-solid.svg'} placeholder='blur' blurDataURL='/avocado.jpg'
                 alt='discord' layout="fill" objectFit="contain" sizes='50vw'
               />
             </a>
             <a href="https://google.ca/" target='blank' className='relative h-10 w-10 cursor-pointer'>
               <Image
-                src={'/socials/twitter.svg'} placeholder='blur' blurDataURL='/avocado.jpg'
+                src={'/socials/twitter-solid.svg'} placeholder='blur' blurDataURL='/avocado.jpg'
                 alt='discord' layout="fill" objectFit="contain" sizes='50vw'
               />
             </a>
