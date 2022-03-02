@@ -1,5 +1,6 @@
 import { useEffect, useState, useReducer } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import ButtonWrapper from '../wrappers/ButtonWrapper';
 import InputWrapper from '../wrappers/InputWrapper';
 import { FilterPanel, FILTER_TYPES } from '../FilterPanel';
@@ -345,12 +346,15 @@ export default function CollectionContent({ initialData, collectionData }) {
                     <div className="truncate"></div>
                   </div>
                   <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
-                    <div className="grow w-full">ID</div>
+                    <div className="flex-1">ID</div>
                     <div className="truncate">{asset.tokenId}</div>
                   </div>
                   <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
-                    <div className="grow w-full">Owner</div>
-                    <div className="truncate">{asset.owner}</div>
+                    <div className="flex-1">Owner</div>
+                    <div className="truncate">
+                      {asset.ownerName && (<Link href={`/profile/${asset.owner}`} passHref={true}><a className='text-blue-500'>{asset.ownerName}</a></Link>)}
+                      {!asset.ownerName && (<Link href={`/profile/${asset.owner}`} passHref={true}><a className='text-blue-500'>{asset.owner}</a></Link>)}
+                    </div>
                   </div>
                 </>)}
                 footer={(<>
