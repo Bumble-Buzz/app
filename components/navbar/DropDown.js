@@ -1,10 +1,11 @@
-import { Menu, Transition } from '@headlessui/react';
-import { Fragment, useEffect, useRef, useState } from 'react';
-import {ChevronDownIcon} from '@heroicons/react/solid';
+import { Fragment } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
+import { Menu, Transition } from '@headlessui/react';
+import {ChevronDownIcon} from '@heroicons/react/solid';
 
 
-export default function DropDown({ children, title, items, getItem, typeImage }) {
+export default function DropDown({ children, title, items, getItem, typeImage, image = '/avocado.jpg', imageStyle = 'h-10 w-10 border-2 border-black-600 rounded-full overflow-hidden' }) {
   // console.log('items: ', items);
   const ROUTER = useRouter();
   return (
@@ -12,9 +13,13 @@ export default function DropDown({ children, title, items, getItem, typeImage })
       <Menu as="div" className="relative inline-block text-left">
         <div>
           {typeImage ?
-            <Menu.Button className="inline-flex justify-center">
-              <img className="object-cover w-10 h-10 border-2 border-black-600 rounded-full"
-                src={'/avocado.jpg'} alt="Profile" title="Account" />
+            <Menu.Button className="inline-flex justify-center flex flex-col justify-center items-center text-center">
+              <div className={`relative ${imageStyle}`}>
+                <Image
+                  src={image} placeholder='blur' blurDataURL='/avocado.jpg'
+                  alt='Profile' layout="fill" objectFit="cover" sizes='50vw'
+                />
+              </div>
             </Menu.Button>
             :
             <Menu.Button className="inline-flex justify-center w-full font-medium rounded-md bg-opacity-20 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
