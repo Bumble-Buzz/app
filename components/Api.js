@@ -37,7 +37,8 @@ const apis = {
       id: (id) => `user/${id}`
     },
     asset: {
-      created: (id,tokenId,limit) => `asset/created/${id}?tokenId=${tokenId}&limit=${limit}`
+      created: (id,tokenId,limit) => `asset/created/${id}?tokenId=${tokenId}&limit=${limit}`,
+      collection: (id,tokenId,limit) => `asset/${id}?tokenId=${tokenId}&limit=${limit}`
     },
     collection: {
       id: (id) => `collection/${id}`,

@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     ExpressionAttributeValues: { ':contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, ':creator': checkSumId },
     KeyConditionExpression: '#contractAddress = :contractAddress AND #creator = :creator',
     ExclusiveStartKey: exclusiveStartKey,
-    Limit: Number(limit)
+    Limit: Number(limit) || 10
   };
   let results = await DynamoDbQuery.item.query(payload);
   const {Items, LastEvaluatedKey, Count, ScannedCount} = results;

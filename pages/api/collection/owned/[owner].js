@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     ExpressionAttributeValues: { ':owner': checkSumId, ':active': 1 },
     KeyConditionExpression: '#owner = :owner AND #active = :active',
     ExclusiveStartKey: exclusiveStartKey,
-    Limit: Number(limit)
+    Limit: Number(limit) || 10
   };
   let results = await DynamoDbQuery.item.query(payload);
   const {Items, LastEvaluatedKey, Count, ScannedCount} = results;

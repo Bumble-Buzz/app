@@ -10,6 +10,8 @@ import API from '../../components/Api';
 import useSWR from 'swr';
 import { useAuth } from '../../contexts/AuthContext';
 import ContentWrapper from '../../components/wrappers/ContentWrapper';
+import CollectionContent from '../../components/collection/CollectionContent';
+const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 
 export default function Collection() {
@@ -22,6 +24,11 @@ export default function Collection() {
   let collectionData = null;
   if (collectionDataInit && collectionDataInit.Items.length > 0) collectionData = collectionDataInit.Items[0];
   console.log('collectionData', collectionData);
+  const {data: assetInit} = useSWR(API.swr.asset.collection(
+    collectionData ? collectionData.contractAddress : EMPTY_ADDRESS, 'null', 20),
+    API.swr.fetcher,
+    API.swr.options
+  );
 
   const chainSymbols = {
     bitcoin: (<Image src={'/chains/bitcoin-outline.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />),
@@ -115,6 +122,9 @@ export default function Collection() {
         </div>
 
         {/* bottom */}
+        <div className='gap-2 flex flex-col w-full'>
+          <CollectionContent initialData={assetInit} collectionData={collectionData} />
+        </div>
 
       </div>
     </ContentWrapper>

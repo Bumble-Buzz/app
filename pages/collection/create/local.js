@@ -38,7 +38,7 @@ const reducer = (state, action) => {
       return {
         name: '',
         description: '',
-        address: process.env.NEXT_PUBLIC_SAMPLE_NFT_CONTRACT_ADDRESS,
+        address: process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS,
         image: null
       }
     default:
@@ -88,7 +88,7 @@ export default function Local() {
   const [state, dispatch] = useReducer(reducer, {
     name: '',
     description: '',
-    address: process.env.NEXT_PUBLIC_SAMPLE_NFT_CONTRACT_ADDRESS,
+    address: process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS,
     image: null
   });
 
