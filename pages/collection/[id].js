@@ -23,17 +23,26 @@ export default function Collection() {
   if (collectionDataInit && collectionDataInit.Items.length > 0) collectionData = collectionDataInit.Items[0];
   console.log('collectionData', collectionData);
 
+  const chainSymbols = {
+    bitcoin: (<Image src={'/chains/bitcoin-outline.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />),
+    ethereum: (<Image src={'/chains/ethereum-color.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />),
+    luna: (<Image src={'/chains/luna-color.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />),
+    avalanche: (<Image src={'/chains/avalanche-color.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />),
+    near: (<Image src={'/chains/near-outline.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />),
+    aurora: (<Image src={'/chains/aurora-color.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />)
+  };
+
   const tilePanelMonetary = {
-    commission: { name: 'Commission', value: 0.02, format: 'percent' },
-    reflection: { name: 'Reflection', value: 0.03, format: 'percent' },
-    incentive: { name: 'Incentive', value: 0.03, format: 'percent' },
-    incentiveBal: { name: 'Incentive Balance', value: 0.00, format: 'decimal' }
+    commission: { name: 'Commission', value: 0.02, format: 'percent', symbol: '' },
+    reflection: { name: 'Reflection', value: 0.03, format: 'percent', symbol: '' },
+    incentive: { name: 'Incentive', value: 0.03, format: 'percent', symbol: '' },
+    incentiveBal: { name: 'Incentive Balance', value: 0.00, format: 'decimal', symbol: chainSymbols.ethereum }
   };
   const tilePanelAdditional = {
-    items: { name: 'Items', value: 12535343, format: 'decimal' },
-    owners: { name: 'Owners', value: 123, format: 'decimal' },
-    floor: { name: 'Floor Price', value: 0.00425744, format: 'decimal' },
-    volume: { name: 'Volume Traded', value: 0.0042344, format: 'decimal' }
+    items: { name: 'Items', value: 12535343, format: 'decimal', symbol: '' },
+    owners: { name: 'Owners', value: 123, format: 'decimal', symbol: '' },
+    floor: { name: 'Floor Price', value: 0.00425744, format: 'decimal', symbol: chainSymbols.ethereum },
+    volume: { name: 'Volume Traded', value: 0.0042344, format: 'decimal', symbol: chainSymbols.ethereum }
   };
 
 
