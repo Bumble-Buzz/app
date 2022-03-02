@@ -10,9 +10,7 @@ import NftCard from '../nftAssets/NftCard';
 import API from '../Api';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
-import { BadgeCheckIcon, XIcon } from '@heroicons/react/solid';
-
-import AvaxTradeNftAbi from '../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
+import { ShieldCheckIcon, ShieldExclamationIcon, XIcon } from '@heroicons/react/solid';
 
 
 const searchItems = (state, action) => {
@@ -335,14 +333,14 @@ export default function CollectionContent({ initialData, collectionData }) {
                 header={(<>
                   <div className="flex-1 font-bold text-purple-500 text-xl truncate">{asset.config.name}</div>
                   <div className='flex items-center'>
-                    <BadgeCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />
+                    {asset.collectionId === 1 && <ShieldExclamationIcon className="w-5 h-5" fill="#ff3838" alt="unverified" title="unverified" aria-hidden="true" />}
+                    {asset.collectionId !== 1 && <ShieldCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />}
                   </div>
                 </>)}
-                // image={asset.image}
                 image={asset.config.image}
                 body={(<>
                   <div className="flex flex-nowrap flex-row gap-2 text-left">
-                    <div className="flex-1 truncate">COLLECTION NAME HERE</div>
+                    {/* <div className="flex-1 truncate">COLLECTION NAME HERE</div> */}
                     <div className="truncate"></div>
                   </div>
                   <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">

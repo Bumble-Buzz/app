@@ -6,7 +6,6 @@ import DropDown from './navbar/DropDown';
 export default function IconTray({ items }) {
 
   const getItem = (itemId) => {
-    console.log('getItem', itemId);
     switch(itemId) {
       case 1:
         return {

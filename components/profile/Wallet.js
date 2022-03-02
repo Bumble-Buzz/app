@@ -375,7 +375,6 @@ export default function Wallet({ initialData }) {
                     <BadgeCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />
                   </div>
                 </>)}
-                // image={asset.image}
                 image={asset.config.image}
                 body={(<>
                   <div className="flex flex-nowrap flex-row gap-2 text-left">
