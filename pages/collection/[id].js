@@ -24,16 +24,16 @@ export default function Collection() {
   console.log('collectionData', collectionData);
 
   const tilePanelMonetary = {
-    commission: { name: 'Commission', value: '2%' },
-    reflection: { name: 'Reflection', value: '3%' },
-    incentive: { name: 'Incentive', value: '3%' },
-    incentiveBal: { name: 'Incentive Balance', value: '11231231231223' }
+    commission: { name: 'Commission', value: 0.02, format: 'percent' },
+    reflection: { name: 'Reflection', value: 0.03, format: 'percent' },
+    incentive: { name: 'Incentive', value: 0.03, format: 'percent' },
+    incentiveBal: { name: 'Incentive Balance', value: 0.00, format: 'decimal' }
   };
   const tilePanelAdditional = {
-    items: { name: 'Items', value: '123' },
-    owners: { name: 'Owners', value: '123%' },
-    floor: { name: 'Floor Price', value: '0.00423' },
-    volume: { name: 'Volume Traded', value: '0.00423' }
+    items: { name: 'Items', value: 12535343, format: 'decimal' },
+    owners: { name: 'Owners', value: 123, format: 'decimal' },
+    floor: { name: 'Floor Price', value: 0.00425744, format: 'decimal' },
+    volume: { name: 'Volume Traded', value: 0.0042344, format: 'decimal' }
   };
 
 
