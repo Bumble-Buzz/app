@@ -260,15 +260,28 @@ export default function CollectionContent({ initialData, collectionData }) {
     }
   }, [initialData]);
 
-  const updateFilteredAssets = (_value) => {
-    if (_value && _value !== '') {
-      const newAssets = assets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(_value.toString().toLowerCase()) >= 0);
-      setFilteredAssets(newAssets);
-    } else {
-      setFilteredAssets(assets);
-    }
-  };
+  const updateFilteredAssets = async (_value) => {
+    if (!_value || _value === '') return setFilteredAssets(assets);
 
+    let newAssets = assets;
+    let filteredAssets = [];
+    let latestSortKey = exclusiveStartKey;
+    while (filteredAssets.length === 0) {
+      filteredAssets = newAssets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(_value.toString().toLowerCase()) >= 0);
+
+      if (filteredAssets.length > 0) break;
+      if (!latestSortKey) break;
+
+      // fetch next batch from db
+      const nextAssets = await API.asset.collection(collectionData.contractAddress, latestSortKey.tokenId, 20);
+
+      newAssets.push(...nextAssets.data.Items);
+      latestSortKey = nextAssets.data.LastEvaluatedKey;
+    }
+    setAssets([...newAssets]);
+    setFilteredAssets([...filteredAssets]);
+    setExclusiveStartKey(latestSortKey);
+  };
 
 
   return (
@@ -277,6 +290,7 @@ export default function CollectionContent({ initialData, collectionData }) {
 {/* <p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p> */}
 {/* <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p> */}
 {/* <p onClick={() => {console.log('assets', assets)}}>See assets</p> */}
+{/* <p onClick={() => {console.log('filteredAssets', filteredAssets)}}>See filteredAssets</p> */}
 
       <div className="-px-2 -ml-2 bg-white">
         <FilterPanel filters={filters} state={state} dispatch={dispatch} />
@@ -293,6 +307,9 @@ export default function CollectionContent({ initialData, collectionData }) {
               <XIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
             </ButtonWrapper>
           </div>)}
+        </div>
+
+        <div className='flex flex-wrap gap-2 justify-start items-top'>
           <div className="flex-1">
             <InputWrapper
               type="search"
@@ -328,8 +345,12 @@ export default function CollectionContent({ initialData, collectionData }) {
                     <div className="truncate"></div>
                   </div>
                   <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
-                    <div className="flex-1 truncate">ID</div>
-                    <div className="truncate">#34</div>
+                    <div className="grow w-full">ID</div>
+                    <div className="truncate">{asset.tokenId}</div>
+                  </div>
+                  <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
+                    <div className="grow w-full">Owner</div>
+                    <div className="truncate">{asset.owner}</div>
                   </div>
                 </>)}
                 footer={(<>

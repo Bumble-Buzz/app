@@ -60,6 +60,7 @@ const apis = {
   },
   asset: {
     create: payload => API.post(`asset/create`, payload),
+    collection: (id,tokenId,limit) => API.get(`asset/${id}?tokenId=${tokenId}&limit=${limit}`)
   },
   collection: {
     id: id => API.get(`collection/${id}`),

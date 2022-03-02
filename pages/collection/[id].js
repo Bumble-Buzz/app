@@ -23,7 +23,7 @@ export default function Collection() {
   const {data: collectionDataInit} = useSWR(API.swr.collection.id(ROUTER.query.id), API.swr.fetcher, API.swr.options);
   let collectionData = null;
   if (collectionDataInit && collectionDataInit.Items.length > 0) collectionData = collectionDataInit.Items[0];
-  console.log('collectionData', collectionData);
+  // console.log('collectionData', collectionData);
   const {data: assetInit} = useSWR(API.swr.asset.collection(
     collectionData ? collectionData.contractAddress : EMPTY_ADDRESS, 'null', 20),
     API.swr.fetcher,
@@ -46,7 +46,7 @@ export default function Collection() {
     incentiveBal: { name: 'Incentive Balance', value: 0.00, format: 'decimal', symbol: chainSymbols.ethereum }
   };
   const tilePanelAdditional = {
-    items: { name: 'Items', value: 12535343, format: 'decimal', symbol: '' },
+    items: { name: 'Items', value: 10000, format: 'decimal', symbol: '' },
     owners: { name: 'Owners', value: 123, format: 'decimal', symbol: '' },
     floor: { name: 'Floor Price', value: 0.00425744, format: 'decimal', symbol: chainSymbols.ethereum },
     volume: { name: 'Volume Traded', value: 0.0042344, format: 'decimal', symbol: chainSymbols.ethereum }
