@@ -78,8 +78,6 @@ export default function Collection() {
 
         {/* top middle */}
         <div className='px-2 py-2 flex flex-col sm:flex-row justify-end text-center gap-4 w-full'>
-          {/* left */}
-          {/* <div className='flex flex-col flex-wrap items-center'>left</div> */}
           {/* middle */}
           <div className='flex flex-col flex-wrap flex-1 grow items-center'>
             {/* title */}
@@ -100,14 +98,14 @@ export default function Collection() {
               aksdhjaksdhka jshdjkashdkashd kjashdkj ashdkjahdkjashd kjashd jkahsdkjashd kahsdkajhs dkjashdk jahdkjah
             </div>
           </div>
-          {/* right */}
+          {/* icon tray */}
           <div className='flex flex-col flex-nowrap items-center'>
             <IconTray items={[ 'discord-solid', 'twitter-solid', 'website-solid' ]} />
           </div>
         </div>
 
-        {/* top bottom */}
-        <div className='px-2 py-2 flex flex-col sm:flex-row flex-wrap justify-center text-center gap-4 w-full'>
+        {/* tile panels */}
+        <div className='px-2 py-2 flex flex-col md:flex-row flex-wrap justify-center text-center gap-4 w-full'>
           <div className='flex flex-col flex-nowrap items-center flex-1'>
             <TilePanel title='Monetary Information' items={tilePanelMonetary} />
           </div>
@@ -115,6 +113,8 @@ export default function Collection() {
             <TilePanel title='Additional Information' items={tilePanelAdditional} />
           </div>
         </div>
+
+        {/* bottom */}
 
       </div>
     </ContentWrapper>
