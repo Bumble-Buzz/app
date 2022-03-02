@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
-import { AUTH_CONTEXT_ACTIONS } from '../../contexts/AuthContext'
+import { AUTH_CONTEXT_ACTIONS } from '../../contexts/AuthContext';
+const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 
 const __init__ = async (dispatch) => {
@@ -63,6 +64,7 @@ const isNetworkValid = async () => {
 const getAccount = async () => {
   const accounts = await ethereum.request({ method: 'eth_accounts' });
   const firstAccount = accounts[0];
+  if (!firstAccount) return EMPTY_ADDRESS;
   return ethers.utils.getAddress(firstAccount);
 }
 

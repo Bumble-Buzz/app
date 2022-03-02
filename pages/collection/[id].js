@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSession, getSession } from 'next-auth/react';
 import IconTray from '../../components/IconTray';
+import TilePanel from '../../components/TilePanel';
 import PageError from '../../components/PageError';
 import API from '../../components/Api';
 import useSWR from 'swr';
@@ -21,6 +22,19 @@ export default function Collection() {
   let collectionData = null;
   if (collectionDataInit && collectionDataInit.Items.length > 0) collectionData = collectionDataInit.Items[0];
   console.log('collectionData', collectionData);
+
+  const tilePanelMonetary = {
+    commission: { name: 'Commission', value: '2%' },
+    reflection: { name: 'Reflection', value: '3%' },
+    incentive: { name: 'Incentive', value: '3%' },
+    incentiveBal: { name: 'Incentive Balance', value: '11231231231223' }
+  };
+  const tilePanelAdditional = {
+    items: { name: 'Items', value: '123' },
+    owners: { name: 'Owners', value: '123%' },
+    floor: { name: 'Floor Price', value: '0.00423' },
+    volume: { name: 'Volume Traded', value: '0.00423' }
+  };
 
 
   const isSignInValid = () => {
@@ -80,6 +94,16 @@ export default function Collection() {
           {/* right */}
           <div className='flex flex-col flex-nowrap items-center'>
             <IconTray items={[ 'discord-solid', 'twitter-solid', 'website-solid' ]} />
+          </div>
+        </div>
+
+        {/* top bottom */}
+        <div className='px-2 py-2 flex flex-col sm:flex-row flex-wrap justify-center text-center gap-4 w-full'>
+          <div className='flex flex-col flex-nowrap items-center flex-1'>
+            <TilePanel title='Monetary Information' items={tilePanelMonetary} />
+          </div>
+          <div className='flex flex-col flex-nowrap items-center flex-1'>
+            <TilePanel title='Additional Information' items={tilePanelAdditional} />
           </div>
         </div>
 
