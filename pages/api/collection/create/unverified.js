@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     TableName: "collection",
     Item: {
       'id': Number(data.id),
-      'contractAddress': '',
+      'contractAddress': EMPTY_ADDRESS,
       'name': data.name,
       'description': data.description,
       'totalSupply': 0,

@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState } from 'react';
+import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -11,24 +12,18 @@ import useSWR from 'swr';
 import { useAuth } from '../../contexts/AuthContext';
 import ContentWrapper from '../../components/wrappers/ContentWrapper';
 import CollectionContent from '../../components/collection/CollectionContent';
-const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 
-export default function Collection() {
+export default function Collection({ collectionDataInit }) {
+  if (!collectionDataInit) return (<PageError>Collection not found</PageError>);
+
   const ROUTER = useRouter();
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
 
+
   // swr call to fetch initial data
-  const {data: collectionDataInit} = useSWR(API.swr.collection.id(ROUTER.query.id), API.swr.fetcher, API.swr.options);
-  let collectionData = null;
-  if (collectionDataInit && collectionDataInit.Items.length > 0) collectionData = collectionDataInit.Items[0];
-  // console.log('collectionData', collectionData);
-  const {data: assetInit} = useSWR(API.swr.asset.collection(
-    collectionData ? collectionData.contractAddress : EMPTY_ADDRESS, 'null', 20),
-    API.swr.fetcher,
-    API.swr.options
-  );
+  const {data: assetInit} = useSWR(API.swr.asset.collection(collectionDataInit.contractAddress, 'null', 20), API.swr.fetcher, API.swr.options);
 
   const chainSymbols = {
     bitcoin: (<Image src={'/chains/bitcoin-outline.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />),
@@ -52,7 +47,6 @@ export default function Collection() {
     volume: { name: 'Volume Traded', value: 0.0042344, format: 'decimal', symbol: chainSymbols.ethereum }
   };
 
-
   const isSignInValid = () => {
     return (
       session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
@@ -61,19 +55,17 @@ export default function Collection() {
   };
 
 
-  if (!collectionData || collectionData.length <= 0) {
-      return (<PageError>Collection not found</PageError>);
-  }
-
   return (
     <ContentWrapper>
       {/* Page Content */}
       <div className="flex flex-col w-full items-center">
 
-        {/* <p onClick={() => {console.log('userData', userData)}}>See userData</p>
-        <p onClick={() => {console.log('userState', userState)}}>See userState</p>
-        <p onClick={() => ROUTER.push('/profile/0xdA121aB48c7675E4F25E28636e3Efe602e49eec6')}>user 0xdA121aB48c7675E4F25E28636e3Efe602e49eec6</p>
-        <p onClick={() => ROUTER.push('/profile/0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED')}>user 0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED</p> */}
+        {/* <p onClick={() => {console.log('userData', userData)}}>See userData</p> */}
+        {/* <p onClick={() => {console.log('userState', userState)}}>See userState</p> */}
+        {/* <p onClick={() => ROUTER.push('/profile/0xdA121aB48c7675E4F25E28636e3Efe602e49eec6')}>user 0xdA121aB48c7675E4F25E28636e3Efe602e49eec6</p> */}
+        {/* <p onClick={() => ROUTER.push('/profile/0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED')}>user 0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED</p> */}
+        {/* <p onClick={() => {console.log('collectionDataInit', collectionDataInit)}}>See collectionDataInit</p>
+        <p onClick={() => {console.log('assetInit', assetInit)}}>See assetInit</p> */}
 
         {/* banner */}
         <div className='w-full text-center relative h-48 border-b'>
@@ -89,17 +81,17 @@ export default function Collection() {
           <div className='flex flex-col flex-wrap flex-1 grow items-center'>
             {/* title */}
             <div className='px-2 py-2 flex flex-col flex-wrap w-full text-center'>
-              <div className='w-full text-4xl font-bold'>{collectionData.name}asdas dasdasdasd asdasdasd</div>
+              <div className='w-full text-4xl font-bold'>{collectionDataInit.name}asdas dasdasdasd asdasdasd</div>
               <div className='w-full truncate'>
-                created by <Link href={`/profile/${collectionData.owner}`} passHref={true}><a className='text-blue-500 font-bold'>
-                  {collectionData.ownerName && collectionData.ownerName }
-                  {!collectionData.ownerName && collectionData.owner }
+                created by <Link href={`/profile/${collectionDataInit.owner}`} passHref={true}><a className='text-blue-500 font-bold'>
+                  {collectionDataInit.ownerName && collectionDataInit.ownerName }
+                  {!collectionDataInit.ownerName && collectionDataInit.owner }
                 </a></Link>
               </div>
             </div>
             {/* description */}
             <div className='w-full text-center overflow-y-auto max-h-40 max-w-xl '>
-              {collectionData.description}
+              {collectionDataInit.description}
               asdhkahsdkjha asdhkashdkjahd kahds kajhsd kasdhsdhasjdhas jdhkjasdhkjasdhka
               sjdh jakshdkjash kjashd kjashd kjashd kjahsd kjahd kjashd kjahd kjahsdjhd
               aksdhjaksdhka jshdjkashdkashd kjashdkj ashdkjahdkjashd kjashd jkahsdkjashd kahsdkajhs dkjashdk jahdkjah
@@ -123,7 +115,7 @@ export default function Collection() {
 
         {/* bottom */}
         <div className='gap-2 flex flex-col w-full'>
-          <CollectionContent initialData={assetInit} collectionData={collectionData} />
+          <CollectionContent initialData={assetInit} collectionData={collectionDataInit} />
         </div>
 
       </div>
@@ -132,8 +124,12 @@ export default function Collection() {
 }
 
 export async function getServerSideProps(context) {
+  const API = axios.create();
+  const { data: collectionDataInit } = await API.get(`http://localhost:3000/api/collection/${context.query.id}`);
+  console.log('collectionDataInit', collectionDataInit)
   return {
     props: {
+      collectionDataInit: collectionDataInit.Items[0] || null,
       session: await getSession(context)
     },
   }
