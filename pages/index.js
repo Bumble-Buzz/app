@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import Image from 'next/image';
 import ContentWrapper from '../components/wrappers/ContentWrapper';
 import Lexicon from '../lexicon/index';
+import Tooltip from '../components/Tooltip';
 
 
 export default function Home() {
@@ -20,12 +21,14 @@ export default function Home() {
               </h2>
             </div>
             <div className="my-2">
-            <p className="mt-2 text-sm text-gray-500 md:text-base">{Lexicon.description}</p>
+              <p className="mt-2 text-sm text-gray-500 md:text-base">{Lexicon.description}</p>
             </div>
             <div className="my-2">
               <div className="flex flex-row flex-wrap justify-center">
                 <div>
-                  <button className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Explore</button>
+                  <Tooltip text='Explore NFTs and Collections'>
+                    <button className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Explore</button>
+                  </Tooltip>
                 </div>
                 <div>
                   <button className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Sell</button>
