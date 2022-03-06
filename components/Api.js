@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-
+const BACKEND_API = axios.create({
+  baseURL: 'http://localhost:3000/api/'
+});
 const API = axios.create({
   baseURL: '/api/'
 });
@@ -17,7 +19,7 @@ const cancelApi = () => {
 };
 
 
-const apis = {
+module.exports = {
   swr: {
     fetcher: (url) => API.get(url).then(res => res.data),
     options: {
@@ -92,7 +94,10 @@ const apis = {
       scan: payload => API.put(`db/item/scan`, payload)
     },
   },
+  backend: {
+    collection: {
+      id: id => BACKEND_API.get(`collection/${id}`)
+    }
+  },
   cancelApi
 }
-
-export default apis

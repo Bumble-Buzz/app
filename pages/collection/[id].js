@@ -123,9 +123,8 @@ export default function Collection({ collectionDataInit }) {
   )
 }
 
-export async function getServerSideProps(context) {;
-  const API = axios.create();
-  const { data } = await API.get(`http://localhost:3000/api/collection/${context.query.id}`);
+export async function getServerSideProps(context) {
+  const { data } = await API.backend.collection.id(context.query.id);
   let collectionDataInit = { contractAddress: 'null' };
   if (data.Items.length > 0) {
     collectionDataInit = data.Items[0];
