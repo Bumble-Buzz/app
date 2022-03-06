@@ -182,59 +182,6 @@ const initTableSetup = async () => {
   console.log('end - initTableSetup');
 };
 
-const populateCollection = async () => {
-
-  // dummy collection data
-  let payload = {
-    TableName: "collection",
-    Item: {
-      'id': 1,
-      'contractAddress': '',
-      'name': 'unverified collection',
-      'description': 'This is an unverified collection. In this collection, all unverified NFTs are stored.',
-      'totalSupply': 0,
-      'reflection': 0,
-      'commission': 0,
-      'incentive': 0,
-      'owner': process.env.NEXT_PUBLIC_ADMIN_WALLET_ID,
-      'collectionType': 'unverified',
-      'ownerIncentiveAccess': false,
-      'active': 1,
-      'category': 'none',
-      'image': ''
-    }
-  };
-  // await API.db.item.put(payload);
-  // payload = {
-  //   TableName: "collection",
-  //   Item: {
-  //     'id': 123,
-  //     'contractAddress': '0x0789a8D7c2D9cb50Fc59413ca404026eB6D34251',
-  //     'name': 'local collection',
-  //     'description': 'This is a local collection. In this collection, all NFTs created from this website are stored. Some randome data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data data',
-  //     'totalSupply': 0,
-  //     'reflection': 0,
-  //     'commission': 0,
-  //     'incentive': 0,
-  //     'owner': process.env.NEXT_PUBLIC_ADMIN_WALLET_ID,
-  //     'collectionType': 'local',
-  //     'ownerIncentiveAccess': false,
-  //     'active': 1,
-  //     'category': 'none',
-  //     'image': ''
-  //   }
-  // };
-  await API.db.item.put(payload);
-};
-
-const populateData = async () => {
-  console.log('start - populateData');
-
-  await populateCollection();
-
-  console.log('end - populateData');
-};
-
 export default function SignIn() {
   const ROUTER = useRouter();
   const AuthContext = useAuth();
@@ -441,7 +388,6 @@ export default function SignIn() {
           </div>
 
 <p onClick={initTableSetup}>Test initTableSetup</p>
-<p onClick={populateData}>Test populateData</p>
 
         </div>
       </ContentWrapper>

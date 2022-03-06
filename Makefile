@@ -42,4 +42,9 @@ build-push-aws:
 	docker tag nft-marketplace:latest 817932929274.dkr.ecr.us-east-1.amazonaws.com/nft-marketplace:v0.1.0-aws
 	docker push 817932929274.dkr.ecr.us-east-1.amazonaws.com/nft-marketplace:v0.1.0-aws
 
+build-push-geth-kind:
+	cd geth && docker build --build-arg ACCOUNT_PASSWORD=5uper53cr3t --build-arg ACCOUNT_PRIVATE_KEY=6f016e74365bbda42f5b8764e6cf1616a734f386c7732414c573f97b8b8ec1d2 --no-cache -t geth-client .
+	docker tag geth-client:latest 817932929274.dkr.ecr.us-east-1.amazonaws.com/geth-client:v0.1.0-kind
+	docker push 817932929274.dkr.ecr.us-east-1.amazonaws.com/geth-client:v0.1.0-kind
+
 ###################

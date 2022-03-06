@@ -65,15 +65,12 @@ export default function Unverified() {
       if (!blockchainResults || dbTriggered) return;
 
       try {
-        // upload image to ipfs
-        const imageCid = await uploadImage();
-
         const payload = {
           'id': Number(blockchainResults.id),
           'name': state.name,
           'description': state.description,
           'owner': AuthContext.state.account,
-          'image': `ipfs://${imageCid}`,
+          'image': `ipfs://${blockchainResults.imageCid}`,
         };
         await API.collection.create.unverified(payload);
 
@@ -102,26 +99,31 @@ export default function Unverified() {
     try {
       setLoading(true);
 
+      // upload image to ipfs
+      const imageCid = await uploadImage();
+
       if (state.dbOnly) {
         setBlockchainResults({
-          owner: AuthContext.state.account, EMPTY_ADDRESS, collectionType: 'unverified', id: process.env.NEXT_PUBLIC_UNVERIFIED_COLLECTION_ID
+          owner: AuthContext.state.account, EMPTY_ADDRESS, collectionType: 'unverified', id: process.env.NEXT_PUBLIC_UNVERIFIED_COLLECTION_ID, imageCid
         });
       } else {
         const signer = await WalletUtil.getWalletSigner();
         const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
+
         // add collection in blockchain
         const val = await contract.createUnvariviedCollection(state.name);
 
-        const txReceipt = await WalletUtil.checkTransaction(val);
-        if (txReceipt && txReceipt.blockNumber) {
-          contract.on("onCollectionCreate", async (owner, contractAddress, collectionType, id) => {
-            console.log('found event: ', owner, contractAddress, collectionType, id.toNumber());
-            if (!dbTriggered && session.user.id === owner && EMPTY_ADDRESS === ethers.utils.getAddress(contractAddress)) {
-              dbTriggered = true;
-              setBlockchainResults({ owner, contractAddress, collectionType, id });
-            }
-          });
-        }
+        await WalletUtil.checkTransaction(val);
+        
+        const listener = async (owner, contractAddress, collectionType, id) => {
+          console.log('found unverified event: ', owner, contractAddress, collectionType, id.toNumber());
+          if (!dbTriggered && session.user.id === owner && EMPTY_ADDRESS === ethers.utils.getAddress(contractAddress)) {
+            dbTriggered = true;
+            setBlockchainResults({ owner, contractAddress, collectionType, id, imageCid });
+            contract.off("onCollectionCreate", listener);
+          }
+        };
+        contract.on("onCollectionCreate", listener);
       }
     } catch (e) {
       console.error('e', e);
@@ -131,6 +133,8 @@ export default function Unverified() {
   };
 
   const uploadImage = async () => {
+    if (!state.image) throw({ message: 'Image not found' });
+
     const formData = new FormData();
     formData.append("name", state.image.name);
     formData.append("image", state.image);
@@ -245,12 +249,12 @@ export default function Unverified() {
                       {state.image ?
                         <Image
                           className="" alt='nft image' src={URL.createObjectURL(state.image)}
-                          placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw'
+                          placeholder='blur' blurDataURL='/avocado.jpg' layout="fill" objectFit="cover" sizes='50vw'
                         />
                       :
                         <Image
                           className="" alt='nft image' src={NoImageAvailable}
-                          placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw'
+                          placeholder='blur' blurDataURL='/avocado.jpg' layout="fill" objectFit="cover" sizes='50vw'
                         />
                       }
                     </div>
@@ -284,6 +288,7 @@ export default function Unverified() {
                           const image = e.target.files[0];
                           if (image && image.size > 10485760) {
                             Toast.error("Image size too big. Max 10mb");
+                            dispatch({ type: 'image', payload: { value: null } });
                           } else {
                             dispatch({ type: 'image', payload: { value: image } });
                           }

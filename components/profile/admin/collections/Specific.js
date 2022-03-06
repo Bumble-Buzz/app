@@ -9,7 +9,6 @@ export default function Specific({ }) {
   const [value, setValue] = useState('');
 
   const fetch = async (e) => {
-    console.log('fetch');
     e.preventDefault();
 
     if (requestType === 'id') {
@@ -51,6 +50,7 @@ export default function Specific({ }) {
             type="text"
             name="value"
             id="value"
+            value={value}
             autoComplete="off"
             placeholder="value"
             required
@@ -70,7 +70,7 @@ export default function Specific({ }) {
           <button
             type="text"
             className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            onClick={(e) => {e.preventDefault(); setAssets([]);}}
+            onClick={(e) => {e.preventDefault(); setAssets([]); setValue('');}}
           >Clear</button>
         </div>
       </form>

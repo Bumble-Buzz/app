@@ -5,7 +5,7 @@ import DynamoDbQuery from '../../../../../components/backend/db/DynamoDbQuery';
 
 export default async function handler(req, res) {
   const { owner, address, limit } = req.query
-  console.log('api param:', owner, address, limit);
+  // console.log('api param:', owner, address, limit);
 
   //check params
   if (!owner) return res.status(400).json({ invalid: owner });

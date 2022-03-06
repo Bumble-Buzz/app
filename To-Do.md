@@ -74,6 +74,7 @@ Things left to do:
         <!-- - contractAddress, tokenId, creator, owner,  -->
 - Front-end dapp
   - Easy way to set ENV variables in docker image / k8s, for contract addresses, admin accounts, etc...
+  - Initialize CORS properly as explained in the docs
   - API
     - Make sure secure APIs are only accessable who is allowed to
     - Ensure to check blockchain in API calls when necessary

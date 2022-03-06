@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   // console.log('api param:', contract, tokenId, limit);
 
   //check params
-  if (!contract) return res.status(400).json({ invalid: contract });
+  if (!contract || contract === 'null') return res.status(400).json({ invalid: contract });
   const contractAddress = ethers.utils.getAddress(contract);
 
   let exclusiveStartKey = undefined;

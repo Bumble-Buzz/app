@@ -1,0 +1,11 @@
+curl --location --request POST 'localhost:8545' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "jsonrpc": "2.0",
+    "id": 4,
+    "method": "eth_getBalance",
+    "params": [
+        "0x84a4d61c5174a211fa530348d639e7d8b5dd03d4",
+        "latest"
+    ]
+}'

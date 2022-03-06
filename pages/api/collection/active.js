@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   // console.log('api param:', id, limit);
 
   const session = await getSession({ req })
-  console.log('session', session);
+  // console.log('session', session);
 
   let exclusiveStartKey = undefined;
   if (id && Number.isInteger(Number(id))) {

@@ -38,6 +38,14 @@ module.exports = {
         mnemonic: process.env.MNEMONIC_1
       }
     },
+    localGeth: {
+      chainId: 1214,
+      url: 'http://localhost:8545',
+      // accounts: ['0xe836ecb8ed5c68a6e97bd3d7fc86617254fa160b50f5d3a8ce427883c432660d']
+      accounts: {
+        mnemonic: process.env.MNEMONIC_1
+      }
+    },
     ropsten: {
       url: process.env.ROPSTEN_ETH,
       accounts: [process.env.TEST_PRIVATE_KEY]

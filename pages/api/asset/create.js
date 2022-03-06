@@ -2,10 +2,9 @@ import Cors from 'cors';
 import { ethers } from 'ethers';
 import { getSession } from "next-auth/react";
 import DynamoDbQuery from '../../../components/backend/db/DynamoDbQuery';
+import { RpcNode } from '../../../components/backend/Rpc';
 import AvaxTradeNftAbi from '../../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
-
-const COLLECTION_TYPE = [ 'local', 'verified', 'unverified' ];
 
 /**
  * @todo If we are unable to verify data on blockchain, then we need to be more creative.
@@ -13,8 +12,9 @@ const COLLECTION_TYPE = [ 'local', 'verified', 'unverified' ];
  * for the owner, or the admin.
 **/
 const checkBlockchainOwner = async (data) => {
-  const RPC = 'http://localhost:8545';
-  const provider = new ethers.providers.JsonRpcProvider(RPC);
+  if (!RpcNode) { console.log('skipping blockchain check'); return true; }
+
+  const provider = new ethers.providers.JsonRpcProvider(RpcNode);
   const contract = new ethers.Contract(ethers.utils.getAddress(data.contractAddress), AvaxTradeNftAbi.abi, provider);
   const onChainData = await contract.ownerOf(Number(data.tokenId));
 
@@ -22,8 +22,9 @@ const checkBlockchainOwner = async (data) => {
 };
 
 const checkBlockchainCreator = async (data) => {
-  const RPC = 'http://localhost:8545';
-  const provider = new ethers.providers.JsonRpcProvider(RPC);
+  if (!RpcNode) { console.log('skipping blockchain check'); return true; }
+
+  const provider = new ethers.providers.JsonRpcProvider(RpcNode);
   const contract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, AvaxTradeNftAbi.abi, provider);
   const onChainData = await contract.getNftArtist(Number(data.tokenId));
 

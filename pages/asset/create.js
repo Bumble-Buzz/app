@@ -137,24 +137,24 @@ export default function Create() {
       const configCid = await uploadConfig(config);
       console.log('configCid:', configCid);
 
+      // mint NFT in blockchain
       const val = await contract.mint(
         state.commission,
         configCid,
         { value: ethers.utils.parseEther('0.0') }
       );
 
-      const txReceipt = await WalletUtil.checkTransaction(val);
-      if (txReceipt && txReceipt.blockNumber) {
-        contract.on("onNftMint", async (owner, tokenId) => {
-          console.log('found event: ', owner, tokenId.toNumber());
+      await WalletUtil.checkTransaction(val);
 
-          // update db - sometimes called multiple times
-          if (!dbTriggered && session.user.id === owner) {
-            dbTriggered = true;
-            setBlockchainResults({ owner, tokenId, config });
-          }
-        });
-      }
+      const listener = async (owner, tokenId) => {
+        console.log('found create event: ', owner, tokenId.toNumber());
+        if (!dbTriggered && session.user.id === owner) {
+          dbTriggered = true;
+          setBlockchainResults({ owner, tokenId, config });
+          contract.off("onNftMint", listener);
+        }
+      };
+      contract.on("onNftMint", listener);
     } catch (e) {
       Toast.error(e.message);
       setLoading(false);
@@ -162,6 +162,8 @@ export default function Create() {
   };
 
   const uploadImage = async () => {
+    if (!state.image) throw({ message: 'Image not found' });
+
     const formData = new FormData();
     formData.append("name", state.image.name);
     formData.append("image", state.image);
@@ -579,12 +581,12 @@ export default function Create() {
                       {state.image ?
                         <Image
                           className="" alt='nft image' src={URL.createObjectURL(state.image)}
-                          placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="contain" sizes='50vw'
+                          placeholder='blur' blurDataURL='/avocado.jpg' layout="fill" objectFit="contain" sizes='50vw'
                         />
                       :
                         <Image
                           className="" alt='nft image' src={NoImageAvailable}
-                          placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw'
+                          placeholder='blur' blurDataURL='/avocado.jpg' layout="fill" objectFit="cover" sizes='50vw'
                         />
                       }
                     </div>
@@ -618,6 +620,7 @@ export default function Create() {
                           const image = e.target.files[0];
                           if (image && image.size > 10485760) {
                             Toast.error("Image size too big. Max 10mb");
+                            dispatch({ type: 'image', payload: { value: null } });
                           } else {
                             dispatch({ type: 'image', payload: { value: image } });
                           }

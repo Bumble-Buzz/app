@@ -15,15 +15,15 @@ import CollectionContent from '../../components/collection/CollectionContent';
 
 
 export default function Collection({ collectionDataInit }) {
-  if (!collectionDataInit) return (<PageError>Collection not found</PageError>);
-
   const ROUTER = useRouter();
   const AuthContext = useAuth();
-  const { data: session, status: sessionStatus } = useSession();
-
-
+  const { data: session, status: sessionStatus } = useSession();  
   // swr call to fetch initial data
   const {data: assetInit} = useSWR(API.swr.asset.collection(collectionDataInit.contractAddress, 'null', 20), API.swr.fetcher, API.swr.options);
+
+
+  if (!collectionDataInit || !collectionDataInit.id) return (<PageError>Collection not found</PageError>);
+
 
   const chainSymbols = {
     bitcoin: (<Image src={'/chains/bitcoin-outline.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />),
@@ -81,7 +81,7 @@ export default function Collection({ collectionDataInit }) {
           <div className='flex flex-col flex-wrap flex-1 grow items-center'>
             {/* title */}
             <div className='px-2 py-2 flex flex-col flex-wrap w-full text-center'>
-              <div className='w-full text-4xl font-bold'>{collectionDataInit.name}asdas dasdasdasd asdasdasd</div>
+              <div className='w-full text-4xl font-bold'>{collectionDataInit.name} asdas dasdasdasd asdasdasd</div>
               <div className='w-full truncate'>
                 created by <Link href={`/profile/${collectionDataInit.owner}`} passHref={true}><a className='text-blue-500 font-bold'>
                   {collectionDataInit.ownerName && collectionDataInit.ownerName }
@@ -123,13 +123,16 @@ export default function Collection({ collectionDataInit }) {
   )
 }
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps(context) {;
   const API = axios.create();
-  const { data: collectionDataInit } = await API.get(`http://localhost:3000/api/collection/${context.query.id}`);
-  console.log('collectionDataInit', collectionDataInit)
+  const { data } = await API.get(`http://localhost:3000/api/collection/${context.query.id}`);
+  let collectionDataInit = { contractAddress: 'null' };
+  if (data.Items.length > 0) {
+    collectionDataInit = data.Items[0];
+  }
   return {
     props: {
-      collectionDataInit: collectionDataInit.Items[0] || null,
+      collectionDataInit,
       session: await getSession(context)
     },
   }

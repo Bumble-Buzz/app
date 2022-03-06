@@ -83,35 +83,35 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
   };
 
   const deactivate = async (_asset, _contract) => {
-    console.log('deactivate');
     // deactivate collection in blockchain
     const val = await _contract.deactivateCollection(_asset.id);
 
-    const txReceipt = await WalletUtil.checkTransaction(val);
-    if (txReceipt && txReceipt.blockNumber) {
-      _contract.on("onActivation", async (id, active) => {
-        if (!dbTriggered && _asset.id === Number(id) && !active) {
-          dbTriggered = true;
-          setBlockchainResults({ asset: _asset });
-        }
-      });
-    }
+    await WalletUtil.checkTransaction(val);
+
+    const listener = async (id, active) => {
+      if (!dbTriggered && _asset.id === Number(id) && !active) {
+        dbTriggered = true;
+        setBlockchainResults({ asset: _asset });
+        _contract.off("onActivation", listener);
+      }
+    };
+    _contract.on("onActivation", listener);
   };
 
   const activate = async (_asset, _contract) => {
-    console.log('activate');
     // activate collection in blockchain
     const val = await _contract.activateCollection(_asset.id);
 
-    const txReceipt = await WalletUtil.checkTransaction(val);
-    if (txReceipt && txReceipt.blockNumber) {
-      _contract.on("onActivation", async (id, active) => {
-        if (!dbTriggered && _asset.id === Number(id) && active) {
-          dbTriggered = true;
-          setBlockchainResults({ asset: _asset });
-        }
-      });
-    }
+    await WalletUtil.checkTransaction(val);
+
+    const listener = async (id, active) => {
+      if (!dbTriggered && _asset.id === Number(id) && active) {
+        dbTriggered = true;
+        setBlockchainResults({ asset: _asset });
+        _contract.off("onActivation", listener);
+      }
+    };
+    _contract.on("onActivation", listener);
   };
 
   const action = async (_asset, _activate) => {

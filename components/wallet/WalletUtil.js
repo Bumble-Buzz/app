@@ -91,7 +91,7 @@ const getWalletSigner = async () => {
 const checkTransaction = async (transaction) => {
   const provider = await getWalletProvider();
   if (provider) {
-    return await provider.getTransactionReceipt(transaction.hash);
+    return await provider.waitForTransaction(transaction.hash);
   } else {
     return null;
   }

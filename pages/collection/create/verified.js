@@ -84,9 +84,6 @@ export default function Verified() {
       if (!blockchainResults || dbTriggered) return;
 
       try {
-        // upload image to ipfs
-        const imageCid = await uploadImage();
-
         const payload = {
           'id': Number(blockchainResults.id),
           'contractAddress': ethers.utils.getAddress(state.address),
@@ -98,7 +95,7 @@ export default function Verified() {
           'owner': AuthContext.state.account,
           'ownerIncentiveAccess': state.incentive,
           'category': state.category,
-          'image': `ipfs://${imageCid}`,
+          'image': `ipfs://${blockchainResults.imageCid}`,
         };
         await API.collection.create.verified(payload);
 
@@ -134,22 +131,26 @@ export default function Verified() {
     try {
       setLoading(true);
 
+      // upload image to ipfs
+      const imageCid = await uploadImage();
+
       // add collection in blockchain
       const val = await contract.createVerifiedCollection(
         state.name, state.address, state.supply, state.reflection, state.commission,
         AuthContext.state.account, state.incentive
-      );
-
-      const txReceipt = await WalletUtil.checkTransaction(val);
-      if (txReceipt && txReceipt.blockNumber) {
-        contract.on("onCollectionCreate", async (owner, contractAddress, collectionType, id) => {
-          console.log('found event: ', owner, contractAddress, collectionType, id.toNumber());
+        );
+        
+        await WalletUtil.checkTransaction(val);
+        
+        const listener = async (owner, contractAddress, collectionType, id) => {
+          console.log('found verified event: ', owner, contractAddress, collectionType, id.toNumber());
           if (!dbTriggered && session.user.id === owner && ethers.utils.getAddress(state.address) === ethers.utils.getAddress(contractAddress)) {
             dbTriggered = true;
-            setBlockchainResults({ owner, contractAddress, collectionType, id });
+            setBlockchainResults({ owner, contractAddress, collectionType, id, imageCid });
+            contract.off("onCollectionCreate", listener);
           }
-        });
-      }
+        };
+        contract.on("onCollectionCreate", listener);
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);
@@ -158,6 +159,8 @@ export default function Verified() {
   };
 
   const uploadImage = async () => {
+    if (!state.image) throw({ message: 'Image not found' });
+
     const formData = new FormData();
     formData.append("name", state.image.name);
     formData.append("image", state.image);
@@ -198,7 +201,7 @@ export default function Verified() {
                   You have successfully sent a request to add your collection to the marketplace.
                 </p>
                 <p className="text-gray-700 text-base mb-4">
-                  Once accepted, your collection will show up in the marketplace and also in your profile under the 'collection' tab.
+                  Once accepted, your collection will show up in the marketplace and also in your profile under the collection tab.
                 </p>
                 <button
                   type="button"
@@ -348,12 +351,12 @@ export default function Verified() {
                       {state.image ?
                         <Image
                           className="" alt='nft image' src={URL.createObjectURL(state.image)}
-                          placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw'
+                          placeholder='blur' blurDataURL='/avocado.jpg' layout="fill" objectFit="cover" sizes='50vw'
                         />
                       :
                         <Image
                           className="" alt='nft image' src={NoImageAvailable}
-                          placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw'
+                          placeholder='blur' blurDataURL='/avocado.jpg' layout="fill" objectFit="cover" sizes='50vw'
                         />
                       }
                     </div>
@@ -387,6 +390,7 @@ export default function Verified() {
                           const image = e.target.files[0];
                           if (image && image.size > 10485760) {
                             Toast.error("Image size too big. Max 10mb");
+                            dispatch({ type: 'image', payload: { value: null } });
                           } else {
                             dispatch({ type: 'image', payload: { value: image } });
                           }

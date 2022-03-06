@@ -61,16 +61,13 @@ export default function Local() {
       if (!blockchainResults || dbTriggered) return;
 
       try {
-        // upload image to ipfs
-        const imageCid = await uploadImage();
-
         const payload = {
           'id': Number(blockchainResults.id),
           'contractAddress': ethers.utils.getAddress(state.address),
           'name': state.name,
           'description': state.description,
           'owner': AuthContext.state.account,
-          'image': `ipfs://${imageCid}`,
+          'image': `ipfs://${blockchainResults.imageCid}`,
         };
         await API.collection.create.local(payload);
 
@@ -101,19 +98,23 @@ export default function Local() {
     try {
       setLoading(true);
 
+      // upload image to ipfs
+      const imageCid = await uploadImage();
+
       // add collection in blockchain
       const val = await contract.createLocalCollection(state.name, state.address);
 
-      const txReceipt = await WalletUtil.checkTransaction(val);
-      if (txReceipt && txReceipt.blockNumber) {
-        contract.on("onCollectionCreate", async (owner, contractAddress, collectionType, id) => {
-          console.log('found event: ', owner, contractAddress, collectionType, id.toNumber());
-          if (!dbTriggered && session.user.id === owner && ethers.utils.getAddress(state.address) === ethers.utils.getAddress(contractAddress)) {
-            dbTriggered = true;
-            setBlockchainResults({ owner, contractAddress, collectionType, id });
-          }
-        });
-      }
+      await WalletUtil.checkTransaction(val);
+
+      const listener = async (owner, contractAddress, collectionType, id) => {
+        console.log('found local event: ', owner, contractAddress, collectionType, id.toNumber());
+        if (!dbTriggered && session.user.id === owner && ethers.utils.getAddress(state.address) === ethers.utils.getAddress(contractAddress)) {
+          dbTriggered = true;
+          setBlockchainResults({ owner, contractAddress, collectionType, id, imageCid });
+          contract.off("onCollectionCreate", listener);
+        }
+      };
+      contract.on("onCollectionCreate", listener);
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);
@@ -122,6 +123,8 @@ export default function Local() {
   };
 
   const uploadImage = async () => {
+    if (!state.image) throw({ message: 'Image not found' });
+
     const formData = new FormData();
     formData.append("name", state.image.name);
     formData.append("image", state.image);
@@ -226,12 +229,12 @@ export default function Local() {
                       {state.image ?
                         <Image
                           className="" alt='nft image' src={URL.createObjectURL(state.image)}
-                          placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw'
+                          placeholder='blur' blurDataURL='/avocado.jpg' layout="fill" objectFit="cover" sizes='50vw'
                         />
                       :
                         <Image
                           className="" alt='nft image' src={NoImageAvailable}
-                          placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw'
+                          placeholder='blur' blurDataURL='/avocado.jpg' layout="fill" objectFit="cover" sizes='50vw'
                         />
                       }
                     </div>
@@ -265,6 +268,7 @@ export default function Local() {
                           const image = e.target.files[0];
                           if (image && image.size > 10485760) {
                             Toast.error("Image size too big. Max 10mb");
+                            dispatch({ type: 'image', payload: { value: null } });
                           } else {
                             dispatch({ type: 'image', payload: { value: image } });
                           }

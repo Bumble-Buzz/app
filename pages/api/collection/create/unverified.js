@@ -3,6 +3,7 @@ import Cors from 'cors';
 import { ethers } from 'ethers';
 import { getSession } from "next-auth/react";
 import DynamoDbQuery from '../../../../components/backend/db/DynamoDbQuery';
+import { RpcNode } from '../../../../components/backend/Rpc';
 import CollectionItemAbi from '../../../../artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
 
 
@@ -15,8 +16,9 @@ const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
  * for the owner, or the admin.
 **/
 const checkBlockchain = async (collection) => {
-  const RPC = 'http://localhost:8545';
-  const provider = new ethers.providers.JsonRpcProvider(RPC);
+  if (!RpcNode) { console.log('skipping blockchain check'); return true; }
+
+  const provider = new ethers.providers.JsonRpcProvider(RpcNode);
   const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, provider);
   const onChainData = await contract.getCollection(collection.id);
 
