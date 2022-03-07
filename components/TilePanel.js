@@ -17,7 +17,8 @@ export default function TilePanel({ title, items }) {
       <div className='hidden xsm:grid grid-cols-4 w-full divide-x'>
         {items && Object.keys(items).map((key, index) => {
           return (
-            <div className='px-2 py-2 flex flex-col flex-nowarp' key={index}>
+            <div className='px-2 py-2 flex flex-col flex-nowarp relative' key={index}>
+              {items[key].itemSymbol && (<span className="absolute h-5 w-5 right-0 top-0">{items[key].itemSymbol}</span>)}
               <div className='flex flex-row justify-center items-center'>
                 {items[key].symbol && (<div className="relative h-5 w-5">{items[key].symbol}</div>)}
                 <div className="">{format(items[key].value,items[key].format)}</div>

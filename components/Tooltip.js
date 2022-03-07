@@ -1,9 +1,9 @@
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
-import { useState, forwardRef } from 'react';
+import { Fragment, useState, forwardRef } from 'react';
 
 
-export default function Tooltip({ children, text }) {
+export default function Tooltip({ children, text, classes = '' }) {
   // Will only render the `content` or `render` elements if the tippy is mounted to the DOM.
   // Replace <Tippy /> with <LazyTippy /> component and it should work the same.
   const LazyTippy = forwardRef((props, ref) => {
@@ -29,9 +29,13 @@ export default function Tooltip({ children, text }) {
     return <Tippy {...computedProps} ref={ref} />;
   });
 
+  const FixComponent = forwardRef((props, ref) => {
+    return <div ref={ref} className={`w-fit ${classes}`}>{children}</div>;
+  });
+
   return (
     <LazyTippy content={text}>
-      {children}
+      <FixComponent />
     </LazyTippy>
   )
 }

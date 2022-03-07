@@ -31,10 +31,14 @@ export default function Home() {
                   </Tooltip>
                 </div>
                 <div>
-                  <button className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Sell</button>
+                  <Tooltip text='Sell NFTs'>
+                    <button className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Sell</button>
+                  </Tooltip>
                 </div>
                 <div>
-                  <button onClick={() => {ROUTER.push('/asset/create')}} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Create</button>
+                  <Tooltip text='Create NFTs'>
+                    <button onClick={() => {ROUTER.push('/asset/create')}} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Create</button>
+                  </Tooltip>
                 </div>
               </div>
             </div>

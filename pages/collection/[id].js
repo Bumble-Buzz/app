@@ -12,6 +12,8 @@ import useSWR from 'swr';
 import { useAuth } from '../../contexts/AuthContext';
 import ContentWrapper from '../../components/wrappers/ContentWrapper';
 import CollectionContent from '../../components/collection/CollectionContent';
+import Tooltip from '../../components/Tooltip';
+import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/solid';
 
 
 export default function Collection({ collectionDataInit }) {
@@ -34,14 +36,26 @@ export default function Collection({ collectionDataInit }) {
     aurora: (<Image src={'/chains/aurora-color.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />)
   };
 
+  const getItemSymbol = () => {
+    if (collectionDataInit.ownerIncentiveAccess) {
+      return (<Tooltip text='Collection owner DOES have access to the incentive pool'>
+        <ShieldExclamationIcon className="w-5 h-5" fill="#ff3838" alt="unverified" title="unverified" aria-hidden="true" />
+      </Tooltip>)
+    } else {
+      return (<Tooltip text='Collection owner does NOT have access to the incentive pool'>
+        <ShieldCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />
+      </Tooltip>)
+    }
+  };
+
   const tilePanelMonetary = {
-    commission: { name: 'Commission', value: 0.02, format: 'percent', symbol: '' },
-    reflection: { name: 'Reflection', value: 0.03, format: 'percent', symbol: '' },
-    incentive: { name: 'Incentive', value: 0.03, format: 'percent', symbol: '' },
-    incentiveBal: { name: 'Incentive Balance', value: 0.00, format: 'decimal', symbol: chainSymbols.ethereum }
+    commission: { name: 'Commission', value: collectionDataInit.commission, format: 'percent', symbol: '' },
+    reflection: { name: 'Reflection', value: collectionDataInit.reflection, format: 'percent', symbol: '' },
+    incentive: { name: 'Incentive', value: collectionDataInit.incentive, format: 'percent', symbol: '' },
+    incentiveBal: { name: 'Incentive Balance', value: 0.00, format: 'decimal', symbol: chainSymbols.ethereum, itemSymbol: getItemSymbol() }
   };
   const tilePanelAdditional = {
-    items: { name: 'Items', value: 10000, format: 'decimal', symbol: '' },
+    items: { name: 'Items', value: collectionDataInit.totalSupply, format: 'decimal', symbol: '' },
     owners: { name: 'Owners', value: 123, format: 'decimal', symbol: '' },
     floor: { name: 'Floor Price', value: 0.00425744, format: 'decimal', symbol: chainSymbols.ethereum },
     volume: { name: 'Volume Traded', value: 0.0042344, format: 'decimal', symbol: chainSymbols.ethereum }
