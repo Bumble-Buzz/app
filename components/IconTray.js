@@ -2,7 +2,6 @@ import Image from 'next/image';
 import { MenuIcon } from '@heroicons/react/solid';
 import DropDown from './navbar/DropDown';
 import { RefreshIcon } from '@heroicons/react/solid';
-import Tooltip from './Tooltip';
 
 
 export default function IconTray({ items }) {
@@ -36,12 +35,10 @@ export default function IconTray({ items }) {
       {items && items.map((item, index) => {
         return (
           <div className='px-4 my-2 relative h-5 w-5 transform transition duration-500 hover:scale-105 cursor-pointer' key={index}>
-            <Tooltip text={`Hover text here - ${item}`}>
               <Image
                 src={`/socials/${item}.svg`} placeholder='blur' blurDataURL='/avocado.jpg'
                 alt='discord' layout="fill" objectFit="contain" sizes='50vw'
               />
-            </Tooltip>
           </div>
         )
       })}
