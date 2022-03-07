@@ -35,10 +35,10 @@ export default function IconTray({ items }) {
       {items && items.map((item, index) => {
         return (
           <div className='px-4 my-2 relative h-5 w-5 transform transition duration-500 hover:scale-105 cursor-pointer' key={index}>
-              <Image
-                src={`/socials/${item}.svg`} placeholder='blur' blurDataURL='/avocado.jpg'
-                alt='discord' layout="fill" objectFit="contain" sizes='50vw'
-              />
+            <Image
+              src={`/socials/${item}.svg`} placeholder='blur' blurDataURL='/avocado.jpg'
+              alt='discord' layout="fill" objectFit="contain" sizes='50vw'
+            />
           </div>
         )
       })}
