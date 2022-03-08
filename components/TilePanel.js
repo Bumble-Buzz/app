@@ -23,7 +23,7 @@ export default function TilePanel({ title, items }) {
                 {items[key].symbol && (<div className="relative h-5 w-5">{items[key].symbol}</div>)}
                 <div className="">{format(items[key].value,items[key].format)}</div>
               </div>
-              <div className='font-thin'>{items[key].name}</div>
+              <div className='px-1 font-thin'>{items[key].name}</div>
             </div>
           )
         })}
@@ -34,7 +34,7 @@ export default function TilePanel({ title, items }) {
             <div className={`'px-2 py-2 flex flex-col flex-nowarp' ${items[key].itemSymbol ? 'relative' : ''}`} key={index}>
               {items[key].itemSymbol && (<span className="absolute h-5 w-5 right-0 top-0">{items[key].itemSymbol}</span>)}
               <div className=''>{items[key].value}</div>
-              <div className='font-thin'>{items[key].name}</div>
+              <div className='px-1 font-thin'>{items[key].name}</div>
             </div>
           )
         })}

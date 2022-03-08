@@ -9,7 +9,7 @@ export default function DropDown({ children, title, items, getItem, isImage, isS
   // console.log('items: ', items);
   const ROUTER = useRouter();
   return (
-      <Menu as="div" className="relative inline-block text-left">
+      <Menu as="div" className="relative ">
 
         {/* <div> */}
           {!isImage && (
@@ -26,7 +26,7 @@ export default function DropDown({ children, title, items, getItem, isImage, isS
             </Menu.Button>
           )}
           {isImage && isSvg && (
-            <Menu.Button className="inline-flex justify-center flex flex-col justify-center items-center text-center">
+            <Menu.Button className="flex justify-center flex flex-col justify-center items-center text-center">
               {image}
             </Menu.Button>
           )}

@@ -36,7 +36,7 @@ export default function IconTray({ items }) {
     <div className='grid grid-rows-1 grid-flow-col w-fit divide-x border rounded-lg shadow-lg bg-gray-50 items-center text-center'>
       {items && items.map((item, index) => {
         return (
-          <Tooltip text={`${item}`} classes='h-full flex flex-col justify-center' key={index}>
+          <Tooltip text={`${item}`} key={index}>
             <div className='mx-2 my-2 transform transition duration-500 hover:scale-105 cursor-pointer'>
               {item === 'discord' && <Discord height={24} width={24} />}
               {item === 'twitter' && <Twitter height={24} width={24} />}
@@ -45,8 +45,8 @@ export default function IconTray({ items }) {
           </Tooltip>
         )
       })}
-      <div classes='w-fit h-full flex flex-col justify-center'>
-        <div className='mx-2 mt-1 transform transition duration-500 hover:scale-105 cursor-pointer'>
+      <div classes='w-fit '>
+        <div className='mx-2 my-2 transform transition duration-500 hover:scale-105 cursor-pointer'>
           <DropDown title='title' items={[1,2]} getItem={getItem} isImage={true} isSvg={true} image={<Menu height={24} width={24} />} />
         </div>
       </div>
