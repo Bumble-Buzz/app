@@ -113,7 +113,7 @@ export default function Collection({ collectionDataInit }) {
           </div>
           {/* icon tray */}
           <div className='flex flex-col flex-nowrap items-center'>
-            <IconTray items={[ 'discord-solid', 'twitter-solid', 'website-solid' ]} />
+            <IconTray items={[ 'discord', 'twitter', 'website' ]} />
           </div>
         </div>
 

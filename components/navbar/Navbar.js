@@ -218,9 +218,9 @@ export default function Navbar() {
         {/* avatar */}
         <div className="cursor-pointer ml-2">
           {session && sessionStatus === 'authenticated' ?
-            (<DropDown title={Lexicon.avatar.text} items={[11,12,13,15]} getItem={getItem} typeImage={true}></DropDown>)
+            (<DropDown title={Lexicon.avatar.text} items={[11,12,13,15]} getItem={getItem} isImage={true}></DropDown>)
             :
-            (<DropDown title={Lexicon.avatar.text} items={[11,12,13,14]} getItem={getItem} typeImage={true}></DropDown>)
+            (<DropDown title={Lexicon.avatar.text} items={[11,12,13,14]} getItem={getItem} isImage={true}></DropDown>)
           }
         </div>
         {/* menu open */}

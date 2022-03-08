@@ -1,6 +1,11 @@
 import Image from 'next/image';
 import { MenuIcon } from '@heroicons/react/solid';
 import DropDown from './navbar/DropDown';
+import Tooltip from './Tooltip';
+import Discord from '../public/socials/discord-solid.svg';
+import Twitter from '../public/socials/twitter-solid.svg';
+import Website from '../public/socials/website-solid.svg';
+import Menu from '../public/menu.svg';
 import { RefreshIcon } from '@heroicons/react/solid';
 
 
@@ -29,21 +34,21 @@ export default function IconTray({ items }) {
 
   return (
     <div className='grid grid-rows-1 grid-flow-col w-fit divide-x border rounded-lg shadow-lg bg-gray-50 items-center text-center'>
-      {/* <div className='relative pl-1 mr-3 h-5 w-5 transform transition duration-500 hover:scale-105 cursor-pointer'>
-        <RefreshIcon className="w-5 h-5 mr-2" aria-hidden="true" />
-      </div> */}
       {items && items.map((item, index) => {
         return (
-          <div className='px-4 my-2 relative h-5 w-5 transform transition duration-500 hover:scale-105 cursor-pointer' key={index}>
-            <Image
-              src={`/socials/${item}.svg`} placeholder='blur' blurDataURL='/avocado.jpg'
-              alt='discord' layout="fill" objectFit="contain" sizes='50vw'
-            />
-          </div>
+          <Tooltip text={`${item}`} classes='h-full flex flex-col justify-center' key={index}>
+            <div className='mx-2 my-2 transform transition duration-500 hover:scale-105 cursor-pointer'>
+              {item === 'discord' && <Discord height={24} width={24} />}
+              {item === 'twitter' && <Twitter height={24} width={24} />}
+              {item === 'website' && <Website height={24} width={24} />}
+            </div>
+          </Tooltip>
         )
       })}
-      <div className='relative pl-1 mr-3 h-5 w-5 transform transition duration-500 hover:scale-105 cursor-pointer'>
-        <DropDown title='title' items={[1,2]} getItem={getItem} typeImage={true} image={'/menu.svg'} imageStyle={'h-5 w-5'} />
+      <div classes='w-fit h-full flex flex-col justify-center'>
+        <div className='mx-2 mt-1 transform transition duration-500 hover:scale-105 cursor-pointer'>
+          <DropDown title='title' items={[1,2]} getItem={getItem} isImage={true} isSvg={true} image={<Menu height={24} width={24} />} />
+        </div>
       </div>
     </div>
   )

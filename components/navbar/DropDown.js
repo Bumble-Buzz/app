@@ -5,33 +5,33 @@ import { Menu, Transition } from '@headlessui/react';
 import {ChevronDownIcon} from '@heroicons/react/solid';
 
 
-export default function DropDown({ children, title, items, getItem, typeImage, image = '/avocado.jpg', imageStyle = 'h-10 w-10 border-2 border-black-600 rounded-full overflow-hidden' }) {
+export default function DropDown({ children, title, items, getItem, isImage, isSvg, image = '/avocado.jpg', imageStyle = 'h-10 w-10 border-2 border-black-600 rounded-full overflow-hidden' }) {
   // console.log('items: ', items);
   const ROUTER = useRouter();
   return (
-    <div className="">
       <Menu as="div" className="relative inline-block text-left">
-        <div>
-          {typeImage ?
+
+        {/* <div> */}
+          {!isImage && (
+            <Menu.Button className="inline-flex justify-center w-full font-medium rounded-md bg-opacity-20 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+              {title}
+              <ChevronDownIcon className="w-5 h-5 pt-1 pr-1 text-violet-200 hover:text-violet-100" aria-hidden="true" />
+            </Menu.Button>
+          )}
+          {isImage && !isSvg && (
             <Menu.Button className="inline-flex justify-center flex flex-col justify-center items-center text-center">
               <div className={`relative ${imageStyle}`}>
-                <Image
-                  src={image} placeholder='blur' blurDataURL='/avocado.jpg'
-                  alt='Profile' layout="fill" objectFit="cover" sizes='50vw'
-                />
+                <Image src={image} placeholder='blur' blurDataURL='/avocado.jpg' alt='Profile' layout="fill" objectFit="cover" sizes='50vw' />
               </div>
             </Menu.Button>
-            :
-            <Menu.Button className="inline-flex justify-center w-full font-medium rounded-md bg-opacity-20 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-            {title}
-            <ChevronDownIcon
-              className="w-5 h-5 pt-1 pr-1 text-violet-200 hover:text-violet-100"
-              aria-hidden="true"
-            />
-          </Menu.Button>
-          }
-          
-        </div>
+          )}
+          {isImage && isSvg && (
+            <Menu.Button className="inline-flex justify-center flex flex-col justify-center items-center text-center">
+              {image}
+            </Menu.Button>
+          )}
+        {/* </div> */}
+
         <Transition
           as={Fragment}
           enter="transition ease-out duration-100"
@@ -67,8 +67,8 @@ export default function DropDown({ children, title, items, getItem, typeImage, i
             </div>
           </Menu.Items>
         </Transition>
+
       </Menu>
-    </div>
   )
 }
 
