@@ -1,12 +1,12 @@
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
-import { Fragment, useState, forwardRef } from 'react';
+import { useState, forwardRef } from 'react';
 
 
 export default function Tooltip({ children, text, classes = '' }) {
   // Will only render the `content` or `render` elements if the tippy is mounted to the DOM.
   // Replace <Tippy /> with <LazyTippy /> component and it should work the same.
-  const LazyTippy = forwardRef((props, ref) => {
+  const LazyTippy = forwardRef(function LazyToolkit(props, ref) {
     const [mounted, setMounted] = useState(false);
   
     const lazyPlugin = {
@@ -29,7 +29,7 @@ export default function Tooltip({ children, text, classes = '' }) {
     return <Tippy {...computedProps} ref={ref} />;
   });
 
-  const FixComponent = forwardRef((props, ref) => {
+  const FixComponent = forwardRef(function Toolkit(props, ref) {
     return <div ref={ref} className={`w-fit ${classes}`}>{children}</div>;
   });
 
