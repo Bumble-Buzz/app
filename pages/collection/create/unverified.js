@@ -116,7 +116,6 @@ export default function Unverified() {
         await WalletUtil.checkTransaction(val);
         
         const listener = async (owner, contractAddress, collectionType, id) => {
-          console.log('found unverified event: ', owner, contractAddress, collectionType, id.toNumber());
           if (!dbTriggered && session.user.id === owner && EMPTY_ADDRESS === ethers.utils.getAddress(contractAddress)) {
             dbTriggered = true;
             setBlockchainResults({ owner, contractAddress, collectionType, id, imageCid });
@@ -193,12 +192,12 @@ export default function Unverified() {
           </div>
           :
           <div className="p-2 flex flex-col items-center">
-            <form onSubmit={(e) => {addCollection(e)}} method="POST" className="">
+            <form onSubmit={(e) => {addCollection(e)}} method="POST" className="w-full sm:w-auto">
               <div className="shadow overflow-hidden rounded-md">
 
                 <div className="flex flex-col items-center px-4 py-4 gap-2 bg-white">
 
-                  <div className="flex flex-col md:flex-row">
+                  <div className="flex flex-col sm:flex-row gap-2 w-full">
                     <div className="w-full">
                       <div className="my-2">
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
@@ -224,7 +223,7 @@ export default function Unverified() {
                       </div>
                     </div>
 
-                    <div className="hidden md:block border-r border-gray-200 mx-4"></div>
+                    <div className="hidden sm:block border-r border-gray-200 mx-4"></div>
 
                     <div className="w-full">
                       <div className="my-2">

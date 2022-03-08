@@ -34,15 +34,17 @@ export default function IconTray({ items }) {
 
   return (
     <div className='grid grid-rows-1 grid-flow-col w-fit divide-x border rounded-lg shadow-lg bg-gray-50 items-center text-center'>
-      {items && items.map((item, index) => {
+      {items && items.filter((item) => item.link).map((item, index) => {
         return (
-          <Tooltip text={`${item}`} key={index}>
-            <div className='mx-2 my-2 transform transition duration-500 hover:scale-105 cursor-pointer'>
-              {item === 'discord' && <Discord height={24} width={24} />}
-              {item === 'twitter' && <Twitter height={24} width={24} />}
-              {item === 'website' && <Website height={24} width={24} />}
-            </div>
-          </Tooltip>
+          <a href="https://google.ca/" target='blank' className='relative h-10 w-10 cursor-pointer' key={index}>
+            <Tooltip text={`${item.hover}`}>
+              <div className='mx-2 my-2 transform transition duration-500 hover:scale-105 cursor-pointer'>
+                {item.name === 'discord' && <Discord height={24} width={24} />}
+                {item.name === 'twitter' && <Twitter height={24} width={24} />}
+                {item.name === 'website' && <Website height={24} width={24} />}
+              </div>
+            </Tooltip>
+          </a>
         )
       })}
       <div classes='w-fit '>

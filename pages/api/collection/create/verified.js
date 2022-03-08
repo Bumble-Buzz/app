@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     TableName: "collection",
     Item: {
       'id': data.id,
-      'contractAddress': data.contractAddress,
+      'contractAddress': ethers.utils.getAddress(data.contractAddress),
       'name': data.name,
       'description': data.description,
       'totalSupply': data.totalSupply,
@@ -58,6 +58,7 @@ export default async function handler(req, res) {
       'ownerIncentiveAccess': data.ownerIncentiveAccess,
       'category': data.category,
       'image': data.image,
+      'social': data.social,
       'active': 0
     },
     ExpressionAttributeNames: { '#id': 'id' },

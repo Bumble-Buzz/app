@@ -52,6 +52,15 @@ const reducer = (state, action) => {
       newState = JSON.parse(JSON.stringify(state));
       newState.image = action.payload.value;
       return newState
+    case 'discord':
+      state.social.discord.link = action.payload.discord;
+      return state
+    case 'twitter':
+      state.social.twitter.link = action.payload.twitter;
+      return state
+    case 'website':
+      state.social.website.link = action.payload.website;
+      return state
     case 'clear':
       return {
         name: '',
@@ -62,7 +71,12 @@ const reducer = (state, action) => {
         reflection: 0,
         address: '',
         incentive: false,
-        image: null
+        image: null,
+        social: {
+          discord: { name: 'discord', link: '', hover: 'Discord', icon: '' },
+          twitter: { name: 'twitter', link: '', hover: 'Twitter', icon: '' },
+          website: { name: 'website', link: '', hover: 'Website', icon: '' }
+        }
       }
     default:
       return state
@@ -96,6 +110,7 @@ export default function Verified() {
           'ownerIncentiveAccess': state.incentive,
           'category': state.category,
           'image': `ipfs://${blockchainResults.imageCid}`,
+          'social': [ state.social.discord, state.social.twitter, state.social.website ]
         };
         await API.collection.create.verified(payload);
 
@@ -119,12 +134,25 @@ export default function Verified() {
     reflection: 0,
     address: '',
     incentive: false,
-    image: null
+    image: null,
+    social: {
+      discord: { name: 'discord', link: '', hover: 'Discord', icon: '' },
+      twitter: { name: 'twitter', link: '', hover: 'Twitter', icon: '' },
+      website: { name: 'website', link: '', hover: 'Website', icon: '' }
+    }
   });
 
 
   const addCollection = async (e) => {
     e.preventDefault();
+
+    try {
+      ethers.utils.getAddress(state.address);
+    } catch (e) {
+      console.error('e', e);
+      Toast.error('Contract address is not valid');
+      return;
+    }
 
     const signer = await WalletUtil.getWalletSigner();
     const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
@@ -222,12 +250,12 @@ export default function Verified() {
           </div>
           :
           <div className="p-2 flex flex-col items-center">
-            <form onSubmit={(e) => {addCollection(e)}} method="POST" className="">
+            <form onSubmit={(e) => {addCollection(e)}} method="POST" className="w-full sm:w-auto">
               <div className="shadow overflow-hidden rounded-md">
 
                 <div className="flex flex-col items-center px-4 py-4 gap-2 bg-white">
 
-                  <div className="flex flex-col md:flex-row">
+                  <div className="flex flex-col sm:flex-row gap-2 w-full">
                     <div className="w-full">
                       <div className="my-2">
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
@@ -277,7 +305,7 @@ export default function Verified() {
                       </div>
                     </div>
 
-                    <div className="hidden md:block border-r border-gray-200 mx-4"></div>
+                    <div className="hidden sm:block border-r border-gray-200 mx-4"></div>
 
                     <div className="w-full">
                       <div className="my-2">
@@ -343,6 +371,45 @@ export default function Verified() {
                           Owner Incentive Access
                         </HeadlessSwitch>
                       </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col w-full">
+                    <div className="my-2">
+                      <label htmlFor="discord" className="block text-sm font-medium text-gray-700">Discord (optional)</label>
+                      <input
+                        type="url"
+                        name="discord"
+                        id="discord"
+                        autoComplete="off"
+                        placeholder="http://example.com"
+                        className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                        onChange={(e) => dispatch({ type: 'discord', payload: { discord: e.target.value } })}
+                      />
+                    </div>
+                    <div className="my-2">
+                      <label htmlFor="twitter" className="block text-sm font-medium text-gray-700">Twitter (optional)</label>
+                      <input
+                        type="url"
+                        name="twitter"
+                        id="twitter"
+                        autoComplete="off"
+                        placeholder="http://example.com"
+                        className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                        onChange={(e) => dispatch({ type: 'twitter', payload: { twitter: e.target.value } })}
+                      />
+                    </div>
+                    <div className="my-2">
+                      <label htmlFor="website" className="block text-sm font-medium text-gray-700">Website (optional)</label>
+                      <input
+                        type="url"
+                        name="website"
+                        id="website"
+                        autoComplete="off"
+                        placeholder="http://example.com"
+                        className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                        onChange={(e) => dispatch({ type: 'website', payload: { website: e.target.value } })}
+                      />
                     </div>
                   </div>
 

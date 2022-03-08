@@ -56,7 +56,7 @@ export default function Create() {
   const { data: session, status: sessionStatus } = useSession();
 
   useEffect(() => {
-    setTab(ROUTER.query.tab);
+    if (ROUTER.query.tab) setTab(ROUTER.query.tab);
   }, [ROUTER.query.tab]);
 
   // swr call to fetch initial data
@@ -196,10 +196,12 @@ export default function Create() {
       {/* Page Content */}
       <div className="flex flex-col w-full">
 
-        {/* <p onClick={() => {console.log('userData', userData)}}>See userData</p>
-        <p onClick={() => {console.log('userState', userState)}}>See userState</p>
-        <p onClick={() => ROUTER.push('/profile/0xdA121aB48c7675E4F25E28636e3Efe602e49eec6')}>user 0xdA121aB48c7675E4F25E28636e3Efe602e49eec6</p>
-        <p onClick={() => ROUTER.push('/profile/0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED')}>user 0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED</p> */}
+        {/* <p onClick={() => {console.log('userData', userData)}}>See userData</p> */}
+        {/* <p onClick={() => {console.log('userState', userState)}}>See userState</p> */}
+        {/* <p onClick={() => ROUTER.push('/profile/0xdA121aB48c7675E4F25E28636e3Efe602e49eec6')}>user 0xdA121aB48c7675E4F25E28636e3Efe602e49eec6</p> */}
+        {/* <p onClick={() => ROUTER.push('/profile/0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED')}>user 0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED</p> */}
+        {/* <p onClick={() => {console.log('tab', tab)}}>See tab</p> */}
+        {/* <p onClick={() => {console.log('ROUTER.query.tab', ROUTER.query.tab)}}>See ROUTER.query.tab</p> */}
 
         <div className="p-2">
           <h2 className="text-3xl font-semibold text-gray-800">Pro<span className="text-indigo-600">file</span></h2>

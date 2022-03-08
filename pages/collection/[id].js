@@ -112,8 +112,8 @@ export default function Collection({ collectionDataInit }) {
             </div>
           </div>
           {/* icon tray */}
-          <div className='flex flex-col flex-nowrap items-center'>
-            <IconTray items={[ 'discord', 'twitter', 'website' ]} />
+          <div className='flex flex-col flex-nowrap items-end xsm:items-center'>
+            <IconTray items={collectionDataInit.social} />
           </div>
         </div>
 

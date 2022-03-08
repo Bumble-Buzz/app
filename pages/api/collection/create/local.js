@@ -59,6 +59,7 @@ export default async function handler(req, res) {
       'ownerIncentiveAccess': false,
       'category': 'none',
       'image': data.image,
+      'social': [],
       'active': 1
     },
     ExpressionAttributeNames: { '#id': 'id' },
