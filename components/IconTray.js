@@ -36,7 +36,7 @@ export default function IconTray({ items }) {
     <div className='grid grid-rows-1 grid-flow-col w-fit divide-x border rounded-lg shadow-lg bg-gray-50 items-center text-center'>
       {items && items.filter((item) => item.link).map((item, index) => {
         return (
-          <a href="https://google.ca/" target='blank' className='relative h-10 w-10 cursor-pointer' key={index}>
+          <a href="https://google.ca/" target='blank' key={index}>
             <Tooltip text={`${item.hover}`}>
               <div className='mx-2 my-2 transform transition duration-500 hover:scale-105 cursor-pointer'>
                 {item.name === 'discord' && <Discord height={24} width={24} />}
@@ -47,10 +47,8 @@ export default function IconTray({ items }) {
           </a>
         )
       })}
-      <div classes='w-fit '>
-        <div className='mx-2 my-2 transform transition duration-500 hover:scale-105 cursor-pointer'>
-          <DropDown title='title' items={[1,2]} getItem={getItem} isImage={true} isSvg={true} image={<Menu height={24} width={24} />} />
-        </div>
+      <div className='mx-2 my-2 transform transition duration-500 hover:scale-105 cursor-pointer'>
+        <DropDown title='title' items={[1,2]} getItem={getItem} isImage={true} isSvg={true} image={<Menu height={24} width={24} />} />
       </div>
     </div>
   )

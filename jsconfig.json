@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/public/*": ["public/*"],
+      "@/pages/*": ["pages/*"],
+      "@/components/*": ["components/*"],
+      "@/contexts/*": ["contexts/*"],
+      "@/enum/*": ["enum/*"],
+      "@/lexicon/*": ["lexicon/*"],
+      "@/utils/*": ["utils/*"]
+    }
+  }
+}
