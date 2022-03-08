@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import IPFS from '../../utils/ipfs';
+import IPFS from '@/utils/ipfs';
 
 
 export default function NftCard({children, innerRef, header, image, body, footer}) {

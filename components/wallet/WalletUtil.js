@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { AUTH_CONTEXT_ACTIONS } from '../../contexts/AuthContext';
+import { AUTH_CONTEXT_ACTIONS } from '@/contexts/AuthContext';
 const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 

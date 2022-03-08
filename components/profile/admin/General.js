@@ -1,9 +1,9 @@
 import { useEffect, useState, useReducer } from 'react';
 import { ethers } from 'ethers';
-import WalletUtil from '../../wallet/WalletUtil';
-import Toast from '../../Toast';
+import WalletUtil from '@/components/wallet/WalletUtil';
+import Toast from '@/components/Toast';
 
-import AvaxTradeAbi from '../../../artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
+import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 export default function General() {
 

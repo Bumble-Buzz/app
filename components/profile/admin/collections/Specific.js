@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import API from '../../../Api';
-import Toast from '../../../Toast';
+import API from '@/components/Api';
+import Toast from '@/components/Toast';
 import ActiveInactive from './ActiveInactive';
 
 export default function Specific({ }) {

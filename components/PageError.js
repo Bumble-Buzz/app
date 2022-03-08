@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import ContentWrapper from './wrappers/ContentWrapper';
-import Lexicon from '../lexicon/unauthenticated';
+import Lexicon from '@/lexicon/unauthenticated';
 
 
 export default function PageError({ children }) {

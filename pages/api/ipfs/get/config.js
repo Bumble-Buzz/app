@@ -1,6 +1,6 @@
 import Cors from 'cors';
 import axios from 'axios';
-import IPFS from '../../../../utils/ipfs';
+import IPFS from '@/utils/ipfs';
 
 
 // Initializing the cors middleware

@@ -1,8 +1,8 @@
 import { useRouter } from 'next/router';
 import ActiveInactive from './ActiveInactive';
 import Specific from './Specific';
-import API from '../../../Api';
-import ButtonWrapper from '../../../wrappers/ButtonWrapper';
+import API from '@/components/Api';
+import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import { ArrowRightIcon } from '@heroicons/react/solid';
 
 

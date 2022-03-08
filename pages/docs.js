@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Content from '../components/docs/content';
+import Content from '@/components/docs/content';
 
 export default function Docs() {
   const [activeTab, setActiveTab] = useState(1);

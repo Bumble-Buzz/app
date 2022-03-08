@@ -1,5 +1,5 @@
 import Cors from 'cors';
-import DynamoDbQuery from '../../components/backend/db/DynamoDbQuery';
+import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 
 
 // Initializing the cors middleware

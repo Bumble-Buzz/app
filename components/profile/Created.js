@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import InputWrapper from '../wrappers/InputWrapper';
-import NftCard from '../nftAssets/NftCard';
-import API from '../Api';
+import InputWrapper from '@/components/wrappers/InputWrapper';
+import NftCard from '@/components/nftAssets/NftCard';
+import API from '@/components/Api';
 import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/solid';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';

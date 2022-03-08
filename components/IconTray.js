@@ -2,10 +2,10 @@ import Image from 'next/image';
 import { MenuIcon } from '@heroicons/react/solid';
 import DropDown from './navbar/DropDown';
 import Tooltip from './Tooltip';
-import Discord from '../public/socials/discord-solid.svg';
-import Twitter from '../public/socials/twitter-solid.svg';
-import Website from '../public/socials/website-solid.svg';
-import Menu from '../public/menu.svg';
+import Discord from '@/public/socials/discord-solid.svg';
+import Twitter from '@/public/socials/twitter-solid.svg';
+import Website from '@/public/socials/website-solid.svg';
+import Menu from '@/public/menu.svg';
 import { RefreshIcon } from '@heroicons/react/solid';
 
 

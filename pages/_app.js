@@ -1,13 +1,14 @@
 import '../styles/globals.css';
 import Head from 'next/head';
-import Navbar from '../components/navbar/Navbar';
-import Footer from '../components/Footer';
+import Navbar from '@/components/navbar/Navbar';
+import Footer from '@/components/Footer';
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { SessionProvider } from "next-auth/react"
-import { AuthProvider } from '../contexts/AuthContext'
+import { AuthProvider } from '@/contexts/AuthContext'
+
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   return (

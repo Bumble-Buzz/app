@@ -1,18 +1,17 @@
 import { useState } from 'react';
-import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSession, getSession } from 'next-auth/react';
-import IconTray from '../../components/IconTray';
-import TilePanel from '../../components/TilePanel';
-import PageError from '../../components/PageError';
-import API from '../../components/Api';
 import useSWR from 'swr';
-import { useAuth } from '../../contexts/AuthContext';
-import ContentWrapper from '../../components/wrappers/ContentWrapper';
-import CollectionContent from '../../components/collection/CollectionContent';
-import Tooltip from '../../components/Tooltip';
+import { useAuth } from '@/contexts/AuthContext';
+import IconTray from '@/components/IconTray';
+import TilePanel from '@/components/TilePanel';
+import PageError from '@/components/PageError';
+import API from '@/components/Api';
+import ContentWrapper from '@/components/wrappers/ContentWrapper';
+import CollectionContent from '@/components/collection/CollectionContent';
+import Tooltip from '@/components/Tooltip';
 import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/solid';
 
 

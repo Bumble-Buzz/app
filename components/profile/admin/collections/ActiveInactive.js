@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
-import API from '../../../Api';
-import Toast from '../../../Toast';
-import WalletUtil from '../../..//wallet/WalletUtil';
-import ButtonWrapper from '../../../wrappers/ButtonWrapper';
-import InputWrapper from '../../../wrappers/InputWrapper';
+import API from '@/components/Api';
+import Toast from '@/components/Toast';
+import WalletUtil from '@/components/wallet/WalletUtil';
+import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
+import InputWrapper from '@/components/wrappers/InputWrapper';
 
-import CollectionItemAbi from '../../../../artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
+import CollectionItemAbi from '@/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
 
 
 export default function ActiveInactive({ initialData, title, isSearch = true, classes, api }) {

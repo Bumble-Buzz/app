@@ -1,6 +1,6 @@
 import Cors from 'cors';
 const fs = require("fs");
-import IPFS from '../../../utils/ipfs-js';
+import IPFS from '@/utils/ipfs-js';
 import { IncomingForm } from 'formidable';
 
 export const config = {
@@ -59,7 +59,7 @@ function runMiddleware(req, res, fn) {
 // import multer from 'multer';
 // import Cors from 'cors';
 // const fs = require("fs");
-// import IPFS from '../../../utils/ipfs-js';
+// import IPFS from '@/utils/ipfs-js';
 
 // export const config = {
 //   api: {

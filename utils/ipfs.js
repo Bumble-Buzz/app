@@ -1,4 +1,4 @@
-import CheckEnvironment from '../components/CheckEnvironment';
+import CheckEnvironment from '@/components/CheckEnvironment';
 
 
 const getValidBaseUrl = (val = '') => {

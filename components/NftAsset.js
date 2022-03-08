@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Image from 'next/image';
-import IPFS from '../utils/ipfs';
+import IPFS from '@/utils/ipfs';
 
 function NftAsset({url, index, tokenUri}) {
   const [uriData, setUriData] = useState({});

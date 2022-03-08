@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require('path');
 const slash = require('slash');
 const glob = require('glob');
-const CheckEnvironment = require('../components/CheckEnvironment');
+const CheckEnvironment = require('@/components/CheckEnvironment');
 
 
 const ipfsClient = require('ipfs-http-client');

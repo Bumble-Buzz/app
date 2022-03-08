@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import ButtonWrapper from '../wrappers/ButtonWrapper';
-import InputWrapper from '../wrappers/InputWrapper';
-import CollectionCard from '../nftAssets/CollectionCard';
-import API from '../Api';
+import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
+import InputWrapper from '@/components/wrappers/InputWrapper';
+import CollectionCard from '@/components/nftAssets/CollectionCard';
+import API from '@/components/Api';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
 import { ArrowRightIcon } from '@heroicons/react/solid';

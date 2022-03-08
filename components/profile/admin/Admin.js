@@ -1,7 +1,6 @@
-import { useEffect, useState, useReducer } from 'react';
-import { ethers } from 'ethers';
+import { useState, } from 'react';
 import { useRouter } from 'next/router';
-import API from '../../Api';
+import API from '@/components/Api';
 import useSWR from 'swr';
 import AdminFactory from './AdminFactory';
 

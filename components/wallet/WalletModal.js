@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import HeadlessDialog from '../HeadlessDialog';
-import WALLTET from '../../utils/wallet';
+import HeadlessDialog from '@/components/HeadlessDialog';
+import WALLTET from '@/utils/wallet';
 
 export default function WalletModal({ children, open, setOpen, title, content }) {
   // const [isError, setError] = useState(false);

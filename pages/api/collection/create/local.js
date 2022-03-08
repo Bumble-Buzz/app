@@ -2,9 +2,9 @@ import Cors from 'cors';
 // const { ethers } = require("hardhat");
 import { ethers } from 'ethers';
 import { getSession } from "next-auth/react";
-import DynamoDbQuery from '../../../../components/backend/db/DynamoDbQuery';
-import { RpcNode } from '../../../../components/backend/Rpc';
-import CollectionItemAbi from '../../../../artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
+import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
+import { RpcNode } from '@/components/backend/Rpc';
+import CollectionItemAbi from '@/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
 
 
 const COLLECTION_TYPE = [ 'local', 'verified', 'unverified' ];

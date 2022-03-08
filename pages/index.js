@@ -1,8 +1,8 @@
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import ContentWrapper from '../components/wrappers/ContentWrapper';
-import Lexicon from '../lexicon/index';
-import Tooltip from '../components/Tooltip';
+import ContentWrapper from '@/components/wrappers/ContentWrapper';
+import Lexicon from '@/lexicon/index';
+import Tooltip from '@/components/Tooltip';
 
 
 export default function Home() {

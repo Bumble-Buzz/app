@@ -2,11 +2,11 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { ethers } from 'ethers';
 import { useSession, getSession, getProviders, signIn, signOut } from 'next-auth/react';
-import API from '../components/Api';
-import Toast from '../components/Toast';
-import WalletUtil from '../components/wallet/WalletUtil';
-import { useAuth } from '../contexts/AuthContext';
-import ContentWrapper from '../components/wrappers/ContentWrapper';
+import API from '@/components/Api';
+import Toast from '@/components/Toast';
+import WalletUtil from '@/components/wallet/WalletUtil';
+import { useAuth } from '@/contexts/AuthContext';
+import ContentWrapper from '@/components/wrappers/ContentWrapper';
 
 
 const contractsDb = async () => {

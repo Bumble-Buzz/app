@@ -6,9 +6,9 @@ import Menu from './Menu';
 import Notification from './Notification';
 import DropDown from './DropDown';
 import HeadlessSlideOver from '../HeadlessSlideOver';
-import { useAuth, AUTH_CONTEXT_ACTIONS } from '../../contexts/AuthContext';
-import WalletUtil from '../../components/wallet/WalletUtil';
-import Lexicon from '../../lexicon/navbar';
+import { useAuth, AUTH_CONTEXT_ACTIONS } from '@/contexts/AuthContext';
+import WalletUtil from '@/components/wallet/WalletUtil';
+import Lexicon from '@/lexicon/navbar';
 import {
   PencilIcon, SearchIcon, MenuIcon, XIcon, BellIcon, ShoppingCartIcon
 } from '@heroicons/react/solid';

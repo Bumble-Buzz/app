@@ -1,4 +1,4 @@
-const CheckEnvironment = require('../CheckEnvironment');
+const CheckEnvironment = require('@/components/CheckEnvironment');
 
 const RPC = CheckEnvironment.isDevMode ? 'http://localhost:8545' : null;
 console.log('RPC node:', RPC);

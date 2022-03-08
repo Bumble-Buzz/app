@@ -5,7 +5,7 @@ import ButtonWrapper from '../wrappers/ButtonWrapper';
 import InputWrapper from '../wrappers/InputWrapper';
 import { FilterPanel, FILTER_TYPES } from '../FilterPanel';
 import Toast from '../Toast';
-import { CATEGORIES } from '../../enum/Categories';
+import { CATEGORIES } from '@/enum/Categories';
 import NftCard from '../nftAssets/NftCard';
 import API from '../Api';
 import useInView from 'react-cool-inview';

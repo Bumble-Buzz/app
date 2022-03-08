@@ -1,6 +1,6 @@
 import Cors from 'cors';
 import { getSession } from "next-auth/react";
-import DynamoDbQuery from '../../../components/backend/db/DynamoDbQuery';
+import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 
 
 export default async function handler(req, res) {

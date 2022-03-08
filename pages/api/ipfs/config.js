@@ -1,6 +1,6 @@
 import Cors from 'cors';
 const fs = require("fs");
-import IPFS from '../../../utils/ipfs-js';
+import IPFS from '@/utils/ipfs-js';
 
 
 // Initializing the cors middleware

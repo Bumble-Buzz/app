@@ -1,9 +1,9 @@
 import Cors from 'cors';
 import { ethers } from 'ethers';
 import { getSession } from "next-auth/react";
-import DynamoDbQuery from '../../../components/backend/db/DynamoDbQuery';
-import { RpcNode } from '../../../components/backend/Rpc';
-import AvaxTradeNftAbi from '../../../artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
+import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
+import { RpcNode } from '@/components/backend/Rpc';
+import AvaxTradeNftAbi from '@/artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
 /**

@@ -671,42 +671,8 @@ const mockAssets = async () => {
   }
 };
 
-const mockPendingCollections = async () => {
-  const id = 2;
-  let payload = {
-    TableName: "pending-collection",
-    ExpressionAttributeNames: { '#owner': 'owner' },
-    ExpressionAttributeValues: { ':owner': '0xdA121aB48c7675E4F25E28636e3Efe602e49eec6' },
-    KeyConditionExpression: '#owner = :owner'
-  };
-  const results = await DynamoDbQuery.item.query(payload);
-  console.log('Query item:', results.Items);
-  const item = results.Items[0];
-
-  for (let i = id+1; i < 65; i++) {
-    payload = {
-      TableName: "pending-collection",
-      Item: {
-        'owner': item.owner,
-        'contractAddress': `${item.contractAddress}${i}`,
-        'id': id,
-        'name': `asd ${id}`,
-        'description': item.description,
-        'totalSupply': item.totalSupply,
-        'reflection': item.reflection,
-        'commission': item.commission,
-        'ownerIncentiveAccess': item.ownerIncentiveAccess,
-        'category': item.category,
-        'image': item.image,
-        'status': item.status
-      }
-    };
-    await DynamoDbQuery.item.put(payload);
-  }
-};
-
 const mockCollections = async () => {
-  const pk = 98;
+  const pk = 3;
   let payload = {
     TableName: "collection",
     ExpressionAttributeNames: { '#id': 'id' },
@@ -717,12 +683,12 @@ const mockCollections = async () => {
   console.log('Query item:', results.Items);
   const item = results.Items[0];
 
-  for (let i = pk+1; i < 199; i++) {
+  for (let i = pk+1; i < 99; i++) {
     payload = {
       TableName: "collection",
       Item: {
         'id': i,
-        'contractAddress': '0xBDDf875B6f5Aa1C64aEA75c3bDf19b2b46215E29',
+        'contractAddress': item.contractAddress,
         'name': item.name,
         'description': item.description,
         'totalSupply': item.totalSupply,
@@ -734,7 +700,7 @@ const mockCollections = async () => {
         'ownerIncentiveAccess': false,
         'active': 1,
         'category': 'meme',
-        'image': 'ashdkashdkjahsdkahsdkjahsdkajshdkajshda'
+        'image':  item.image
       }
     };
     console.log('payload', payload);
@@ -744,7 +710,6 @@ const mockCollections = async () => {
 
 const mock = async () => {
   await mockAssets();
-  // await mockPendingCollections();
   // await mockCollections();
 };
 

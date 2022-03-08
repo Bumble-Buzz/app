@@ -3,17 +3,17 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useSession, getSession } from 'next-auth/react';
 import FormData from 'form-data';
-import { useAuth } from '../../contexts/AuthContext';
-import Unauthenticated from '../../components/Unauthenticated';
-import PageError from '../../components/PageError';
-import API from '../../components/Api';
 import useSWR from 'swr';
-import ContentWrapper from '../../components/wrappers/ContentWrapper';
-import ProfileFactory from '../../components/profile/ProfileFactory';
+import { useAuth } from '@/contexts/AuthContext';
+import Unauthenticated from '@/components/Unauthenticated';
+import PageError from '@/components/PageError';
+import API from '@/components/Api';
+import ContentWrapper from '@/components/wrappers/ContentWrapper';
+import ProfileFactory from '@/components/profile/ProfileFactory';
+import Toast from '@/components/Toast';
+import IPFS from '@/utils/ipfs';
+import Lexicon from '@/lexicon/create';
 import { ClipboardCopyIcon, UploadIcon } from '@heroicons/react/solid';
-import Toast from '../../components/Toast';
-import IPFS from '../../utils/ipfs';
-import Lexicon from '../../lexicon/create';
 
 
 const reducer = (state, action) => {

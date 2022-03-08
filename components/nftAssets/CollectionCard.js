@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import IPFS from '../../utils/ipfs';
+import IPFS from '@/utils/ipfs';
 
 
 export default function NftCard({children, innerRef, link, header, image, body, footer}) {
