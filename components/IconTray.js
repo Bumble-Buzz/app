@@ -53,8 +53,10 @@ export default function IconTray({ items, specialItems, options }) {
           </a>
         )
       })}
-      <div className='mx-2 my-2 transform transition duration-500 hover:scale-105 cursor-pointer'>
-        <DropDown title='title' items={[...specialItems,1,2]} getItem={getItem} isImage={true} isSvg={true} image={<Menu height={24} width={24} />} />
+      <div className='w-fit'>
+        <div className='mx-2 my-2 transform transition duration-500 hover:scale-105 cursor-pointer'>
+          <DropDown title='title' items={[...specialItems,1,2]} getItem={getItem} isImage={true} isSvg={true} image={<Menu height={24} width={24} />} />
+        </div>
       </div>
     </div>
   )
