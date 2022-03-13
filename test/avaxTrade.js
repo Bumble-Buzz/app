@@ -313,7 +313,7 @@ describe("AvaxTrade - Main", () => {
     it('create market sale - non-contract address passed in', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, ACCOUNTS[3].address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
-      ).should.be.rejectedWith('Transaction reverted: function returned an unexpected amount of data');
+      ).should.be.rejectedWith('Transaction reverted without a reason string');
     });
     it('create market sale - not owner of item', async () => {
       await CONTRACT.connect(ACCOUNTS[5]).createMarketSale(
@@ -547,7 +547,7 @@ describe("AvaxTrade - Main", () => {
     it('complete market sale - invalid sale type', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 3
-      ).should.be.rejectedWith('Transaction reverted: function was called with incorrect parameters');;
+      ).should.be.rejectedWith('Transaction reverted without a reason string');;
     });
     it('complete market sale - direct - sale price 0', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
@@ -1023,7 +1023,7 @@ describe("AvaxTrade - Main", () => {
     it('create market sale - non-contract address passed in', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, ACCOUNTS[3].address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
-      ).should.be.rejectedWith('Transaction reverted: function returned an unexpected amount of data');
+      ).should.be.rejectedWith('Transaction reverted without a reason string');
     });
     it('create market sale - not owner of item', async () => {
       await CONTRACT.connect(ACCOUNTS[5]).createMarketSale(
@@ -1257,7 +1257,7 @@ describe("AvaxTrade - Main", () => {
     it('complete market sale - invalid sale type', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 3
-      ).should.be.rejectedWith('Transaction reverted: function was called with incorrect parameters');;
+      ).should.be.rejectedWith('Transaction reverted without a reason string');;
     });
     it('complete market sale - direct - sale price 0', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
@@ -1755,7 +1755,7 @@ describe("AvaxTrade - Main", () => {
     it('create market sale - non-contract address passed in', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, ACCOUNTS[3].address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
-      ).should.be.rejectedWith('Transaction reverted: function returned an unexpected amount of data');
+      ).should.be.rejectedWith('Transaction reverted without a reason string');
     });
     it('create market sale - not owner of item', async () => {
       await CONTRACT.connect(ACCOUNTS[5]).createMarketSale(
@@ -2116,7 +2116,7 @@ describe("AvaxTrade - Main", () => {
     it('complete market sale - invalid sale type', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 3
-      ).should.be.rejectedWith('Transaction reverted: function was called with incorrect parameters');;
+      ).should.be.rejectedWith('Transaction reverted without a reason string');;
     });
     it('complete market sale - direct - sale price 0', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
@@ -3573,7 +3573,7 @@ describe("AvaxTrade - Main", () => {
       );
 
       await CONTRACT.connect(ACCOUNTS[4]).distributeRewardListInCollection(2, [0,2,3], { value: ethers.utils.parseEther('10') })
-        .should.be.rejectedWith('VM Exception while processing transaction: reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)');
+        .should.be.rejectedWith('Transaction reverted without a reason string');
     });
     it('distrubute reward among all NFT holders - verified - negative token id list', async () => {
       contractFactory = await ethers.getContractFactory("SampleErc721");
