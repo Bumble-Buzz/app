@@ -18,7 +18,7 @@ const checkBlockchain = async (collection) => {
   const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, provider);
   const onChainData = await contract.getCollection(collection.id);
   return (
-    collection.id === Number(onChainData.id) && collection.name === onChainData.name && collection.contractAddress === onChainData.contractAddress &&
+    collection.id === Number(onChainData.id) && collection.contractAddress === onChainData.contractAddress &&
     collection.owner === onChainData.owner && collection.ownerIncentiveAccess === onChainData.ownerIncentiveAccess
   );
 };

@@ -41,7 +41,7 @@ describe("AvaxTrade - Collection", () => {
     CONTRACT = await contractFactory.deploy();
     await CONTRACT.deployed();
     await CONTRACT.connect(ACCOUNTS[0]).__Collection_init();
-    await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('Unverified', ACCOUNTS[0].address);
+    await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(ACCOUNTS[0].address);
   });
 
   it('deploys successfully', async () => {
@@ -205,8 +205,8 @@ describe("AvaxTrade - Collection", () => {
     });
 
     it('add and remove collection ids', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address, ACCOUNTS[2].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 2', ACCOUNTS[2].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[2].address, ACCOUNTS[2].address);
 
       let collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
       expect(_doesArrayInclude(collectionIds[0], ethers.BigNumber.from('1'))).to.be.true;
@@ -285,7 +285,6 @@ describe("AvaxTrade - Collection", () => {
   describe('Main functions', async () => {
     // struct CollectionDS {
     //   uint256 id; // unique collection id
-    //   string name; // collection name
     //   address contractAddress; // contract address of the collection
     //   uint256 totalSupply; // total supply of items in this collection
     //   uint256[] vault; // vault keeps track of balance owed for each token id holder
@@ -303,7 +302,6 @@ describe("AvaxTrade - Collection", () => {
       expect(result).to.be.an('array').that.is.not.empty;
       expect(result[0].id).to.be.equal(1);
       expect(_doesArrayEqualElement(result, 'id', ethers.BigNumber.from('1'))).to.be.true;
-      expect(_doesArrayEqualElement(result, 'name', 'Unverified')).to.be.true;
     });
     it('get local collections', async () => {
       const result = await CONTRACT.connect(ACCOUNTS[0])._getLocalCollections();
@@ -318,7 +316,6 @@ describe("AvaxTrade - Collection", () => {
       expect(result).to.be.an('array').that.is.not.empty;
       expect(result[0].id).to.be.equal(1);
       expect(_doesArrayEqualElement(result, 'id', ethers.BigNumber.from('1'))).to.be.true;
-      expect(_doesArrayEqualElement(result, 'name', 'Unverified')).to.be.true;
     });
     it('get collection 1 - does not exist', async () => {
       const result = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2)
@@ -342,7 +339,6 @@ describe("AvaxTrade - Collection", () => {
     it('create local collection', async () => {
       // {
       //   id: id,
-      //   name: _name,
       //   contractAddress: _contractAddress,
       //   reflection: 0,
       //   commission: 0,
@@ -353,7 +349,6 @@ describe("AvaxTrade - Collection", () => {
       // }
 
       await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(
-        'local collection',
         ACCOUNTS[1].address,
         ACCOUNTS[0].address
       );
@@ -370,7 +365,6 @@ describe("AvaxTrade - Collection", () => {
       expect(collectionOwner).to.be.an('array').that.is.not.empty;
       expect(_doesArrayEqual(collectionOwner, [ethers.BigNumber.from('1'),ethers.BigNumber.from('2')])).to.be.true;
 
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionName(2)).to.be.equal('local collection');
       expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionContractAddress(2)).to.be.equal(ACCOUNTS[1].address);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionReflection(2)).to.be.equal(0);
       expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionCommission(2)).to.be.equal(0);
@@ -381,7 +375,6 @@ describe("AvaxTrade - Collection", () => {
     });
     it('create verified collection - invalid total supply', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection',
         ACCOUNTS[1].address,
         0,
         2,
@@ -392,7 +385,6 @@ describe("AvaxTrade - Collection", () => {
     });
     it('create verified collection - invalid reflection percent', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection',
         ACCOUNTS[1].address,
         100,
         100,
@@ -403,7 +395,6 @@ describe("AvaxTrade - Collection", () => {
     });
     it('create verified collection - invalid commission percent', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection',
         ACCOUNTS[1].address,
         100,
         2,
@@ -414,7 +405,6 @@ describe("AvaxTrade - Collection", () => {
     });
     it('create verified collection - collection already exists', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection',
         ACCOUNTS[1].address,
         99,
         2,
@@ -423,7 +413,6 @@ describe("AvaxTrade - Collection", () => {
         false
       );
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection',
         ACCOUNTS[1].address,
         99,
         2,
@@ -435,7 +424,6 @@ describe("AvaxTrade - Collection", () => {
     it('create verified collection - inactive', async () => {
       // {
       //   id: id,
-      //   name: _name,
       //   contractAddress: _contractAddress,
       //   reflection: _reflection,
       //   commission: _commission,
@@ -446,7 +434,6 @@ describe("AvaxTrade - Collection", () => {
       // }
 
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection',
         ACCOUNTS[1].address,
         100,
         2,
@@ -469,7 +456,6 @@ describe("AvaxTrade - Collection", () => {
       expect(_doesArrayEqual(collectionOwner, [ethers.BigNumber.from('2')])).to.be.true;
 
       const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2);
-      expect(collection.name).to.be.equal('verified collection');
       expect(collection.contractAddress).to.be.equal(ACCOUNTS[1].address);
       expect(collection.totalSupply).to.be.equal(100);
       expect(collection.reflection).to.be.equal(2);
@@ -481,7 +467,6 @@ describe("AvaxTrade - Collection", () => {
     });
     it('create verified collection - active', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection',
         ACCOUNTS[1].address,
         100,
         2,
@@ -506,7 +491,6 @@ describe("AvaxTrade - Collection", () => {
       expect(_doesArrayEqual(collectionOwner, [ethers.BigNumber.from('2')])).to.be.true;
 
       const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2);
-      expect(collection.name).to.be.equal('verified collection');
       expect(collection.contractAddress).to.be.equal(ACCOUNTS[1].address);
       expect(collection.totalSupply).to.be.equal(100);
       expect(collection.reflection).to.be.equal(2);
@@ -519,7 +503,6 @@ describe("AvaxTrade - Collection", () => {
     it('create unvarivied collection', async () => {
       // {
       //   id: id,
-      //   name: _name,
       //   contractAddress: address(0),
       //   reflection: 0,
       //   commission: 0,
@@ -530,7 +513,6 @@ describe("AvaxTrade - Collection", () => {
       // }
 
       await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(
-        'unvarivied collection',
         ACCOUNTS[0].address
       );
       const collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
@@ -546,7 +528,6 @@ describe("AvaxTrade - Collection", () => {
       expect(_doesArrayEqual(collectionOwner, [ethers.BigNumber.from('1'),ethers.BigNumber.from('2')])).to.be.true;
 
       const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2);
-      expect(collection.name).to.be.equal('unvarivied collection');
       expect(collection.contractAddress).to.be.equal('0x0000000000000000000000000000000000000000');
       expect(collection.totalSupply).to.be.equal(0);
       expect(collection.reflection).to.be.equal(0);
@@ -556,22 +537,22 @@ describe("AvaxTrade - Collection", () => {
       expect(collection.active).to.be.equal(true);
     });
     it('create multiple collections - same user - inactive', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[1].address, ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 2', ACCOUNTS[4].address, 100, 2, 3, ACCOUNTS[2].address, false
+        ACCOUNTS[4].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3', ACCOUNTS[2].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 4', ACCOUNTS[3].address, ACCOUNTS[2].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 5', ACCOUNTS[8].address, ACCOUNTS[2].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 6', ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[3].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[8].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 7', ACCOUNTS[5].address, 100, 2, 3, ACCOUNTS[2].address, false
-      );
-      await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 8', ACCOUNTS[6].address, 100, 2, 3, ACCOUNTS[2].address, true
+        ACCOUNTS[5].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 9', ACCOUNTS[7].address, 100, 2, 3, ACCOUNTS[2].address, false
+        ACCOUNTS[6].address, 100, 2, 3, ACCOUNTS[2].address, true
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
+        ACCOUNTS[7].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
 
       const result = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
@@ -597,22 +578,22 @@ describe("AvaxTrade - Collection", () => {
       expect(unverifiedCollections.length).to.be.equal(3);
     });
     it('create multiple collections - same user - active', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[1].address, ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 2', ACCOUNTS[4].address, 100, 2, 3, ACCOUNTS[2].address, false
+        ACCOUNTS[4].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3', ACCOUNTS[2].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 4', ACCOUNTS[3].address, ACCOUNTS[2].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 5', ACCOUNTS[8].address, ACCOUNTS[2].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 6', ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[3].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[8].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 7', ACCOUNTS[5].address, 100, 2, 3, ACCOUNTS[2].address, false
-      );
-      await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 8', ACCOUNTS[6].address, 100, 2, 3, ACCOUNTS[2].address, true
+        ACCOUNTS[5].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 9', ACCOUNTS[7].address, 100, 2, 3, ACCOUNTS[2].address, false
+        ACCOUNTS[6].address, 100, 2, 3, ACCOUNTS[2].address, true
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
+        ACCOUNTS[7].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
 
       let collectionId = await CONTRACT.connect(ACCOUNTS[0])._getCollectionForContract(ACCOUNTS[4].address);
@@ -647,22 +628,22 @@ describe("AvaxTrade - Collection", () => {
       expect(unverifiedCollections.length).to.be.equal(3);
     });
     it('create multiple collections - different users - inactive', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[1].address, ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 2', ACCOUNTS[4].address, 100, 2, 3, ACCOUNTS[2].address, false
+        ACCOUNTS[4].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3', ACCOUNTS[2].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 4', ACCOUNTS[5].address, ACCOUNTS[2].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 5', ACCOUNTS[6].address, ACCOUNTS[2].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 6', ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[5].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[6].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 7', ACCOUNTS[7].address, 100, 2, 3, ACCOUNTS[2].address, false
-      );
-      await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 8', ACCOUNTS[8].address, 100, 2, 3, ACCOUNTS[3].address, false
+        ACCOUNTS[7].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 9', ACCOUNTS[9].address, 100, 2, 3, ACCOUNTS[4].address, false
+        ACCOUNTS[8].address, 100, 2, 3, ACCOUNTS[3].address, false
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
+        ACCOUNTS[9].address, 100, 2, 3, ACCOUNTS[4].address, false
       );
 
       const result = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
@@ -688,22 +669,22 @@ describe("AvaxTrade - Collection", () => {
       expect(unverifiedCollections.length).to.be.equal(3);
     });
     it('create multiple collections - different users - active', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[1].address, ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 2', ACCOUNTS[4].address, 100, 2, 3, ACCOUNTS[2].address, false
+        ACCOUNTS[4].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3', ACCOUNTS[2].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 4', ACCOUNTS[5].address, ACCOUNTS[2].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 5', ACCOUNTS[6].address, ACCOUNTS[2].address);
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 6', ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[5].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[6].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 7', ACCOUNTS[7].address, 100, 2, 3, ACCOUNTS[2].address, false
-      );
-      await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 8', ACCOUNTS[8].address, 100, 2, 3, ACCOUNTS[3].address, false
+        ACCOUNTS[7].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 9', ACCOUNTS[9].address, 100, 2, 3, ACCOUNTS[4].address, false
+        ACCOUNTS[8].address, 100, 2, 3, ACCOUNTS[3].address, false
+      );
+      await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
+        ACCOUNTS[9].address, 100, 2, 3, ACCOUNTS[4].address, false
       );
 
       let collectionId = await CONTRACT.connect(ACCOUNTS[0])._getCollectionForContract(ACCOUNTS[4].address);
@@ -738,11 +719,11 @@ describe("AvaxTrade - Collection", () => {
       expect(unverifiedCollections.length).to.be.equal(3);
     });
     it('deactivate collection - inactive', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[1].address, ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 2', CONTRACT.address, 100, 2, 3, ACCOUNTS[2].address, false
+        CONTRACT.address, 100, 2, 3, ACCOUNTS[2].address, false
       );
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3', ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(ACCOUNTS[2].address);
 
       let collectionIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
       expect(collectionIdPointer).to.be.equal(4);
@@ -773,11 +754,11 @@ describe("AvaxTrade - Collection", () => {
       expect(_doesArrayInclude(collectionsForOwner, ethers.BigNumber.from('3'))).to.be.true;
     });
     it('deactivate collection - active', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[1].address, ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 2', CONTRACT.address, 100, 2, 3, ACCOUNTS[2].address, false
+        CONTRACT.address, 100, 2, 3, ACCOUNTS[2].address, false
       );
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3', ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(ACCOUNTS[2].address);
 
       let collectionId = await CONTRACT.connect(ACCOUNTS[0])._getCollectionForContract(CONTRACT.address);
       await CONTRACT.connect(ACCOUNTS[0])._activateCollection(collectionId);
@@ -810,11 +791,11 @@ describe("AvaxTrade - Collection", () => {
       expect(_doesArrayInclude(collectionsForOwner, ethers.BigNumber.from('3'))).to.be.true;
     });
     it('remove collection - inactive', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[1].address, ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 2', CONTRACT.address, 100, 2, 3, ACCOUNTS[2].address, false
+        CONTRACT.address, 100, 2, 3, ACCOUNTS[2].address, false
       );
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3', ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(ACCOUNTS[2].address);
 
       let collectionIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
       expect(collectionIdPointer).to.be.equal(4);
@@ -845,11 +826,11 @@ describe("AvaxTrade - Collection", () => {
       expect(_doesArrayInclude(collectionsForOwner, ethers.BigNumber.from('3'))).to.be.false;
     });
     it('remove collection - active', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection('local collection 1', ACCOUNTS[1].address, ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[1].address, ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'verified collection 2', CONTRACT.address, 100, 2, 3, ACCOUNTS[2].address, false
+        CONTRACT.address, 100, 2, 3, ACCOUNTS[2].address, false
       );
-      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection('unvarivied collection 3', ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0])._createUnvariviedCollection(ACCOUNTS[2].address);
 
       let collectionId = await CONTRACT.connect(ACCOUNTS[0])._getCollectionForContract(CONTRACT.address);
       await CONTRACT.connect(ACCOUNTS[0])._activateCollection(collectionId);
@@ -886,16 +867,8 @@ describe("AvaxTrade - Collection", () => {
   describe('Collection attributes', async () => {
     beforeEach(async () => {
       await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
-        'collection name', ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address, false
+        ACCOUNTS[1].address, 100, 2, 3, ACCOUNTS[2].address, false
       );
-    });
-
-    it('get collection name', async () => {
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionName(2)).to.be.equal('collection name');
-    });
-    it('update collection name', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._updateCollectionName(2, 'collection name 2');
-      expect(await CONTRACT.connect(ACCOUNTS[0])._getCollectionName(2)).to.be.equal('collection name 2');
     });
 
     it('get collection contract address', async () => {
@@ -968,21 +941,20 @@ describe("AvaxTrade - Collection", () => {
 
     it('get collection', async () => {
       const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2);
-      expect(collection.name).to.be.equal('collection name');
     });
     it('update collection - verified - invalid reflection percent', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        2 ,'collection name 2', ACCOUNTS[1].address, 100, 33, 2, ACCOUNTS[4].address
+        2 , ACCOUNTS[1].address, 100, 33, 2, ACCOUNTS[4].address
       ).should.be.rejectedWith('Collection: Reflection percent must be < 100');
     });
     it('update collection - verified - invalid commission percent', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        2 ,'collection name 2', ACCOUNTS[1].address, 22, 100, 2, ACCOUNTS[4].address
+        2, ACCOUNTS[1].address, 22, 100, 2, ACCOUNTS[4].address
       ).should.be.rejectedWith('Collection: Commission percent must be < 100');
     });
     it('update collection - verified - invalid incentive percent', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        2 ,'collection name 2', ACCOUNTS[1].address, 22, 33, 100, ACCOUNTS[4].address
+        2, ACCOUNTS[1].address, 22, 33, 100, ACCOUNTS[4].address
       ).should.be.rejectedWith('Collection: Incentive percent must be < 100');
     });
     it('update collection - verified - new owner - inactive', async () => {
@@ -993,11 +965,10 @@ describe("AvaxTrade - Collection", () => {
       expect(collectionIds[3].length).to.be.equal(1);
 
       await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        2 ,'collection name 2', ACCOUNTS[1].address, 22, 33, 2, ACCOUNTS[4].address
+        2, ACCOUNTS[1].address, 22, 33, 2, ACCOUNTS[4].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2);
       expect(collection.id).to.be.equal(2);
-      expect(collection.name).to.be.equal('collection name 2');
       expect(collection.contractAddress).to.be.equal(ACCOUNTS[1].address);
       expect(collection.totalSupply).to.be.equal(100);
       expect(collection.reflection).to.be.equal(22);
@@ -1021,11 +992,10 @@ describe("AvaxTrade - Collection", () => {
       expect(collectionIds[3].length).to.be.equal(1);
 
       await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        2 ,'collection name 2', ACCOUNTS[1].address, 22, 33, 2, ACCOUNTS[4].address
+        2, ACCOUNTS[1].address, 22, 33, 2, ACCOUNTS[4].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2);
       expect(collection.id).to.be.equal(2);
-      expect(collection.name).to.be.equal('collection name 2');
       expect(collection.contractAddress).to.be.equal(ACCOUNTS[1].address);
       expect(collection.totalSupply).to.be.equal(100);
       expect(collection.reflection).to.be.equal(22);
@@ -1047,11 +1017,10 @@ describe("AvaxTrade - Collection", () => {
       expect(collectionIds[3].length).to.be.equal(1);
 
       await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        2 ,'collection name 2', ACCOUNTS[3].address, 22, 33, 2, ACCOUNTS[2].address
+        2, ACCOUNTS[3].address, 22, 33, 2, ACCOUNTS[2].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2);
       expect(collection.id).to.be.equal(2);
-      expect(collection.name).to.be.equal('collection name 2');
       expect(collection.contractAddress).to.be.equal(ACCOUNTS[3].address);
       expect(collection.totalSupply).to.be.equal(100);
       expect(collection.reflection).to.be.equal(22);
@@ -1075,11 +1044,10 @@ describe("AvaxTrade - Collection", () => {
       expect(collectionIds[3].length).to.be.equal(1);
 
       await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        2 ,'collection name 2', ACCOUNTS[3].address, 22, 33, 2, ACCOUNTS[2].address
+        2, ACCOUNTS[3].address, 22, 33, 2, ACCOUNTS[2].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2);
       expect(collection.id).to.be.equal(2);
-      expect(collection.name).to.be.equal('collection name 2');
       expect(collection.contractAddress).to.be.equal(ACCOUNTS[3].address);
       expect(collection.totalSupply).to.be.equal(100);
       expect(collection.reflection).to.be.equal(22);

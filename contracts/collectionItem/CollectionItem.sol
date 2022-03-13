@@ -94,7 +94,7 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
     _setupRole(ADMIN_ROLE, _admin);
 
     // create collections
-    createUnvariviedCollection('Unverified', _admin);
+    createUnvariviedCollection(_admin);
   }
 
   /// @custom:oz-upgrades-unsafe-allow constructor
@@ -174,8 +174,8 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
   /**
     * @dev Create local collection
   */
-  function createLocalCollection(string memory _name, address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) returns (uint256) {
-    uint256 id = _createLocalCollection(_name, _contractAddress, _owner);
+  function createLocalCollection(address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) returns (uint256) {
+    uint256 id = _createLocalCollection(_contractAddress, _owner);
 
     // create collection role
     bytes memory encodedId = abi.encodePacked(id);
@@ -190,10 +190,10 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
     * @dev Create verified collection
   */
   function createVerifiedCollection(
-    string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission,
+    address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission,
     address _owner, bool _ownerIncentiveAccess
   ) public onlyRole(ADMIN_ROLE) returns (uint256) {
-    uint256 id = _createVerifiedCollection(_name, _contractAddress, _totalSupply, _reflection, _commission, _owner, _ownerIncentiveAccess);
+    uint256 id = _createVerifiedCollection(_contractAddress, _totalSupply, _reflection, _commission, _owner, _ownerIncentiveAccess);
 
     // create collection role
     bytes memory encodedId = abi.encodePacked(id);
@@ -207,8 +207,8 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
   /**
     * @dev Create unvarivied collection
   */
-  function createUnvariviedCollection(string memory _name, address _owner) public onlyRole(ADMIN_ROLE) returns (uint256) {
-    uint256 id = _createUnvariviedCollection(_name, _owner);
+  function createUnvariviedCollection(address _owner) public onlyRole(ADMIN_ROLE) returns (uint256) {
+    uint256 id = _createUnvariviedCollection(_owner);
 
     // create collection role
     bytes memory encodedId = abi.encodePacked(id);
@@ -223,10 +223,10 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
     * @dev Update collection
   */
   function updateCollection(
-    uint256 _id, string memory _name, address _contractAddress, uint8 _reflection, uint8 _commission,
+    uint256 _id, address _contractAddress, uint8 _reflection, uint8 _commission,
     uint8 _incentive, address _owner
   ) external onlyRole(COLLECTION_ROLES[_id]) {
-    _updateCollection(_id, _name, _contractAddress, _reflection, _commission, _incentive, _owner);
+    _updateCollection(_id, _contractAddress, _reflection, _commission, _incentive, _owner);
     emit onCollectionUpdate(_id);
   }
 

@@ -147,15 +147,16 @@ export default function EditCollection({ collectionDataInit }) {
 
   const contractFieldsModified = () => {
     return (
-      state.name !== collectionDataInit.name || state.address !== collectionDataInit.contractAddress || state.commission !== collectionDataInit.commission ||
+      state.address !== collectionDataInit.contractAddress || state.commission !== collectionDataInit.commission ||
       state.reflection !== collectionDataInit.reflection || state.incentive !== collectionDataInit.incentive
     );
   };
   const dbFieldsModified = () => {
     const social = initSocial();
     return (
-      state.description !== collectionDataInit.description || state.category !== collectionDataInit.category || state.image !== collectionDataInit.image ||
-      state.social.discord.link !== social.discord.link || state.social.twitter.link !== social.twitter.link || state.social.website.link !== social.website.link
+      state.name !== collectionDataInit.name || state.description !== collectionDataInit.description || state.category !== collectionDataInit.category ||
+      state.image !== collectionDataInit.image || state.social.discord.link !== social.discord.link ||
+      state.social.twitter.link !== social.twitter.link || state.social.website.link !== social.website.link
     );
   };
 
@@ -179,7 +180,7 @@ export default function EditCollection({ collectionDataInit }) {
         const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, signer);
         // update collection in blockchain
         const val = await contract.updateCollection(
-          collectionDataInit.id, state.name, state.address, state.reflection, state.commission, state.incentive, AuthContext.state.account
+          collectionDataInit.id, state.address, state.reflection, state.commission, state.incentive, AuthContext.state.account
         );
           
         await WalletUtil.checkTransaction(val);

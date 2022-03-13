@@ -111,7 +111,7 @@ export default function Unverified() {
         const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 
         // add collection in blockchain
-        const val = await contract.createUnvariviedCollection(state.name);
+        const val = await contract.createUnvariviedCollection();
 
         await WalletUtil.checkTransaction(val);
         

@@ -247,9 +247,8 @@ describe("AvaxTrade - Main", () => {
     });
 
     it('not admin', async () => {
-      await CONTRACT.connect(ACCOUNTS[1]).createUnvariviedCollection(
-        'collection name'
-      ).should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
+      await CONTRACT.connect(ACCOUNTS[1]).createUnvariviedCollection()
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
 
     it('create market sale - not enough funds', async () => {
@@ -313,7 +312,7 @@ describe("AvaxTrade - Main", () => {
     it('create market sale - non-contract address passed in', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, ACCOUNTS[3].address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
-      ).should.be.rejectedWith('Transaction reverted without a reason string');
+      ).should.be.rejectedWith('Transaction reverted: function returned an unexpected amount of data');
     });
     it('create market sale - not owner of item', async () => {
       await CONTRACT.connect(ACCOUNTS[5]).createMarketSale(
@@ -547,7 +546,7 @@ describe("AvaxTrade - Main", () => {
     it('complete market sale - invalid sale type', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 3
-      ).should.be.rejectedWith('Transaction reverted without a reason string');;
+      ).should.be.rejectedWith('Transaction reverted: function was called with incorrect parameters');;
     });
     it('complete market sale - direct - sale price 0', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
@@ -951,15 +950,12 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.connect(ACCOUNTS[3])['safeTransferFrom(address,address,uint256)'](ACCOUNTS[3].address, ACCOUNTS[4].address, 1);
       await NFT_CONTRACT.connect(ACCOUNTS[4]).setApprovalForAll(CONTRACT.address, true);
 
-      await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
-        'collection name', NFT_CONTRACT.address
-      );
+      await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(NFT_CONTRACT.address);
     });
 
     it('not admin', async () => {
-      await CONTRACT.connect(ACCOUNTS[1]).createLocalCollection(
-        'collection name', NFT_CONTRACT.address
-      ).should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
+      await CONTRACT.connect(ACCOUNTS[1]).createLocalCollection(NFT_CONTRACT.address)
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
     });
 
     it('create market sale - not enough funds', async () => {
@@ -1023,7 +1019,7 @@ describe("AvaxTrade - Main", () => {
     it('create market sale - non-contract address passed in', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, ACCOUNTS[3].address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
-      ).should.be.rejectedWith('Transaction reverted without a reason string');
+      ).should.be.rejectedWith('Transaction reverted: function returned an unexpected amount of data');
     });
     it('create market sale - not owner of item', async () => {
       await CONTRACT.connect(ACCOUNTS[5]).createMarketSale(
@@ -1257,7 +1253,7 @@ describe("AvaxTrade - Main", () => {
     it('complete market sale - invalid sale type', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 3
-      ).should.be.rejectedWith('Transaction reverted without a reason string');;
+      ).should.be.rejectedWith('Transaction reverted: function was called with incorrect parameters');;
     });
     it('complete market sale - direct - sale price 0', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
@@ -1666,13 +1662,13 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.connect(ACCOUNTS[4]).setApprovalForAll(CONTRACT.address, true);
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, false
+        NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, false
       );
     });
 
       it('not admin', async () => {
         await CONTRACT.connect(ACCOUNTS[1]).createVerifiedCollection(
-          'collection name', ACCOUNTS[1].address, 5, 2, 3, ACCOUNTS[3].address, false
+          ACCOUNTS[1].address, 5, 2, 3, ACCOUNTS[3].address, false
         );
       });
 
@@ -1755,7 +1751,7 @@ describe("AvaxTrade - Main", () => {
     it('create market sale - non-contract address passed in', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, ACCOUNTS[3].address, EMPTY_ADDRESS, ethers.utils.parseEther('5'), 1
-      ).should.be.rejectedWith('Transaction reverted without a reason string');
+      ).should.be.rejectedWith('Transaction reverted: function returned an unexpected amount of data');
     });
     it('create market sale - not owner of item', async () => {
       await CONTRACT.connect(ACCOUNTS[5]).createMarketSale(
@@ -2116,7 +2112,7 @@ describe("AvaxTrade - Main", () => {
     it('complete market sale - invalid sale type', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 3
-      ).should.be.rejectedWith('Transaction reverted without a reason string');;
+      ).should.be.rejectedWith('Transaction reverted: function was called with incorrect parameters');;
     });
     it('complete market sale - direct - sale price 0', async () => {
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
@@ -2487,7 +2483,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('complete market sale - immediate - -2%, -0%, -0%', async () => {
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 0, 0, 0, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 0, 0, 0, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -2518,7 +2514,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('complete market sale - immediate - -2%, -7%, -0% - inactive', async () => {
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 7, 0, 0, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 7, 0, 0, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -2551,7 +2547,7 @@ describe("AvaxTrade - Main", () => {
       const collectionId = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getCollectionForContract(NFT_CONTRACT.address);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[0]).activateCollection(collectionId);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 7, 0, 0, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 7, 0, 0, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -2582,7 +2578,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('complete market sale - immediate - -2%, -0%, -5% - inactive', async () => {
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 0, 5, 0, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 0, 5, 0, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -2615,7 +2611,7 @@ describe("AvaxTrade - Main", () => {
       const collectionId = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getCollectionForContract(NFT_CONTRACT.address);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[0]).activateCollection(collectionId);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 0, 5, 0, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 0, 5, 0, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -2704,7 +2700,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('complete market sale - immediate - -2%, -2%, -4%, +3 - inactive', async () => {
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -2738,7 +2734,7 @@ describe("AvaxTrade - Main", () => {
       const collectionId = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getCollectionForContract(NFT_CONTRACT.address);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[0]).activateCollection(collectionId);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -2770,7 +2766,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('complete market sale - immediate - not enough in collection vault - inactive', async () => {
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -2805,7 +2801,7 @@ describe("AvaxTrade - Main", () => {
       const collectionId = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getCollectionForContract(NFT_CONTRACT.address);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[0]).activateCollection(collectionId);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -2838,7 +2834,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('complete market sale - immediate - -2%, -2%, -4%, +3, +0 - inactive', async () => {
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -2873,7 +2869,7 @@ describe("AvaxTrade - Main", () => {
       const collectionId = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getCollectionForContract(NFT_CONTRACT.address);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[0]).activateCollection(collectionId);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -2906,7 +2902,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('complete market sale - immediate - -2%, -2%, -4%, +3, +2 - inactive', async () => {
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -2942,7 +2938,7 @@ describe("AvaxTrade - Main", () => {
       const collectionId = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getCollectionForContract(NFT_CONTRACT.address);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[0]).activateCollection(collectionId);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -2976,7 +2972,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('complete market sale - immediate - not enough in market vault - inactive', async () => {
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -3013,7 +3009,7 @@ describe("AvaxTrade - Main", () => {
       const collectionId = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getCollectionForContract(NFT_CONTRACT.address);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[0]).activateCollection(collectionId);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -3048,7 +3044,7 @@ describe("AvaxTrade - Main", () => {
     });
     it('complete market sale - immediate - -2%, -2%, -4%, +3, +2 - claim - inactive', async () => {
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -3160,7 +3156,7 @@ describe("AvaxTrade - Main", () => {
       const collectionId = await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[4]).getCollectionForContract(NFT_CONTRACT.address);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[0]).activateCollection(collectionId);
       await COLLECTION_ITEM_CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name', NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
+        2, NFT_CONTRACT.address, 2, 4, 3, ACCOUNTS[3].address
       );
       await CONTRACT.connect(ACCOUNTS[4]).createMarketSale(
         1, NFT_CONTRACT.address, ACCOUNTS[5].address, ethers.utils.parseEther('5'), 1
@@ -3278,7 +3274,7 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.deployed();
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, false
+        NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, false
       );
 
       let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
@@ -3299,7 +3295,7 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.deployed();
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, false
+        NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, false
       );
 
       let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
@@ -3323,7 +3319,7 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.deployed();
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, false
+        NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, false
       );
 
       let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
@@ -3347,7 +3343,7 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.deployed();
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+        NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
       );
 
       let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
@@ -3371,7 +3367,7 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.deployed();
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+        NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
       );
 
       let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
@@ -3427,7 +3423,7 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.deployed();
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+        NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
       );
 
       let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
@@ -3487,9 +3483,7 @@ describe("AvaxTrade - Main", () => {
       NFT_CONTRACT = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://');
       await NFT_CONTRACT.deployed();
 
-      await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
-        'collection name', NFT_CONTRACT.address
-      );
+      await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(NFT_CONTRACT.address);
 
       await CONTRACT.connect(ACCOUNTS[4]).distributeRewardInCollection(2, { value: ethers.utils.parseEther('10') })
         .should.be.rejectedWith('Not a verified collection');
@@ -3500,7 +3494,7 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.deployed();
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+        NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
       );
 
       let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);
@@ -3544,9 +3538,7 @@ describe("AvaxTrade - Main", () => {
       NFT_CONTRACT = await contractFactory.deploy('Local AvaxTrade', 'LAX', 'ipfs://');
       await NFT_CONTRACT.deployed();
 
-      await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
-        'collection name', NFT_CONTRACT.address
-      );
+      await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(NFT_CONTRACT.address);
 
       await CONTRACT.connect(ACCOUNTS[4]).distributeRewardListInCollection(2, [2,3], { value: ethers.utils.parseEther('10') })
         .should.be.rejectedWith('Not a verified collection');
@@ -3557,7 +3549,7 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.deployed();
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+        NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
       );
 
       await CONTRACT.connect(ACCOUNTS[4]).distributeRewardListInCollection(2, [], { value: ethers.utils.parseEther('10') })
@@ -3569,11 +3561,11 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.deployed();
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+        NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
       );
 
       await CONTRACT.connect(ACCOUNTS[4]).distributeRewardListInCollection(2, [0,2,3], { value: ethers.utils.parseEther('10') })
-        .should.be.rejectedWith('Transaction reverted without a reason string');
+        .should.be.rejectedWith('VM Exception while processing transaction: reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)');
     });
     it('distrubute reward among all NFT holders - verified - negative token id list', async () => {
       contractFactory = await ethers.getContractFactory("SampleErc721");
@@ -3581,7 +3573,7 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.deployed();
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+        NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
       );
 
       await CONTRACT.connect(ACCOUNTS[4]).distributeRewardListInCollection(2, [2,-3], { value: ethers.utils.parseEther('10') })
@@ -3593,7 +3585,7 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.deployed();
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+        NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
       );
 
       await CONTRACT.connect(ACCOUNTS[4]).distributeRewardListInCollection(2, [1,2,3,4,5,6], { value: ethers.utils.parseEther('10') })
@@ -3605,7 +3597,7 @@ describe("AvaxTrade - Main", () => {
       await NFT_CONTRACT.deployed();
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
+        NFT_CONTRACT.address, 5, 2, 3, ACCOUNTS[3].address, true
       );
 
       let contractBalance = await CONTRACT.provider.getBalance(CONTRACT.address);

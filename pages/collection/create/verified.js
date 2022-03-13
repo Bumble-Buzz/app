@@ -164,21 +164,20 @@ export default function Verified() {
 
       // add collection in blockchain
       const val = await contract.createVerifiedCollection(
-        state.name, state.address, state.supply, state.reflection, state.commission,
-        AuthContext.state.account, state.incentive
-        );
+        state.address, state.supply, state.reflection, state.commission, AuthContext.state.account, state.incentive
+      );
         
-        await WalletUtil.checkTransaction(val);
-        
-        const listener = async (owner, contractAddress, collectionType, id) => {
-          console.log('found verified event: ', owner, contractAddress, collectionType, id.toNumber());
-          if (!dbTriggered && session.user.id === owner && ethers.utils.getAddress(state.address) === ethers.utils.getAddress(contractAddress)) {
-            dbTriggered = true;
-            setBlockchainResults({ owner, contractAddress, collectionType, id, imageCid });
-            contract.off("onCollectionCreate", listener);
-          }
-        };
-        contract.on("onCollectionCreate", listener);
+      await WalletUtil.checkTransaction(val);
+      
+      const listener = async (owner, contractAddress, collectionType, id) => {
+        console.log('found verified event: ', owner, contractAddress, collectionType, id.toNumber());
+        if (!dbTriggered && session.user.id === owner && ethers.utils.getAddress(state.address) === ethers.utils.getAddress(contractAddress)) {
+          dbTriggered = true;
+          setBlockchainResults({ owner, contractAddress, collectionType, id, imageCid });
+          contract.off("onCollectionCreate", listener);
+        }
+      };
+      contract.on("onCollectionCreate", listener);
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);

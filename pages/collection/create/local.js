@@ -102,7 +102,7 @@ export default function Local() {
       const imageCid = await uploadImage();
 
       // add collection in blockchain
-      const val = await contract.createLocalCollection(state.name, state.address);
+      const val = await contract.createLocalCollection(state.address);
 
       await WalletUtil.checkTransaction(val);
 

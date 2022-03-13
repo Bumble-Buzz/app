@@ -36,7 +36,6 @@ contract Collection {
   // data structures
   struct CollectionDS {
     uint256 id; // unique collection id
-    string name; // collection name
     address contractAddress; // contract address of the collection
     uint256 totalSupply; // total supply of items in this collection
     uint8 reflection; // in percentage
@@ -163,14 +162,13 @@ contract Collection {
   /**
     * @dev Create local collection
   */
-  function _createLocalCollection(string memory _name, address _contractAddress, address _owner) internal returns (uint256) {
+  function _createLocalCollection(address _contractAddress, address _owner) internal returns (uint256) {
     require(_getCollectionForContract(_contractAddress) == 0, "Collection: Collection with this address already exists");
 
     COLLECTION_ID_POINTER.increment();
     uint256 id = COLLECTION_ID_POINTER.current();
     COLLECTIONS[id] = CollectionDS({
       id: id,
-      name: _name,
       contractAddress: _contractAddress,
       totalSupply: 0,
       reflection: 0,
@@ -193,7 +191,7 @@ contract Collection {
     * @dev Create verified collection
   */
   function _createVerifiedCollection(
-    string memory _name, address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission,
+    address _contractAddress, uint256 _totalSupply, uint8 _reflection, uint8 _commission,
     address _owner, bool _ownerIncentiveAccess
   ) internal returns (uint256) {
     require(_totalSupply > 0, "Collection: Total supply must be > 0");
@@ -206,7 +204,6 @@ contract Collection {
     uint256 id = COLLECTION_ID_POINTER.current();
     COLLECTIONS[id] = CollectionDS({
       id: id,
-      name: _name,
       contractAddress: _contractAddress,
       totalSupply: _totalSupply,
       reflection: _reflection,
@@ -227,12 +224,11 @@ contract Collection {
   /**
     * @dev Create unvarivied collection
   */
-  function _createUnvariviedCollection(string memory _name, address _owner) internal returns (uint256) {
+  function _createUnvariviedCollection(address _owner) internal returns (uint256) {
     COLLECTION_ID_POINTER.increment();
     uint256 id = COLLECTION_ID_POINTER.current();
     COLLECTIONS[id] = CollectionDS({
       id: id,
-      name: _name,
       contractAddress: address(0),
       totalSupply: 0,
       reflection: 0,
@@ -319,7 +315,7 @@ contract Collection {
     * @dev Update collection
   */
   function _updateCollection(
-    uint256 _id, string memory _name, address _contractAddress, uint8 _reflection, uint8 _commission, uint8 _incentive, address _owner
+    uint256 _id, address _contractAddress, uint8 _reflection, uint8 _commission, uint8 _incentive, address _owner
   ) internal checkCollection(_id) {
     // todo not allow owner to update _contractAddress? May screw up existing items on sale under this collection. write test!
 
@@ -327,7 +323,6 @@ contract Collection {
     require(_commission < 100, "Collection: Commission percent must be < 100");
     require(_incentive < 100, "Collection: Incentive percent must be < 100");
 
-    COLLECTIONS[_id].name = _name;
     COLLECTIONS[_id].reflection = _reflection;
     COLLECTIONS[_id].commission = _commission;
     COLLECTIONS[_id].incentive = _incentive;
@@ -345,20 +340,6 @@ contract Collection {
       COLLECTIONS[_id].contractAddress = _contractAddress;
       _assignContractToCollection(_contractAddress, _id);
     }
-  }
-
-  /**
-    * @dev Get collection name
-  */
-  function _getCollectionName(uint256 _id) internal view checkCollection(_id) returns (string memory) {
-    return COLLECTIONS[_id].name;
-  }
-
-  /**
-    * @dev Update collection name
-  */
-  function _updateCollectionName(uint256 _id, string memory _name) internal checkCollection(_id) {
-    COLLECTIONS[_id].name = _name;
   }
 
   /**

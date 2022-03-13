@@ -24,7 +24,7 @@ const checkBlockchain = async (collection) => {
   const collectionType = Number(onChainData.collectionType);
   const isActive = Number(onChainData.active);
   return (
-    collection.id === Number(onChainData.id) && collection.name === onChainData.name && collection.contractAddress === onChainData.contractAddress &&
+    collection.id === Number(onChainData.id) && collection.contractAddress === onChainData.contractAddress &&
     collection.owner === onChainData.owner && COLLECTION_TYPE[collectionType] === 'local' && isActive === 1
   );
 };

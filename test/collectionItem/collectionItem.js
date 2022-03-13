@@ -64,7 +64,7 @@ describe("AvaxTrade - CollectionItem", () => {
       await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT_VERIFIED.address, 100, 2, 3, ACCOUNTS[3].address, false
+        NFT_CONTRACT_VERIFIED.address, 100, 2, 3, ACCOUNTS[3].address, false
       );
 
       // local
@@ -78,7 +78,7 @@ describe("AvaxTrade - CollectionItem", () => {
       await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
 
       await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
-        'collection name', NFT_CONTRACT_LOCAL.address, ACCOUNTS[6].address
+        NFT_CONTRACT_LOCAL.address, ACCOUNTS[6].address
       );
     });
 
@@ -600,32 +600,31 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('create collection - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[2]).createUnvariviedCollection(
-        'collection name', ACCOUNTS[2].address
+        ACCOUNTS[2].address
       ).should.be.rejectedWith(
         'AccessControl: account 0x5ca6ec5718ac9ac8916b8cecab2c0d6051dbba92 is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775'
       );
     });
     it('create collection - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).createUnvariviedCollection(
-        'collection name', ACCOUNTS[1].address
+        ACCOUNTS[1].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(2);
       expect(collection.collectionType).to.be.equal(2);
     });
     it('create collection - yes admin', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).createUnvariviedCollection(
-        'collection name', ACCOUNTS[0].address
+        ACCOUNTS[0].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(2);
       expect(collection.collectionType).to.be.equal(2);
     });
     it('create collection', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).createUnvariviedCollection(
-        'collection name', ACCOUNTS[0].address
+        ACCOUNTS[0].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(2);
       expect(collection.id).to.be.equal(2);
-      expect(collection.name).to.be.equal('collection name');
       expect(collection.collectionType).to.be.equal(2);
       expect(collection.contractAddress).to.be.equal(EMPTY_ADDRESS);
       expect(collection.owner).to.be.equal(ACCOUNTS[0].address);
@@ -633,21 +632,21 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('update collection - not owner (regular user)', async () => {
       await CONTRACT.connect(ACCOUNTS[2]).updateCollection(
-        1, 'collection name', ACCOUNTS[2].address, 0, 0, 0, ACCOUNTS[3].address
+        1, ACCOUNTS[2].address, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0x5ca6ec5718ac9ac8916b8cecab2c0d6051dbba92 is missing role 0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6'
       );
     });
     it('update collection - not owner (contract owner)', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).updateCollection(
-        1, 'collection name', ACCOUNTS[2].address, 0, 0, 0, ACCOUNTS[3].address
+        1, ACCOUNTS[2].address, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0xda121ab48c7675e4f25e28636e3efe602e49eec6 is missing role 0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6'
       );
     });
     it('update collection - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).updateCollection(
-        1, 'collection name', ACCOUNTS[2].address, 0, 0, 0, ACCOUNTS[5].address
+        1, ACCOUNTS[2].address, 0, 0, 0, ACCOUNTS[5].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(1);
       expect(collection.collectionType).to.be.equal(2);
@@ -684,11 +683,8 @@ describe("AvaxTrade - CollectionItem", () => {
       await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
 
       await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
-        'collection name', NFT_CONTRACT_LOCAL.address, ACCOUNTS[6].address
+        NFT_CONTRACT_LOCAL.address, ACCOUNTS[6].address
       );
-      // await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
-      //   'collection name', ACCOUNTS[1].address, ACCOUNTS[2].address
-      // );
     });
 
     it('get items collections', async () => {
@@ -859,32 +855,31 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('create collection - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[2]).createLocalCollection(
-        'collection name', NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address
+        NFT_CONTRACT_LOCAL.address, ACCOUNTS[2].address
       ).should.be.rejectedWith(
         'AccessControl: account 0x5ca6ec5718ac9ac8916b8cecab2c0d6051dbba92 is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775'
       );
     });
     it('create collection - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).createLocalCollection(
-        'collection name', ACCOUNTS[9].address, ACCOUNTS[1].address
+        ACCOUNTS[9].address, ACCOUNTS[1].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
       expect(collection.collectionType).to.be.equal(0);
     });
     it('create collection - yes admin', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
-        'collection name', ACCOUNTS[9].address, ACCOUNTS[0].address
+        ACCOUNTS[9].address, ACCOUNTS[0].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
       expect(collection.collectionType).to.be.equal(0);
     });
     it('create collection', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).createLocalCollection(
-        'collection name', ACCOUNTS[9].address, ACCOUNTS[0].address
+        ACCOUNTS[9].address, ACCOUNTS[0].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(3);
       expect(collection.id).to.be.equal(3);
-      expect(collection.name).to.be.equal('collection name');
       expect(collection.collectionType).to.be.equal(0);
       expect(collection.contractAddress).to.be.equal(ACCOUNTS[9].address);
       expect(collection.owner).to.be.equal(ACCOUNTS[0].address);
@@ -892,32 +887,31 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('update collection - not owner (regular user)', async () => {
       await CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name 2', NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[3].address
+        2, NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0x2142c9e89f53770c174b6f211ab4ec58d1d632f8 is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - not owner (contract owner)', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).updateCollection(
-        2, 'collection name 2', NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[3].address
+        2, NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - not owner (admin)', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).updateCollection(
-        2, 'collection name 2', NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[3].address
+        2, NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0xda121ab48c7675e4f25e28636e3efe602e49eec6 is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[6]).updateCollection(
-        2, 'collection name 2', NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[6].address
+        2, NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[6].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(2);
       expect(collection.collectionType).to.be.equal(0);
-      expect(collection.name).to.be.equal('collection name 2');
     });
 
     it('Disable owner access to collectiton incentive pool - not owner (regular user)', async () => {
@@ -952,7 +946,7 @@ describe("AvaxTrade - CollectionItem", () => {
       await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT_VERIFIED.address, 100, 2, 3, ACCOUNTS[2].address, false
+        NFT_CONTRACT_VERIFIED.address, 100, 2, 3, ACCOUNTS[2].address, false
       );
     });
 
@@ -1124,32 +1118,31 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('create collection - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[2]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT_VERIFIED.address, 100, 0, 0, ACCOUNTS[2].address, false
+        NFT_CONTRACT_VERIFIED.address, 100, 0, 0, ACCOUNTS[2].address, false
       ).should.be.rejectedWith(
         'AccessControl: account 0x5ca6ec5718ac9ac8916b8cecab2c0d6051dbba92 is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775'
       );
     });
     it('create collection - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).createVerifiedCollection(
-        'collection name', ACCOUNTS[9].address, 100, 0, 0, ACCOUNTS[1].address, false
+        ACCOUNTS[9].address, 100, 0, 0, ACCOUNTS[1].address, false
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
       expect(collection.collectionType).to.be.equal(1);
     });
     it('create collection - yes admin', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', ACCOUNTS[9].address, 100, 0, 0, ACCOUNTS[0].address, false
+        ACCOUNTS[9].address, 100, 0, 0, ACCOUNTS[0].address, false
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
       expect(collection.collectionType).to.be.equal(1);
     });
     it('create collection', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).createVerifiedCollection(
-        'collection name', ACCOUNTS[9].address, 100, 0, 0, ACCOUNTS[0].address, false
+        ACCOUNTS[9].address, 100, 0, 0, ACCOUNTS[0].address, false
       );
       const collection = await CONTRACT.connect(ACCOUNTS[0]).getCollection(3);
       expect(collection.id).to.be.equal(3);
-      expect(collection.name).to.be.equal('collection name');
       expect(collection.collectionType).to.be.equal(1);
       expect(collection.contractAddress).to.be.equal(ACCOUNTS[9].address);
       expect(collection.owner).to.be.equal(ACCOUNTS[0].address);
@@ -1157,32 +1150,31 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('update collection - not owner (regular user)', async () => {
       await CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, 'collection name 2', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[3].address
+        2, NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0x2142c9e89f53770c174b6f211ab4ec58d1d632f8 is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - not owner (contract owner)', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).updateCollection(
-        2, 'collection name 2', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[3].address
+        2, NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - not owner (admin)', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).updateCollection(
-        2, 'collection name 2', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[3].address
+        2, NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0xda121ab48c7675e4f25e28636e3efe602e49eec6 is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[2]).updateCollection(
-        2, 'collection name 2', NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[5].address
+        2, NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[5].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(2);
       expect(collection.collectionType).to.be.equal(1);
-      expect(collection.name).to.be.equal('collection name 2');
     });
 
     it('Disable owner access to collectiton incentive pool - not owner (regular user)', async () => {
@@ -1197,7 +1189,7 @@ describe("AvaxTrade - CollectionItem", () => {
     });
     it('Disable owner access to collectiton incentive pool - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', ACCOUNTS[2].address, 100, 2, 3, ACCOUNTS[2].address, true
+        ACCOUNTS[2].address, 100, 2, 3, ACCOUNTS[2].address, true
       );
       let collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(3);
       expect(collection.ownerIncentiveAccess).to.be.equal(true);
@@ -1221,7 +1213,7 @@ describe("AvaxTrade - CollectionItem", () => {
       await NFT_CONTRACT_VERIFIED.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
 
       await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-        'collection name', NFT_CONTRACT_VERIFIED.address, 100, 2, 3, ACCOUNTS[6].address, false
+        NFT_CONTRACT_VERIFIED.address, 100, 2, 3, ACCOUNTS[6].address, false
       );
 
       // local
@@ -1235,7 +1227,7 @@ describe("AvaxTrade - CollectionItem", () => {
       await NFT_CONTRACT_LOCAL.connect(ACCOUNTS[2]).setApprovalForAll(CONTRACT.address, true);
 
       await CONTRACT.connect(ACCOUNTS[0]).createLocalCollection(
-        'collection name', NFT_CONTRACT_LOCAL.address, ACCOUNTS[6].address
+        NFT_CONTRACT_LOCAL.address, ACCOUNTS[6].address
       );
     });
 
