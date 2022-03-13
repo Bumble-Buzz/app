@@ -1,13 +1,10 @@
 import Cors from 'cors';
-// const { ethers } = require("hardhat");
 import { ethers } from 'ethers';
 import { getSession } from "next-auth/react";
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 import { RpcNode } from '@/components/backend/Rpc';
 import CollectionItemAbi from '@/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
 
-
-const COLLECTION_TYPE = [ 'local', 'verified', 'unverified' ];
 
 /**
  * @todo If we are unable to verify data on blockchain, then we need to be more creative.
@@ -20,12 +17,9 @@ const checkBlockchain = async (collection) => {
   const provider = new ethers.providers.JsonRpcProvider(RpcNode);
   const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, provider);
   const onChainData = await contract.getCollection(collection.id);
-
-  const collectionType = Number(onChainData.collectionType);
-  const isActive = Number(onChainData.active);
   return (
     collection.id === Number(onChainData.id) && collection.name === onChainData.name && collection.contractAddress === onChainData.contractAddress &&
-    collection.owner === onChainData.owner && COLLECTION_TYPE[collectionType] === 'verified' && isActive === 0
+    collection.owner === onChainData.owner && collection.ownerIncentiveAccess === onChainData.ownerIncentiveAccess
   );
 };
 
@@ -37,37 +31,23 @@ export default async function handler(req, res) {
   // check parameters
   if (!data) return res.status(400).json({ 'error': 'invalid request parameters' });
   if (!session) return res.status(401).json({ 'error': 'not authenticated' });
+  if (session.user.id !== data.owner) return res.status(401).json({ 'error': 'not authenticated' });
+  if (!data.id || !Number.isInteger(Number(data.id))) return res.status(400).json({ error: `collection id '${data.id}' is invalid` });
 
   // @todo This can only be run locally at the moment. Once deployed on testnet/mainnet, this needs to run
   if (!(await checkBlockchain(data))) return res.status(400).json({ 'error': 'record not found on blockchain' });
 
-  // ensure if id already exists, we don't overwrite the record
   const payload = {
     TableName: "collection",
-    Item: {
-      'id': data.id,
-      'contractAddress': ethers.utils.getAddress(data.contractAddress),
-      'name': data.name,
-      'description': data.description,
-      'totalSupply': data.totalSupply,
-      'reflection': data.reflection,
-      'commission': data.commission,
-      'incentive': 0,
-      'owner': data.owner,
-      'collectionType': 'verified',
-      'ownerIncentiveAccess': data.ownerIncentiveAccess,
-      'category': data.category,
-      'image': data.image,
-      'social': data.social,
-      'active': 0
-    },
-    ExpressionAttributeNames: { '#id': 'id' },
-    ExpressionAttributeValues: { ':id': data.id },
-    ConditionExpression: "#id <> :id"
+    Key: { 'id': Number(data.id) },
+    ExpressionAttributeNames: { "#ownerIncentiveAccess": "ownerIncentiveAccess" },
+    ExpressionAttributeValues: { ":ownerIncentiveAccess": data.ownerIncentiveAccess },
+    UpdateExpression: `set #ownerIncentiveAccess = :ownerIncentiveAccess`
   };
-  await DynamoDbQuery.item.put(payload);
+  const results = await DynamoDbQuery.item.update(payload);
+  const {Items, LastEvaluatedKey, Count, ScannedCount} = results;
 
-  res.status(200).json({ 'status': 'success' });
+  res.status(200).json({ Items, LastEvaluatedKey, Count, ScannedCount });
 };
 
 

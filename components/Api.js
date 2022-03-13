@@ -73,6 +73,10 @@ module.exports = {
       local: payload => API.post(`collection/create/local`, payload),
       verified: payload => API.post(`collection/create/verified`, payload),
       unverified: payload => API.post(`collection/create/unverified`, payload)
+    },
+    update: {
+      id: (id,payload) => API.post(`collection/update/${id}`, payload),
+      ownerincentiveaccess: (id,payload) => API.post(`collection/update/${id}/ownerincentiveaccess`, payload)
     }
   },
   db: {

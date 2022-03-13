@@ -40,6 +40,8 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
 
   // events
   event onActivation(uint256 indexed id, bool indexed active);
+  event onCollectionUpdate(uint256 indexed id);
+  event onCollectionOwnerIncentiveAccess(uint256 indexed id);
 
 
   /**
@@ -224,14 +226,16 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
     uint256 _id, string memory _name, address _contractAddress, uint8 _reflection, uint8 _commission,
     uint8 _incentive, address _owner
   ) external onlyRole(COLLECTION_ROLES[_id]) {
-    return _updateCollection(_id, _name, _contractAddress, _reflection, _commission, _incentive, _owner);
+    _updateCollection(_id, _name, _contractAddress, _reflection, _commission, _incentive, _owner);
+    emit onCollectionUpdate(_id);
   }
 
   /**
     * @dev Disable owner access to collectiton incentive pool
   */
   function disableCollectionOwnerIncentiveAccess(uint256 _id) external onlyRole(COLLECTION_ROLES[_id]) {
-    return _updateCollectionOwnerIncentiveAccess(_id, false);
+    _updateCollectionOwnerIncentiveAccess(_id, false);
+    emit onCollectionOwnerIncentiveAccess(_id);
   }
 
   /**

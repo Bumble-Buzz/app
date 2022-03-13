@@ -1,6 +1,13 @@
 Things left to do:
 - Smart contract
   - Name the app, then make the change everywhere
+  - Collection
+    - Remove collection name from Collection.sol ?
+    - Ability to disable reflection
+      - By making reflection percentage 0. Make sure the code is efficient when it's 0
+      - Add a boolean to enable / disable reflection
+      - Create separate logic to enable reflection, and that is when reflection pool is created? This way initial collection creation is cheaper and gives user option to never create reflection if they don't want to
+    - Do not allow user to be able to update contract address. It should be constant for the collection
   - All attributes and functions have correct access classifiers (private/internal/public)
   - Use one specific version in the contracts, not a range (0.8.4)
   - Remove `import "hardhat/console.sol";` from all contracts
@@ -40,21 +47,11 @@ Things left to do:
         - PK: walletId
         - LSI: timestamp ?
         - GSI: 
-      <!-- - created-asset: NFTs created on the marketplace (do we need this? asset table can cover this?)
-        - walletId, contractAddress, tokenId, commission, cid
-        - PK: walletId, contractAddress
-        - LSI: tokenId
-        - GSI:  -->
       - contracts: All known contracts (need to be updated constantly)
         - [contractAddress]::set, chain, name, symbol, isVerified::number, type::721
         - PK: arbitrary-number, chain
         - LSI: isVerified, type
         - GSI: 
-      <!-- - pending-collection: List of pending collections
-        - contractAddress, id, name, description, totalSupply, reflection, commission, owner, collectionType, ownerIncentiveAccess, category, image, status::pending/completed
-        - PK: owner, contractAddress
-        - LSI: id, collectionType, category
-        - GSI:  -->
       - collection: List of collections
         - id, name, contractAddress, description, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number, category, image
         - PK: id
@@ -70,8 +67,6 @@ Things left to do:
         - PK: id
         - LSI: 
         - GSI: category + active (only get data that you need)
-      <!-- - assets: List of assets (NFT on sale or not) -->
-        <!-- - contractAddress, tokenId, creator, owner,  -->
 - Front-end dapp
   - Easy way to set ENV variables in docker image / k8s, for contract addresses, admin accounts, etc...
   - Initialize CORS properly as explained in the docs

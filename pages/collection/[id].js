@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { ethers } from 'ethers';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSession, getSession } from 'next-auth/react';
 import useSWR from 'swr';
+import IPFS from '@/utils/ipfs';
 import { useAuth } from '@/contexts/AuthContext';
 import IconTray from '@/components/IconTray';
 import TilePanel from '@/components/TilePanel';
@@ -23,7 +25,9 @@ export default function Collection({ collectionDataInit }) {
   const {data: assetInit} = useSWR(API.swr.asset.collection(collectionDataInit.contractAddress, 'null', 20), API.swr.fetcher, API.swr.options);
 
 
-  if (!collectionDataInit || !collectionDataInit.id) return (<PageError>Collection not found</PageError>);
+  // catch invalids early
+  if (!collectionDataInit || !collectionDataInit.id) return (<PageError>This collection does not exist</PageError>);
+  if (!collectionDataInit.active) return (<PageError>This collection has been deactivated</PageError>);
 
 
   const chainSymbols = {
@@ -47,10 +51,20 @@ export default function Collection({ collectionDataInit }) {
     }
   };
 
+  const isSignInValid = () => {
+    return (
+      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
+      AuthContext.state.isNetworkValid
+    )
+  };
+  const isCollectionOwner = () => {
+    return (isSignInValid() && session.user.id === collectionDataInit.owner);
+  };
+
   const tilePanelMonetary = {
-    commission: { name: 'Commission', value: collectionDataInit.commission, format: 'percent', symbol: '' },
-    reflection: { name: 'Reflection', value: collectionDataInit.reflection, format: 'percent', symbol: '' },
-    incentive: { name: 'Incentive', value: collectionDataInit.incentive, format: 'percent', symbol: '' },
+    commission: { name: 'Commission', value: collectionDataInit.commission/100, format: 'percent', symbol: '' },
+    reflection: { name: 'Reflection', value: collectionDataInit.reflection/100, format: 'percent', symbol: '' },
+    incentive: { name: 'Incentive', value: collectionDataInit.incentive/100, format: 'percent', symbol: '' },
     incentiveBal: { name: 'Incentive Balance', value: 0.00, format: 'decimal', symbol: chainSymbols.ethereum, itemSymbol: getItemSymbol() }
   };
   const tilePanelAdditional = {
@@ -59,12 +73,10 @@ export default function Collection({ collectionDataInit }) {
     floor: { name: 'Floor Price', value: 0.00425744, format: 'decimal', symbol: chainSymbols.ethereum },
     volume: { name: 'Volume Traded', value: 0.0042344, format: 'decimal', symbol: chainSymbols.ethereum }
   };
-
-  const isSignInValid = () => {
-    return (
-      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
-      ROUTER.query.wallet === AuthContext.state.account && AuthContext.state.isNetworkValid
-    )
+  const iconTraySpecialItems = () => {
+    let list = [];
+    if (isCollectionOwner()) list.push('Edit');
+    return list;
   };
 
 
@@ -83,7 +95,7 @@ export default function Collection({ collectionDataInit }) {
         {/* banner */}
         <div className='w-full text-center relative h-48 border-b'>
           <Image
-          src={'/naturedesign.jpg'}
+          src={IPFS.getValidHttpUrl(collectionDataInit.image)}
           placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw'
           />
         </div>
@@ -112,7 +124,7 @@ export default function Collection({ collectionDataInit }) {
           </div>
           {/* icon tray */}
           <div className='flex flex-col flex-nowrap items-end xsm:items-center'>
-            <IconTray items={collectionDataInit.social} />
+            <IconTray items={collectionDataInit.social} specialItems={iconTraySpecialItems()} options={{ id: collectionDataInit.id }} />
           </div>
         </div>
 
