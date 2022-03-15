@@ -11,13 +11,23 @@ contract CollectionAccount {
     require(_collectionAccountExists(_id), "The account for this collection does not exist");
     _;
   }
+  modifier isCollectionAccountInitialized(address _id) {
+    require(COLLECTION_ACCOUNTS[_id].supply > 0, "Collection account not initialized");
+    _;
+  }
 
   // data structures
   struct CollectionAccountDS {
     address id; // contract address of this collection account
-    // address owner; // owner of this collection account (user address)
-    uint256[] reflectionVault; //reflection fewards for each token id
+    mapping(uint256 => uint256) reflectionVault; // reflection reward for each token id
     uint256 incentiveVault; // collection reward vault given upon completion of market sale
+    uint256 supply; // total supply of this collection
+  }
+  struct CollectionAccountReturnDS {
+    address id; // contract address of this collection account
+    string reflectionVault; // reflection reward for each token id
+    uint256 incentiveVault; // collection reward vault given upon completion of market sale
+    uint256 supply; // total supply of this collection
   }
 
   mapping(address => CollectionAccountDS) private COLLECTION_ACCOUNTS; // mapping owner address to collection object
@@ -60,50 +70,65 @@ contract CollectionAccount {
   /**
     * @dev Get account of collection
   */
-  function _getCollectionAccount(address _id) internal view returns (CollectionAccountDS memory) {
-    return COLLECTION_ACCOUNTS[_id];
+  function _getCollectionAccount(address _id) internal view returns (CollectionAccountReturnDS memory) {
+    return CollectionAccountReturnDS({
+      id: COLLECTION_ACCOUNTS[_id].id,
+      reflectionVault: 'reflectionVault',
+      incentiveVault: COLLECTION_ACCOUNTS[_id].incentiveVault,
+      supply: COLLECTION_ACCOUNTS[_id].supply
+    });
   }
 
   /**
     * @dev Get collections for list of users
   */
-  function _getCollectionAccounts(address[] memory _ids) internal view returns (CollectionAccountDS[] memory) {
+  function _getCollectionAccounts(address[] memory _ids) internal view returns (CollectionAccountReturnDS[] memory) {
     uint256 arrLength = _ids.length;
-    CollectionAccountDS[] memory collections = new CollectionAccountDS[](arrLength);
+    CollectionAccountReturnDS[] memory collections = new CollectionAccountReturnDS[](arrLength);
     for (uint256 i = 0; i < arrLength; i++) {
       address id = _ids[i];
       require(_collectionAccountExists(id), "An account in the list does not exist");
-      CollectionAccountDS memory collection = COLLECTION_ACCOUNTS[id];
+      CollectionAccountReturnDS memory collection = CollectionAccountReturnDS({
+        id: COLLECTION_ACCOUNTS[id].id,
+        reflectionVault: 'reflectionVault',
+        incentiveVault: COLLECTION_ACCOUNTS[id].incentiveVault,
+        supply: COLLECTION_ACCOUNTS[id].supply
+      });
       collections[i] = collection;
     }
     return collections;
   }
 
   /**
-    * @dev Update collection
+    * @dev Initialize a collection reflection vault for the given collection
   */
-  function _updateCollectionAccount(
-    address _id, uint256[] memory _reflectionVault, uint256 _incentiveVault
-  ) internal {
-    COLLECTION_ACCOUNTS[_id] = CollectionAccountDS({
-      id: _id,
-      reflectionVault: _reflectionVault,
-      incentiveVault: _incentiveVault
-    });
+  function _initReflectionVaultCollectionAccount(address _id, uint256 _supply) internal {
+    require(_supply > 0, "CollectionAccount: Total supply must be > 0");
+    COLLECTION_ACCOUNTS[_id].supply = _supply;
   }
 
   /**
-    * @dev Initialize a collection reflection vault for the given collection
+    * @dev Update collection
   */
-  function _initReflectionVaultCollectionAccount(address _id, uint256 _totalSupply) internal {
-    COLLECTION_ACCOUNTS[_id].reflectionVault = new uint256[](_totalSupply);
+  function _updateCollectionAccount(
+    address _id, uint256[] memory _reflectionVaultArray, uint256 _incentiveVault
+  ) internal isCollectionAccountInitialized(_id) {
+    COLLECTION_ACCOUNTS[_id].id = _id;
+    for (uint256 i = 0; i < _reflectionVaultArray.length; i++) {
+      COLLECTION_ACCOUNTS[_id].reflectionVault[i+1] = _reflectionVaultArray[i];
+    }
+    COLLECTION_ACCOUNTS[_id].incentiveVault = _incentiveVault;
   }
 
   /**
     * @dev Get collection reflection vault
   */
   function _getReflectionVaultCollectionAccount(address _id) internal view returns (uint256[] memory) {
-    return COLLECTION_ACCOUNTS[_id].reflectionVault;
+    uint256[] memory reflectionVaultArray = new uint256[](COLLECTION_ACCOUNTS[_id].supply);
+    for (uint i = 0; i < COLLECTION_ACCOUNTS[_id].supply; i++) {
+        reflectionVaultArray[i] = COLLECTION_ACCOUNTS[_id].reflectionVault[i+1];
+    }
+    return reflectionVaultArray;
   }
 
   /**
@@ -111,51 +136,46 @@ contract CollectionAccount {
       @param _id : collection id
       @param _rewardPerItem : reward needs to be allocated to each item in this collection
   */
-  function _increaseReflectionVaultCollectionAccount(address _id, uint256 _rewardPerItem) internal {
-    require(COLLECTION_ACCOUNTS[_id].reflectionVault.length > 0 , "CollectionAccount: Reflection vault not initialized");
-    uint256[] memory vault = COLLECTION_ACCOUNTS[_id].reflectionVault;
-    for (uint256 i = 0; i < vault.length; i++) {
-      uint256 currentValue = vault[i];
-      vault[i] = currentValue + _rewardPerItem;
+  function _increaseReflectionVaultCollectionAccount(address _id, uint256 _rewardPerItem) internal isCollectionAccountInitialized(_id) {
+    for (uint256 i = 1; i <= COLLECTION_ACCOUNTS[_id].supply; i++) {
+      uint256 currentValue = COLLECTION_ACCOUNTS[_id].reflectionVault[i];
+      COLLECTION_ACCOUNTS[_id].reflectionVault[i] = currentValue + _rewardPerItem;
     }
-    COLLECTION_ACCOUNTS[_id].reflectionVault = vault;
   }
 
   /**
     * @dev Increase collection reflection vault for given token
     * todo write test for this
   */
-  function _increaseReflectionVaultForTokensCollectionAccount(address _id, uint256  _tokenId, uint256 _rewardPerItem) internal {
-    require(COLLECTION_ACCOUNTS[_id].reflectionVault.length > 0 , "CollectionAccount: Reflection vault not initialized");
+  function _increaseReflectionVaultForTokensCollectionAccount(address _id, uint256  _tokenId, uint256 _rewardPerItem) internal isCollectionAccountInitialized(_id) {
+    require(_tokenId > 0, "Token id must be greater than 0");
     COLLECTION_ACCOUNTS[_id].reflectionVault[_tokenId] += _rewardPerItem;
   }
 
   /**
-    * @dev Get collection reflection vault index
+    * @dev Get collection reflection for given token id
   */
-  function _getReflectionVaultIndexCollectionAccount(address _id, uint256 _index) internal view returns (uint256) {
-    require(COLLECTION_ACCOUNTS[_id].reflectionVault.length > 0 , "CollectionAccount: Reflection vault not initialized");
-    require(_index < COLLECTION_ACCOUNTS[_id].reflectionVault.length, "CollectionAccount: Index out of bounds");
-    return COLLECTION_ACCOUNTS[_id].reflectionVault[_index];
+  function _getReflectionVaultIndexCollectionAccount(address _id, uint256 _tokenId) internal view returns (uint256) {
+    return COLLECTION_ACCOUNTS[_id].reflectionVault[_tokenId];
   }
 
   /**
-    * @dev Update collection reflection vault index
+    * @dev Update collection reflection for given token id
       @param _id : collection id
-      @param _index : specific vault index to update
-      @param _newVal : new value for a single vault index
+      @param _tokenId : specific token id to update
+      @param _newVal : new value for a single token id
   */
-  function _updateReflectionVaultIndexCollectionAccount(address _id, uint256 _index, uint256 _newVal) internal {
-    require(COLLECTION_ACCOUNTS[_id].reflectionVault.length > 0 , "CollectionAccount: Reflection vault not initialized");
-    require(_index < COLLECTION_ACCOUNTS[_id].reflectionVault.length, "CollectionAccount: Index out of bounds");
-    COLLECTION_ACCOUNTS[_id].reflectionVault[_index] = _newVal;
+  function _updateReflectionVaultIndexCollectionAccount(address _id, uint256 _tokenId, uint256 _newVal) internal isCollectionAccountInitialized(_id) {
+    require(_tokenId > 0, "Token id must be greater than 0");
+    COLLECTION_ACCOUNTS[_id].reflectionVault[_tokenId] = _newVal;
   }
   /**
     * @dev Nullify all collection reflection rewards for the given collection id
   */
-  function _nullifyReflectionVaultCollectionAccount(address _id) internal {
-    uint256 vaultLength = COLLECTION_ACCOUNTS[_id].reflectionVault.length;
-    COLLECTION_ACCOUNTS[_id].reflectionVault = new uint256[](vaultLength);
+  function _nullifyReflectionVaultCollectionAccount(address _id) internal isCollectionAccountInitialized(_id) {
+    for (uint256 i = 1; i <= COLLECTION_ACCOUNTS[_id].supply; i++) {
+      COLLECTION_ACCOUNTS[_id].reflectionVault[i] = 0;
+    }
   }
 
   /**

@@ -144,8 +144,10 @@ describe("AvaxTrade - Bank", () => {
       expect(bank.user.collectionCommission).to.be.equal(0);
 
       expect(bank.collection.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.collection.reflectionVault).to.be.an('array').that.is.empty;
       expect(bank.collection.incentiveVault).to.be.equal(0);
+      expect(bank.collection.supply).to.be.equal(0);
+      const reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.empty;
 
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
       expect(bank.vault.balance).to.be.equal(0);
@@ -165,8 +167,10 @@ describe("AvaxTrade - Bank", () => {
       expect(bank.user.collectionCommission).to.be.equal(0);
 
       expect(bank.collection.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.collection.reflectionVault).to.be.an('array').that.is.empty;
       expect(bank.collection.incentiveVault).to.be.equal(0);
+      expect(bank.collection.supply).to.be.equal(0);
+      const reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.empty;
 
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
       expect(bank.vault.balance).to.be.equal(0);
@@ -194,8 +198,10 @@ describe("AvaxTrade - Bank", () => {
       expect(banks[0].user.general).to.be.equal(0);
       expect(banks[0].user.collectionCommission).to.be.equal(0);
       expect(banks[0].collection.id).to.be.equal(ACCOUNTS[1].address);
-      expect(banks[0].collection.reflectionVault).to.be.an('array').that.is.empty;
       expect(banks[0].collection.incentiveVault).to.be.equal(0);
+      expect(banks[0].collection.supply).to.be.equal(0);
+      let reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.empty;
       expect(banks[0].vault.id).to.be.equal(ACCOUNTS[1].address);
       expect(banks[0].vault.balance).to.be.equal(0);
 
@@ -203,13 +209,15 @@ describe("AvaxTrade - Bank", () => {
       expect(banks[1].user.general).to.be.equal(0);
       expect(banks[1].user.collectionCommission).to.be.equal(0);
       expect(banks[1].collection.id).to.be.equal(ACCOUNTS[2].address);
-      expect(banks[1].collection.reflectionVault).to.be.an('array').that.is.empty;
       expect(banks[1].collection.incentiveVault).to.be.equal(0);
+      expect(banks[0].collection.supply).to.be.equal(0);
+      reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.empty;
       expect(banks[1].vault.id).to.be.equal(ACCOUNTS[2].address);
       expect(banks[1].vault.balance).to.be.equal(0);
     });
 
-    it('update brank', async () => {
+    it('update brank - collection account not initialized', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[1].address);
 
       let bank = await CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[1].address);
@@ -222,8 +230,39 @@ describe("AvaxTrade - Bank", () => {
 
       expect(_doesArrayInclude(bank.collection, ACCOUNTS[1].address)).to.be.true;
       expect(bank.collection.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.collection.reflectionVault).to.be.an('array').that.is.empty;
       expect(bank.collection.incentiveVault).to.be.equal(0);
+      expect(bank.collection.supply).to.be.equal(0);
+      let reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.empty;
+
+      expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
+      expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
+      expect(bank.vault.balance).to.be.equal(0);
+
+      await CONTRACT.connect(ACCOUNTS[0]).updateBank(ACCOUNTS[1].address, 1, 2, 3, [1,2,3], 4, 5)
+        .should.be.rejectedWith('Collection account not initialized');
+    });
+    it('update brank', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[1].address);
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[1].address, 3);
+
+      let bank = await CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[1].address);
+      expect(bank.id).to.be.equal(ACCOUNTS[1].address);
+
+      expect(_doesArrayInclude(bank.user, ACCOUNTS[1].address)).to.be.true;
+      expect(bank.user.id).to.be.equal(ACCOUNTS[1].address);
+      expect(bank.user.general).to.be.equal(0);
+      expect(bank.user.collectionCommission).to.be.equal(0);
+
+      expect(_doesArrayInclude(bank.collection, ACCOUNTS[1].address)).to.be.true;
+      expect(bank.collection.id).to.be.equal(ACCOUNTS[1].address);
+      expect(bank.collection.incentiveVault).to.be.equal(0);
+      expect(bank.collection.supply).to.be.equal(3);
+      let reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.not.empty;
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0')
+      ])).to.be.true;
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
@@ -242,11 +281,13 @@ describe("AvaxTrade - Bank", () => {
 
       expect(_doesArrayInclude(bank.collection, ACCOUNTS[1].address)).to.be.true;
       expect(bank.collection.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.collection.reflectionVault).to.be.an('array').that.is.not.empty;
-      expect(_doesArrayEqual(bank.collection.reflectionVault, [
+      expect(bank.collection.incentiveVault).to.be.equal(4);
+      expect(bank.collection.supply).to.be.equal(3);
+      reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.not.empty;
+      expect(_doesArrayEqual(reflectionAccount, [
         ethers.BigNumber.from('1'), ethers.BigNumber.from('2'), ethers.BigNumber.from('3')
       ])).to.be.true;
-      expect(bank.collection.incentiveVault).to.be.equal(4);
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
@@ -254,6 +295,7 @@ describe("AvaxTrade - Bank", () => {
     });
     it('update brank - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[1].address);
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[1].address, 3);
 
       let bank = await CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[1].address);
       expect(bank.id).to.be.equal(ACCOUNTS[1].address);
@@ -265,8 +307,13 @@ describe("AvaxTrade - Bank", () => {
 
       expect(_doesArrayInclude(bank.collection, ACCOUNTS[1].address)).to.be.true;
       expect(bank.collection.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.collection.reflectionVault).to.be.an('array').that.is.empty;
       expect(bank.collection.incentiveVault).to.be.equal(0);
+      expect(bank.collection.supply).to.be.equal(3);
+      let reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.not.empty;
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0')
+      ])).to.be.true;
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
@@ -280,6 +327,8 @@ describe("AvaxTrade - Bank", () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[3].address);
 
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[1].address, 3);
+
       await CONTRACT.connect(ACCOUNTS[0]).updateBank(ACCOUNTS[1].address, 1, 2, 3, [1,2,3], 4, 5);
 
       const banks = await CONTRACT.connect(ACCOUNTS[0]).getBanks(
@@ -292,11 +341,13 @@ describe("AvaxTrade - Bank", () => {
       expect(banks[0].user.nftCommission).to.be.equal(2);
       expect(banks[0].user.collectionCommission).to.be.equal(3);
       expect(banks[0].collection.id).to.be.equal(ACCOUNTS[1].address);
-      expect(banks[0].collection.reflectionVault).to.be.an('array').that.is.not.empty;
+      expect(banks[0].collection.incentiveVault).to.be.equal(4);
+      expect(banks[0].collection.supply).to.be.equal(3);
+      let reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.not.empty;
       expect(_doesArrayEqual(banks[0].collection.reflectionVault, [
         ethers.BigNumber.from('1'), ethers.BigNumber.from('2'), ethers.BigNumber.from('3')
       ])).to.be.true;
-      expect(banks[0].collection.incentiveVault).to.be.equal(4);
       expect(banks[0].vault.id).to.be.equal(ACCOUNTS[1].address);
       expect(banks[0].vault.balance).to.be.equal(5);
 
@@ -304,7 +355,10 @@ describe("AvaxTrade - Bank", () => {
       expect(banks[1].user.general).to.be.equal(0);
       expect(banks[1].user.collectionCommission).to.be.equal(0);
       expect(banks[1].collection.id).to.be.equal(ACCOUNTS[2].address);
-      expect(banks[1].collection.reflectionVault).to.be.an('array').that.is.empty;
+      expect(banks[1].collection.incentiveVault).to.be.equal(0);
+      expect(banks[1].collection.supply).to.be.equal(0);
+      reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[2].address);
+      expect(reflectionAccount).to.be.an('array').that.is.empty;
       expect(banks[1].vault.id).to.be.equal(ACCOUNTS[2].address);
       expect(banks[1].vault.balance).to.be.equal(0);
 
@@ -312,12 +366,15 @@ describe("AvaxTrade - Bank", () => {
       expect(banks[2].user.general).to.be.equal(0);
       expect(banks[2].user.collectionCommission).to.be.equal(0);
       expect(banks[2].collection.id).to.be.equal(ACCOUNTS[3].address);
-      expect(banks[2].collection.reflectionVault).to.be.an('array').that.is.empty;
+      expect(banks[2].collection.incentiveVault).to.be.equal(0);
+      reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address);
+      expect(reflectionAccount).to.be.an('array').that.is.empty;
       expect(banks[2].vault.id).to.be.equal(ACCOUNTS[3].address);
       expect(banks[2].vault.balance).to.be.equal(0);
     });
     it('update bank then add same bank', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[1].address);
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[1].address, 3);
       await CONTRACT.connect(ACCOUNTS[0]).updateBank(ACCOUNTS[1].address, 1, 2, 3, [1,2,3], 4, 5);
 
       let bank = await CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[1].address);
@@ -331,11 +388,13 @@ describe("AvaxTrade - Bank", () => {
 
       expect(_doesArrayInclude(bank.collection, ACCOUNTS[1].address)).to.be.true;
       expect(bank.collection.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.collection.reflectionVault).to.be.an('array').that.is.not.empty;
-      expect(_doesArrayEqual(bank.collection.reflectionVault, [
+      expect(bank.collection.incentiveVault).to.be.equal(4);
+      expect(bank.collection.supply).to.be.equal(3);
+      let reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.not.empty;
+      expect(_doesArrayEqual(reflectionAccount, [
         ethers.BigNumber.from('1'), ethers.BigNumber.from('2'), ethers.BigNumber.from('3')
       ])).to.be.true;
-      expect(bank.collection.incentiveVault).to.be.equal(4);
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
@@ -354,11 +413,13 @@ describe("AvaxTrade - Bank", () => {
 
       expect(_doesArrayInclude(bank.collection, ACCOUNTS[1].address)).to.be.true;
       expect(bank.collection.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.collection.reflectionVault).to.be.an('array').that.is.not.empty;
-      expect(_doesArrayEqual(bank.collection.reflectionVault, [
+      expect(bank.collection.incentiveVault).to.be.equal(4);
+      expect(bank.collection.supply).to.be.equal(3);
+      reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.not.empty;
+      expect(_doesArrayEqual(reflectionAccount, [
         ethers.BigNumber.from('1'), ethers.BigNumber.from('2'), ethers.BigNumber.from('3')
       ])).to.be.true;
-      expect(bank.collection.incentiveVault).to.be.equal(4);
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
@@ -379,13 +440,16 @@ describe("AvaxTrade - Bank", () => {
 
       expect(_doesArrayInclude(bank.collection, ACCOUNTS[1].address)).to.be.true;
       expect(bank.collection.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.collection.reflectionVault).to.be.an('array').that.is.empty;
       expect(bank.collection.incentiveVault).to.be.equal(0);
+      expect(bank.collection.supply).to.be.equal(0);
+      let reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.empty;
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
       expect(bank.vault.balance).to.be.equal(0);
 
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[1].address, 3);
       await CONTRACT.connect(ACCOUNTS[0]).updateBank(ACCOUNTS[1].address, 1, 2, 3, [1,2,3], 4, 5);
 
       bank = await CONTRACT.connect(ACCOUNTS[0]).getBank(ACCOUNTS[1].address);
@@ -399,11 +463,13 @@ describe("AvaxTrade - Bank", () => {
 
       expect(_doesArrayInclude(bank.collection, ACCOUNTS[1].address)).to.be.true;
       expect(bank.collection.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.collection.reflectionVault).to.be.an('array').that.is.not.empty;
-      expect(_doesArrayEqual(bank.collection.reflectionVault, [
+      expect(bank.collection.incentiveVault).to.be.equal(4);
+      expect(bank.collection.supply).to.be.equal(3);
+      reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.not.empty;
+      expect(_doesArrayEqual(reflectionAccount, [
         ethers.BigNumber.from('1'), ethers.BigNumber.from('2'), ethers.BigNumber.from('3')
       ])).to.be.true;
-      expect(bank.collection.incentiveVault).to.be.equal(4);
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
@@ -422,11 +488,13 @@ describe("AvaxTrade - Bank", () => {
 
       expect(_doesArrayInclude(bank.collection, ACCOUNTS[1].address)).to.be.true;
       expect(bank.collection.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.collection.reflectionVault).to.be.an('array').that.is.not.empty;
-      expect(_doesArrayEqual(bank.collection.reflectionVault, [
+      expect(bank.collection.incentiveVault).to.be.equal(0);
+      expect(bank.collection.supply).to.be.equal(3);
+      reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.not.empty;
+      expect(_doesArrayEqual(reflectionAccount, [
         ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0')
       ])).to.be.true;
-      expect(bank.collection.incentiveVault).to.be.equal(0);
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
@@ -446,8 +514,10 @@ describe("AvaxTrade - Bank", () => {
 
       expect(_doesArrayInclude(bank.collection, ACCOUNTS[1].address)).to.be.true;
       expect(bank.collection.id).to.be.equal(ACCOUNTS[1].address);
-      expect(bank.collection.reflectionVault).to.be.an('array').that.is.empty;
       expect(bank.collection.incentiveVault).to.be.equal(0);
+      expect(bank.collection.supply).to.be.equal(0);
+      let reflectionAccount = await CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[1].address);
+      expect(reflectionAccount).to.be.an('array').that.is.empty;
 
       expect(_doesArrayInclude(bank.vault, ACCOUNTS[1].address)).to.be.true;
       expect(bank.vault.id).to.be.equal(ACCOUNTS[1].address);
@@ -618,20 +688,29 @@ describe("AvaxTrade - Bank", () => {
     });
     it('claim reflection reward collection account - owner account does not exist', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardCollectionAccount(2, ACCOUNTS[2].address)
-        .should.be.rejectedWith('CollectionAccount: Reflection vault not initialized');
+        .should.be.rejectedWith('Collection account not initialized');
     });
     it('claim reflection reward collection account - bank exists - vault not initialized', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
 
       await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardCollectionAccount(1, ACCOUNTS[2].address)
-        .should.be.rejectedWith('CollectionAccount: Reflection vault not initialized');
+        .should.be.rejectedWith('Collection account not initialized');
     });
     it('claim reflection reward collection account - bank & vault exists - token id out of bounds', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[2].address, 3);
 
-      await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardCollectionAccount(4, ACCOUNTS[2].address)
-        .should.be.rejectedWith('CollectionAccount: Index out of bounds');
+      let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getCollectionCommissionUserAccount(ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardCollectionAccount(400, ACCOUNTS[2].address);
+      
+      balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getCollectionCommissionUserAccount(ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
     });
     it('claim reflection reward collection account - invalid token id', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
@@ -680,7 +759,7 @@ describe("AvaxTrade - Bank", () => {
     });
     it('distribute collection reflection - account does not exist', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionReward(ACCOUNTS[2].address, 3, ethers.utils.parseEther('6'))
-        .should.be.rejectedWith('CollectionAccount: Reflection vault not initialized');
+        .should.be.rejectedWith('Collection account not initialized');
     });
     it('distribute collection reflection - no existing balance', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
@@ -725,7 +804,7 @@ describe("AvaxTrade - Bank", () => {
     });
     it('distribute collection reflection given list - account does not exist', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).distributeCollectionReflectionRewardList(ACCOUNTS[2].address, [1,3], ethers.utils.parseEther('10'))
-        .should.be.rejectedWith('CollectionAccount: Reflection vault not initialized');
+        .should.be.rejectedWith('Collection account not initialized');
     });
     it('distribute collection reflection given list - no existing balance', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
@@ -782,7 +861,7 @@ describe("AvaxTrade - Bank", () => {
     it('update collection incentive reward - vault not initialized', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
       await CONTRACT.connect(ACCOUNTS[0]).incrementCollectionAccount(ACCOUNTS[2].address, 0, ethers.utils.parseEther('4'))
-        .should.be.rejectedWith('CollectionAccount: Reflection vault not initialized');
+        .should.be.rejectedWith('Collection account not initialized');
     });
     it('update collection incentive reward - increase - not owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).updateCollectionIncentiveReward(ACCOUNTS[2].address, ethers.utils.parseEther('5'), true)

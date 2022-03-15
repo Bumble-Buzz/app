@@ -31,7 +31,7 @@ contract Bank is Initializable, UUPSUpgradeable, AccessControlUpgradeable, UserA
   struct BankDS {
     address id; // owner of this bank account
     UserAccountDS user; // user account
-    CollectionAccountDS collection; // collection account
+    CollectionAccountReturnDS collection; // collection account
     VaultDS vault; // bank vault
   }
 
@@ -219,9 +219,8 @@ contract Bank is Initializable, UUPSUpgradeable, AccessControlUpgradeable, UserA
   function claimReflectionRewardCollectionAccount(uint256 _tokenId, address _contractAddress) external onlyRole(ADMIN_ROLE) returns (uint256) {
     require(_tokenId > 0, "Bank: Invalid token id provided");
 
-    uint256 vaultIndex = _tokenId - 1;
-    uint256 reward = _getReflectionVaultIndexCollectionAccount(_contractAddress, vaultIndex);
-    _updateReflectionVaultIndexCollectionAccount(_contractAddress, vaultIndex, 0);
+    uint256 reward = _getReflectionVaultIndexCollectionAccount(_contractAddress, _tokenId);
+    _updateReflectionVaultIndexCollectionAccount(_contractAddress, _tokenId, 0);
     return reward;
   }
 
@@ -241,8 +240,7 @@ contract Bank is Initializable, UUPSUpgradeable, AccessControlUpgradeable, UserA
     addBank(_contractAddress); // create if bank account does not exist
     uint256 reflectionRewardPerItem = _reflectionReward / _tokenIds.length;
     for (uint256 i = 0; i < _tokenIds.length; i++) {
-      uint256 vaultIndex = _tokenIds[i] - 1;
-      _increaseReflectionVaultForTokensCollectionAccount(_contractAddress, vaultIndex, reflectionRewardPerItem);
+      _increaseReflectionVaultForTokensCollectionAccount(_contractAddress, _tokenIds[i], reflectionRewardPerItem);
     }
   }
 
@@ -378,14 +376,14 @@ contract Bank is Initializable, UUPSUpgradeable, AccessControlUpgradeable, UserA
   /**
     * @dev Get account of collection
   */
-  function getCollectionAccount(address _id) external view returns (CollectionAccountDS memory) {
+  function getCollectionAccount(address _id) external view returns (CollectionAccountReturnDS memory) {
     return _getCollectionAccount(_id);
   }
 
   /**
     * @dev Get collections for list of users
   */
-  function getCollectionAccounts(address[] memory _ids) external view returns (CollectionAccountDS[] memory) {
+  function getCollectionAccounts(address[] memory _ids) external view returns (CollectionAccountReturnDS[] memory) {
     return _getCollectionAccounts(_ids);
   }
 
@@ -400,8 +398,7 @@ contract Bank is Initializable, UUPSUpgradeable, AccessControlUpgradeable, UserA
     * @dev Get collection reflection reward for this token id
   */
   function getReflectionRewardCollectionAccount(uint256 _tokenId, address _contractAddress) external view returns (uint256) {
-    uint256 vaultIndex = _tokenId - 1;
-    return _getReflectionVaultIndexCollectionAccount(_contractAddress, vaultIndex);
+    return _getReflectionVaultIndexCollectionAccount(_contractAddress, _tokenId);
   }
 
   /**

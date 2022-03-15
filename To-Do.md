@@ -2,11 +2,7 @@ Things left to do:
 - Smart contract
   - Name the app, then make the change everywhere
   - Collection
-    - Remove collection name from Collection.sol ?
-    - Ability to disable reflection
-      - By making reflection percentage 0. Make sure the code is efficient when it's 0
-      - Add a boolean to enable / disable reflection
-      - Create separate logic to enable reflection, and that is when reflection pool is created? This way initial collection creation is cheaper and gives user option to never create reflection if they don't want to
+    - Add maximum on total supply?
     - Do not allow user to be able to update contract address. It should be constant for the collection
   - All attributes and functions have correct access classifiers (private/internal/public)
   - Use one specific version in the contracts, not a range (0.8.4)
@@ -68,6 +64,7 @@ Things left to do:
         - LSI: 
         - GSI: category + active (only get data that you need)
 - Front-end dapp
+  - Ability to delete collection from db and blockchain
   - Easy way to set ENV variables in docker image / k8s, for contract addresses, admin accounts, etc...
   - Initialize CORS properly as explained in the docs
   - API

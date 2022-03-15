@@ -580,7 +580,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -589,7 +589,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -598,7 +598,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -607,7 +607,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -618,7 +618,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -627,7 +627,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -636,7 +636,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -645,7 +645,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
     });
@@ -681,7 +681,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -690,7 +690,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -699,7 +699,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -708,7 +708,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -719,7 +719,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.1');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -728,7 +728,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -737,7 +737,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('4.9');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -746,7 +746,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
     });
@@ -867,7 +867,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -876,7 +876,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -885,7 +885,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -894,7 +894,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -907,7 +907,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.1');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -916,7 +916,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -925,7 +925,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('4.998');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -934,7 +934,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
     });
@@ -1287,7 +1287,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1296,7 +1296,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1305,7 +1305,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1314,7 +1314,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1325,7 +1325,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1334,7 +1334,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1343,7 +1343,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1352,7 +1352,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
     });
@@ -1388,7 +1388,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1397,7 +1397,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1406,7 +1406,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1415,7 +1415,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1426,7 +1426,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.1');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1435,7 +1435,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.098');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1444,7 +1444,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('4.802');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1453,7 +1453,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
     });
@@ -1578,7 +1578,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1587,7 +1587,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1596,7 +1596,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1605,7 +1605,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1618,7 +1618,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.1');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1627,7 +1627,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.098');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1636,7 +1636,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('4.89804');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -1645,7 +1645,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
     });
@@ -1666,11 +1666,11 @@ describe("AvaxTrade - Main", () => {
       );
     });
 
-      it('not admin', async () => {
-        await CONTRACT.connect(ACCOUNTS[1]).createVerifiedCollection(
-          ACCOUNTS[1].address, 5, 2, 3, ACCOUNTS[3].address, false
-        );
-      });
+    it('not admin', async () => {
+      await CONTRACT.connect(ACCOUNTS[1]).createVerifiedCollection(
+        ACCOUNTS[1].address, 5, 2, 3, ACCOUNTS[3].address, false
+      );
+    });
 
     it('create market sale - not enough funds', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).setMarketplaceListingPrice(ethers.utils.parseEther('5'));
@@ -2146,7 +2146,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2155,8 +2155,10 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      let reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2165,7 +2167,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2174,7 +2176,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2183,7 +2185,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2194,7 +2196,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2203,8 +2205,10 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2213,7 +2217,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2222,7 +2226,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2231,7 +2235,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
     });
@@ -2290,7 +2294,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2299,8 +2303,10 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      let reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2309,7 +2315,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2318,7 +2324,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2327,7 +2333,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2338,7 +2344,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.1');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2347,8 +2353,10 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2357,7 +2365,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2366,7 +2374,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('4.9');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2375,7 +2383,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
     });
@@ -2392,7 +2400,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2401,8 +2409,10 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      let reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0'), ethers.BigNumber.from('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2411,7 +2421,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2420,7 +2430,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2429,7 +2439,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2440,7 +2450,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.1');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2449,8 +2459,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0196');
+      reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('0.0196'), ethers.utils.parseUnits('0.0196'),
+        ethers.utils.parseUnits('0.0196'), ethers.utils.parseUnits('0.0196'), ethers.utils.parseUnits('0.0196')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2459,7 +2472,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.14406');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2468,7 +2481,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('4.65794');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -2477,7 +2490,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
     });
@@ -3056,7 +3069,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3065,8 +3078,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      let reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'),
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3075,7 +3091,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3084,7 +3100,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3093,7 +3109,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3107,7 +3123,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.1');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3116,8 +3132,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'),
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('10.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3126,7 +3145,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3135,7 +3154,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('4.998');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3144,7 +3163,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3168,7 +3187,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3177,8 +3196,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      let reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'),
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3187,7 +3209,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3196,7 +3218,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3205,7 +3227,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3219,7 +3241,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.1');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[0].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3228,8 +3250,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0196');
+      reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('0.0196'), ethers.utils.parseUnits('0.0196'),
+        ethers.utils.parseUnits('0.0196'), ethers.utils.parseUnits('0.0196'), ethers.utils.parseUnits('0.0196')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('9.8617024');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3238,7 +3263,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.19208');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[3].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3247,7 +3272,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('4.843181952');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[4].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3256,7 +3281,7 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.empty;
+      expect(await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(ACCOUNTS[5].address)).that.is.empty;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3380,8 +3405,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      let reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'),
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3396,8 +3424,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'),
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('10.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3412,8 +3443,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'),
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('8.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
     });
@@ -3436,8 +3470,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      let reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'),
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3452,8 +3489,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'),
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('10.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3468,8 +3508,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'),
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
     });
@@ -3507,8 +3550,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
+      let reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'),
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3523,8 +3569,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('2.0');
+      reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('2.0'), ethers.utils.parseUnits('2.0'),
+        ethers.utils.parseUnits('2.0'), ethers.utils.parseUnits('2.0'), ethers.utils.parseUnits('2.0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
     });
@@ -3565,7 +3614,7 @@ describe("AvaxTrade - Main", () => {
       );
 
       await CONTRACT.connect(ACCOUNTS[4]).distributeRewardListInCollection(2, [0,2,3], { value: ethers.utils.parseEther('10') })
-        .should.be.rejectedWith('VM Exception while processing transaction: reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)');
+        .should.be.rejectedWith('Token id must be greater than 0');
     });
     it('distrubute reward among all NFT holders - verified - negative token id list', async () => {
       contractFactory = await ethers.getContractFactory("SampleErc721");
@@ -3610,12 +3659,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('0.0');
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[1])).to.be.equal('0.0');
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[2])).to.be.equal('0.0');
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[3])).to.be.equal('0.0');
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[4])).to.be.equal('0.0');
+      let reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'),
+        ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
 
@@ -3630,12 +3678,11 @@ describe("AvaxTrade - Main", () => {
       expect(ethers.utils.formatEther(bank.user.general)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.nftCommission)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.user.collectionCommission)).to.be.equal('0.0');
-      expect(bank.collection.reflectionVault).that.is.not.empty;
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[0])).to.be.equal('5.0');
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[1])).to.be.equal('0.0');
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[2])).to.be.equal('5.0');
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[3])).to.be.equal('0.0');
-      expect(ethers.utils.formatEther(bank.collection.reflectionVault[4])).to.be.equal('0.0');
+      reflectionAccount = await BANK_CONTRACT.connect(ACCOUNTS[0]).getReflectionVaultCollectionAccount(NFT_CONTRACT.address);
+      expect(_doesArrayEqual(reflectionAccount, [
+        ethers.utils.parseUnits('5.0'), ethers.utils.parseUnits('0'),
+        ethers.utils.parseUnits('5.0'), ethers.utils.parseUnits('0'), ethers.utils.parseUnits('0')
+      ])).to.be.true;
       expect(ethers.utils.formatEther(bank.collection.incentiveVault)).to.be.equal('0.0');
       expect(ethers.utils.formatEther(bank.vault.balance)).to.be.equal('0.0');
     });
@@ -3664,7 +3711,7 @@ describe("AvaxTrade - Main", () => {
 
   //   it('collection reflection', async () => {
   //     await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-  //       'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
+  //       ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
   //     );
   //     const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionReflection(ethers.utils.parseEther('10'), 2, ACCOUNTS[5].address, 10);
   //     expect(ethers.utils.formatEther(result)).to.be.equal('9.8');
@@ -3685,7 +3732,7 @@ describe("AvaxTrade - Main", () => {
 
   //   it('collection incentive', async () => {
   //     await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-  //       'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
+  //       ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
   //     );
   //     await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(ACCOUNTS[5].address, { value: ethers.utils.parseEther('100') });
   //     const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionIncentive(ethers.utils.parseEther('10'), 2, ACCOUNTS[5].address);
@@ -3693,7 +3740,7 @@ describe("AvaxTrade - Main", () => {
   //   });
   //   it('collection incentive - 0%', async () => {
   //     await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-  //       'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
+  //       ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
   //     );
   //     await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(ACCOUNTS[5].address, { value: ethers.utils.parseEther('100') });
   //     const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionIncentive(ethers.utils.parseEther('10'), 0, ACCOUNTS[5].address);
@@ -3701,7 +3748,7 @@ describe("AvaxTrade - Main", () => {
   //   });
   //   it('collection incentive - not enough in vault', async () => {
   //     await CONTRACT.connect(ACCOUNTS[0]).createVerifiedCollection(
-  //       'collection name', ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
+  //       ACCOUNTS[5].address, 10, 0, 0, ACCOUNTS[4].address, false
   //     );
   //     await CONTRACT.connect(ACCOUNTS[0]).depositIncentiveCollectionAccount(ACCOUNTS[5].address, { value: ethers.utils.parseEther('0.05') });
   //     const result = await CONTRACT.connect(ACCOUNTS[4]).callStatic.collectionIncentive(ethers.utils.parseEther('10'), 2, ACCOUNTS[5].address);
