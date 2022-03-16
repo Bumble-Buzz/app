@@ -41,6 +41,7 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
   // events
   event onActivation(uint256 indexed id, bool indexed active);
   event onCollectionUpdate(uint256 indexed id);
+  event onCollectionRemove(uint256 indexed id);
   event onCollectionOwnerIncentiveAccess(uint256 indexed id);
 
 
@@ -241,24 +242,25 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
   /**
     * @dev Activate collection
   */
-  function activateCollection(uint256 _collectionId) external onlyRole(ADMIN_ROLE) {
-    _activateCollection(_collectionId);
-    emit onActivation(_collectionId, _getCollectionActive(_collectionId));
+  function activateCollection(uint256 _id) external onlyRole(ADMIN_ROLE) {
+    _activateCollection(_id);
+    emit onActivation(_id, _getCollectionActive(_id));
   }
 
   /**
     * @dev Deactivate collection
   */
-  function deactivateCollection(uint256 _collectionId) external onlyRole(ADMIN_ROLE) {
-    _deactivateCollection(_collectionId);
-    emit onActivation(_collectionId, _getCollectionActive(_collectionId));
+  function deactivateCollection(uint256 _id) external onlyRole(ADMIN_ROLE) {
+    _deactivateCollection(_id);
+    emit onActivation(_id, _getCollectionActive(_id));
   }
 
   /**
     * @dev Remove collection
   */
-  function removeCollection(uint256 _collectionId) external onlyRole(ADMIN_ROLE) {
-    return _removeCollection(_collectionId);
+  function removeCollection(uint256 _id) external onlyRole(ADMIN_ROLE) {
+    _removeCollection(_id);
+    emit onCollectionRemove(_id);
   }
 
   /**
@@ -355,16 +357,16 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
   /**
     * @dev Get all item ids in collection
   */
-  function getItemsInCollection(uint256 _collectionId) public view checkCollection(_collectionId) returns (ItemDS[] memory) {
-    uint256[] memory itemsIds = getItemIdsInCollection(_collectionId);
+  function getItemsInCollection(uint256 _id) public view checkCollection(_id) returns (ItemDS[] memory) {
+    uint256[] memory itemsIds = getItemIdsInCollection(_id);
     return _getItems(itemsIds);
   }
 
   /**
     * @dev Get owner of collection
   */
-  function getOwnerOfCollection(uint256 _collectionId) public view checkCollection(_collectionId) returns (address) {
-    return _getCollectionOwner(_collectionId);
+  function getOwnerOfCollection(uint256 _id) public view checkCollection(_id) returns (address) {
+    return _getCollectionOwner(_id);
   }
 
   /**
@@ -396,36 +398,36 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
   /**
     * @dev Get collection
   */
-  function getCollection(uint256 _collectionId) external view returns (CollectionDS memory) {
-    return _getCollection(_collectionId);
+  function getCollection(uint256 _id) external view returns (CollectionDS memory) {
+    return _getCollection(_id);
   }
 
   /**
     * @dev Get collection
   */
-  function getCollectionType(uint256 _collectionId) external view returns (COLLECTION_TYPE) {
-    return _getCollectionType(_collectionId);
+  function getCollectionType(uint256 _id) external view returns (COLLECTION_TYPE) {
+    return _getCollectionType(_id);
   }
 
   /**
     * @dev Get collection
   */
-  function getCollectionIncentive(uint256 _collectionId) external view returns (uint8) {
-    return _getCollectionIncentive(_collectionId);
+  function getCollectionIncentive(uint256 _id) external view returns (uint8) {
+    return _getCollectionIncentive(_id);
   }
 
   /**
     * @dev Get collection commission
   */
-  function getCollectionCommission(uint256 _collectionId) external view returns (uint8) {
-    return _getCollectionCommission(_collectionId);
+  function getCollectionCommission(uint256 _id) external view returns (uint8) {
+    return _getCollectionCommission(_id);
   }
 
   /**
     * @dev Get collection reflection
   */
-  function getCollectionReflection(uint256 _collectionId) external view returns (uint8) {
-    return _getCollectionReflection(_collectionId);
+  function getCollectionReflection(uint256 _id) external view returns (uint8) {
+    return _getCollectionReflection(_id);
   }
 
   /**

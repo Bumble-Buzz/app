@@ -807,7 +807,6 @@ describe("AvaxTrade - Collection", () => {
       expect(collectionIds[3].length).to.be.equal(2);
 
       await CONTRACT.connect(ACCOUNTS[0])._removeCollection(3);
-      // .should.be.rejectedWith('reverted with panic code 0x32 (Array accessed at an out-of-bounds or negative index)');
 
       collectionIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
       expect(collectionIdPointer).to.be.equal(4);
@@ -824,6 +823,20 @@ describe("AvaxTrade - Collection", () => {
       const collectionsForOwner = await CONTRACT.connect(ACCOUNTS[0])._getCollectionsForOwner(ACCOUNTS[2].address);
       expect(collectionsForOwner).to.be.an('array').that.is.empty;
       expect(_doesArrayInclude(collectionsForOwner, ethers.BigNumber.from('3'))).to.be.false;
+
+      // re-create same collection
+      await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
+        CONTRACT.address, 100, 2, 3, ACCOUNTS[2].address, false
+      );
+
+      collectionIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
+      expect(collectionIdPointer).to.be.equal(5);
+
+      collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
+      expect(collectionIds[0].length).to.be.equal(3);
+      expect(collectionIds[1].length).to.be.equal(1);
+      expect(collectionIds[2].length).to.be.equal(1);
+      expect(collectionIds[3].length).to.be.equal(2);
     });
     it('remove collection - active', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._createLocalCollection(ACCOUNTS[1].address, ACCOUNTS[2].address);
@@ -861,6 +874,20 @@ describe("AvaxTrade - Collection", () => {
       const collectionsForOwner = await CONTRACT.connect(ACCOUNTS[0])._getCollectionsForOwner(ACCOUNTS[2].address);
       expect(collectionsForOwner).to.be.an('array').that.is.empty;
       expect(_doesArrayInclude(collectionsForOwner, ethers.BigNumber.from('3'))).to.be.false;
+
+      // re-create same collection
+      await CONTRACT.connect(ACCOUNTS[0])._createVerifiedCollection(
+        CONTRACT.address, 100, 2, 3, ACCOUNTS[2].address, false
+      );
+
+      collectionIdPointer = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIdPointer();
+      expect(collectionIdPointer).to.be.equal(5);
+
+      collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
+      expect(collectionIds[0].length).to.be.equal(3);
+      expect(collectionIds[1].length).to.be.equal(1);
+      expect(collectionIds[2].length).to.be.equal(1);
+      expect(collectionIds[3].length).to.be.equal(2);
     });
   });
 

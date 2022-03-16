@@ -3,7 +3,6 @@ Things left to do:
   - Name the app, then make the change everywhere
   - Collection
     - Add maximum on total supply?
-    - Delete collection from db and blockchain
   - All attributes and functions have correct access classifiers (private/internal/public)
   - Use one specific version in the contracts, not a range (0.8.4)
   - Remove `import "hardhat/console.sol";` from all contracts

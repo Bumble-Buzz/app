@@ -474,6 +474,7 @@ contract Collection {
   function _removeCollection(uint256 _id) checkCollection(_id) internal {
     _removeCollectionId(_id);
     _removeCollectionOwner(COLLECTIONS[_id].owner);
+    _removeContractForCollection(COLLECTIONS[_id].contractAddress);
     delete COLLECTIONS[_id];
   }
 

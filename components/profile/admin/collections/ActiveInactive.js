@@ -17,6 +17,9 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
   const [search, setSearch] = useState('');
   const [apiSortKey, setApiSortKey] = useState(null);
   const [exclusiveStartKey, setExclusiveStartKey] = useState(null);
+  let dbTriggered = false;
+  const [blockchainResults, setBlockchainResults] = useState(null);
+  const [blockchainRemove, setBlockchainRemove] = useState(null);
 
   // on scroll fetch data
   const { observe } = useInView({
@@ -72,9 +75,6 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
     }
   };
 
-  let dbTriggered = false;
-  const [blockchainResults, setBlockchainResults] = useState(null);
-
   const removeAsset = (id) => {
     const newAssets = assets.filter((asset) => asset.id.toString().toLowerCase().indexOf(id.toString().toLowerCase()) < 0);
     setAssets(newAssets);
@@ -82,8 +82,8 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
     setFilteredAssets(newFilteredAssets);
   };
 
+  // deactivate collection in blockchain
   const deactivate = async (_asset, _contract) => {
-    // deactivate collection in blockchain
     const val = await _contract.deactivateCollection(_asset.id);
 
     await WalletUtil.checkTransaction(val);
@@ -98,8 +98,8 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
     _contract.on("onActivation", listener);
   };
 
+  // activate collection in blockchain
   const activate = async (_asset, _contract) => {
-    // activate collection in blockchain
     const val = await _contract.activateCollection(_asset.id);
 
     await WalletUtil.checkTransaction(val);
@@ -152,6 +152,48 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
     })();
   }, [blockchainResults]);
 
+  // remove collection in blockchain
+  const remove = async (_asset) => {
+    try {
+      const signer = await WalletUtil.getWalletSigner();
+      const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, signer);
+
+      const val = await contract.removeCollection(_asset.id);
+
+      await WalletUtil.checkTransaction(val);
+
+      const listener = async (id) => {
+        if (!dbTriggered && _asset.id === Number(id)) {
+          dbTriggered = true;
+          setBlockchainRemove({ asset: _asset });
+          contract.off("onCollectionRemove", listener);
+        }
+      };
+      contract.on("onCollectionRemove", listener);
+    } catch (e) {
+      console.error('e', e);
+      Toast.error(e.message);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      if (!blockchainRemove || dbTriggered) return;
+
+      try {
+        const asset = blockchainRemove.asset;
+        const payload = { 'id': Number(asset.id) };
+        await API.collection.remove(payload);
+        removeAsset(Number(asset.id));
+
+        setBlockchainRemove(null);
+        dbTriggered = false;
+      } catch (e) {
+        Toast.error(e.message);
+      }
+    })();
+  }, [blockchainRemove]);
+
 
   return (
     <>
@@ -180,18 +222,18 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
           <div className={`flex flex-col overflow-x-scroll overflow-y-scroll h-96 ${classes}`}>
             <div className='w-max'>
               <div className='grid grid-cols-12'>
-                <div className="bg-blue-100 border text-left px-1 py-1 sm:sticky sm:left-0">ID</div>
-                <div className="bg-blue-100 border text-left px-1 py-1">Name</div>
-                <div className="bg-blue-100 border text-left px-1 py-1">Owner</div>
-                <div className="bg-blue-100 border text-left px-1 py-1">Contract Address</div>
-                <div className="bg-blue-100 border text-left px-1 py-1">Total Supply</div>
-                <div className="bg-blue-100 border text-left px-1 py-1">Reflection</div>
-                <div className="bg-blue-100 border text-left px-1 py-1">Commission</div>
-                <div className="bg-blue-100 border text-left px-1 py-1">Owner Incentive Access</div>
-                <div className="bg-blue-100 border text-left px-1 py-1">Category</div>
-                <div className="bg-blue-100 border text-left px-1 py-1">Image</div>
-                <div className="bg-blue-100 border text-left px-1 py-1">Collection Type</div>
-                <div className="bg-blue-100 border text-left px-1 py-1">Action</div>
+                <div className="bg-blue-100 border text-left px-1 py-1 text-center sm:sticky sm:left-0">ID</div>
+                <div className="bg-blue-100 border text-left px-1 py-1 text-center">Name</div>
+                <div className="bg-blue-100 border text-left px-1 py-1 text-center">Owner</div>
+                <div className="bg-blue-100 border text-left px-1 py-1 text-center">Contract Address</div>
+                <div className="bg-blue-100 border text-left px-1 py-1 text-center">Total Supply</div>
+                <div className="bg-blue-100 border text-left px-1 py-1 text-center">Reflection</div>
+                <div className="bg-blue-100 border text-left px-1 py-1 text-center">Commission</div>
+                <div className="bg-blue-100 border text-left px-1 py-1 text-center">Owner Incentive Access</div>
+                <div className="bg-blue-100 border text-left px-1 py-1 text-center">Category</div>
+                <div className="bg-blue-100 border text-left px-1 py-1 text-center">Image</div>
+                <div className="bg-blue-100 border text-left px-1 py-1 text-center">Collection Type</div>
+                <div className="bg-blue-100 border text-left px-1 py-1 text-center">Action</div>
               </div>
               {filteredAssets.map((asset, index) => {
                 return (
@@ -207,12 +249,13 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
                     <div className="border px-1 py-1">{asset.category}</div>
                     <div className="border px-1 py-1">{asset.image}</div>
                     <div className="border px-1 py-1">{asset.collectionType}</div>
-                    <div className="border px-1 py-1">
+                    <div className="border px-1 py-1 flex justify-center gap-1">
                       {asset.active > 0 ?
                         <ButtonWrapper classes='px-1 py-1' onClick={async () => await action(asset,false)}>Deactivate</ButtonWrapper>
                         :
                         <ButtonWrapper classes='px-1 py-1' onClick={async () => await action(asset,true)}>Activate</ButtonWrapper>
                       }
+                      <ButtonWrapper classes='px-1 py-1' onClick={async () => await remove(asset)}>Remove</ButtonWrapper>
                     </div>
                   </div>
                 )
