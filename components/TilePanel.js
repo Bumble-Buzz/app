@@ -12,9 +12,9 @@ export default function TilePanel({ title, items }) {
   };
 
   return (
-    <div className='grid-rows-1 grid-flow-col w-fit border rounded-lg overflow-hidden shadow-lg bg-gray-50'>
+    <div className='grid-rows-1 grid-flow-col w-full max-w-xl h-full max-h-xl border rounded-lg shadow-lg bg-gray-50'>
       <div className='flex flex-col flex-nowarp w-full border-b'>{title}</div>
-      <div className='hidden xsm:grid grid-cols-4 w-full divide-x'>
+      <div className='hidden xsm:grid grid-cols-4 w-full h-20 divide-x'>
         {items && Object.keys(items).map((key, index) => {
           return (
             <div className={`'px-2 py-2 flex flex-col flex-nowarp' ${items[key].itemSymbol ? 'relative' : ''}`} key={index}>
