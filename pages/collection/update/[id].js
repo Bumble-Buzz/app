@@ -16,7 +16,7 @@ import PageError from '@/components/PageError';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import HeadlessSwitch from '@/components/HeadlessSwitch';
 import Lexicon from '@/lexicon/create';
-import { DotsCircleHorizontalIcon, UploadIcon } from '@heroicons/react/solid';
+import { DotsCircleHorizontalIcon, UploadIcon, ClipboardCopyIcon } from '@heroicons/react/solid';
 
 import CollectionItemAbi from '@/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
 import _ from 'lodash';
@@ -27,9 +27,6 @@ const reducer = (state, action) => {
   switch(action.type) {
     case 'name':
       state.name = action.payload.name;
-      return state
-    case 'address':
-      state.address = action.payload.address;
       return state
     case 'description':
       state.description = action.payload.description;
@@ -147,7 +144,7 @@ export default function EditCollection({ collectionDataInit }) {
 
   const contractFieldsModified = () => {
     return (
-      state.address !== collectionDataInit.contractAddress || state.commission !== collectionDataInit.commission ||
+      state.commission !== collectionDataInit.commission ||
       state.reflection !== collectionDataInit.reflection || state.incentive !== collectionDataInit.incentive
     );
   };
@@ -164,14 +161,6 @@ export default function EditCollection({ collectionDataInit }) {
     e.preventDefault();
 
     try {
-      ethers.utils.getAddress(state.address);
-    } catch (e) {
-      console.error('e', e);
-      Toast.error('Contract address is not valid');
-      return;
-    }
-
-    try {
       setLoading(true);
 
       // only update blockchain if necessary fields changed
@@ -180,7 +169,7 @@ export default function EditCollection({ collectionDataInit }) {
         const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, signer);
         // update collection in blockchain
         const val = await contract.updateCollection(
-          collectionDataInit.id, state.address, state.reflection, state.commission, state.incentive, AuthContext.state.account
+          collectionDataInit.id, state.reflection, state.commission, state.incentive, AuthContext.state.account
         );
           
         await WalletUtil.checkTransaction(val);
@@ -281,6 +270,11 @@ export default function EditCollection({ collectionDataInit }) {
 
   const triggerInputFile = () => {
     if (isSignInValid()) inputFile.current.click();
+  };
+
+  const contractAddressClick = () => {
+    Toast.info('Copied contract address');
+    navigator.clipboard.writeText(state.address);
   };
 
 
@@ -443,16 +437,18 @@ export default function EditCollection({ collectionDataInit }) {
 
                       <div className="my-2">
                         <label htmlFor="address" className="block text-sm font-medium text-gray-700">Contract Address</label>
-                        <input
-                          type="text"
-                          name="address"
-                          id="address"
-                          autoComplete="off"
-                          defaultValue={state.address}
-                          required
-                          className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                          onChange={(e) => dispatch({ type: 'address', payload: { address: e.target.value } })}
-                        />
+                        <div className="flex flex-row gap-2 items-center text-center">
+                          <input
+                            type="text"
+                            name="address"
+                            id="address"
+                            autoComplete="off"
+                            value={state.address}
+                            disabled="disabled"
+                            className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md truncate"
+                          />
+                          <ClipboardCopyIcon className="w-5 h-5 cursor-pointer" alt="copy" title="copy" aria-hidden="true" onClick={contractAddressClick} />
+                        </div>
                       </div>
                     </div>
                   </div>

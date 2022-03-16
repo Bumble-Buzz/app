@@ -632,21 +632,21 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('update collection - not owner (regular user)', async () => {
       await CONTRACT.connect(ACCOUNTS[2]).updateCollection(
-        1, ACCOUNTS[2].address, 0, 0, 0, ACCOUNTS[3].address
+        1, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0x5ca6ec5718ac9ac8916b8cecab2c0d6051dbba92 is missing role 0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6'
       );
     });
     it('update collection - not owner (contract owner)', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).updateCollection(
-        1, ACCOUNTS[2].address, 0, 0, 0, ACCOUNTS[3].address
+        1, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0xda121ab48c7675e4f25e28636e3efe602e49eec6 is missing role 0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6'
       );
     });
     it('update collection - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).updateCollection(
-        1, ACCOUNTS[2].address, 0, 0, 0, ACCOUNTS[5].address
+        1, 0, 0, 0, ACCOUNTS[5].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(1);
       expect(collection.collectionType).to.be.equal(2);
@@ -887,28 +887,28 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('update collection - not owner (regular user)', async () => {
       await CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[3].address
+        2, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0x2142c9e89f53770c174b6f211ab4ec58d1d632f8 is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - not owner (contract owner)', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).updateCollection(
-        2, NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[3].address
+        2, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - not owner (admin)', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).updateCollection(
-        2, NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[3].address
+        2, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0xda121ab48c7675e4f25e28636e3efe602e49eec6 is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[6]).updateCollection(
-        2, NFT_CONTRACT_LOCAL.address, 0, 0, 0, ACCOUNTS[6].address
+        2, 0, 0, 0, ACCOUNTS[6].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(2);
       expect(collection.collectionType).to.be.equal(0);
@@ -1150,28 +1150,28 @@ describe("AvaxTrade - CollectionItem", () => {
 
     it('update collection - not owner (regular user)', async () => {
       await CONTRACT.connect(ACCOUNTS[3]).updateCollection(
-        2, NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[3].address
+        2, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0x2142c9e89f53770c174b6f211ab4ec58d1d632f8 is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - not owner (contract owner)', async () => {
       await CONTRACT.connect(ACCOUNTS[1]).updateCollection(
-        2, NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[3].address
+        2, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - not owner (admin)', async () => {
       await CONTRACT.connect(ACCOUNTS[0]).updateCollection(
-        2, NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[3].address
+        2, 0, 0, 0, ACCOUNTS[3].address
       ).should.be.rejectedWith(
         'AccessControl: account 0xda121ab48c7675e4f25e28636e3efe602e49eec6 is missing role 0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace'
       );
     });
     it('update collection - yes owner', async () => {
       await CONTRACT.connect(ACCOUNTS[2]).updateCollection(
-        2, NFT_CONTRACT_VERIFIED.address, 0, 0, 0, ACCOUNTS[5].address
+        2, 0, 0, 0, ACCOUNTS[5].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[1]).getCollection(2);
       expect(collection.collectionType).to.be.equal(1);

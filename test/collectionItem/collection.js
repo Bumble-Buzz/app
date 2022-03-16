@@ -944,17 +944,17 @@ describe("AvaxTrade - Collection", () => {
     });
     it('update collection - verified - invalid reflection percent', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        2 , ACCOUNTS[1].address, 100, 33, 2, ACCOUNTS[4].address
+        2 , 100, 33, 2, ACCOUNTS[4].address
       ).should.be.rejectedWith('Collection: Reflection percent must be < 100');
     });
     it('update collection - verified - invalid commission percent', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        2, ACCOUNTS[1].address, 22, 100, 2, ACCOUNTS[4].address
+        2, 22, 100, 2, ACCOUNTS[4].address
       ).should.be.rejectedWith('Collection: Commission percent must be < 100');
     });
     it('update collection - verified - invalid incentive percent', async () => {
       await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        2, ACCOUNTS[1].address, 22, 33, 100, ACCOUNTS[4].address
+        2, 22, 33, 100, ACCOUNTS[4].address
       ).should.be.rejectedWith('Collection: Incentive percent must be < 100');
     });
     it('update collection - verified - new owner - inactive', async () => {
@@ -965,7 +965,7 @@ describe("AvaxTrade - Collection", () => {
       expect(collectionIds[3].length).to.be.equal(1);
 
       await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        2, ACCOUNTS[1].address, 22, 33, 2, ACCOUNTS[4].address
+        2, 22, 33, 2, ACCOUNTS[4].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2);
       expect(collection.id).to.be.equal(2);
@@ -992,7 +992,7 @@ describe("AvaxTrade - Collection", () => {
       expect(collectionIds[3].length).to.be.equal(1);
 
       await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        2, ACCOUNTS[1].address, 22, 33, 2, ACCOUNTS[4].address
+        2, 22, 33, 2, ACCOUNTS[4].address
       );
       const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2);
       expect(collection.id).to.be.equal(2);
@@ -1001,58 +1001,6 @@ describe("AvaxTrade - Collection", () => {
       expect(collection.reflection).to.be.equal(22);
       expect(collection.commission).to.be.equal(33);
       expect(collection.owner).to.be.equal(ACCOUNTS[4].address);
-      expect(collection.active).to.be.equal(true);
-
-      collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
-      expect(collectionIds[0].length).to.be.equal(2);
-      expect(collectionIds[1].length).to.be.equal(0);
-      expect(collectionIds[2].length).to.be.equal(1);
-      expect(collectionIds[3].length).to.be.equal(1);
-    });
-    it('update collection - verified - new contract address - inactive', async () => {
-      let collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
-      expect(collectionIds[0].length).to.be.equal(1);
-      expect(collectionIds[1].length).to.be.equal(0);
-      expect(collectionIds[2].length).to.be.equal(1);
-      expect(collectionIds[3].length).to.be.equal(1);
-
-      await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        2, ACCOUNTS[3].address, 22, 33, 2, ACCOUNTS[2].address
-      );
-      const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2);
-      expect(collection.id).to.be.equal(2);
-      expect(collection.contractAddress).to.be.equal(ACCOUNTS[3].address);
-      expect(collection.totalSupply).to.be.equal(100);
-      expect(collection.reflection).to.be.equal(22);
-      expect(collection.commission).to.be.equal(33);
-      expect(collection.owner).to.be.equal(ACCOUNTS[2].address);
-      expect(collection.active).to.be.equal(false);
-
-      collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
-      expect(collectionIds[0].length).to.be.equal(1);
-      expect(collectionIds[1].length).to.be.equal(0);
-      expect(collectionIds[2].length).to.be.equal(1);
-      expect(collectionIds[3].length).to.be.equal(1);
-    });
-    it('update collection - verified - new contract address - active', async () => {
-      await CONTRACT.connect(ACCOUNTS[0])._activateCollection(2);
-
-      let collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();
-      expect(collectionIds[0].length).to.be.equal(2);
-      expect(collectionIds[1].length).to.be.equal(0);
-      expect(collectionIds[2].length).to.be.equal(1);
-      expect(collectionIds[3].length).to.be.equal(1);
-
-      await CONTRACT.connect(ACCOUNTS[0])._updateCollection(
-        2, ACCOUNTS[3].address, 22, 33, 2, ACCOUNTS[2].address
-      );
-      const collection = await CONTRACT.connect(ACCOUNTS[0])._getCollection(2);
-      expect(collection.id).to.be.equal(2);
-      expect(collection.contractAddress).to.be.equal(ACCOUNTS[3].address);
-      expect(collection.totalSupply).to.be.equal(100);
-      expect(collection.reflection).to.be.equal(22);
-      expect(collection.commission).to.be.equal(33);
-      expect(collection.owner).to.be.equal(ACCOUNTS[2].address);
       expect(collection.active).to.be.equal(true);
 
       collectionIds = await CONTRACT.connect(ACCOUNTS[0])._getCollectionIds();

@@ -223,10 +223,10 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
     * @dev Update collection
   */
   function updateCollection(
-    uint256 _id, address _contractAddress, uint8 _reflection, uint8 _commission,
+    uint256 _id, uint8 _reflection, uint8 _commission,
     uint8 _incentive, address _owner
   ) external onlyRole(COLLECTION_ROLES[_id]) {
-    _updateCollection(_id, _contractAddress, _reflection, _commission, _incentive, _owner);
+    _updateCollection(_id, _reflection, _commission, _incentive, _owner);
     emit onCollectionUpdate(_id);
   }
 

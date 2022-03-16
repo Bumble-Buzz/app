@@ -315,10 +315,8 @@ contract Collection {
     * @dev Update collection
   */
   function _updateCollection(
-    uint256 _id, address _contractAddress, uint8 _reflection, uint8 _commission, uint8 _incentive, address _owner
+    uint256 _id, uint8 _reflection, uint8 _commission, uint8 _incentive, address _owner
   ) internal checkCollection(_id) {
-    // todo not allow owner to update _contractAddress? May screw up existing items on sale under this collection. write test!
-
     require(_reflection < 100, "Collection: Reflection percent must be < 100");
     require(_commission < 100, "Collection: Commission percent must be < 100");
     require(_incentive < 100, "Collection: Incentive percent must be < 100");
@@ -332,13 +330,6 @@ contract Collection {
       _removeCollectionForOwner(COLLECTIONS[_id].owner, _id);
       COLLECTIONS[_id].owner = _owner;
       _addCollectionForOwner(_owner, _id);
-    }
-
-    // if contractAddress is different, add it to the list, delete the old one
-    if (COLLECTIONS[_id].contractAddress != _contractAddress) {
-      _removeContractForCollection(_contractAddress);
-      COLLECTIONS[_id].contractAddress = _contractAddress;
-      _assignContractToCollection(_contractAddress, _id);
     }
   }
 

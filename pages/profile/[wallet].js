@@ -262,7 +262,7 @@ export default function Create() {
                           disabled="disabled"
                           className="mt-1 w-48 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md truncate"
                         />
-                        <ClipboardCopyIcon className="w-5 h-5 mr-2 cursor-pointer" alt="copy" title="copy" aria-hidden="true" onClick={walletClick} />
+                        <ClipboardCopyIcon className="w-5 h-5 cursor-pointer" alt="copy" title="copy" aria-hidden="true" onClick={walletClick} />
                       </div>
                     </div>
                   </div>

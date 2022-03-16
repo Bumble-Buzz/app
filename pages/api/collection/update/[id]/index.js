@@ -42,7 +42,6 @@ export default async function handler(req, res) {
     Key: { 'id': Number(data.id) },
     ExpressionAttributeNames: {
       "#name": "name",
-      "#contractAddress": "contractAddress",
       "#owner": "owner",
       "#description": "description",
       "#reflection": "reflection",
@@ -54,7 +53,6 @@ export default async function handler(req, res) {
     },
     ExpressionAttributeValues: {
       ":name": data.name,
-      ":contractAddress": data.contractAddress,
       ":owner": data.owner,
       ":description": data.description,
       ":category": data.category,
@@ -64,7 +62,7 @@ export default async function handler(req, res) {
       ":image": data.image,
       ":social": data.social
     },
-    UpdateExpression: `set #name = :name, #contractAddress = :contractAddress, #owner = :owner, #description = :description,
+    UpdateExpression: `set #name = :name, #owner = :owner, #description = :description,
       #category = :category, #commission = :commission, #reflection = :reflection, #incentive = :incentive,
       #image = :image, #social = :social`
   };
