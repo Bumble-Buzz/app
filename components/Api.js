@@ -61,10 +61,12 @@ module.exports = {
   },
   asset: {
     create: payload => API.post(`asset/create`, payload),
+    created: (id,tokenId,limit) => API.get(`asset/created/${id}?tokenId=${tokenId}&limit=${limit}`),
     collection: (id,tokenId,limit) => API.get(`asset/${id}?tokenId=${tokenId}&limit=${limit}`)
   },
   collection: {
     id: id => API.get(`collection/${id}`),
+    owned: (owner,id,limit) => API.get(`collection/owned/${owner}?id=${id}&limit=${limit}`),
     active: {
       activate: payload => API.post(`collection/active/activate`, payload),
       deactivate: payload => API.post(`collection/active/deactivate`, payload)

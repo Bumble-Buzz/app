@@ -57,13 +57,27 @@ export default function Collections({ initialData }) {
     }
   }, [initialData]);
 
-  const updateFilteredAssets = (_value) => {
-    if (_value && _value !== '') {
-      const newAssets = assets.filter((asset) => asset.name.toString().toLowerCase().indexOf(_value.toString().toLowerCase()) >= 0);
-      setFilteredAssets(newAssets);
-    } else {
-      setFilteredAssets(assets);
+  const updateFilteredAssets = async (_value) => {
+    if (!_value || _value === '') return setFilteredAssets(assets);
+
+    let newAssets = assets;
+    let filteredAssets = [];
+    let latestSortKey = exclusiveStartKey;
+    while (filteredAssets.length === 0) {
+      filteredAssets = newAssets.filter((asset) => asset.name.toString().toLowerCase().indexOf(_value.toString().toLowerCase()) >= 0);
+
+      if (filteredAssets.length > 0) break;
+      if (!latestSortKey) break;
+
+      // fetch next batch from db
+      const nextAssets = await API.collection.owned(ROUTER.query.wallet, latestSortKey.id, 20);
+
+      newAssets.push(...nextAssets.data.Items);
+      latestSortKey = nextAssets.data.LastEvaluatedKey;
     }
+    setAssets([...newAssets]);
+    setFilteredAssets([...filteredAssets]);
+    setExclusiveStartKey(latestSortKey);
   };
 
 

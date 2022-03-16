@@ -689,7 +689,7 @@ const mockCollections = async () => {
       Item: {
         'id': i,
         'contractAddress': item.contractAddress,
-        'name': item.name,
+        'name': `${item.name}${i}`,
         'description': item.description,
         'totalSupply': item.totalSupply,
         'reflection': item.reflection,
@@ -709,8 +709,8 @@ const mockCollections = async () => {
 };
 
 const mock = async () => {
-  await mockAssets();
-  // await mockCollections();
+  // await mockAssets();
+  await mockCollections();
 };
 
 (async () => {
