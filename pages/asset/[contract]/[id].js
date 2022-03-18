@@ -257,19 +257,23 @@ export default function Collection({ assetDataInit }) {
 
         </div>
 
-        <div className="flex flex-col gap-2 justify-center items-center w-full max-w-xl lg:max-w-full">
-          {/* item activity */}
-          <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
-            <HeadlessDisclosure title='Item Activity' defaultOpen={true}>
-              1 my asdjh aksdh askdh askdh kasdhkasjdh aksd
-            </HeadlessDisclosure>
+        <div className='p-2 gap-4 flex flex-col lg:flex-row w-full max-w-7xl lg:justify-center items-center lg:items-start'>
+
+          <div className="flex flex-col gap-2 justify-center items-center w-full max-w-xl lg:max-w-full">
+            {/* item activity */}
+            <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
+              <HeadlessDisclosure title='Item Activity' defaultOpen={true}>
+                1 my asdjh aksdh askdh askdh kasdhkasjdh aksd
+              </HeadlessDisclosure>
+            </div>
+            {/* more from this collection */}
+            <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
+              <HeadlessDisclosure title='More From This Collection' defaultOpen={true}>
+                1 my asdjh aksdh askdh askdh kasdhkasjdh aksd
+              </HeadlessDisclosure>
+            </div>
           </div>
-          {/* more from this collection */}
-          <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
-            <HeadlessDisclosure title='More From This Collection' defaultOpen={true}>
-              1 my asdjh aksdh askdh askdh kasdhkasjdh aksd
-            </HeadlessDisclosure>
-          </div>
+
         </div>
 
       </div>
