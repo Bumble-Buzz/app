@@ -14,7 +14,7 @@ export default function AssetImage({children, header, image, body, footer}) {
         </div>
         <hr />
       </>)}
-      <div className='block'>
+      <div className='block -z-10'>
         <Image
           src={IPFS.getValidHttpUrl(image)}
           placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado'

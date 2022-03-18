@@ -9,7 +9,7 @@ export default function DropDown({ children, title, items, getItem, isImage, isS
   // console.log('items: ', items);
   const ROUTER = useRouter();
   return (
-      <Menu as="div" className="relative ">
+      <Menu as="div" className="relative">
 
         {/* <div> */}
           {!isImage && (

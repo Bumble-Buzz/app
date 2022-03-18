@@ -1,48 +1,41 @@
 import { useState } from 'react';
-import { ethers } from 'ethers';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { useSession, getSession } from 'next-auth/react';
 import useSWR from 'swr';
 import IPFS from '@/utils/ipfs';
 import { useAuth } from '@/contexts/AuthContext';
 import IconTray from '@/components/IconTray';
-import TilePanel from '@/components/TilePanel';
 import PageError from '@/components/PageError';
 import API from '@/components/Api';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
-import CollectionContent from '@/components/collection/CollectionContent';
 import AssetImage from '@/components/asset/AssetImage';
 import AssetAction from '@/components/asset/AssetAction';
 import HeadlessDisclosure from '@/components/HeadlessDisclosure';
 import NumberFormatter from '@/utils/NumberFormatter';
-import { ShieldCheckIcon, ShieldExclamationIcon, DocumentTextIcon } from '@heroicons/react/solid';
+import Tooltip from '@/components/Tooltip';
+import {
+  ShieldCheckIcon, ShieldExclamationIcon, QuestionMarkCircleIcon
+} from '@heroicons/react/solid';
+import {
+  DocumentIcon, DocumentTextIcon, DocumentReportIcon, ClipboardListIcon
+} from '@heroicons/react/outline';
 
 
 export default function Collection({ assetDataInit }) {
-  const ROUTER = useRouter();
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();  
   // swr call to fetch initial data
   const {data: collectionDataInit} = useSWR(API.swr.collection.id(assetDataInit.collectionId), API.swr.fetcher, API.swr.options);
 
-  console.log('assetDataInit', assetDataInit);
-  console.log('collectionDataInit', collectionDataInit)
-
   // catch invalids early
   if (!assetDataInit || !assetDataInit.tokenId) return (<PageError>This asset does not exist</PageError>);
-
-
 
   const isSignInValid = () => {
     return (
       session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
       AuthContext.state.isNetworkValid
     )
-  };
-  const isCollectionOwner = () => {
-    return (isSignInValid() && session.user.id === collectionDataInit.owner);
   };
 
   const chainSymbols = {
@@ -56,7 +49,7 @@ export default function Collection({ assetDataInit }) {
       <div className='flex flex-col flex-nowrap gap-2 justify-center items-center w-full'>
         <HeadlessDisclosure
           title='Description' defaultOpen={true}
-          icon={(<DocumentTextIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
+          icon={(<DocumentIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
         >
           {assetDataInit.config.description}
         </HeadlessDisclosure>
@@ -65,7 +58,7 @@ export default function Collection({ assetDataInit }) {
       <div className='flex flex-col flex-nowrap gap-2 justify-center items-center w-full'>
         <HeadlessDisclosure
           title='Attributes'
-          icon={(<DocumentTextIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
+          icon={(<ClipboardListIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
         >
           {assetDataInit.config.attributes}
         </HeadlessDisclosure>
@@ -83,7 +76,7 @@ export default function Collection({ assetDataInit }) {
       <div className='flex flex-col flex-nowrap gap-2 justify-center items-center w-full'>
         <HeadlessDisclosure
           title='Contract Details'
-          icon={(<DocumentTextIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
+          icon={(<DocumentReportIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
         >
           <div className='flex flex-col'>
             <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
@@ -113,7 +106,18 @@ export default function Collection({ assetDataInit }) {
       </div>
       </>
     )
-  }
+  };
+
+  const getDisclosureTitle = (title, tooltip) => {
+    return (
+      <div className='flex flex-row gap-x-1 w-1/2'>
+        {title}
+        <Tooltip text={tooltip}>
+          <QuestionMarkCircleIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />
+        </Tooltip>
+      </div>
+    )
+  };
 
 
   return (
@@ -147,8 +151,16 @@ export default function Collection({ assetDataInit }) {
                     <div className="relative h-5 w-5">{chainSymbols.ethereum}</div>
                   </div>
                   <div className='flex items-center'>
-                    {assetDataInit.collectionId === 1 && <ShieldExclamationIcon className="w-5 h-5" fill="#ff3838" alt="unverified" title="unverified" aria-hidden="true" />}
-                    {assetDataInit.collectionId !== 1 && <ShieldCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />}
+                    {assetDataInit.collectionId === 1 && (
+                      <Tooltip text='This asset does NOT belong to a verified collection'>
+                        <ShieldExclamationIcon className="w-5 h-5" fill="#ff3838" alt="unverified" title="unverified" aria-hidden="true" />
+                      </Tooltip>
+                    )}
+                    {assetDataInit.collectionId !== 1 && (
+                      <Tooltip text='This asset belongs to a verified collection'>
+                        <ShieldCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />
+                      </Tooltip>
+                    )}
                   </div>
                 </>)}
                 image={assetDataInit.config.image}
@@ -191,11 +203,16 @@ export default function Collection({ assetDataInit }) {
             </div>
             {/* monetary */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
-              <HeadlessDisclosure title='Monetary'>
+              <HeadlessDisclosure title={getDisclosureTitle('Monetary','Important money related information')}>
                 <div className='flex flex-col'>
                   {assetDataInit.commission > 0 && (
                     <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
-                      <div className='w-1/2'>Artist Commission</div>
+                      <div className='flex flex-row gap-x-1 w-1/2'>
+                        Artist Commission
+                        <Tooltip text='Creator of the NFT takes commission from the final sale'>
+                          <QuestionMarkCircleIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />
+                        </Tooltip>
+                      </div>
                       <div className='truncate'>{NumberFormatter(assetDataInit.commission/100,'percent')}</div>
                     </div>
                   )}
@@ -203,20 +220,40 @@ export default function Collection({ assetDataInit }) {
                     assetDataInit.collectionId !== Number(process.env.NEXT_PUBLIC_LOCAL_COLLECTION_ID) && (
                     <>
                       <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
-                        <div className='w-1/2'>Collection Commission</div>
+                        <div className='flex flex-row gap-x-1 w-1/2'>
+                          Collection Commission
+                          <Tooltip text='Collection owner takes commission from the final sale'>
+                            <QuestionMarkCircleIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />
+                        </Tooltip>
+                        </div>
                         <div className='truncate'>{NumberFormatter(collectionDataInit.Items[0].commission/100,'percent')}</div>
                       </div>
                       <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
-                        <div className='w-1/2'>Collection Reflection</div>
+                        <div className='flex flex-row gap-x-1 w-1/2'>
+                          Collection Reflection
+                          <Tooltip text='All NFT holders of this collection share commission from the final sale'>
+                            <QuestionMarkCircleIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />
+                          </Tooltip>
+                        </div>
                         <div className='truncate'>{NumberFormatter(collectionDataInit.Items[0].reflection/100,'percent')}</div>
                       </div>
                       <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
-                        <div className='w-1/2'>Collection Incentive</div>
+                        <div className='flex flex-row gap-x-1 w-1/2'>
+                          Collection Incentive
+                          <Tooltip text='Seller of NFT receives incentives on top of profit from the final sale'>
+                            <QuestionMarkCircleIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />
+                          </Tooltip>
+                        </div>
                         <div className='truncate'>{NumberFormatter(collectionDataInit.Items[0].incentive/100,'percent')}</div>
                       </div>
                       {Number(collectionDataInit.Items[0].incentive) > 0 && (
                         <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
-                          <div className='w-1/2'>Collection Incentive Pool Balance</div>
+                          <div className='flex flex-row gap-x-1 w-1/2'>
+                            Collection Incentive Pool Balance
+                            <Tooltip text='Balance of the collection incentive pool'>
+                              <QuestionMarkCircleIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />
+                            </Tooltip>
+                          </div>
                           <div className='truncate'>{NumberFormatter(123456,'decimal')}</div>
                         </div>
                       )}
