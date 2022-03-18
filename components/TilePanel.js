@@ -1,16 +1,6 @@
+import NumberFormatter from '@/utils/NumberFormatter';
 
 export default function TilePanel({ title, items }) {
-
-  const format = (value, format) => {
-    const formatter = Intl.NumberFormat('en', {
-      style: format,
-      notation: 'compact',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 4
-    });
-    return formatter.format(value);
-  };
-
   return (
     <div className='grid-rows-1 grid-flow-col w-full max-w-xl h-full max-h-xl border rounded-lg shadow-lg bg-gray-50'>
       <div className='flex flex-col flex-nowarp w-full border-b'>{title}</div>
@@ -21,7 +11,7 @@ export default function TilePanel({ title, items }) {
               {items[key].itemSymbol && (<span className="absolute h-5 w-5 right-0 top-0">{items[key].itemSymbol}</span>)}
               <div className='flex flex-row justify-center items-center'>
                 {items[key].symbol && (<div className="relative h-5 w-5">{items[key].symbol}</div>)}
-                <div className="">{format(items[key].value,items[key].format)}</div>
+                <div className="">{NumberFormatter(items[key].value,items[key].format)}</div>
               </div>
               <div className='px-1 font-thin'>{items[key].name}</div>
             </div>

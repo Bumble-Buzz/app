@@ -112,6 +112,7 @@ export default function Created({ initialData }) {
               <NftCard
                 key={index}
                 innerRef={index === filteredAssets.length - 1 ? observe : null}
+                link={`/asset/${asset.contractAddress}/${asset.tokenId}`}
                 header={(<>
                   <div className="flex-1 font-bold text-purple-500 text-xl truncate">{asset.config.name}</div>
                   <div className='flex items-center'>

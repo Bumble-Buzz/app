@@ -21,8 +21,13 @@ const getValidHttpUrl = (_ipfsUrl) => {
   return validUrl;
 };
 
+const isIpfsUrl = (_ipfsUrl) => {
+  return (_ipfsUrl.includes("ipfs://"))
+};
+
 
 module.exports = {
   getValidBaseUrl,
-  getValidHttpUrl
+  getValidHttpUrl,
+  isIpfsUrl
 }

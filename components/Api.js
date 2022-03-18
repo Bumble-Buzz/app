@@ -102,6 +102,9 @@ module.exports = {
     },
   },
   backend: {
+    asset: {
+      id: (contract,tokenId) => BACKEND_API.get(`asset/${contract}/${tokenId}`)
+    },
     collection: {
       id: id => BACKEND_API.get(`collection/${id}`)
     }
