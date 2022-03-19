@@ -23,6 +23,7 @@ import {
 
 
 export default function Collection({ assetDataInit }) {
+  console.log('assetDataInit', assetDataInit);
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();  
   // swr call to fetch initial data
@@ -36,6 +37,10 @@ export default function Collection({ assetDataInit }) {
       session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
       AuthContext.state.isNetworkValid
     )
+  };
+  const isAssetOwner = () => {
+    if (!isSignInValid()) return false;
+    return (session.user.id === assetDataInit.owner);
   };
 
   const chainSymbols = {
@@ -228,7 +233,7 @@ export default function Collection({ assetDataInit }) {
             </div>
             {/* marketplace actions */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
-              <AssetAction />
+              <AssetAction isAssetOwner={isAssetOwner()} />
             </div>
             {/* monetary */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>

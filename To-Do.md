@@ -63,6 +63,7 @@ Things left to do:
         - LSI: 
         - GSI: category + active (only get data that you need)
 - Front-end dapp
+  - Ensure images cab be loaded via both IPFS and direct url
   - Ability to delete collection from db and blockchain
   - Easy way to set ENV variables in docker image / k8s, for contract addresses, admin accounts, etc...
   - Initialize CORS properly as explained in the docs
