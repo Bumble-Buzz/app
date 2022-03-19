@@ -42,68 +42,97 @@ export default function Collection({ assetDataInit }) {
     ethereum: (<Image src={'/chains/ethereum-color.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />)
   };
 
+  const getArrayAttributes = (attributes) => {
+    return (
+      attributes && attributes.length > 0 && attributes.map((attribute, index) => {
+        return (
+          <div className="block m-2 p-2 rounded-lg shadow-lg bg-indigo-50 max-w-sm w-20 min-w-fit" key={index}>
+            <p className="text-indigo-500 font-bold text-base text-center">{attribute['trait_type']}</p>
+            <p className="text-gray-700 text-base text-center">{attribute['value']}</p>
+          </div>
+        )
+      })
+    )
+  };
+  const getObjectAttributes = (attributes) => {
+    return (
+      attributes && Object.keys(attributes).map((attribute, index) => {
+        return (
+          <div className="block m-2 p-2 rounded-lg shadow-lg bg-indigo-50 max-w-sm w-20 min-w-fit" key={index}>
+            <p className="text-indigo-500 font-bold text-base text-center">{attribute}</p>
+            <p className="text-gray-700 text-base text-center">{attributes[attribute]}</p>
+          </div>
+        )
+      })
+    )
+  };
+
   const assetInformation = () => {
     return (
       <>
-      {/* description */}
-      <div className='flex flex-col flex-nowrap gap-2 justify-center items-center w-full'>
-        <HeadlessDisclosure
-          title='Description' defaultOpen={true}
-          icon={(<DocumentIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
-        >
-          {assetDataInit.config.description}
-        </HeadlessDisclosure>
-      </div>
-      {/* attributes */}
-      <div className='flex flex-col flex-nowrap gap-2 justify-center items-center w-full'>
-        <HeadlessDisclosure
-          title='Attributes'
-          icon={(<ClipboardListIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
-        >
-          {assetDataInit.config.attributes}
-        </HeadlessDisclosure>
-      </div>
-      {/* about collection */}
-      <div className='flex flex-col flex-nowrap gap-2 justify-center items-center w-full'>
-        <HeadlessDisclosure
-          title={`About ${collectionDataInit && collectionDataInit.Items[0].name} Collection`}
-          icon={(<DocumentTextIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
-        >
-          {collectionDataInit && collectionDataInit.Items[0].description}
-        </HeadlessDisclosure>
-      </div>
-      {/* contract details */}
-      <div className='flex flex-col flex-nowrap gap-2 justify-center items-center w-full'>
-        <HeadlessDisclosure
-          title='Contract Details'
-          icon={(<DocumentReportIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
-        >
-          <div className='flex flex-col'>
-            <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
-              <div className='w-1/2'>Contract Address</div>
-              <div className='text-blue-500 hover:text-blue-600 truncate'>
-              <a href="https://google.ca/" target='blank'>{assetDataInit.contractAddress}</a>
-                </div>
+        {/* description */}
+        <div className='flex flex-col flex-nowrap gap-2 justify-center items-center w-full'>
+          <HeadlessDisclosure
+            title='Description' defaultOpen={true}
+            icon={(<DocumentIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
+          >
+            {assetDataInit.config.description}
+          </HeadlessDisclosure>
+        </div>
+        {/* attributes */}
+        <div className='flex flex-col flex-nowrap gap-2 justify-center items-center w-full'>
+          <HeadlessDisclosure
+            title='Attributes'
+            icon={(<ClipboardListIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
+          >
+            <div className="flex flex-wrap gap-2 justify-center items-center">
+              {(assetDataInit.config.attributes).constructor === Array ?
+                getArrayAttributes(assetDataInit.config.attributes) : getObjectAttributes(assetDataInit.config.attributes)
+              }
             </div>
-            <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
-              <div className='w-1/2'>Token ID</div>
-              <div className='truncate'>{assetDataInit.tokenId}</div>
+          </HeadlessDisclosure>
+        </div>
+        {/* about collection */}
+        <div className='flex flex-col flex-nowrap gap-2 justify-center items-center w-full'>
+          <HeadlessDisclosure
+            title={`About ${collectionDataInit && collectionDataInit.Items[0].name} Collection`}
+            icon={(<DocumentTextIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
+          >
+            {collectionDataInit && collectionDataInit.Items[0].description}
+          </HeadlessDisclosure>
+        </div>
+        {/* contract details */}
+        <div className='flex flex-col flex-nowrap gap-2 justify-center items-center w-full'>
+          <HeadlessDisclosure
+            title='Contract Details'
+            icon={(<DocumentReportIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
+          >
+            <div className='flex flex-col'>
+              <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
+                <div className='w-1/2'>Contract Address</div>
+                <div className='text-blue-500 hover:text-blue-600 truncate'>
+                <a href="https://google.ca/" target='blank'>{assetDataInit.contractAddress}</a>
+                  </div>
+              </div>
+              <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
+                <div className='w-1/2'>Token ID</div>
+                <div className='truncate'>{assetDataInit.tokenId}</div>
+              </div>
+              <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
+                <div className='w-1/2'>Token Standard</div>
+                <div className='truncate'>ERC-721</div>
+              </div>
+              <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
+                <div className='w-1/2'>Blockchain</div>
+                <div className='truncate'>Avalanche</div>
+              </div>
+              <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
+                <div className='w-1/2'>Metadata</div>
+                <div className='truncate'>{IPFS.isIpfsUrl(assetDataInit.config.image) ? 'IPFS' : 'Centralized'}</div>
+              </div>
             </div>
-            <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
-              <div className='w-1/2'>Token Standard</div>
-              <div className='truncate'>ERC-721</div>
-            </div>
-            <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
-              <div className='w-1/2'>Blockchain</div>
-              <div className='truncate'>Avalanche</div>
-            </div>
-            <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
-              <div className='w-1/2'>Metadata</div>
-              <div className='truncate'>{IPFS.isIpfsUrl(assetDataInit.config.image) ? 'IPFS' : 'Centralized'}</div>
-            </div>
-          </div>
-        </HeadlessDisclosure>
-      </div>
+          </HeadlessDisclosure>
+        </div>
       </>
     )
   };
