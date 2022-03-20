@@ -25,7 +25,7 @@ import {
 export default function Collection({ assetDataInit }) {
   console.log('assetDataInit', assetDataInit);
   const AuthContext = useAuth();
-  const { data: session, status: sessionStatus } = useSession();  
+  const { data: session, status: sessionStatus } = useSession();
   // swr call to fetch initial data
   const {data: collectionDataInit} = useSWR(API.swr.collection.id(assetDataInit.collectionId), API.swr.fetcher, API.swr.options);
 
@@ -198,6 +198,7 @@ export default function Collection({ assetDataInit }) {
                   </div>
                 </>)}
                 image={assetDataInit.config.image}
+                zIndex={'-z-10'}
               />
             </div>
             {/* more information */}
@@ -233,7 +234,7 @@ export default function Collection({ assetDataInit }) {
             </div>
             {/* marketplace actions */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
-              <AssetAction isAssetOwner={isAssetOwner()} />
+              <AssetAction sellLink={`/sell/${assetDataInit.contractAddress}/${assetDataInit.tokenId}`} isAssetOwner={isAssetOwner()} />
             </div>
             {/* monetary */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
@@ -258,7 +259,7 @@ export default function Collection({ assetDataInit }) {
                           Collection Commission
                           <Tooltip text='Collection owner takes commission from the final sale'>
                             <QuestionMarkCircleIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />
-                        </Tooltip>
+                          </Tooltip>
                         </div>
                         <div className='truncate'>{NumberFormatter(collectionDataInit.Items[0].commission/100,'percent')}</div>
                       </div>
@@ -362,6 +363,6 @@ export async function getServerSideProps(context) {
     props: {
       assetDataInit,
       session: await getSession(context)
-    },
+    }
   }
 }

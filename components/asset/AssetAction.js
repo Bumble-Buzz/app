@@ -6,7 +6,7 @@ import BuyIcon from '@/public/market/buy-outline.svg';
 import SellIcon from '@/public/market/sell-outline.svg';
 import BidIcon from '@/public/market/bid-outline.svg';
 
-export default function AssetAction({children, isAssetOwner = false}) {
+export default function AssetAction({children, sellLink, isAssetOwner = false}) {
   const ROUTER = useRouter();
 
   const chainSymbols = {
@@ -23,7 +23,7 @@ export default function AssetAction({children, isAssetOwner = false}) {
       <div className='flex flex-row flex-wrap gap-1'>
         {isAssetOwner ? (
           <ButtonWrapper
-            onClick={() => ROUTER.push(`/`)}
+            onClick={() => ROUTER.push(sellLink)}
             classes="bg-indigo-600 hover:bg-indigo-700 gap-x-1 items-center"
           >
             <SellIcon fill="#ffffff" height={24} width={24} />Sell Now

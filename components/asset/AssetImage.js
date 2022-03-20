@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import IPFS from '@/utils/ipfs';
 
 
-export default function AssetImage({children, header, image, body, footer}) {
+export default function AssetImage({children, header, image, body, footer, zIndex = 'z-0'}) {
   const ROUTER = useRouter();
 
   return (
@@ -14,7 +14,7 @@ export default function AssetImage({children, header, image, body, footer}) {
         </div>
         <hr />
       </>)}
-      <div className='block -z-10'>
+      <div className={`block ${zIndex}`}>
         <Image
           src={IPFS.getValidHttpUrl(image)}
           placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado'

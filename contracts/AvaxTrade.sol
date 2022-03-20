@@ -63,6 +63,9 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
   // events
   event onERC721ReceivedEvent(address operator, address from, uint256 tokenId, bytes data);
   event onCollectionCreate(address indexed owner, address indexed contractAddress, string collectionType, uint256 id);
+  event onCreateMarketSale(uint256 indexed itemId, uint256 indexed tokenId, address indexed contractAddress, address seller, SALE_TYPE saleType);
+  event onCancelMarketSale(uint256 indexed itemId, uint256 indexed tokenId, address indexed contractAddress, address seller);
+  event onCompleteMarketSale(uint256 indexed itemId, uint256 indexed tokenId, address indexed contractAddress, address seller, uint256 saleProfit);
 
 
   function initialize(address _owner) initializer public {
@@ -242,6 +245,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
       revert("Provided contract address is not valid");
     }
 
+    emit onCreateMarketSale(itemId, _tokenId, _contractAddress, msg.sender, _saleType);
   }
 
   /**
@@ -258,35 +262,40 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
 
     // transfer nft to original owner
     IERC721(item.contractAddress).safeTransferFrom(address(this), msg.sender, item.tokenId);
+
+    emit onCancelMarketSale(_itemId, item.tokenId, item.contractAddress, msg.sender);
   }
 
   /**
     * @dev Remove market item from sale. For a varified collection
   */
-  function completeMarketSale(uint256 itemId) external nonReentrant() payable {
-    Item.ItemDS memory item = CollectionItem(CONTRACTS.collectionItem).getItem(itemId);
+  function completeMarketSale(uint256 _itemId) external nonReentrant() payable {
+    Item.ItemDS memory item = CollectionItem(CONTRACTS.collectionItem).getItem(_itemId);
     require(!item.sold, "This item has already been sold");
     require(item.active, "This item is inactive");
     require(msg.value >= item.price, "Not enough funds to purchase this item");
     require(msg.sender != item.seller, "You can not buy your own item");
 
-    if (Sale(CONTRACTS.sale).isDirectSaleValid(itemId, item.seller)) {
+    uint256 saleProfit = 0;
+    if (Sale(CONTRACTS.sale).isDirectSaleValid(_itemId, item.seller)) {
       // directMarketSale(item, msg.sender, msg.value);
       require(msg.sender == item.buyer, "You are not the authorized buyer");
-      _completeSale(item, msg.sender, msg.value);
-    } else if (Sale(CONTRACTS.sale).isImmediateSaleValid(itemId, item.seller)) {
-      _completeSale(item, msg.sender, msg.value);
-    } else if (Sale(CONTRACTS.sale).isAuctionSaleValid(itemId, item.seller)) {
-      _completeSale(item, msg.sender, msg.value);
+      saleProfit = _completeSale(item, msg.sender, msg.value);
+    } else if (Sale(CONTRACTS.sale).isImmediateSaleValid(_itemId, item.seller)) {
+      saleProfit = _completeSale(item, msg.sender, msg.value);
+    } else if (Sale(CONTRACTS.sale).isAuctionSaleValid(_itemId, item.seller)) {
+      saleProfit = _completeSale(item, msg.sender, msg.value);
     } else {
       revert("Invalid sale type");
     }
+
+    emit onCompleteMarketSale(_itemId, item.tokenId, item.contractAddress, msg.sender, saleProfit);
   }
 
   /**
     * @dev Complete sale
   */
-  function _completeSale(Item.ItemDS memory item, address _buyer, uint256 _price) private {
+  function _completeSale(Item.ItemDS memory item, address _buyer, uint256 _price) private returns (uint256) {
     // todo Test: Unverified item on sale. Then item is now verified but still listed on sale. What happens?
 
     Collection.CollectionDS memory collection = CollectionItem(CONTRACTS.collectionItem).getCollection(item.collectionId);
@@ -330,6 +339,8 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
 
     // transfer nft to market place
     IERC721(item.contractAddress).safeTransferFrom(address(this), _buyer, item.tokenId);
+
+    return _price;
   }
 
 

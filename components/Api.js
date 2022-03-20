@@ -82,6 +82,9 @@ module.exports = {
       ownerincentiveaccess: (id,payload) => API.post(`collection/update/${id}/ownerincentiveaccess`, payload)
     }
   },
+  sale: {
+    create: payload => API.post(`sale/create`, payload),
+  },
   db: {
     table: {
       list: payload => API.put(`db/table/list`, payload),
