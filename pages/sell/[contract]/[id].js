@@ -72,7 +72,6 @@ export default function Sell({ assetDataInit }) {
           :
           <div className="p-2 flex flex-col items-center gap-2">
             {/* immediate / auction */}
-            {/* <div className='flex flex-col xsm:flex-row justify-center items-center text-center gap-2 w-full sm:w-auto'> */}
             <div className="px-4 gap-2 flex flex-row flex-wrap items-center text-center">
               {tab === 'immediate' ?
                 (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('general')}>Immediate</button>)
