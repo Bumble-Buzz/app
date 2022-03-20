@@ -81,7 +81,7 @@ export default function Sell({ assetDataInit }) {
               {tab === 'auction' ?
                 (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('wallet')}>Auction</button>)
                 :
-                    (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('auction')}>Auction</button>)
+                (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('auction')}>Auction</button>)
               }
             </div>
 
