@@ -36,7 +36,7 @@ const reducer = (state, action) => {
       return newState
     case 'clear':
       return {
-        category: 'Art',
+        category: '',
         price: 0,
         approved: false,
         approvedAll: false
@@ -72,7 +72,6 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
         };
         await API.sale.create(payload);
 
-        dispatch({ type: 'clear' });
         setSaleCreated(true);
       } catch (e) {
         Toast.error(e.message);
@@ -86,8 +85,17 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
     isTokenApprovedAll();
   }, []);
 
+  const initCategory = () => {
+    let category = 'Art';
+    if (
+      Number(assetDataInit.collectionId) !== Number(process.env.NEXT_PUBLIC_UNVERIFIED_COLLECTION_ID) &&
+      Number(assetDataInit.collectionId) !== Number(process.env.NEXT_PUBLIC_LOCAL_COLLECTION_ID)) {
+        category = assetDataInit.category;
+    }
+    return category;
+  };
   const [state, dispatch] = useReducer(reducer, {
-    category: 'Art',
+    category: initCategory(),
     price: 0,
     approved: false,
     approvedAll: false
@@ -202,6 +210,7 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
       method="POST"
       className="w-full sm:w-auto"
     >
+      {/* <p onClick={() => console.log(state)}>see state</p> */}
       <div className="shadow rounded-md">
 
         <div className="flex flex-col items-center px-4 py-4 gap-2 bg-white">

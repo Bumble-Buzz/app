@@ -48,6 +48,10 @@ module.exports = {
       active: (id,limit) => `collection/active?id=${id}&limit=${limit}`,
       inactive: (id,limit) => `collection/inactive?id=${id}&limit=${limit}`
     },
+    sale: {
+      id: (id) => `sale/${id}`,
+      ids: (id,limit) => `sale/ids?id=${id}&limit=${limit}`
+    },
     contracts: (limit,uid,chain) => `contracts?limit=${limit}&uid=${uid}&chain=${chain}`
   },
   ipfs: {
@@ -61,6 +65,7 @@ module.exports = {
   },
   asset: {
     create: payload => API.post(`asset/create`, payload),
+    batch: payload => API.post(`asset/batch`, payload),
     created: (id,tokenId,limit) => API.get(`asset/created/${id}?tokenId=${tokenId}&limit=${limit}`),
     collection: (id,tokenId,limit) => API.get(`asset/${id}?tokenId=${tokenId}&limit=${limit}`)
   },
@@ -83,6 +88,9 @@ module.exports = {
     }
   },
   sale: {
+    id: id => API.get(`sale/${id}`),
+    ids: (id,limit) => API.post(`sale/ids?id=${id}&limit=${limit}`),
+    batch: payload => API.post(`sale/batch`, payload),
     create: payload => API.post(`sale/create`, payload),
   },
   db: {
@@ -110,6 +118,9 @@ module.exports = {
     },
     collection: {
       id: id => BACKEND_API.get(`collection/${id}`)
+    },
+    sale: {
+      ids: (id,limit) => BACKEND_API.post(`sale/ids?id=${id}&limit=${limit}`)
     }
   },
   cancelApi

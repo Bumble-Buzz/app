@@ -22,12 +22,13 @@ import {
 } from '@heroicons/react/outline';
 
 
-export default function Collection({ assetDataInit }) {
+export default function Asset({ assetDataInit }) {
   console.log('assetDataInit', assetDataInit);
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
   // swr call to fetch initial data
   const {data: collectionDataInit} = useSWR(API.swr.collection.id(assetDataInit.collectionId), API.swr.fetcher, API.swr.options);
+  // const {data: saleDataInit} = useSWR(API.swr.sale.id(assetDataInit.collectionId), API.swr.fetcher, API.swr.options);
 
   // catch invalids early
   if (!assetDataInit || !assetDataInit.tokenId) return (<PageError>This asset does not exist</PageError>);

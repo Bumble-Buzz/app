@@ -35,6 +35,8 @@ Things left to do:
     - Need to be careful with incentives for direct sales. Risk of users selling to their own wallets and making money.
   - Address all `@todo` in the code
 - Back-end
+  - Put a max limit number on all APIs that use the limit parameter
+  - Convert all getter API calls from `query` to `get`
   - Database
     - Tables (per network)
       - users: User information
@@ -58,12 +60,12 @@ Things left to do:
         - LSI: creator, owner
         - GSI: 
       - sales: List of assets on sale in marketplace
-        - id, contractAddress, tokenId, collectionId, seller, buyer, price, sold, saleType::number, category, active::number
-        - PK: id
+        - contractAddress, tokenId, id, collectionId, seller, buyer, price, sold, saleType::number, category, active::number
+        - PK: contractAddress, tokenId
         - LSI: 
-        - GSI: category + active (only get data that you need)
+        - GSI: id, category + active (only get data that you need)
 - Front-end dapp
-  - Ensure images cab be loaded via both IPFS and direct url
+  - Ensure images can be loaded via both IPFS and direct url
   - Ability to delete collection from db and blockchain
   - Easy way to set ENV variables in docker image / k8s, for contract addresses, admin accounts, etc...
   - Initialize CORS properly as explained in the docs
