@@ -50,7 +50,7 @@ module.exports = {
     },
     sale: {
       id: (id) => `sale/${id}`,
-      ids: (id,limit) => `sale/ids?id=${id}&limit=${limit}`
+      all: (id,tokenId,limit) => `sale/all?id=${id}&tokenId=${tokenId}&limit=${limit}`
     },
     contracts: (limit,uid,chain) => `contracts?limit=${limit}&uid=${uid}&chain=${chain}`
   },
@@ -89,8 +89,7 @@ module.exports = {
   },
   sale: {
     id: id => API.get(`sale/${id}`),
-    ids: (id,limit) => API.post(`sale/ids?id=${id}&limit=${limit}`),
-    batch: payload => API.post(`sale/batch`, payload),
+    all: (id,tokenId,limit) => API.post(`sale/all?id=${id}&tokenId=${tokenId}&limit=${limit}`),
     create: payload => API.post(`sale/create`, payload),
   },
   db: {
@@ -120,7 +119,7 @@ module.exports = {
       id: id => BACKEND_API.get(`collection/${id}`)
     },
     sale: {
-      ids: (id,limit) => BACKEND_API.post(`sale/ids?id=${id}&limit=${limit}`)
+      all: (id,tokenId,limit) => BACKEND_API.post(`sale/all?id=${id}&tokenId=${tokenId}&limit=${limit}`)
     }
   },
   cancelApi

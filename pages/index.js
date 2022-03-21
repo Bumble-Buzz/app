@@ -27,7 +27,7 @@ export default function Home() {
               <div className="flex flex-row flex-wrap justify-center">
                 <div>
                   <Tooltip text='Explore NFTs and Collections'>
-                    <button onClick={() => {ROUTER.push('/expore')}} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Explore</button>
+                    <button onClick={() => {ROUTER.push('/explore')}} className="my-1 mx-4 px-4 py-3 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-800" href="#">Explore</button>
                   </Tooltip>
                 </div>
                 <div>

@@ -198,7 +198,7 @@ const collection = async () => {
 
 const sales = async () => {
   const payload = {
-    TableName: "sales",
+    TableName: "sale",
     AttributeDefinitions: [
       { AttributeName: "id", AttributeType: "N" },
       { AttributeName: "category", AttributeType: "S" },
@@ -268,7 +268,7 @@ const collectionDelete = async () => {
 
 const salesDelete = async () => {
   const payload = {
-    TableName: "sales"
+    TableName: "sale"
   };
   const results = await DynamoDbQuery.table.delete(payload);
   console.log('table deleted:', results.TableDescription.TableName);
@@ -380,7 +380,7 @@ const queryCollectionGsi2 = async () => {
 
 const querySales = async () => {
   const payload = {
-    TableName: "sales",
+    TableName: "sale",
     ExpressionAttributeNames: { '#id': 'id' },
     ExpressionAttributeValues: { ':id': 1 },
     KeyConditionExpression: '#id = :id'
@@ -391,7 +391,7 @@ const querySales = async () => {
 
 const querySalesGsi = async () => {
   const payload = {
-    TableName: "sales",
+    TableName: "sale",
     IndexName: 'category-gsi',
     ExpressionAttributeNames: { '#category': 'category', '#active': 'active' },
     ExpressionAttributeValues: { ':category': 'photography', ':active': 0 },
@@ -584,7 +584,7 @@ const putCollection = async (val) => {
 
 const putSales = async (val) => {
   let payload = {
-    TableName: "sales",
+    TableName: "sale",
     Item: {
       'id': 1,
       'contractAddress': 'contract-address',
@@ -599,7 +599,7 @@ const putSales = async (val) => {
   await DynamoDbQuery.item.put(payload);
 
   payload = {
-    TableName: "sales",
+    TableName: "sale",
     Item: {
       'id': 2,
       'contractAddress': 'contract-address',
@@ -614,7 +614,7 @@ const putSales = async (val) => {
   await DynamoDbQuery.item.put(payload);
 
   payload = {
-    TableName: "sales",
+    TableName: "sale",
     Item: {
       'id': 3,
       'contractAddress': 'contract-address2',
@@ -677,7 +677,7 @@ const mockCollections = async () => {
 
 const mockAssets = async () => {
   const pk = '0x640C20ff0F34b75BDA2fCdB4334Acca32B599A81';
-  const sk = 1;
+  const sk = 4;
   let payload = {
     TableName: "asset",
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
@@ -709,24 +709,25 @@ const mockAssets = async () => {
 };
 
 const mockSales = async () => {
-  const pk = 1;
+  const pk = '0x640C20ff0F34b75BDA2fCdB4334Acca32B599A81';
+  const sk = 5;
   let payload = {
-    TableName: "sales",
-    ExpressionAttributeNames: { '#id': 'id' },
-    ExpressionAttributeValues: { ':id': pk },
-    KeyConditionExpression: '#id = :id'
+    TableName: "sale",
+    ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
+    ExpressionAttributeValues: { ':contractAddress': pk, ':tokenId': sk },
+    KeyConditionExpression: '#contractAddress = :contractAddress AND #tokenId = :tokenId'
   };
   const results = await DynamoDbQuery.item.query(payload);
   console.log('Query item:', results.Items);
   const item = results.Items[0];
 
-  for (let i = pk+1; i < 99; i++) {
+  for (let i = sk+1; i < 99; i++) {
     payload = {
-      TableName: "sales",
+      TableName: "sale",
       Item: {
-        'id': i,
         'contractAddress': item.contractAddress,
         'tokenId': i,
+        'saleId': i,
         'collectionId': item.collectionId,
         'seller': item.seller,
         'buyer': item.buyer,

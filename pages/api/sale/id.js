@@ -13,8 +13,9 @@ export default async function handler(req, res) {
   if (!session) return res.status(401).json({ 'error': 'not authenticated' });
 
   const payload = {
-    TableName: "sales",
-    Key: { 'id': Number(id) }
+    TableName: "sale",
+    IndexName: 'saleId-gsi',
+    Key: { 'saleId': Number(id) }
   };
   let results = await DynamoDbQuery.item.get(payload);
   const {Item, ConsumedCapacity} = results;

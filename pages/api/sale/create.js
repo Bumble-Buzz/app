@@ -16,9 +16,9 @@ const checkBlockchain = async (data) => {
 
   const provider = new ethers.providers.JsonRpcProvider(RpcNode);
   const contract = new ethers.Contract(process.env.NEXT_PUBLIC_SALE_CONTRACT_ADDRESS, SaleAbi.abi, provider);
-  const onChainData = await contract.getSale(Number(data.id));
+  const onChainData = await contract.getSale(Number(data.saleId));
 
-  return (Number(data.id) === Number(onChainData.id) && Number(data.saleType) === onChainData.saleType);
+  return (Number(data.saleId) === Number(onChainData.id) && Number(data.saleType) === onChainData.saleType);
 };
 
 
@@ -36,11 +36,11 @@ export default async function handler(req, res) {
 
   // ensure if id already exists, we don't overwrite the record
   const payload = {
-    TableName: "sales",
+    TableName: "sale",
     Item: {
-      'id': data.id,
       'contractAddress': ethers.utils.getAddress(data.contractAddress),
       'tokenId': Number(data.tokenId),
+      'saleId': Number(data.saleId),
       'collectionId': Number(data.collectionId),
       'seller': ethers.utils.getAddress(data.seller),
       'buyer': ethers.utils.getAddress(data.buyer),
@@ -50,9 +50,9 @@ export default async function handler(req, res) {
       'category': data.category,
       'active': 1
     },
-    ExpressionAttributeNames: { '#id': 'id' },
-    ExpressionAttributeValues: { ':id': data.id },
-    ConditionExpression: "#id <> :id"
+    ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId', '#id': 'id' },
+    ExpressionAttributeValues: { ':contractAddress': data.contractAddress, ':tokenId': data.tokenId, ':id': data.saleId },
+    ConditionExpression: "#contractAddress <> :contractAddress AND #tokenId <> :tokenId AND #id <> :id"
   };
   await DynamoDbQuery.item.put(payload);
 

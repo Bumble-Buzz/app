@@ -60,9 +60,9 @@ export default function Immediate({children, assetDataInit, setSaleCreated}) {
 
       try {
         const payload = {
-          'id': Number(blockchainResults.itemId),
           'contractAddress': ethers.utils.getAddress(blockchainResults.contractAddress),
           'tokenId': Number(blockchainResults.tokenId),
+          'saleId': Number(blockchainResults.itemId),
           'collectionId': Number(assetDataInit.collectionId),
           'seller': ethers.utils.getAddress(blockchainResults.seller),
           'buyer': ethers.utils.getAddress(EMPTY_ADDRESS),

@@ -143,16 +143,28 @@ const asset = async () => {
 
 const sales = async () => {
   const payload = {
-    TableName: "sales",
+    TableName: "sale",
     AttributeDefinitions: [
-      { AttributeName: "id", AttributeType: "N" },
+      { AttributeName: "contractAddress", AttributeType: "S" },
+      { AttributeName: "tokenId", AttributeType: "N" },
+      { AttributeName: "saleId", AttributeType: "N" },
       { AttributeName: "category", AttributeType: "S" },
       { AttributeName: "active", AttributeType: "N" }
     ],
     KeySchema: [
-      { AttributeName: "id", KeyType: "HASH" }
+      { AttributeName: "contractAddress", KeyType: "HASH" },
+      { AttributeName: "tokenId", KeyType: "RANGE" }
     ],
     GlobalSecondaryIndexes: [
+      {
+        IndexName: "saleId-gsi",
+        KeySchema: [
+          { AttributeName: "saleId", KeyType: "HASH" },
+        ],
+        Projection: {
+          ProjectionType: "ALL"
+        }
+      },
       {
         IndexName: "category-gsi",
         KeySchema: [

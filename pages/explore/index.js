@@ -227,11 +227,11 @@ export default function Explore({ rawSaleIds }) {
   }, []);
 
 
+  const [loading, setLoading] = useState(true);
   const [assets, setAssets] = useState([]);
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [search, setSearch] = useState('');
   const [searchTimer, setSearchTimer] = useState(null)
-  const [searching, setSearching] = useState(false);
   const [apiSortKey, setApiSortKey] = useState(null);
   const [exclusiveStartKey, setExclusiveStartKey] = useState(null);
 
@@ -239,13 +239,9 @@ export default function Explore({ rawSaleIds }) {
   const { observe } = useInView({
     threshold: 0,
     onEnter: async ({ unobserve }) => {
-      console.log('onEnter 1');
       if (!search) {
-        console.log('onEnter 2');
         if (!exclusiveStartKey) {
-          console.log('onEnter 3');
           if (assets.length > filteredAssets.length) {
-            console.log('onEnter 4');
             updateFilterAssets();
           } else {
             unobserve();
@@ -259,7 +255,7 @@ export default function Explore({ rawSaleIds }) {
   // fetch data from database using SWR
   useSWRInfinite(
     (pageIndex, previousPageData) => {
-      return API.swr.sale.ids(apiSortKey.id, BATCH_SIZE);
+      return API.swr.sale.all(apiSortKey.contractAddress, apiSortKey.tokenId, BATCH_SIZE);
     },
     API.swr.fetcher,
     {
@@ -283,6 +279,7 @@ export default function Explore({ rawSaleIds }) {
     const {data} = await API.asset.batch(payload);
     setAssets(data.Items);
     setFilteredAssets(data.Items);
+    setLoading(false);
   };
 
   const getRandomBatch = () => {
@@ -310,7 +307,6 @@ export default function Explore({ rawSaleIds }) {
 
   const updateFilterAssets = async () => {
     const nextBatch = assets.slice(0, filteredAssets.length+BATCH_SIZE);
-    console.log('nextBatch', nextBatch);
     setFilteredAssets([...nextBatch]);
   };
 
@@ -324,7 +320,7 @@ export default function Explore({ rawSaleIds }) {
       let allAssets = assets;
       let filteredAssets = [];
       let latestSortKey = exclusiveStartKey;
-      setSearching(true);
+      setLoading(true);
       while (filteredAssets.length === 0) {
         filteredAssets = allAssets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(_value.toString().toLowerCase()) >= 0);
   
@@ -332,14 +328,14 @@ export default function Explore({ rawSaleIds }) {
         if (!latestSortKey) break;
   
         // fetch next batch from db
-        const {data: saleIds} = await API.sale.ids(latestSortKey.id, BATCH_SIZE);
+        const {data: saleIds} = await API.sale.all(latestSortKey.contractAddress, latestSortKey.tokenId, BATCH_SIZE);
         latestSortKey = saleIds.LastEvaluatedKey;
   
         const payload = { ids: saleIds.Items };
         const nextAssets = await API.asset.batch(payload);
         allAssets.push(...nextAssets.data.Items);
       }
-      setSearching(false);
+      setLoading(false);
       setAssets([...allAssets]);
       setFilteredAssets([...filteredAssets]);
       setExclusiveStartKey(latestSortKey);
@@ -400,9 +396,9 @@ export default function Explore({ rawSaleIds }) {
 
           {/* assets */}
           <div className='py-2 flex flex-wrap gap-4 justify-center items-center'>
-            {searching && <PageError>Searching...</PageError>}
-            {!searching && filteredAssets.length === 0 && <PageError>No record found</PageError>}
-            {!searching && filteredAssets.map((asset, index) => {
+            {loading && <PageError>Loading...</PageError>}
+            {!loading && filteredAssets.length === 0 && <PageError>No record found</PageError>}
+            {!loading && filteredAssets.map((asset, index) => {
               return (
                 <NftCard
                   key={index}
@@ -442,7 +438,7 @@ export default function Explore({ rawSaleIds }) {
 }
 
 export async function getServerSideProps(context) {
-  const { data } = await API.backend.sale.ids('null', BATCH_SIZE);
+  const { data } = await API.backend.sale.all('null', 'null', BATCH_SIZE);
   return {
     props: {
       rawSaleIds: data,

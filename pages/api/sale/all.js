@@ -1,26 +1,31 @@
 import Cors from 'cors';
+import { ethers } from 'ethers';
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 
 
 export default async function handler(req, res) {
-  let { id, limit } = req.query
-  // console.log('api param:', id, limit);
+  const { id, tokenId, limit } = req.query
+  // console.log('api param:', id, tokenId, limit);
 
   // check parameters
-  if (!id) return res.status(400).json({ invalid: `invalid id ${id}` });
-  if (Number(limit) > 50) limit = 50;
+  // if (!id) return res.status(400).json({ invalid: `invalid id ${id}` });
+  
+  const formattedTokenId = Number(tokenId);
+  let formattedLimit = Number(limit);
+  if (formattedLimit > 50) limit = 50;
 
   let exclusiveStartKey = undefined;
-  if (id && Number.isInteger(Number(id))) {
-    exclusiveStartKey = { 'id': Number(id) };
+  if (id && tokenId && Number.isInteger(formattedTokenId)) {
+    const checkSumId = ethers.utils.getAddress(id);
+    exclusiveStartKey = { 'contractAddress': checkSumId, 'tokenId': formattedTokenId };
   }
 
   const payload = {
-    TableName: "sales",
-    ExpressionAttributeNames: { '#id': 'id', '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
-    ProjectionExpression: '#id, #contractAddress, #tokenId',
+    TableName: "sale",
+    ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId', '#saleId': 'saleId' },
+    ProjectionExpression: '#contractAddress, #tokenId, #saleId',
     ExclusiveStartKey: exclusiveStartKey,
-    Limit: Number(limit) || 10
+    Limit: formattedLimit || 10
   };
   let results = await DynamoDbQuery.item.scan(payload);
   const {Items, LastEvaluatedKey, Count, ScannedCount} = results;

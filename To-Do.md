@@ -60,10 +60,10 @@ Things left to do:
         - LSI: creator, owner
         - GSI: 
       - sales: List of assets on sale in marketplace
-        - contractAddress, tokenId, id, collectionId, seller, buyer, price, sold, saleType::number, category, active::number
+        - contractAddress, tokenId, saleId, collectionId, seller, buyer, price, sold, saleType::number, category, active::number
         - PK: contractAddress, tokenId
         - LSI: 
-        - GSI: id, category + active (only get data that you need)
+        - GSI: saleId, category + active (only get data that you need)
 - Front-end dapp
   - Ensure images can be loaded via both IPFS and direct url
   - Ability to delete collection from db and blockchain
