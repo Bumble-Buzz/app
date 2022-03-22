@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { getSession } from "next-auth/react";
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 import { RpcNode } from '@/components/backend/Rpc';
-import CollectionItemAbi from '@/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
+import SaleAbi from '@/artifacts/contracts/sale/Sale.sol/Sale.json';
 
 
 /**
@@ -11,40 +11,45 @@ import CollectionItemAbi from '@/artifacts/contracts/collectionItem/CollectionIt
  * We will need to use the databse to make sure when a collection is active, no one can modify it's main keys except
  * for the owner, or the admin.
 **/
-const checkBlockchain = async (collection) => {
+const checkBlockchain = async (data) => {
   if (!RpcNode) { console.log('skipping blockchain check'); return true; }
 
   const provider = new ethers.providers.JsonRpcProvider(RpcNode);
-  const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, provider);
+  const contract = new ethers.Contract(process.env.NEXT_PUBLIC_SALE_CONTRACT_ADDRESS, SaleAbi.abi, provider);
 
   let returnValue = false;
   try {
-    await contract.getCollection(collection.id);
+    await contract.getSale(data.saleId);
   } catch(e) {
-    if (e.error.body.includes('The collection does not exist')) {
+    if (e.error.body.includes('The sale does not exist')) {
       returnValue = true;
     }
   }
   return returnValue;
 };
 
+
 export default async function handler(req, res) {
   const session = await getSession({ req });
   const data = req.body;
-  // console.log('req.body', data);
+  console.log('req.body', data);
 
   // check parameters
   if (!data) return res.status(400).json({ 'error': 'invalid request parameters' });
-  if (!Number.isInteger(Number(data.id))) return res.status(400).json({ 'error': 'invalid request parameters' });
+  if (!data.contractAddress) return res.status(400).json({ 'error': 'invalid request parameters' });
+  if (!Number.isInteger(Number(data.tokenId))) return res.status(400).json({ 'error': 'invalid request parameters' });
+  if (!Number.isInteger(Number(data.saleId))) return res.status(400).json({ 'error': 'invalid request parameters' });
   if (!session) return res.status(401).json({ 'error': 'not authenticated' });
-  if (session.user.id !== process.env.NEXT_PUBLIC_ADMIN_WALLET_ID) return res.status(401).json({ 'error': 'not authenticated' });
-
+  
   // @todo This can only be run locally at the moment. Once deployed on testnet/mainnet, this needs to run
-  if (!(await checkBlockchain(data))) return res.status(400).json({ 'error': 'record found on blockchain' });
+  if (!(await checkBlockchain(data))) return res.status(400).json({ 'error': 'record not found on blockchain' });
 
+  const formattedContract = ethers.utils.getAddress(data.contractAddress);
+  const formattedTokenId = Number(data.tokenId);
+  
   const payload = {
-    TableName: "collection",
-    Key: { 'id': Number(data.id) }
+    TableName: "sale",
+    Key: { 'contractAddress': formattedContract, 'tokenId': formattedTokenId }
   };
   await DynamoDbQuery.item.delete(payload);
 

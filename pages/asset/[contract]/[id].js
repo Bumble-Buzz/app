@@ -3,11 +3,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSession, getSession } from 'next-auth/react';
 import useSWR from 'swr';
+import API from '@/components/Api';
 import IPFS from '@/utils/ipfs';
 import { useAuth } from '@/contexts/AuthContext';
 import IconTray from '@/components/IconTray';
 import PageError from '@/components/PageError';
-import API from '@/components/Api';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import AssetImage from '@/components/asset/AssetImage';
 import AssetAction from '@/components/asset/AssetAction';
@@ -165,6 +165,13 @@ export default function Asset({ assetDataInit }) {
       makeOffer: `/asset/${assetDataInit.contractAddress}/${assetDataInit.tokenId}`,
     }
   };
+  const getAssetActionContent = () => {
+    return {
+      contractAddress: saleDataInit && saleDataInit.Item && saleDataInit.Item.contractAddress,
+      tokenId: saleDataInit && saleDataInit.Item && saleDataInit.Item.tokenId,
+      saleId: saleDataInit && saleDataInit.Item && saleDataInit.Item.saleId
+    }
+  };
 
 
   return (
@@ -247,7 +254,12 @@ export default function Asset({ assetDataInit }) {
             </div>
             {/* marketplace actions */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
-              <AssetAction links={getAssetActionLinks()} isAssetOwner={isAssetOwner()} isAssetOnSale={isAssetOnSale()} />
+              <AssetAction
+                links={getAssetActionLinks()}
+                content={getAssetActionContent()}
+                isAssetOwner={isAssetOwner()}
+                isAssetOnSale={isAssetOnSale()}
+              />
             </div>
             {/* monetary */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>

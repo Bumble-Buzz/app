@@ -1,5 +1,6 @@
 Things left to do:
 - Smart contract
+  - what happens if completeMarketSale is called when sale does not exist?
   - Name the app, then make the change everywhere
   - Collection
     - Add maximum on total supply?

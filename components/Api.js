@@ -91,6 +91,7 @@ module.exports = {
     id: (contract,tokenId) => API.get(`sale/${contract}/${tokenId}`),
     all: (id,tokenId,limit) => API.post(`sale/all?id=${id}&tokenId=${tokenId}&limit=${limit}`),
     create: payload => API.post(`sale/create`, payload),
+    remove: payload => API.post(`sale/remove`, payload)
   },
   db: {
     table: {
