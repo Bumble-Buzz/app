@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSession, getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
+import useSWR from 'swr';
 import API from '@/components/Api';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
@@ -15,6 +16,8 @@ export default function Sell({ assetDataInit }) {
   const ROUTER = useRouter();
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
+  // swr call to fetch initial data
+  const {data: saleDataInit} = useSWR(API.swr.sale.id(assetDataInit.contractAddress, assetDataInit.tokenId), API.swr.fetcher, API.swr.options);
 
   const [tab, setTab] = useState('immediate');
   const [isSaleCreated, setSaleCreated] = useState(false);
@@ -30,11 +33,16 @@ export default function Sell({ assetDataInit }) {
     if (!isSignInValid()) return false;
     return (session.user.id === assetDataInit.owner);
   };
+  const isAssetOnSale = () => {
+    return (saleDataInit && saleDataInit.Item && saleDataInit.Item.seller === assetDataInit.owner);
+  }
+
 
   // catch invalids early
   if (!assetDataInit || !assetDataInit.tokenId) return (<PageError>This asset does not exist</PageError>);
-  if (!isSignInValid) return (<Unauthenticated link={'/authenticate'}></Unauthenticated>)
+  if (!isSignInValid()) return (<Unauthenticated link={'/authenticate'}></Unauthenticated>)
   if (!isAssetOwner()) return (<PageError>You are not the owner of this asset</PageError>);
+  if (isAssetOnSale()) return (<PageError>You have already put this asset on sale</PageError>);
 
   return (
     <ContentWrapper>

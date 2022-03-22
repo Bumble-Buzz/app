@@ -1,21 +1,22 @@
 import Cors from 'cors';
-import { getSession } from "next-auth/react";
+import { ethers } from 'ethers';
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 
 
 export default async function handler(req, res) {
-  const session = await getSession({ req });
-  const { id } = req.query
-  console.log('api param:', id);
+  const { contract, id: tokenId } = req.query
+  // console.log('api param:', contract, tokenId);
 
   // check parameters
-  if (!id || !Number.isInteger(Number(id))) return res.status(400).json({ error: `sale id '${id}' is invalid` });
-  if (!session) return res.status(401).json({ 'error': 'not authenticated' });
+  if (!contract) return res.status(400).json({ invalid: contract });
+  if (!tokenId || !Number.isInteger(Number(tokenId))) return res.status(400).json({ error: `token id '${tokenId}' is invalid` });
+  
+  const formattedContract = ethers.utils.getAddress(contract);
+  const formattedTokenId = Number(tokenId);
 
   const payload = {
     TableName: "sale",
-    IndexName: 'saleId-gsi',
-    Key: { 'saleId': Number(id) }
+    Key: { 'contractAddress': formattedContract, 'tokenId': formattedTokenId }
   };
   let results = await DynamoDbQuery.item.get(payload);
   const {Item, ConsumedCapacity} = results;

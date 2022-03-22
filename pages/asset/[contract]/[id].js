@@ -23,12 +23,11 @@ import {
 
 
 export default function Asset({ assetDataInit }) {
-  console.log('assetDataInit', assetDataInit);
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
   // swr call to fetch initial data
   const {data: collectionDataInit} = useSWR(API.swr.collection.id(assetDataInit.collectionId), API.swr.fetcher, API.swr.options);
-  // const {data: saleDataInit} = useSWR(API.swr.sale.id(assetDataInit.collectionId), API.swr.fetcher, API.swr.options);
+  const {data: saleDataInit} = useSWR(API.swr.sale.id(assetDataInit.contractAddress, assetDataInit.tokenId), API.swr.fetcher, API.swr.options);
 
   // catch invalids early
   if (!assetDataInit || !assetDataInit.tokenId) return (<PageError>This asset does not exist</PageError>);
@@ -43,6 +42,9 @@ export default function Asset({ assetDataInit }) {
     if (!isSignInValid()) return false;
     return (session.user.id === assetDataInit.owner);
   };
+  const isAssetOnSale = () => {
+    return (saleDataInit && saleDataInit.Item && saleDataInit.Item.seller === assetDataInit.owner);
+  }
 
   const chainSymbols = {
     ethereum: (<Image src={'/chains/ethereum-color.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />)
@@ -154,6 +156,16 @@ export default function Asset({ assetDataInit }) {
     )
   };
 
+  const getAssetActionLinks = () => {
+    return {
+      cancelSale: `/asset/${assetDataInit.contractAddress}/${assetDataInit.tokenId}`,
+      sellNow: `/sell/${assetDataInit.contractAddress}/${assetDataInit.tokenId}`,
+      buyNow: `/asset/${assetDataInit.contractAddress}/${assetDataInit.tokenId}`,
+      placeBid: `/asset/${assetDataInit.contractAddress}/${assetDataInit.tokenId}`,
+      makeOffer: `/asset/${assetDataInit.contractAddress}/${assetDataInit.tokenId}`,
+    }
+  };
+
 
   return (
     <ContentWrapper>
@@ -235,7 +247,7 @@ export default function Asset({ assetDataInit }) {
             </div>
             {/* marketplace actions */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
-              <AssetAction sellLink={`/sell/${assetDataInit.contractAddress}/${assetDataInit.tokenId}`} isAssetOwner={isAssetOwner()} />
+              <AssetAction links={getAssetActionLinks()} isAssetOwner={isAssetOwner()} isAssetOnSale={isAssetOnSale()} />
             </div>
             {/* monetary */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
