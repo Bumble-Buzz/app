@@ -207,7 +207,7 @@ export default function AssetAction({children, links, content, isSignInValid, is
       <ButtonWrapper
         onClick={() => ROUTER.push(links.makeOffer)}
         disabled
-        classes="bg-indigo-600 hover:bg-indigo-700 gap-x-1 items-center"
+        classes="bg-indigo-500 hover:bg-indigo-700 gap-x-1 items-center"
       >
         <OfferIcon fill="#ffffff" height={24} width={24} />Make Offer
       </ButtonWrapper>
