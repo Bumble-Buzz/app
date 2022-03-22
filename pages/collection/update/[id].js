@@ -137,7 +137,7 @@ export default function EditCollection({ collectionDataInit }) {
   const isSignInValid = () => session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account && AuthContext.state.isNetworkValid;
   // catch invalids early
   if (!collectionDataInit) return (<PageError>This collection does not exist</PageError>);
-  if (!isSignInValid()) return (<Unauthenticated link={'/signin'}></Unauthenticated>);
+  if (!isSignInValid()) return (<Unauthenticated link={'/auth/signin'}></Unauthenticated>);
   if (session.user.id !== collectionDataInit.owner) return (<PageError>You are not the collection owner</PageError>);
   if (!collectionDataInit.active) return (<PageError>This collection has been deactivated</PageError>);
 

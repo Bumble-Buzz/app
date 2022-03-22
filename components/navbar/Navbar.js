@@ -116,14 +116,14 @@ export default function Navbar() {
       case 14:
         return {
           label: (Lexicon.avatar.signIn),
-          link: '/signin',
+          link: '/auth/signin',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };
       case 15:
         return {
           label: (Lexicon.avatar.signOut),
-          link: '/signout',
+          link: '/auth/signout',
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };

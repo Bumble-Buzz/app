@@ -207,7 +207,7 @@ export default function Verified() {
 
   if (!session || sessionStatus !== 'authenticated' || session.user.id !== AuthContext.state.account || !AuthContext.state.isNetworkValid) {
     return (
-      <Unauthenticated link={'/signin'}></Unauthenticated>
+      <Unauthenticated link={'/auth/signin'}></Unauthenticated>
     )
   }
 
