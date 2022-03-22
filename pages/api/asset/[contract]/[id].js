@@ -16,16 +16,14 @@ export default async function handler(req, res) {
 
   let payload = {
     TableName: "asset",
-    ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
-    ExpressionAttributeValues: { ':contractAddress': contractAddress, ':tokenId': tokenId },
-    KeyConditionExpression: '#contractAddress = :contractAddress AND #tokenId = :tokenId',
+    Key: { 'contractAddress': contractAddress, 'tokenId': tokenId }
   };
-  let results = await DynamoDbQuery.item.query(payload);
-  const {Items, LastEvaluatedKey, Count, ScannedCount} = results;
+  let results = await DynamoDbQuery.item.get(payload);
+  const {Item, ConsumedCapacity} = results;
 
   // for item, also include owner alias and creator alias if available
-  if (Items.length > 0) {
-    const arr = [ Items[0].owner, Items[0].creator ];
+  if (Item) {
+    const arr = [ Item.owner, Item.creator ];
     const wallets = [...new Set(arr)]; // remove any duplicates
     const payloadKeys = Object.values(wallets).map(id => ({'walletId': id}));
     payload = {
@@ -36,7 +34,7 @@ export default async function handler(req, res) {
           ProjectionExpression: '#walletId, #name'
         },
         collection: {
-          Keys: [{ 'id': Items[0].collectionId }],
+          Keys: [{ 'id': Item.collectionId }],
           ExpressionAttributeNames: { '#category': 'category' },
           ProjectionExpression: '#category'
         }
@@ -45,20 +43,20 @@ export default async function handler(req, res) {
     results = await DynamoDbQuery.item.getBatch(payload);
     const user = results.Responses.users;
     user.forEach(item => {
-      if (Items[0].owner === item.walletId) {
-        Items[0]['ownerName'] = item.name
+      if (Item.owner === item.walletId) {
+        Item['ownerName'] = item.name
       }
-      if (Items[0].creator === item.walletId) {
-        Items[0]['creatorName'] = item.name
+      if (Item.creator === item.walletId) {
+        Item['creatorName'] = item.name
       }
     });
     const collection = results.Responses.collection;
     collection.forEach(item => {
-      Items[0]['category'] = item.category
+      Item['category'] = item.category
     });
   }
 
-  res.status(200).json({ Items, LastEvaluatedKey, Count, ScannedCount });
+  res.status(200).json({ Item, ConsumedCapacity });
 };
 
 

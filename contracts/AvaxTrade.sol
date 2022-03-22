@@ -65,7 +65,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
   event onCollectionCreate(address indexed owner, address indexed contractAddress, string collectionType, uint256 id);
   event onCreateMarketSale(uint256 indexed itemId, uint256 indexed tokenId, address indexed contractAddress, address seller, SALE_TYPE saleType);
   event onCancelMarketSale(uint256 indexed itemId, uint256 indexed tokenId, address indexed contractAddress, address seller);
-  event onCompleteMarketSale(uint256 indexed itemId, uint256 indexed tokenId, address indexed contractAddress, address seller, uint256 saleProfit);
+  event onCompleteMarketSale(uint256 indexed itemId, uint256 indexed tokenId, address indexed contractAddress, address buyer, uint256 saleProfit);
 
 
   function initialize(address _owner) initializer public {

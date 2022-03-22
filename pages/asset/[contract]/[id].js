@@ -26,11 +26,15 @@ export default function Asset({ assetDataInit }) {
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
   // swr call to fetch initial data
-  const {data: collectionDataInit} = useSWR(API.swr.collection.id(assetDataInit.collectionId), API.swr.fetcher, API.swr.options);
-  const {data: saleDataInit} = useSWR(API.swr.sale.id(assetDataInit.contractAddress, assetDataInit.tokenId), API.swr.fetcher, API.swr.options);
+  const {data: assetData} = useSWR(API.swr.asset.id(assetDataInit.Item.contractAddress, assetDataInit.Item.tokenId), API.swr.fetcher, {
+    fallbackData: assetDataInit,
+    ...API.swr.options
+  });
+  const {data: collectionDataInit} = useSWR(API.swr.collection.id(assetData.Item.collectionId), API.swr.fetcher, API.swr.options);
+  const {data: saleDataInit} = useSWR(API.swr.sale.id(assetData.Item.contractAddress, assetData.Item.tokenId), API.swr.fetcher, API.swr.options);
 
   // catch invalids early
-  if (!assetDataInit || !assetDataInit.tokenId) return (<PageError>This asset does not exist</PageError>);
+  if (!assetData || !assetData.Item.tokenId) return (<PageError>This asset does not exist</PageError>);
 
   const isSignInValid = () => {
     return (
@@ -40,10 +44,10 @@ export default function Asset({ assetDataInit }) {
   };
   const isAssetOwner = () => {
     if (!isSignInValid()) return false;
-    return (session.user.id === assetDataInit.owner);
+    return (session.user.id === assetData.Item.owner);
   };
   const isAssetOnSale = () => {
-    return (saleDataInit && saleDataInit.Item && saleDataInit.Item.seller === assetDataInit.owner);
+    return (saleDataInit && saleDataInit.Item && saleDataInit.Item.seller === assetData.Item.owner);
   };
 
   const chainSymbols = {
@@ -84,7 +88,7 @@ export default function Asset({ assetDataInit }) {
             title='Description' defaultOpen={true}
             icon={(<DocumentIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
           >
-            {assetDataInit.config.description}
+            {assetData.Item.config.description}
           </HeadlessDisclosure>
         </div>
         {/* attributes */}
@@ -94,8 +98,8 @@ export default function Asset({ assetDataInit }) {
             icon={(<ClipboardListIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
           >
             <div className="flex flex-wrap gap-2 justify-center items-center">
-              {(assetDataInit.config.attributes).constructor === Array ?
-                getArrayAttributes(assetDataInit.config.attributes) : getObjectAttributes(assetDataInit.config.attributes)
+              {(assetData.Item.config.attributes).constructor === Array ?
+                getArrayAttributes(assetData.Item.config.attributes) : getObjectAttributes(assetData.Item.config.attributes)
               }
             </div>
           </HeadlessDisclosure>
@@ -119,12 +123,12 @@ export default function Asset({ assetDataInit }) {
               <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
                 <div className='w-1/2'>Contract Address</div>
                 <div className='text-blue-500 hover:text-blue-600 truncate'>
-                <a href="https://google.ca/" target='blank'>{assetDataInit.contractAddress}</a>
+                <a href="https://google.ca/" target='blank'>{assetData.Item.contractAddress}</a>
                   </div>
               </div>
               <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
                 <div className='w-1/2'>Token ID</div>
-                <div className='truncate'>{assetDataInit.tokenId}</div>
+                <div className='truncate'>{assetData.Item.tokenId}</div>
               </div>
               <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
                 <div className='w-1/2'>Token Standard</div>
@@ -136,7 +140,7 @@ export default function Asset({ assetDataInit }) {
               </div>
               <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
                 <div className='w-1/2'>Metadata</div>
-                <div className='truncate'>{IPFS.isIpfsUrl(assetDataInit.config.image) ? 'IPFS' : 'Centralized'}</div>
+                <div className='truncate'>{IPFS.isIpfsUrl(assetData.Item.config.image) ? 'IPFS' : 'Centralized'}</div>
               </div>
             </div>
           </HeadlessDisclosure>
@@ -158,11 +162,11 @@ export default function Asset({ assetDataInit }) {
 
   const getAssetActionLinks = () => {
     return {
-      cancelSale: `/asset/${assetDataInit.contractAddress}/${assetDataInit.tokenId}`,
-      sellNow: `/sell/${assetDataInit.contractAddress}/${assetDataInit.tokenId}`,
-      buyNow: `/asset/${assetDataInit.contractAddress}/${assetDataInit.tokenId}`,
-      placeBid: `/asset/${assetDataInit.contractAddress}/${assetDataInit.tokenId}`,
-      makeOffer: `/asset/${assetDataInit.contractAddress}/${assetDataInit.tokenId}`,
+      cancelSale: `/asset/${assetData.Item.contractAddress}/${assetData.Item.tokenId}`,
+      sellNow: `/sell/${assetData.Item.contractAddress}/${assetData.Item.tokenId}`,
+      buyNow: `/asset/${assetData.Item.contractAddress}/${assetData.Item.tokenId}`,
+      placeBid: `/asset/${assetData.Item.contractAddress}/${assetData.Item.tokenId}`,
+      makeOffer: `/asset/${assetData.Item.contractAddress}/${assetData.Item.tokenId}`,
     }
   };
   const getAssetActionContent = () => {
@@ -196,7 +200,7 @@ export default function Asset({ assetDataInit }) {
             </div>
             {/* name */}
             <div className='lg:hidden flex flex-row flex-nowrap justify-start items-center w-full font-mono font-bold text-lg truncate'>
-              {assetDataInit.config.name}
+              {assetData.Item.config.name}
             </div>
             {/* image */}
             <div className='flex flex-col border rounded-lg overflow-hidden w-full'>
@@ -206,19 +210,19 @@ export default function Asset({ assetDataInit }) {
                     <div className="relative h-5 w-5">{chainSymbols.ethereum}</div>
                   </div>
                   <div className='flex items-center'>
-                    {assetDataInit.collectionId === 1 && (
+                    {assetData.Item.collectionId === 1 && (
                       <Tooltip text='This asset does NOT belong to a verified collection'>
                         <ShieldExclamationIcon className="w-5 h-5" fill="#ff3838" alt="unverified" title="unverified" aria-hidden="true" />
                       </Tooltip>
                     )}
-                    {assetDataInit.collectionId !== 1 && (
+                    {assetData.Item.collectionId !== 1 && (
                       <Tooltip text='This asset belongs to a verified collection'>
                         <ShieldCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />
                       </Tooltip>
                     )}
                   </div>
                 </>)}
-                image={assetDataInit.config.image}
+                image={assetData.Item.config.image}
                 zIndex={'-z-10'}
               />
             </div>
@@ -243,14 +247,14 @@ export default function Asset({ assetDataInit }) {
             </div>
             {/* name */}
             <div className='hidden lg:block flex flex-row flex-nowrap justify-start items-center w-full font-mono font-bold text-lg truncate'>
-              {assetDataInit.config.name}
+              {assetData.Item.config.name}
             </div>
             {/* owner */}
             <div className='flex flex-row flex-nowrap gap-x-1 text-left w-full'>
               <div className=''>Owned by</div>
               <div className="truncate">
-                {assetDataInit.ownerName && (<Link href={`/profile/${assetDataInit.owner}`} passHref={true}><a className='text-blue-500'>{assetDataInit.ownerName}</a></Link>)}
-                {!assetDataInit.ownerName && (<Link href={`/profile/${assetDataInit.owner}`} passHref={true}><a className='text-blue-500'>{assetDataInit.owner}</a></Link>)}
+                {assetData.Item.ownerName && (<Link href={`/profile/${assetData.Item.owner}`} passHref={true}><a className='text-blue-500'>{assetData.Item.ownerName}</a></Link>)}
+                {!assetData.Item.ownerName && (<Link href={`/profile/${assetData.Item.owner}`} passHref={true}><a className='text-blue-500'>{assetData.Item.owner}</a></Link>)}
               </div>
             </div>
             {/* marketplace actions */}
@@ -258,6 +262,7 @@ export default function Asset({ assetDataInit }) {
               <AssetAction
                 links={getAssetActionLinks()}
                 content={getAssetActionContent()}
+                isSignInValid={isSignInValid()}
                 isAssetOwner={isAssetOwner()}
                 isAssetOnSale={isAssetOnSale()}
               />
@@ -266,7 +271,7 @@ export default function Asset({ assetDataInit }) {
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
               <HeadlessDisclosure title={getDisclosureTitle('Monetary','Important money related information')}>
                 <div className='flex flex-col'>
-                  {assetDataInit.commission > 0 && (
+                  {assetData.Item.commission > 0 && (
                     <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
                       <div className='flex flex-row gap-x-1 w-1/2'>
                         Artist Commission
@@ -274,11 +279,11 @@ export default function Asset({ assetDataInit }) {
                           <QuestionMarkCircleIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />
                         </Tooltip>
                       </div>
-                      <div className='truncate'>{NumberFormatter(assetDataInit.commission/100,'percent')}</div>
+                      <div className='truncate'>{NumberFormatter(assetData.Item.commission/100,'percent')}</div>
                     </div>
                   )}
-                  {collectionDataInit && assetDataInit.collectionId !== Number(process.env.NEXT_PUBLIC_UNVERIFIED_COLLECTION_ID) &&
-                    assetDataInit.collectionId !== Number(process.env.NEXT_PUBLIC_LOCAL_COLLECTION_ID) && (
+                  {collectionDataInit && assetData.Item.collectionId !== Number(process.env.NEXT_PUBLIC_UNVERIFIED_COLLECTION_ID) &&
+                    assetData.Item.collectionId !== Number(process.env.NEXT_PUBLIC_LOCAL_COLLECTION_ID) && (
                     <>
                       <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
                         <div className='flex flex-row gap-x-1 w-1/2'>
@@ -382,8 +387,8 @@ export default function Asset({ assetDataInit }) {
 export async function getServerSideProps(context) {
   const { data } = await API.backend.asset.id(context.query.contract, context.query.id);
   let assetDataInit = { collectionId: 'null' };
-  if (data.Items.length > 0) {
-    assetDataInit = data.Items[0];
+  if (data) {
+    assetDataInit = data;
   }
   return {
     props: {

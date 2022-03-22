@@ -38,6 +38,7 @@ module.exports = {
       id: (id) => `user/${id}`
     },
     asset: {
+      id: (contract,tokenId) => `asset/${contract}/${tokenId}`,
       created: (id,tokenId,limit) => `asset/created/${id}?tokenId=${tokenId}&limit=${limit}`,
       collection: (id,tokenId,limit) => `asset/${id}?tokenId=${tokenId}&limit=${limit}`
     },
@@ -64,10 +65,14 @@ module.exports = {
     }
   },
   asset: {
+    id: (contract,tokenId) => API.get(`asset/${contract}/${tokenId}`),
     create: payload => API.post(`asset/create`, payload),
     batch: payload => API.post(`asset/batch`, payload),
     created: (id,tokenId,limit) => API.get(`asset/created/${id}?tokenId=${tokenId}&limit=${limit}`),
-    collection: (id,tokenId,limit) => API.get(`asset/${id}?tokenId=${tokenId}&limit=${limit}`)
+    collection: (id,tokenId,limit) => API.get(`asset/${id}?tokenId=${tokenId}&limit=${limit}`),
+    update: {
+      owner: payload => API.post(`asset/update/owner`, payload)
+    }
   },
   collection: {
     id: id => API.get(`collection/${id}`),

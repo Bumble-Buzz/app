@@ -108,7 +108,7 @@ export async function getServerSideProps(context) {
   const { data } = await API.backend.asset.id(context.query.contract, context.query.id);
   return {
     props: {
-      assetDataInit: data.Items[0] || {},
+      assetDataInit: data.Item || {},
       session: await getSession(context)
     }
   }

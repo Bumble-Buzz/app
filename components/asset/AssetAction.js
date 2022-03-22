@@ -19,7 +19,7 @@ import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 
-export default function AssetAction({children, links, content, isAssetOwner = false, isAssetOnSale = false}) {
+export default function AssetAction({children, links, content, isSignInValid, isAssetOwner, isAssetOnSale}) {
   const ROUTER = useRouter();
   const { data: session, status: sessionStatus } = useSession();
 
@@ -40,8 +40,10 @@ export default function AssetAction({children, links, content, isAssetOwner = fa
         await API.sale.remove(payload);
 
         // pull from db since it has now been updated
-        await mutate(API.swr.sale.id(blockchainResults.contractAddress, blockchainResults.tokenId));
+        await mutate(API.swr.sale.id(ethers.utils.getAddress(blockchainResults.contractAddress), Number(blockchainResults.tokenId)));
 
+        Toast.success(blockchainResults.message);
+        dbTriggered = false;
         setLoading(false);
         setBlockchainResults(null);
       } catch (e) {
@@ -75,7 +77,8 @@ export default function AssetAction({children, links, content, isAssetOwner = fa
           ethers.utils.getAddress(content.contractAddress) === ethers.utils.getAddress(contractAddress)
         ) {
           dbTriggered = true;
-          setBlockchainResults({ itemId, tokenId, contractAddress, seller });
+          const message = 'Sale has been cancelled';
+          setBlockchainResults({ itemId, tokenId, contractAddress, seller, message });
           contract.off("onCancelMarketSale", listener);
         }
       };
@@ -85,6 +88,55 @@ export default function AssetAction({children, links, content, isAssetOwner = fa
       Toast.error(e.message);
       setLoading(false);
     }
+  };
+
+  const buyNow = async (e) => {
+    e.preventDefault();
+
+    if (!isSignInValid) return ROUTER.push('/authenticate');
+
+    try {
+      setLoading(true);
+      const signer = await WalletUtil.getWalletSigner();
+      const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
+
+      // complete market sale
+      const formattedPrice = ethers.utils.parseUnits(content.price.toString(), 'ether');
+
+      const val = await contract.completeMarketSale(content.saleId, { value: formattedPrice });
+
+      await WalletUtil.checkTransaction(val);
+
+      const listener = async (itemId, tokenId, contractAddress, buyer, saleProfit) => {
+        console.log('found complete market sale event: ', Number(itemId), Number(tokenId), contractAddress, buyer, Number(saleProfit));
+        if (!dbTriggered && session.user.id === buyer && Number(content.tokenId) === Number(tokenId) &&
+          ethers.utils.getAddress(content.contractAddress) === ethers.utils.getAddress(contractAddress)
+        ) {
+          // update asset db table with new owner
+          const payload = {
+            'contractAddress': ethers.utils.getAddress(contractAddress),
+            'tokenId': Number(tokenId),
+            'saleId': Number(itemId),
+            'buyer': ethers.utils.getAddress(buyer)
+          };
+          await API.asset.update.owner(payload);
+
+          // pull from db since it has now been updated
+          await mutate(API.swr.asset.id(ethers.utils.getAddress(contractAddress), Number(tokenId)));
+
+          dbTriggered = true;
+          const message = 'Sale has been completed';
+          setBlockchainResults({ itemId, tokenId, contractAddress, seller: buyer, saleProfit, message });
+          contract.off("onCompleteMarketSale", listener);
+        }
+      };
+      contract.on("onCompleteMarketSale", listener);
+    } catch (e) {
+      console.error('e', e);
+      Toast.error(e.message);
+      setLoading(false);
+    }
+
   };
 
   const text = () => {
@@ -133,17 +185,17 @@ export default function AssetAction({children, links, content, isAssetOwner = fa
       return (
         <>
           <ButtonWrapper
-            onClick={() => ROUTER.push(links.buyNow)}
+            onClick={buyNow}
             classes="bg-indigo-600 hover:bg-indigo-700 gap-x-1 items-center"
           >
             <BuyIcon fill="#ffffff" height={24} width={24} />Buy Now
           </ButtonWrapper>
-          <ButtonWrapper
+          {/* <ButtonWrapper
             onClick={() => ROUTER.push(links.placeBid)}
             classes="bg-indigo-600 hover:bg-indigo-700 gap-x-1 items-center"
           >
             <BidIcon fill="#ffffff" height={24} width={24} />Place Bid
-          </ButtonWrapper>
+          </ButtonWrapper> */}
         </>
       );
     }

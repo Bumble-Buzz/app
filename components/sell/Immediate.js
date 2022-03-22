@@ -174,8 +174,9 @@ export default function Immediate({children, assetDataInit, setSaleCreated}) {
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 
       // create market sale
+      const formattedPrice = ethers.utils.parseEther(state.price.toString());
       const val = await contract.createMarketSale(
-        assetDataInit.tokenId, assetDataInit.contractAddress, EMPTY_ADDRESS, state.price, 1
+        assetDataInit.tokenId, assetDataInit.contractAddress, EMPTY_ADDRESS, formattedPrice, 1
       );
         
       await WalletUtil.checkTransaction(val);
@@ -285,6 +286,7 @@ export default function Immediate({children, assetDataInit, setSaleCreated}) {
               <input
                 type="number"
                 min="0"
+                step="any"
                 name="price"
                 id="price"
                 defaultValue={state.price}
