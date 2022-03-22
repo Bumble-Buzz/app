@@ -44,7 +44,7 @@ export default function Asset({ assetDataInit }) {
   };
   const isAssetOnSale = () => {
     return (saleDataInit && saleDataInit.Item && saleDataInit.Item.seller === assetDataInit.owner);
-  }
+  };
 
   const chainSymbols = {
     ethereum: (<Image src={'/chains/ethereum-color.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />)
@@ -169,7 +169,8 @@ export default function Asset({ assetDataInit }) {
     return {
       contractAddress: saleDataInit && saleDataInit.Item && saleDataInit.Item.contractAddress,
       tokenId: saleDataInit && saleDataInit.Item && saleDataInit.Item.tokenId,
-      saleId: saleDataInit && saleDataInit.Item && saleDataInit.Item.saleId
+      saleId: saleDataInit && saleDataInit.Item && saleDataInit.Item.saleId,
+      price: saleDataInit && saleDataInit.Item && saleDataInit.Item.price
     }
   };
 

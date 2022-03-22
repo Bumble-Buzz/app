@@ -91,6 +91,11 @@ export default function AssetAction({children, links, content, isAssetOwner = fa
     return (<div>Highest offer</div>);
   };
 
+  const price = () => {
+    if (isAssetOnSale) return (<div className='text-2xl font-bold'>{content.price}</div>);
+    return (<div className='text-2xl font-bold'>0</div>);
+  };
+
   const buttons = () => {
     if (isLoading) {
       return (
@@ -158,7 +163,7 @@ export default function AssetAction({children, links, content, isAssetOwner = fa
       {text()}
       <div className='flex flex-row gap-x-1 items-center'>
         <div className="relative h-5 w-5">{chainSymbols.ethereum}</div>
-        <div className='text-2xl font-bold'>0</div>
+        {price()}
       </div>
       <div className='flex flex-row flex-wrap gap-1'>
         {buttons()}
