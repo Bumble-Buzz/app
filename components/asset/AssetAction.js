@@ -12,6 +12,7 @@ import OfferIcon from '@/public/market/offer-outline.svg';
 import BuyIcon from '@/public/market/buy-outline.svg';
 import SellIcon from '@/public/market/sell-outline.svg';
 import BidIcon from '@/public/market/bid-outline.svg';
+import CancelIcon from '@/public/market/cancel-outline.svg';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
@@ -112,7 +113,7 @@ export default function AssetAction({children, links, content, isAssetOwner = fa
           onClick={cancelSale}
           classes="bg-indigo-600 hover:bg-indigo-700 gap-x-1 items-center"
         >
-          <SellIcon fill="#ffffff" height={24} width={24} />Cancel Sale
+          <CancelIcon fill="#ffffff" height={24} width={24} />Cancel Sale
         </ButtonWrapper>
       );
     }
