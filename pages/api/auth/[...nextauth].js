@@ -57,7 +57,7 @@ export default NextAuth({
     }
   },
   // pages: {
-  //   // signIn: '/authenticate',
+  //   // signIn: '/signin',
   //   // signOut: '/api/auth/signout',
   //   // error: '/auth/error', // Error code passed in query string as ?error=
   //   // verifyRequest: '/auth/verify-request', // (used for check email message)

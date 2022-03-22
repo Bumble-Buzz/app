@@ -183,7 +183,7 @@ export default function Create() {
 
   if (!AuthContext.state.account || !AuthContext.state.isNetworkValid) {
     return (
-      <Unauthenticated link={'/authenticate'}></Unauthenticated>
+      <Unauthenticated link={'/signin'}></Unauthenticated>
     )
   } else if (AuthContext.state.account && AuthContext.state.isNetworkValid && !walletValidity) {
     return (

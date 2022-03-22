@@ -144,7 +144,7 @@ export default function Local() {
 
   if (!session || sessionStatus !== 'authenticated' || session.user.id !== AuthContext.state.account || !AuthContext.state.isNetworkValid) {
     return (
-      <Unauthenticated link={'/authenticate'}></Unauthenticated>
+      <Unauthenticated link={'/signin'}></Unauthenticated>
     )
   }
 

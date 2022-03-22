@@ -93,7 +93,7 @@ export default function AssetAction({children, links, content, isSignInValid, is
   const buyNow = async (e) => {
     e.preventDefault();
 
-    if (!isSignInValid) return ROUTER.push('/authenticate');
+    if (!isSignInValid) return ROUTER.push('/signin');
 
     try {
       setLoading(true);

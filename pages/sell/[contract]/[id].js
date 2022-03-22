@@ -40,7 +40,7 @@ export default function Sell({ assetDataInit }) {
 
   // catch invalids early
   if (!assetDataInit || !assetDataInit.tokenId) return (<PageError>This asset does not exist</PageError>);
-  if (!isSignInValid()) return (<Unauthenticated link={'/authenticate'}></Unauthenticated>)
+  if (!isSignInValid()) return (<Unauthenticated link={'/signin'}></Unauthenticated>)
   if (!isAssetOwner()) return (<PageError>You are not the owner of this asset</PageError>);
   if (isAssetOnSale()) return (<PageError>You have already put this asset on sale</PageError>);
 
