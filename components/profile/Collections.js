@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import InputWrapper from '@/components/wrappers/InputWrapper';
 import CollectionCard from '@/components/nftAssets/CollectionCard';
@@ -11,6 +13,8 @@ import { ArrowRightIcon } from '@heroicons/react/solid';
 
 
 export default function Collections({ initialData }) {
+  const AuthContext = useAuth();
+  const { data: session, status: sessionStatus } = useSession();
   const ROUTER = useRouter();
 
   const [assets, setAssets] = useState([]);
@@ -80,6 +84,16 @@ export default function Collections({ initialData }) {
     setExclusiveStartKey(latestSortKey);
   };
 
+  const isSignInValid = () => {
+    return (
+      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
+      AuthContext.state.isNetworkValid
+    )
+  };
+  const isProfileOwner = () => {
+    return (session.user.id === ROUTER.query.wallet)
+  };
+
 
   return (
     <>
@@ -87,15 +101,17 @@ export default function Collections({ initialData }) {
 <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p>
 <p onClick={() => {console.log('assets', assets)}}>See assets</p> */}
 
-      <div className='py-2 flex flex-nowrap gap-2 justify-start items-center'>
-        <ButtonWrapper
-          classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0"
-          onClick={() => ROUTER.push('/collection/create/verified')}
-        >
-          Create new collection
-          <ArrowRightIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
-        </ButtonWrapper>
-      </div>
+      {isSignInValid() && isProfileOwner() && (
+        <div className='py-2 flex flex-nowrap gap-2 justify-start items-center'>
+          <ButtonWrapper
+            classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0"
+            onClick={() => ROUTER.push('/collection/create/verified')}
+          >
+            Create new collection
+            <ArrowRightIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
+          </ButtonWrapper>
+        </div>
+      )}
 
       <div className='py-2 flex flex-nowrap gap-2 justify-start items-center'>
         <InputWrapper

@@ -17,16 +17,16 @@ export default function Collections({ activeCollections, inactiveCollections }) 
       <div className='py-2 px-4 flex flex-wrap gap-2 justify-start items-center'>
         <ButtonWrapper
           classes="border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0"
-          onClick={() => ROUTER.push('/collection/create/local')}
+          onClick={() => ROUTER.push('/collection/create/verified')}
         >
-          Create local collection
+          Create verified collection
           <ArrowRightIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
         </ButtonWrapper>
         <ButtonWrapper
           classes="border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0"
-          onClick={() => ROUTER.push('/collection/create/verified')}
+          onClick={() => ROUTER.push('/collection/create/local')}
         >
-          Create verified collection
+          Create local collection
           <ArrowRightIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
         </ButtonWrapper>
         <ButtonWrapper
