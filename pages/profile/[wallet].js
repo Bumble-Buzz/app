@@ -9,11 +9,12 @@ import Unauthenticated from '@/components/Unauthenticated';
 import PageError from '@/components/PageError';
 import API from '@/components/Api';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
+import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import ProfileFactory from '@/components/profile/ProfileFactory';
 import Toast from '@/components/Toast';
 import IPFS from '@/utils/ipfs';
 import Lexicon from '@/lexicon/create';
-import { ClipboardCopyIcon, UploadIcon } from '@heroicons/react/solid';
+import { DotsCircleHorizontalIcon, ClipboardCopyIcon, UploadIcon } from '@heroicons/react/solid';
 
 
 const reducer = (state, action) => {
@@ -50,6 +51,8 @@ const reducer = (state, action) => {
 export default function Create() {
   const ROUTER = useRouter();
   const AuthContext = useAuth();
+
+  const [isLoading, setLoading] = useState(false);
   const [tab, setTab] = useState(ROUTER.query.tab || 'general');
   const [walletValidity, setWalletvalidity] = useState(false);
   const inputFile = useRef(null) 
@@ -89,14 +92,25 @@ export default function Create() {
   const updateUsersDb = async (e) => {
     e.preventDefault();
 
-    const payload = {
-      TableName: "users",
-      Key: { 'walletId': AuthContext.state.account },
-      ExpressionAttributeNames: { "#myName": "name", "#myBio": "bio" },
-      UpdateExpression: `set #myName = :name, #myBio = :bio`,
-      ExpressionAttributeValues: { ":name": userState.name, ":bio": userState.bio }
-    };
-    await API.db.item.update(payload);
+    try {
+      setLoading(true);
+
+      const payload = {
+        TableName: "users",
+        Key: { 'walletId': AuthContext.state.account },
+        ExpressionAttributeNames: { "#myName": "name", "#myBio": "bio" },
+        UpdateExpression: `set #myName = :name, #myBio = :bio`,
+        ExpressionAttributeValues: { ":name": userState.name, ":bio": userState.bio }
+      };
+      await API.db.item.update(payload);
+
+      Toast.success('Profile info updated successfully');
+      setLoading(false);
+    } catch (e) {
+      console.error(e);
+      Toast.error(e.message);
+      setLoading(false);
+    }
   }
 
   const updateUsersDbPic = async (_url) => {
@@ -121,13 +135,18 @@ export default function Create() {
       ROUTER.query.wallet === AuthContext.state.account && AuthContext.state.isNetworkValid
     )
   };
-
+  const isProfileOwner = () => {
+    return (session.user.id === ROUTER.query.wallet)
+  };
+  const isProfileOwnerSignedIn = () => {
+    return (isSignInValid() && isProfileOwner())
+  };
   const isUserAdmin = () => {
-    return (isSignInValid() && AuthContext.state.account === process.env.NEXT_PUBLIC_ADMIN_WALLET_ID)
+    return (isProfileOwnerSignedIn() && AuthContext.state.account === process.env.NEXT_PUBLIC_ADMIN_WALLET_ID)
   };
 
   const triggerInputFile = () => {
-    if (isSignInValid()) {
+    if (isProfileOwnerSignedIn()) {
       inputFile.current.click();
     }
   };
@@ -148,8 +167,11 @@ export default function Create() {
 
       // upload picture cid in database
       await updateUsersDbPic(validUrl);
+
+      Toast.success('Profile picture updated successfully');
     } catch (e) {
       dispatch({ type: 'picture', payload: { picture: '' } });
+      console.error(e);
       Toast.error(e.message);
     }
   };
@@ -178,6 +200,21 @@ export default function Create() {
     },
     undefined, { shallow: true }
     )
+  };
+
+  const updateButton = () => {
+    if (!isProfileOwnerSignedIn()) return;
+
+    if (isLoading) {
+      return (
+        <ButtonWrapper disabled type="submit" classes="">
+          <DotsCircleHorizontalIcon className="animate-spin w-5 h-5 mr-2" aria-hidden="true" />
+          {Lexicon.form.submit.processing}
+        </ButtonWrapper>
+      )
+    } else {
+      return (<ButtonWrapper type="submit" classes="">Update</ButtonWrapper>) 
+    }
   };
 
 
@@ -215,9 +252,10 @@ export default function Create() {
                 <Image
                   src={ userState.picture === '' ? '/person.png' : userState.picture } alt='profile' aria-hidden="true"
                   placeholder='blur' blurDataURL='/avocado.jpg' layout="fill" objectFit="contain" sizes='50vw'
-                  title="Click to upload new image" onClick={triggerInputFile} className={ isSignInValid() ? "cursor-pointer" : "" }
+                  title={isProfileOwnerSignedIn() ? "Click to upload new image" : "Profile picture"}
+                  onClick={triggerInputFile} className={ isProfileOwnerSignedIn() ? "cursor-pointer" : "" }
                 />
-                {isSignInValid() && (
+                {isProfileOwnerSignedIn() && (
                   <>
                     <input
                       type="file"
@@ -243,7 +281,7 @@ export default function Create() {
                         type="text"
                         name="name"
                         id="name"
-                        disabled={ isSignInValid() ? "" : "disabled" }
+                        disabled={ isProfileOwnerSignedIn() ? "" : "disabled" }
                         value={userState.name}
                         autoComplete="off"
                         className="mt-1 w-56 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
@@ -277,7 +315,7 @@ export default function Create() {
                         name="description"
                         rows={3}
                         maxLength="200"
-                        disabled={ isSignInValid() ? "" : "disabled" }
+                        disabled={ isProfileOwnerSignedIn() ? "" : "disabled" }
                         placeholder=""
                         value={userState.bio}
                         className="mt-1 w-56 xsm:w-full resize-none focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
@@ -288,14 +326,7 @@ export default function Create() {
 
                 </div>
                 <div className="px-4 text-right w-full">
-                  {isSignInValid() && (
-                    <button
-                      type="submit"
-                      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >Update
-                    </button>
-                  )}
-                  
+                  {updateButton()}
                 </div>
               </form>
             </div>
