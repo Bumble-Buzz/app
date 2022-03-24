@@ -118,6 +118,9 @@ module.exports = {
     },
   },
   backend: {
+    user: {
+      id: (id) => BACKEND_API.get(`user/${id}`)
+    },
     asset: {
       id: (contract,tokenId) => BACKEND_API.get(`asset/${contract}/${tokenId}`)
     },

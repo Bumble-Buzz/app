@@ -48,7 +48,7 @@ const reducer = (state, action) => {
   }
 };
 
-export default function Create() {
+export default function Wallet({ userDataInit }) {
   const ROUTER = useRouter();
   const AuthContext = useAuth();
 
@@ -63,7 +63,10 @@ export default function Create() {
   }, [ROUTER.query.tab]);
 
   // swr call to fetch initial data
-  const {data: userData} = useSWR(API.swr.user.id(ROUTER.query.wallet), API.swr.fetcher, API.swr.options);
+  const {data: userData} = useSWR(API.swr.user.id(ROUTER.query.wallet), API.swr.fetcher, {
+    fallbackData: userDataInit,
+    ...API.swr.options
+  });
   const {data: walletInit} = useSWR(API.swr.asset.created(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
   const {data: collectionInit} = useSWR(API.swr.collection.owned(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
   const {data: createdInit} = useSWR(API.swr.asset.created(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
@@ -384,8 +387,10 @@ export default function Create() {
 }
 
 export async function getServerSideProps(context) {
+  const { data } = await API.backend.user.id(context.query.wallet);
   return {
     props: {
+      userDataInit: data,
       session: await getSession(context)
     },
   }
