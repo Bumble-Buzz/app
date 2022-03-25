@@ -3,9 +3,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useSession, getSession } from 'next-auth/react';
 import FormData from 'form-data';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { useAuth } from '@/contexts/AuthContext';
-import Unauthenticated from '@/components/Unauthenticated';
 import PageError from '@/components/PageError';
 import API from '@/components/Api';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
@@ -117,6 +116,10 @@ export default function Wallet({ userDataInit }) {
   if (walletValidity === false) return (<PageError>Profile not found</PageError>);
 
 
+  const isFieldsModified = () => {
+    return (userState.name !== userData.Item.name || userState.bio !== userData.Item.bio);
+  };
+
   const updateUsersDb = async (e) => {
     e.preventDefault();
 
@@ -131,6 +134,9 @@ export default function Wallet({ userDataInit }) {
         ExpressionAttributeValues: { ":name": userState.name, ":bio": userState.bio }
       };
       await API.db.item.update(payload);
+
+      // pull from db since it has now been updated
+      await mutate(API.swr.user.id(ROUTER.query.wallet));
 
       Toast.success('Profile info updated successfully');
       setLoading(false);
@@ -216,6 +222,10 @@ export default function Wallet({ userDataInit }) {
 
   const updateButton = () => {
     if (!isProfileOwnerSignedIn()) return;
+    
+    if (!isFieldsModified()) {
+      return (<ButtonWrapper disabled="disabled" title="Change fields to update" classes="hover:bg-indigo-600">Update</ButtonWrapper>)
+    }
 
     if (isLoading) {
       return (
@@ -224,9 +234,9 @@ export default function Wallet({ userDataInit }) {
           {Lexicon.form.submit.processing}
         </ButtonWrapper>
       )
-    } else {
-      return (<ButtonWrapper type="submit" classes="">Update</ButtonWrapper>) 
     }
+
+    return (<ButtonWrapper type="submit" title="Click to update">Update</ButtonWrapper>)
   };
 
   return (

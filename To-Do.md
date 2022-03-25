@@ -46,9 +46,9 @@ Things left to do:
         - LSI: timestamp ?
         - GSI: 
       - contracts: All known contracts (need to be updated constantly)
-        - [contractAddress]::set, chain, name, symbol, isVerified::number, type::721
+        - [contractAddress]::set, chain, name, symbol, isVerified::number, type::721, size::number
         - PK: arbitrary-number, chain
-        - LSI: isVerified, type
+        - LSI: isVerified, type, size
         - GSI: 
       - collection: List of collections
         - id, name, contractAddress, description, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number, category, image
