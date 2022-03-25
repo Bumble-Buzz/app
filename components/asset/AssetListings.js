@@ -1,12 +1,9 @@
-import { useRouter } from 'next/router';
 import AssetListingsUser from '@/components/asset/AssetListingsUser';
 import NumberFormatter from '@/utils/NumberFormatter';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
 
 
 export default function AssetListings({ initialData, classes }) {
-  console.log('initialData', initialData);
-  const ROUTER = useRouter();
 
   return (
     <>

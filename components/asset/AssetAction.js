@@ -114,13 +114,13 @@ export default function AssetAction({children, links, content, isSignInValid, is
           ethers.utils.getAddress(content.contractAddress) === ethers.utils.getAddress(contractAddress)
         ) {
           // update asset db table with new information
-          const listings = [...content.listings];
-          listings.push({
+          const listings = [{
             'unitPrice': Number(content.price),
-            'usdUnitPrice': Number(priceInit.ethusd),
+            'usdUnitPrice': (Number(priceInit.ethusd) * Number(content.price)),
             'seller': ethers.utils.getAddress(content.seller),
             'buyer': ethers.utils.getAddress(buyer)
-          });
+          }];
+          listings.push(...content.listings);
           const payload = {
             'contractAddress': ethers.utils.getAddress(contractAddress),
             'tokenId': Number(tokenId),
