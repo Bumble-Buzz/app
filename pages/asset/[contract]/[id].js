@@ -343,7 +343,7 @@ export default function Asset({ assetDataInit }) {
             </div>
             {/* listings */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
-              <HeadlessDisclosure title='Listings' classes='pl-0 pr-0 pt-0 pb-0' defaultOpen={true}>
+              <HeadlessDisclosure title='Listings' classes='!px-0 !pt-0 !pb-0' defaultOpen={ assetData.Item.listings.length > 0 ? true : false }>
                 <div className='flex flex-col justify-center items-center w-full'>
                   <AssetListings initialData={assetData.Item} />
                 </div>

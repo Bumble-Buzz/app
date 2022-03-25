@@ -5,6 +5,10 @@ import { CHAIN_ICONS } from '@/enum/ChainIcons';
 
 export default function AssetListings({ initialData, classes }) {
 
+  if (!initialData || !initialData.listings || initialData.listings.length === 0 ) {
+    return (<p>No previous listings</p>)
+  }
+
   return (
     <>
       {initialData && initialData.listings && initialData.listings.length > 0 && (
