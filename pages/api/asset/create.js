@@ -56,7 +56,10 @@ export default async function handler(req, res) {
       'commission': Number(data.commission),
       'creator': ethers.utils.getAddress(data.creator),
       'owner': ethers.utils.getAddress(data.owner),
-      'config': data.config
+      'config': data.config,
+      'priceHistory': [],
+      'listings': [],
+      'offers': []
     },
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
     ExpressionAttributeValues: { ':contractAddress': data.contractAddress, ':tokenId': data.tokenId },

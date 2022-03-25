@@ -66,6 +66,7 @@ Things left to do:
         - LSI: 
         - GSI: saleId, category + active (only get data that you need)
 - Front-end dapp
+  - Ensure no entered number is greater than `Number.MAX_SAFE_INTEGER`
   - Ensure images can be loaded via both IPFS and direct url
   - Ability to delete collection from db and blockchain
   - Easy way to set ENV variables in docker image / k8s, for contract addresses, admin accounts, etc...

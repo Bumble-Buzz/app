@@ -14,6 +14,7 @@ import API from '@/components/Api';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import CollectionContent from '@/components/collection/CollectionContent';
 import Tooltip from '@/components/Tooltip';
+import { CHAIN_ICONS } from '@/enum/ChainIcons';
 import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/solid';
 
 
@@ -29,15 +30,6 @@ export default function Collection({ collectionDataInit }) {
   if (!collectionDataInit || !collectionDataInit.id) return (<PageError>This collection does not exist</PageError>);
   if (!collectionDataInit.active) return (<PageError>This collection has been deactivated</PageError>);
 
-
-  const chainSymbols = {
-    bitcoin: (<Image src={'/chains/bitcoin-outline.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />),
-    ethereum: (<Image src={'/chains/ethereum-color.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />),
-    luna: (<Image src={'/chains/luna-color.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />),
-    avalanche: (<Image src={'/chains/avalanche-color.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />),
-    near: (<Image src={'/chains/near-outline.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />),
-    aurora: (<Image src={'/chains/aurora-color.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />)
-  };
 
   const getItemSymbol = () => {
     if (collectionDataInit.ownerIncentiveAccess) {
@@ -65,13 +57,13 @@ export default function Collection({ collectionDataInit }) {
     commission: { name: 'Commission', value: collectionDataInit.commission/100, format: 'percent', symbol: '' },
     reflection: { name: 'Reflection', value: collectionDataInit.reflection/100, format: 'percent', symbol: '' },
     incentive: { name: 'Incentive', value: collectionDataInit.incentive/100, format: 'percent', symbol: '' },
-    incentiveBal: { name: 'Incentive Balance', value: 0.00, format: 'decimal', symbol: chainSymbols.ethereum, itemSymbol: getItemSymbol() }
+    incentiveBal: { name: 'Incentive Balance', value: 0.00, format: 'decimal', symbol: CHAIN_ICONS.ethereum, itemSymbol: getItemSymbol() }
   };
   const tilePanelAdditional = {
     items: { name: 'Items', value: collectionDataInit.totalSupply, format: 'decimal', symbol: '' },
     owners: { name: 'Owners', value: 123, format: 'decimal', symbol: '' },
-    floor: { name: 'Floor Price', value: 0.00425744, format: 'decimal', symbol: chainSymbols.ethereum },
-    volume: { name: 'Volume Traded', value: 0.0042344, format: 'decimal', symbol: chainSymbols.ethereum }
+    floor: { name: 'Floor Price', value: 0.00425744, format: 'decimal', symbol: CHAIN_ICONS.ethereum },
+    volume: { name: 'Volume Traded', value: 0.0042344, format: 'decimal', symbol: CHAIN_ICONS.ethereum }
   };
   const iconTraySpecialItems = () => {
     let list = [];

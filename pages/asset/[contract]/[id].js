@@ -11,9 +11,11 @@ import PageError from '@/components/PageError';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import AssetImage from '@/components/asset/AssetImage';
 import AssetAction from '@/components/asset/AssetAction';
+import AssetListings from '@/components/asset/AssetListings';
 import HeadlessDisclosure from '@/components/HeadlessDisclosure';
 import NumberFormatter from '@/utils/NumberFormatter';
 import Tooltip from '@/components/Tooltip';
+import { CHAIN_ICONS } from '@/enum/ChainIcons';
 import {
   ShieldCheckIcon, ShieldExclamationIcon, QuestionMarkCircleIcon
 } from '@heroicons/react/solid';
@@ -54,10 +56,6 @@ export default function Asset({ assetDataInit }) {
   };
   const isAssetOnSale = () => {
     return (saleDataInit && saleDataInit.Item && saleDataInit.Item.seller === assetData.Item.owner);
-  };
-
-  const chainSymbols = {
-    ethereum: (<Image src={'/chains/ethereum-color.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />)
   };
 
   const getArrayAttributes = (attributes) => {
@@ -180,7 +178,9 @@ export default function Asset({ assetDataInit }) {
       contractAddress: saleDataInit && saleDataInit.Item && saleDataInit.Item.contractAddress,
       tokenId: saleDataInit && saleDataInit.Item && saleDataInit.Item.tokenId,
       saleId: saleDataInit && saleDataInit.Item && saleDataInit.Item.saleId,
-      price: saleDataInit && saleDataInit.Item && saleDataInit.Item.price
+      price: saleDataInit && saleDataInit.Item && saleDataInit.Item.price,
+      seller: saleDataInit && saleDataInit.Item && saleDataInit.Item.seller,
+      listings: assetData && assetData.Item && assetData.Item.listings
     }
   };
 
@@ -213,7 +213,7 @@ export default function Asset({ assetDataInit }) {
               <AssetImage
                 header={(<>
                   <div className="flex-1">
-                    <div className="relative h-5 w-5">{chainSymbols.ethereum}</div>
+                    <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
                   </div>
                   <div className='flex items-center'>
                     {assetData.Item.collectionId === 1 && (
@@ -342,12 +342,10 @@ export default function Asset({ assetDataInit }) {
             </div>
             {/* listings */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
-            <HeadlessDisclosure title='Listings' defaultOpen={true}>
-                2 askdh ajkhsf shjdf jhsdfg jhsdfg jhsdfg jhksdfg jhsfdg jhsdfg jsdgf jhsdfg js
-                2 askdh ajkhsf shjdf jhsdfg jhsdfg jhsdfg jhksdfg jhsfdg jhsdfg jsdgf jhsdfg js
-                2 askdh ajkhsf shjdf jhsdfg jhsdfg jhsdfg jhksdfg jhsfdg jhsdfg jsdgf jhsdfg js
-                2 askdh ajkhsf shjdf jhsdfg jhsdfg jhsdfg jhksdfg jhsfdg jhsdfg jsdgf jhsdfg js
-                2 askdh ajkhsf shjdf jhsdfg jhsdfg jhsdfg jhksdfg jhsfdg jhsdfg jsdgf jhsdfg js
+              <HeadlessDisclosure title='Listings' classes='pl-0 pr-0 pt-0 pb-0' defaultOpen={true}>
+                <div className='flex flex-col justify-center items-center w-full'>
+                  <AssetListings initialData={assetData.Item}/>
+                </div>
               </HeadlessDisclosure>
             </div>
             {/* offers */}

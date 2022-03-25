@@ -15,6 +15,7 @@ import BidIcon from '@/public/market/bid-outline.svg';
 import CancelIcon from '@/public/market/cancel-outline.svg';
 import Tooltip from '@/components/Tooltip';
 import NumberFormatter from '@/utils/NumberFormatter';
+import { CHAIN_ICONS } from '@/enum/ChainIcons';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
@@ -57,10 +58,6 @@ export default function AssetAction({children, links, content, isSignInValid, is
       }
     })();
   }, [blockchainResults]);
-
-  const chainSymbols = {
-    ethereum: (<Image src={'/chains/ethereum-color.svg'} placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="cover" sizes='50vw' />)
-  };
 
   const cancelSale = async (e) => {
     e.preventDefault();
@@ -116,14 +113,22 @@ export default function AssetAction({children, links, content, isSignInValid, is
         if (!dbTriggered && session.user.id === buyer && Number(content.tokenId) === Number(tokenId) &&
           ethers.utils.getAddress(content.contractAddress) === ethers.utils.getAddress(contractAddress)
         ) {
-          // update asset db table with new owner
+          // update asset db table with new information
+          const listings = [...content.listings];
+          listings.push({
+            'unitPrice': Number(content.price),
+            'usdUnitPrice': Number(priceInit.ethusd),
+            'seller': ethers.utils.getAddress(content.seller),
+            'buyer': ethers.utils.getAddress(buyer)
+          });
           const payload = {
             'contractAddress': ethers.utils.getAddress(contractAddress),
             'tokenId': Number(tokenId),
             'saleId': Number(itemId),
-            'buyer': ethers.utils.getAddress(buyer)
+            'buyer': ethers.utils.getAddress(buyer),
+            'listings': listings
           };
-          await API.asset.update.owner(payload);
+          await API.asset.update.postsale(payload);
 
           // pull from db since it has now been updated
           await mutate(API.swr.asset.id(ethers.utils.getAddress(contractAddress), Number(tokenId)));
@@ -230,7 +235,7 @@ export default function AssetAction({children, links, content, isSignInValid, is
     <div className='p-4 flex flex-col w-full gap-2 border rounded-lg overflow-hidden bg-zinc-50'>
       {text()}
       <div className='flex flex-row gap-x-1 items-center'>
-        <div className="relative h-5 w-5">{chainSymbols.ethereum}</div>
+        <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
         {price()}
       </div>
       <div className='flex flex-row flex-wrap gap-1'>

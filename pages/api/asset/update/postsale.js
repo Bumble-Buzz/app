@@ -49,6 +49,7 @@ export default async function handler(req, res) {
   if (!session) return res.status(401).json({ 'error': 'not authenticated' });
   if (!data.contractAddress) return res.status(400).json({ 'error': 'invalid request parameters' });
   if (!data.buyer) return res.status(400).json({ 'error': 'invalid request parameters' });
+  if (!data.listings) return res.status(400).json({ 'error': 'invalid request parameters' });
 
   const formattedContract = ethers.utils.getAddress(data.contractAddress);
   const formattedTokenId = Number(data.tokenId);
@@ -67,9 +68,9 @@ export default async function handler(req, res) {
   const payload = {
     TableName: "asset",
     Key: { 'contractAddress': formattedContract, 'tokenId': formattedTokenId },
-    ExpressionAttributeNames: { "#owner": "owner" },
-    ExpressionAttributeValues: { ":owner": formattedBuyer },
-    UpdateExpression: `set #owner = :owner`
+    ExpressionAttributeNames: { "#owner": "owner", "#listings": "listings" },
+    ExpressionAttributeValues: { ":owner": formattedBuyer, ":listings": data.listings },
+    UpdateExpression: `set #owner = :owner, #listings = :listings`
   };
   const results = await DynamoDbQuery.item.update(payload);
   const {Items, LastEvaluatedKey, Count, ScannedCount} = results;

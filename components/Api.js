@@ -82,7 +82,7 @@ module.exports = {
     created: (id,tokenId,limit) => API.get(`asset/created/${id}?tokenId=${tokenId}&limit=${limit}`),
     collection: (id,tokenId,limit) => API.get(`asset/${id}?tokenId=${tokenId}&limit=${limit}`),
     update: {
-      owner: payload => API.post(`asset/update/owner`, payload)
+      postsale: payload => API.post(`asset/update/postsale`, payload)
     }
   },
   collection: {

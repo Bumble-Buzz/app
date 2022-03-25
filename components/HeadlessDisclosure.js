@@ -1,7 +1,7 @@
 import { Disclosure, Transition } from '@headlessui/react';
 import { ChevronUpIcon } from '@heroicons/react/solid';
 
-export default function HeadlessDisclosure({children, title, icon, defaultOpen = false}) {
+export default function HeadlessDisclosure({children, title, icon, classes, defaultOpen = false}) {
   return (
     <div className="w-full rounded-lg">
       <Disclosure defaultOpen={defaultOpen} >
@@ -24,7 +24,7 @@ export default function HeadlessDisclosure({children, title, icon, defaultOpen =
               leaveFrom="transform scale-100 opacity-100"
               leaveTo="transform scale-95 opacity-0"
             >
-              <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500 bg-zinc-50 border rounded-b-lg">
+              <Disclosure.Panel className={`px-4 pt-4 pb-2 text-sm text-gray-500 bg-zinc-50 border rounded-b-lg ${classes}`}>
                 {children}
               </Disclosure.Panel>
             </Transition>

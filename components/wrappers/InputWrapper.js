@@ -1,5 +1,5 @@
 
-export default function ButtonWrapper({ ...props }) {
+export default function InputWrapper({ ...props }) {
   // extract classes from props
   let classes = '';
   if (props.classes) {
