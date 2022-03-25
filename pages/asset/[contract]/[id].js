@@ -26,15 +26,21 @@ export default function Asset({ assetDataInit }) {
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
   // swr call to fetch initial data
-  const {data: assetData} = useSWR(API.swr.asset.id(assetDataInit.Item.contractAddress, assetDataInit.Item.tokenId), API.swr.fetcher, {
+  const {data: assetData} = useSWR(API.swr.asset.id(
+    (!assetDataInit.Item) ? '' : assetDataInit.Item.contractAddress, (!assetDataInit.Item) ? '' : assetDataInit.Item.tokenId
+  ), API.swr.fetcher, {
     fallbackData: assetDataInit,
     ...API.swr.options
   });
-  const {data: collectionDataInit} = useSWR(API.swr.collection.id(assetData.Item.collectionId), API.swr.fetcher, API.swr.options);
-  const {data: saleDataInit} = useSWR(API.swr.sale.id(assetData.Item.contractAddress, assetData.Item.tokenId), API.swr.fetcher, API.swr.options);
+  const {data: collectionDataInit} = useSWR(API.swr.collection.id(
+    (!assetData.Item) ? '' : assetData.Item.collectionId
+  ), API.swr.fetcher, API.swr.options);
+  const {data: saleDataInit} = useSWR(API.swr.sale.id(
+    (!assetData.Item) ? '' : assetData.Item.contractAddress, (!assetData.Item) ? '' : assetData.Item.tokenId
+  ), API.swr.fetcher, API.swr.options);
 
   // catch invalids early
-  if (!assetData || !assetData.Item.tokenId) return (<PageError>This asset does not exist</PageError>);
+  if (!assetData || !assetData.Item || !assetData.Item.config) return (<PageError>This asset does not exist</PageError>);
 
   const isSignInValid = () => {
     return (
@@ -386,13 +392,9 @@ export default function Asset({ assetDataInit }) {
 
 export async function getServerSideProps(context) {
   const { data } = await API.backend.asset.id(context.query.contract, context.query.id);
-  let assetDataInit = { collectionId: 'null' };
-  if (data) {
-    assetDataInit = data;
-  }
   return {
     props: {
-      assetDataInit,
+      assetDataInit: data,
       session: await getSession(context)
     }
   }

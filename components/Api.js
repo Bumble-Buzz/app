@@ -29,6 +29,17 @@ module.exports = {
     ipfs: {
       config: (key,param) => `ipfs/get/config?${key}=${param}`
     },
+    price: {
+      aurora: {
+        ethereum: () => `price/aurora/ethereum`
+      },
+      ether: {
+        ethereum: () => `price/ether/ethereum`
+      },
+      gecko: {
+        ethereum: () => `price/gecko/ethereum`
+      }
+    },
     db: {
       table: {
         list: (key,param) => `db/table/list?${key}=${param}`

@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { useSession, getSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { mutate } from 'swr';
+import useSWR, { mutate } from 'swr';
 import API from '@/components/Api';
 import WalletUtil from '@/components/wallet/WalletUtil';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
@@ -14,6 +14,7 @@ import SellIcon from '@/public/market/sell-outline.svg';
 import BidIcon from '@/public/market/bid-outline.svg';
 import CancelIcon from '@/public/market/cancel-outline.svg';
 import Tooltip from '@/components/Tooltip';
+import NumberFormatter from '@/utils/NumberFormatter';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
@@ -23,6 +24,8 @@ import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 export default function AssetAction({children, links, content, isSignInValid, isAssetOwner, isAssetOnSale}) {
   const ROUTER = useRouter();
   const { data: session, status: sessionStatus } = useSession();
+
+  const {data: priceInit} = useSWR(API.swr.price.aurora.ethereum(), API.swr.fetcher, API.swr.options);
 
   let dbTriggered = false;
   const [isLoading, setLoading] = useState(false);
@@ -146,8 +149,16 @@ export default function AssetAction({children, links, content, isSignInValid, is
   };
 
   const price = () => {
-    if (isAssetOnSale) return (<div className='text-2xl font-bold'>{content.price}</div>);
-    return (<div className='text-2xl font-bold'>0</div>);
+    const priceEthUsd = (priceInit && priceInit.ethusd) ? priceInit.ethusd : 0;
+    const priceETH = (content.price) ? content.price : 0;
+    const priceUSD = Number(priceEthUsd) * Number(priceETH);
+    const formattedPriceUSD = NumberFormatter(priceUSD, 'decimal', { maximumFractionDigits: 2 });
+    return (
+      <>
+        <div className='text-2xl font-bold'>{priceETH}</div>
+        <div className=''>(${formattedPriceUSD} USD)</div>
+      </>
+    );
   };
 
   const buttons = () => {
