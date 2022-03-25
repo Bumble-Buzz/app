@@ -27,7 +27,11 @@ export default function AssetListings({ initialData, classes }) {
                   <div className="border px-1 py-3 text-center">
                     ${NumberFormatter(listing.usdUnitPrice, 'decimal', { maximumFractionDigits: 2 })}
                   </div>
-                  <div className="border px-1 py-3 text-center">Immediate</div>
+                  <div className="border px-1 py-3 text-center">
+                    {listing.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_DIRECT) && <p>Direct</p>}
+                    {listing.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_IMMEDIATE) && <p>Immediate</p>}
+                    {listing.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_AUCTION) && <p>Auction</p>}
+                  </div>
                   <div className="border px-1 py-3 text-center truncate">
                     <AssetListingsUser api={listing.seller} />
                   </div>

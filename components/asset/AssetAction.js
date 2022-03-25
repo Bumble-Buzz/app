@@ -117,6 +117,7 @@ export default function AssetAction({children, links, content, isSignInValid, is
           const listings = [{
             'unitPrice': Number(content.price),
             'usdUnitPrice': (Number(priceInit.ethusd) * Number(content.price)),
+            'saleType' : Number(content.saleType),
             'seller': ethers.utils.getAddress(content.seller),
             'buyer': ethers.utils.getAddress(buyer)
           }];

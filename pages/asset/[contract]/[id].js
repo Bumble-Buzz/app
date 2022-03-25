@@ -178,6 +178,7 @@ export default function Asset({ assetDataInit }) {
       contractAddress: saleDataInit && saleDataInit.Item && saleDataInit.Item.contractAddress,
       tokenId: saleDataInit && saleDataInit.Item && saleDataInit.Item.tokenId,
       saleId: saleDataInit && saleDataInit.Item && saleDataInit.Item.saleId,
+      saleType: saleDataInit && saleDataInit.Item && saleDataInit.Item.saleType,
       price: saleDataInit && saleDataInit.Item && saleDataInit.Item.price,
       seller: saleDataInit && saleDataInit.Item && saleDataInit.Item.seller,
       listings: assetData && assetData.Item && assetData.Item.listings
@@ -344,7 +345,7 @@ export default function Asset({ assetDataInit }) {
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
               <HeadlessDisclosure title='Listings' classes='pl-0 pr-0 pt-0 pb-0' defaultOpen={true}>
                 <div className='flex flex-col justify-center items-center w-full'>
-                  <AssetListings initialData={assetData.Item}/>
+                  <AssetListings initialData={assetData.Item} />
                 </div>
               </HeadlessDisclosure>
             </div>
