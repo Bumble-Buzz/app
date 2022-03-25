@@ -54,7 +54,7 @@ export default function Wallet({ userDataInit }) {
 
   const [isLoading, setLoading] = useState(false);
   const [tab, setTab] = useState(ROUTER.query.tab || 'general');
-  const [walletValidity, setWalletvalidity] = useState(false);
+  const [walletValidity, setWalletvalidity] = useState(null);
   const inputFile = useRef(null) 
   const { data: session, status: sessionStatus } = useSession();
 
@@ -80,7 +80,8 @@ export default function Wallet({ userDataInit }) {
 
   useEffect(() => {
     if (userData && userData.Item) {
-      setWalletvalidity(true);dispatch({
+      setWalletvalidity(true);
+      dispatch({
         type: 'ALL',
         payload: {
           name: userData.Item.name,
@@ -89,8 +90,32 @@ export default function Wallet({ userDataInit }) {
           picture: userData.Item.picture
         }
       });
+    } else {
+      setWalletvalidity(false);
     }
   }, [userData]);
+
+
+  const isSignInValid = () => {
+    return (
+      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
+      AuthContext.state.isNetworkValid
+    )
+  };
+  const isProfileOwner = () => {
+    return (session.user.id === ROUTER.query.wallet)
+  };
+  const isProfileOwnerSignedIn = () => {
+    return (isSignInValid() && isProfileOwner())
+  };
+  const isUserAdmin = () => {
+    return (isProfileOwnerSignedIn() && AuthContext.state.account === process.env.NEXT_PUBLIC_ADMIN_WALLET_ID)
+  };
+
+  // catch invalids early
+  if (walletValidity === null) return (<PageError>Loading...</PageError>);
+  if (walletValidity === false) return (<PageError>Profile not found</PageError>);
+
 
   const updateUsersDb = async (e) => {
     e.preventDefault();
@@ -114,7 +139,7 @@ export default function Wallet({ userDataInit }) {
       Toast.error(e.message);
       setLoading(false);
     }
-  }
+  };
 
   const updateUsersDbPic = async (_url) => {
     const payload = {
@@ -125,27 +150,6 @@ export default function Wallet({ userDataInit }) {
       ExpressionAttributeValues: { ":picture": _url }
     };
     await API.db.item.update(payload);
-  }
-
-  const walletClick = () => {
-    Toast.info('Copied wallet ID');
-    navigator.clipboard.writeText(userState.wallet);
-  };
-
-  const isSignInValid = () => {
-    return (
-      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
-      ROUTER.query.wallet === AuthContext.state.account && AuthContext.state.isNetworkValid
-    )
-  };
-  const isProfileOwner = () => {
-    return (session.user.id === ROUTER.query.wallet)
-  };
-  const isProfileOwnerSignedIn = () => {
-    return (isSignInValid() && isProfileOwner())
-  };
-  const isUserAdmin = () => {
-    return (isProfileOwnerSignedIn() && AuthContext.state.account === process.env.NEXT_PUBLIC_ADMIN_WALLET_ID)
   };
 
   const triggerInputFile = () => {
@@ -205,6 +209,11 @@ export default function Wallet({ userDataInit }) {
     )
   };
 
+  const walletClick = () => {
+    Toast.info('Copied wallet ID');
+    navigator.clipboard.writeText(userState.wallet);
+  };
+
   const updateButton = () => {
     if (!isProfileOwnerSignedIn()) return;
 
@@ -219,17 +228,6 @@ export default function Wallet({ userDataInit }) {
       return (<ButtonWrapper type="submit" classes="">Update</ButtonWrapper>) 
     }
   };
-
-
-  if (!AuthContext.state.account || !AuthContext.state.isNetworkValid) {
-    return (
-      <Unauthenticated link={'/auth/signin'}></Unauthenticated>
-    )
-  } else if (AuthContext.state.account && AuthContext.state.isNetworkValid && !walletValidity) {
-    return (
-      <PageError>Profile not found</PageError>
-    )
-  }
 
   return (
     <ContentWrapper>
