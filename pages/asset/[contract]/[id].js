@@ -182,6 +182,7 @@ export default function Asset({ assetDataInit }) {
       saleType: saleDataInit && saleDataInit.Item && saleDataInit.Item.saleType,
       price: saleDataInit && saleDataInit.Item && saleDataInit.Item.price,
       seller: saleDataInit && saleDataInit.Item && saleDataInit.Item.seller,
+      priceHistory: assetData && assetData.Item && assetData.Item.priceHistory,
       listings: assetData && assetData.Item && assetData.Item.listings
     }
   };

@@ -68,9 +68,9 @@ export default async function handler(req, res) {
   const payload = {
     TableName: "asset",
     Key: { 'contractAddress': formattedContract, 'tokenId': formattedTokenId },
-    ExpressionAttributeNames: { "#owner": "owner", "#listings": "listings" },
-    ExpressionAttributeValues: { ":owner": formattedBuyer, ":listings": data.listings },
-    UpdateExpression: `set #owner = :owner, #listings = :listings`
+    ExpressionAttributeNames: { "#owner": "owner", "#priceHistory": "priceHistory", "#listings": "listings" },
+    ExpressionAttributeValues: { ":owner": formattedBuyer, ":priceHistory": data.priceHistory, ":listings": data.listings },
+    UpdateExpression: `set #owner = :owner, #priceHistory = :priceHistory, #listings = :listings`
   };
   const results = await DynamoDbQuery.item.update(payload);
   const {Items, LastEvaluatedKey, Count, ScannedCount} = results;

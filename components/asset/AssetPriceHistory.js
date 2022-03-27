@@ -1,52 +1,31 @@
-import { useEffect } from 'react/cjs/react.production.min';
-import StockChart from '@/components/asset/stockChart';
-import NumberFormatter from '@/utils/NumberFormatter';
-import { CHAIN_ICONS } from '@/enum/ChainIcons';
-import Chart from 'chart.js';
+import LineChart from '@/components/charts/LineChart';
 
+const data = {
+  labels: [ 'Jan', 'Feb', 'Mar', 'Apr', 'May' ],
+  datasets: [
+    {
+      // label: 'Sales 2020 (M)',
+      data: [2,4.123,1,0,5],
+    }
+  ]
+};
 
-export default function AssetPriceHistory({ initialData, classes }) {
+export default function AssetPriceHistory({ type, initialData }) {
+  console.log('initialData', initialData);
 
   const data = {
-    chartData: {
-      labels: [
-        "10:00",
-        "",
-        "",
-        "",
-        "12:00",
-        "",
-        "",
-        "",
-        "2:00",
-        "",
-        "",
-        "",
-        "4:00",
-      ],
-      data: [
-        2.23,
-        2.215,
-        2.22,
-        2.25,
-        2.245,
-        2.27,
-        2.28,
-        2.29,
-        2.3,
-        2.29,
-        2.325,
-        2.325,
-        2.32,
-      ],
-    },
+    labels: initialData.priceHistory.timestamp,
+    datasets: [
+      {
+        data: initialData.priceHistory.ethPrice
+      }
+    ]
   };
 
-  return (
-    <>
-      {/* <p>inside AssetPriceHistory</p> */}
-      {/* <canvas id='chart' /> */}
-      <StockChart info={data} />
-    </>
-  )
+  switch(type) {
+    case 'line':
+      return (<LineChart data={data} />)
+    default:
+      return (<LineChart data={data} />)
+  }
 }

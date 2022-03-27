@@ -15,6 +15,7 @@ import BidIcon from '@/public/market/bid-outline.svg';
 import CancelIcon from '@/public/market/cancel-outline.svg';
 import Tooltip from '@/components/Tooltip';
 import NumberFormatter from '@/utils/NumberFormatter';
+import Date from '@/utils/Date';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
@@ -114,6 +115,10 @@ export default function AssetAction({children, links, content, isSignInValid, is
           ethers.utils.getAddress(content.contractAddress) === ethers.utils.getAddress(contractAddress)
         ) {
           // update asset db table with new information
+          const priceHistoryTimestamp = [...content.priceHistory.timestamp, Date.getTimestamp().toString()];
+          const priceHistoryEth = [...content.priceHistory.ethPrice, (Number(content.price))];
+          const priceHistoryUsd = [...content.priceHistory.usdPrice, (Number(priceInit.ethusd) * Number(content.price))];
+          const priceHistory = { 'timestamp': priceHistoryTimestamp, 'ethPrice': priceHistoryEth, 'usdPrice': priceHistoryUsd };
           const listings = [{
             'unitPrice': Number(content.price),
             'usdUnitPrice': (Number(priceInit.ethusd) * Number(content.price)),
@@ -127,6 +132,7 @@ export default function AssetAction({children, links, content, isSignInValid, is
             'tokenId': Number(tokenId),
             'saleId': Number(itemId),
             'buyer': ethers.utils.getAddress(buyer),
+            'priceHistory': priceHistory,
             'listings': listings
           };
           await API.asset.update.postsale(payload);
