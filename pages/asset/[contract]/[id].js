@@ -12,6 +12,7 @@ import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import AssetImage from '@/components/asset/AssetImage';
 import AssetAction from '@/components/asset/AssetAction';
 import AssetListings from '@/components/asset/AssetListings';
+import AssetPriceHistory from '@/components/asset/AssetPriceHistory';
 import HeadlessDisclosure from '@/components/HeadlessDisclosure';
 import NumberFormatter from '@/utils/NumberFormatter';
 import Tooltip from '@/components/Tooltip';
@@ -338,7 +339,9 @@ export default function Asset({ assetDataInit }) {
             {/* price history */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
               <HeadlessDisclosure title='Price History'>
-                1 my asdjh aksdh askdh askdh kasdhkasjdh aksd
+                <div className='flex flex-col justify-center items-center w-full'>
+                  <AssetPriceHistory initialData={assetData.Item} />
+                </div>
               </HeadlessDisclosure>
             </div>
             {/* listings */}
