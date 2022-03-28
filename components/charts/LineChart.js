@@ -36,7 +36,7 @@ export default function LineChart({ chartData }) {
         min: 0
       },
       x: {
-        title: { display: true, text: 'Date' },
+        title: { display: false, text: 'Date' },
         offset: true
       }
     }

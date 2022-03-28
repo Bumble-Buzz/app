@@ -6,7 +6,7 @@ export default function AssetPriceHistory({ type, initialData }) {
   const chartData = {
     labels: [...initialData.priceHistory.label],
     datasets: [
-      { data: [...initialData.priceHistory.ethPrice] }
+      { data: [...initialData.priceHistory.ethPrice], pointHitRadius: 20 }
     ],
     timestamp: [...initialData.priceHistory.timestamp],
     usdPrice: [...initialData.priceHistory.usdPrice]
