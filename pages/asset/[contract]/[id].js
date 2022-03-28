@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useSession, getSession } from 'next-auth/react';
 import useSWR from 'swr';
@@ -92,6 +91,7 @@ export default function Asset({ assetDataInit }) {
           <HeadlessDisclosure
             title='Description' defaultOpen={true}
             icon={(<DocumentIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
+            classes='px-4 py-2'
           >
             {assetData.Item.config.description}
           </HeadlessDisclosure>
@@ -101,6 +101,7 @@ export default function Asset({ assetDataInit }) {
           <HeadlessDisclosure
             title='Attributes'
             icon={(<ClipboardListIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
+            classes='px-4 py-2'
           >
             <div className="flex flex-wrap gap-2 justify-center items-center">
               {(assetData.Item.config.attributes).constructor === Array ?
@@ -114,6 +115,7 @@ export default function Asset({ assetDataInit }) {
           <HeadlessDisclosure
             title={`About ${collectionDataInit && collectionDataInit.Items[0].name} Collection`}
             icon={(<DocumentTextIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
+            classes='px-4 py-2'
           >
             {collectionDataInit && collectionDataInit.Items[0].description}
           </HeadlessDisclosure>
@@ -123,6 +125,7 @@ export default function Asset({ assetDataInit }) {
           <HeadlessDisclosure
             title='Contract Details'
             icon={(<DocumentReportIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />)}
+            classes='px-4 py-2'
           >
             <div className='flex flex-col'>
               <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
@@ -278,7 +281,7 @@ export default function Asset({ assetDataInit }) {
             </div>
             {/* monetary */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
-              <HeadlessDisclosure title={getDisclosureTitle('Monetary','Important money related information')}>
+              <HeadlessDisclosure title={getDisclosureTitle('Monetary','Important money related information')} classes='px-4 py-2'>
                 <div className='flex flex-col'>
                   {assetData.Item.commission > 0 && (
                     <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
@@ -347,7 +350,7 @@ export default function Asset({ assetDataInit }) {
             </div>
             {/* listings */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
-              <HeadlessDisclosure title='Listings' classes='!px-0 !pt-0 !pb-0' defaultOpen={ assetData.Item.listings.length > 0 ? true : false }>
+              <HeadlessDisclosure title='Listings' defaultOpen={ assetData.Item.listings.length > 0 ? true : false }>
                 <div className='flex flex-col justify-center items-center w-full'>
                   <AssetListings initialData={assetData.Item} />
                 </div>

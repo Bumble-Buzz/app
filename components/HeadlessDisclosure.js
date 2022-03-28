@@ -24,7 +24,7 @@ export default function HeadlessDisclosure({children, title, icon, classes, defa
               leaveFrom="transform scale-100 opacity-100"
               leaveTo="transform scale-95 opacity-0"
             >
-              <Disclosure.Panel className={`px-4 pt-4 pb-2 text-sm text-gray-500 bg-zinc-50 border rounded-b-lg ${classes}`}>
+              <Disclosure.Panel className={`text-sm text-gray-500 bg-zinc-50 border rounded-b-lg ${classes}`}>
                 {children}
               </Disclosure.Panel>
             </Transition>
