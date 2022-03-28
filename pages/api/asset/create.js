@@ -57,7 +57,7 @@ export default async function handler(req, res) {
       'creator': ethers.utils.getAddress(data.creator),
       'owner': ethers.utils.getAddress(data.owner),
       'config': data.config,
-      'priceHistory': { 'timestamp': [], 'ethPrice': [], 'usdPrice': [] },
+      'priceHistory': { 'timestamp': [], 'label': [], 'ethPrice': [], 'usdPrice': [] },
       'listings': [],
       'offers': []
     },

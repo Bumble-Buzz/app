@@ -115,10 +115,12 @@ export default function AssetAction({children, links, content, isSignInValid, is
           ethers.utils.getAddress(content.contractAddress) === ethers.utils.getAddress(contractAddress)
         ) {
           // update asset db table with new information
-          const priceHistoryTimestamp = [...content.priceHistory.timestamp, Date.getTimestamp().toString()];
+          const timestamp = Date.getTimestamp();
+          const priceHistoryTimestamp = [...content.priceHistory.timestamp, timestamp.toString()];
+          const priceHistoryLabel = [...content.priceHistory.label, Date.getShortDate(timestamp)];
           const priceHistoryEth = [...content.priceHistory.ethPrice, (Number(content.price))];
           const priceHistoryUsd = [...content.priceHistory.usdPrice, (Number(priceInit.ethusd) * Number(content.price))];
-          const priceHistory = { 'timestamp': priceHistoryTimestamp, 'ethPrice': priceHistoryEth, 'usdPrice': priceHistoryUsd };
+          const priceHistory = { 'timestamp': priceHistoryTimestamp, 'label': priceHistoryLabel, 'ethPrice': priceHistoryEth, 'usdPrice': priceHistoryUsd };
           const listings = [{
             'unitPrice': Number(content.price),
             'usdUnitPrice': (Number(priceInit.ethusd) * Number(content.price)),
