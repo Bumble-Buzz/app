@@ -360,7 +360,7 @@ export default function Asset({ assetDataInit }) {
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
               <HeadlessDisclosure title='Offers'>
                 <div className='flex flex-col justify-center items-center w-full'>
-                  <IconTray items={[]} specialItems={[]} />
+                  <p>No offers</p>
                 </div>
               </HeadlessDisclosure>
             </div>
