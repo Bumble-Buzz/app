@@ -3,7 +3,7 @@ import API from '@/components/Api';
 import LinkWrapper from '@/components/wrappers/LinkWrapper';
 
 
-export default function AssetListings({ api }) {
+export default function AssetListingsUser({ api }) {
   const { data } = useSWR(API.swr.user.id(api), API.swr.fetcher, API.swr.options);
   return (
     <>

@@ -147,7 +147,8 @@ const sales = async () => {
     AttributeDefinitions: [
       { AttributeName: "contractAddress", AttributeType: "S" },
       { AttributeName: "tokenId", AttributeType: "N" },
-      { AttributeName: "saleId", AttributeType: "N" },
+      { AttributeName: "seller", AttributeType: "S" },
+      { AttributeName: "buyer", AttributeType: "S" },
       { AttributeName: "category", AttributeType: "S" },
       { AttributeName: "active", AttributeType: "N" }
     ],
@@ -155,11 +156,34 @@ const sales = async () => {
       { AttributeName: "contractAddress", KeyType: "HASH" },
       { AttributeName: "tokenId", KeyType: "RANGE" }
     ],
+    LocalSecondaryIndexes: [
+      {
+        IndexName: "seller-lsi",
+        KeySchema: [
+          { AttributeName: "contractAddress", KeyType: "HASH" },
+          { AttributeName: "seller", KeyType: "RANGE" }
+        ],
+        Projection: {
+          ProjectionType: "ALL"
+        }
+      },
+      {
+        IndexName: "buyer-lsi",
+        KeySchema: [
+          { AttributeName: "contractAddress", KeyType: "HASH" },
+          { AttributeName: "buyer", KeyType: "RANGE" }
+        ],
+        Projection: {
+          ProjectionType: "ALL"
+        }
+      }
+    ],
     GlobalSecondaryIndexes: [
       {
-        IndexName: "saleId-gsi",
+        IndexName: "seller-gsi",
         KeySchema: [
-          { AttributeName: "saleId", KeyType: "HASH" },
+          { AttributeName: "seller", KeyType: "HASH" },
+          { AttributeName: "active", KeyType: "RANGE" }
         ],
         Projection: {
           ProjectionType: "ALL"

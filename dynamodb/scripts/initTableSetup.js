@@ -748,8 +748,8 @@ const mockSales = async () => {
 
 const mock = async () => {
   // await mockCollections();
-  await mockAssets();
-  // await mockSales();
+  // await mockAssets();
+  await mockSales();
 };
 
 (async () => {

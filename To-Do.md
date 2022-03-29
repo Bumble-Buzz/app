@@ -1,4 +1,7 @@
 Things left to do:
+- Misc
+  - Create env / chain specific database / table names
+  - Chain secific stuff keeping in mind dAAP will be also on other chains
 - Smart contract
   - what happens if completeMarketSale is called when sale does not exist?
   - Name the app, then make the change everywhere
@@ -60,13 +63,13 @@ Things left to do:
         - PK: contractAddress, tokenId
         - LSI: creator, owner
         - GSI: 
-      - sales: List of assets on sale in marketplace
+      - sale: List of assets on sale in marketplace
         - contractAddress, tokenId, saleId, collectionId, seller, buyer, price, sold, saleType::number, category, active::number
         - PK: contractAddress, tokenId
-        - LSI: 
-        - GSI: saleId, category + active (only get data that you need)
+        - LSI: seller, buyer
+        - GSI: seller + active, category + active (only get data that you need)
 - Front-end dapp
-  - Ensure no entered number is greater than `Number.MAX_SAFE_INTEGER`
+  - Ensure no entered number is greater than `Number.MAX_SAFE_INTEGER`. Or find a solution to deal with this.
   - Ensure images can be loaded via both IPFS and direct url
   - Ability to delete collection from db and blockchain
   - Easy way to set ENV variables in docker image / k8s, for contract addresses, admin accounts, etc...

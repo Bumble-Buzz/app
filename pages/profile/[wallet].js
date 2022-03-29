@@ -69,6 +69,7 @@ export default function Wallet({ userDataInit }) {
   const {data: walletInit} = useSWR(API.swr.asset.created(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
   const {data: collectionInit} = useSWR(API.swr.collection.owned(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
   const {data: createdInit} = useSWR(API.swr.asset.created(ROUTER.query.wallet, 'null', 20), API.swr.fetcher, API.swr.options);
+  const {data: listingInit} = useSWR(API.swr.sale.created(ROUTER.query.wallet, 'null', 'null', 20), API.swr.fetcher, API.swr.options);
 
   const [userState, dispatch] = useReducer(reducer, {
     name: '',
@@ -382,9 +383,8 @@ export default function Wallet({ userDataInit }) {
             {tab === 'wallet' && ProfileFactory[tab]({ initialData: walletInit })}
             {tab === 'collections' && ProfileFactory[tab]({ initialData: collectionInit })}
             {tab === 'created' && ProfileFactory[tab]({ initialData: createdInit })}
-            {tab === 'listings' && ProfileFactory[tab]({ initialData: {} })}
+            {tab === 'listings' && ProfileFactory[tab]({ initialData: listingInit })}
             {tab === 'admin' && ProfileFactory[tab]({ initialData: {} })}
-            {/* {tab === 'listings' && ProfileFactory[tab]({ initialData: contracts })} */}
           </div>
 
         </div>

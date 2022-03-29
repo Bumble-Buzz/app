@@ -62,6 +62,7 @@ module.exports = {
     },
     sale: {
       id: (contract,tokenId) => `sale/${contract}/${tokenId}`,
+      created: (id,contract,tokenId,limit) => `sale/created/${id}?contract=${contract}&tokenId=${tokenId}&limit=${limit}`,
       all: (id,tokenId,limit) => `sale/all?id=${id}&tokenId=${tokenId}&limit=${limit}`
     },
     contracts: (limit,uid,chain) => `contracts?limit=${limit}&uid=${uid}&chain=${chain}`
