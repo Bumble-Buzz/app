@@ -16,6 +16,7 @@ import CancelIcon from '@/public/market/cancel-outline.svg';
 import Tooltip from '@/components/Tooltip';
 import NumberFormatter from '@/utils/NumberFormatter';
 import Date from '@/utils/Date';
+import { ASSET_EVENTS } from '@/enum/AssetEvent';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
@@ -126,7 +127,8 @@ export default function AssetAction({children, links, content, isSignInValid, is
             'usdUnitPrice': (Number(priceInit.ethusd) * Number(content.price)),
             'saleType' : Number(content.saleType),
             'seller': ethers.utils.getAddress(content.seller),
-            'buyer': ethers.utils.getAddress(buyer)
+            'buyer': ethers.utils.getAddress(buyer),
+            'type': ASSET_EVENTS.sale
           }];
           activity.push(...content.activity);
           const payload = {
@@ -229,13 +231,13 @@ export default function AssetAction({children, links, content, isSignInValid, is
     // default - !isAssetOwner && !isAssetOnSale
     return (
       <Tooltip text={'Coming soon'}>
-      <ButtonWrapper
-        onClick={() => ROUTER.push(links.makeOffer)}
-        disabled
-        classes="bg-indigo-500 hover:bg-indigo-700 gap-x-1 items-center"
-      >
-        <OfferIcon fill="#ffffff" height={24} width={24} />Make Offer
-      </ButtonWrapper>
+        <ButtonWrapper
+          onClick={() => ROUTER.push(links.makeOffer)}
+          disabled
+          classes="bg-indigo-500 hover:bg-indigo-700 gap-x-1 items-center"
+        >
+          <OfferIcon fill="#ffffff" height={24} width={24} />Make Offer
+        </ButtonWrapper>
       </Tooltip>
     );
   };
