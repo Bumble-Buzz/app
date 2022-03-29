@@ -10,20 +10,20 @@ import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/solid';
 export default function AssetsRelated({ initialData, classes }) {
   const ROUTER = useRouter();
   // swr call to fetch initial data
-  const {data: relatedAssets} = useSWR(API.swr.asset.collection(initialData.contractAddress, 'null', 10), API.swr.fetcher, API.swr.options);
-  const [filteredRelatedAssets, setFilteredRelatedAssets] = useState([]);
+  const {data: assets} = useSWR(API.swr.asset.collection(initialData.contractAddress, 'null', 10), API.swr.fetcher, API.swr.options);
+  const [filteredAssets, setFilteredAssets] = useState([]);
 
   useEffect(() => {
-    if (relatedAssets && relatedAssets.Items && relatedAssets.Items.length > 0) {
-      const filteredAssets = relatedAssets.Items.filter((asset) => asset.tokenId !== initialData.tokenId);
-      setFilteredRelatedAssets(filteredAssets);
+    if (assets && assets.Items && assets.Items.length > 0) {
+      const filteredAssets = assets.Items.filter((asset) => asset.tokenId !== initialData.tokenId);
+      setFilteredAssets(filteredAssets);
     }
-  }, [relatedAssets]);
+  }, [assets]);
 
   if (
     !initialData ||
-    !relatedAssets || !relatedAssets.Items || relatedAssets.Items.length === 0 ||
-    !filteredRelatedAssets || filteredRelatedAssets.length === 0
+    !assets || !assets.Items || assets.Items.length === 0 ||
+    !filteredAssets || filteredAssets.length === 0
   ){
     return (<p>No related assets in this collection</p>)
   }
@@ -35,7 +35,7 @@ export default function AssetsRelated({ initialData, classes }) {
         <div className='w-max'>
           <div className='px-2 py-2 flex flex-row w-full gap-4'>
 
-            {filteredRelatedAssets.map((asset, index) => {
+            {filteredAssets.map((asset, index) => {
               return (
                 <div
                   key={index}
