@@ -11,7 +11,7 @@ import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import AssetImage from '@/components/asset/AssetImage';
 import AssetAction from '@/components/asset/AssetAction';
 import AssetPriceHistory from '@/components/asset/AssetPriceHistory';
-import AssetListings from '@/components/asset/AssetListings';
+import AssetActivity from '@/components/asset/AssetActivity';
 import AssetsRelated from '@/components/asset/AssetsRelated';
 import HeadlessDisclosure from '@/components/HeadlessDisclosure';
 import NumberFormatter from '@/utils/NumberFormatter';
@@ -187,7 +187,7 @@ export default function Asset({ assetDataInit }) {
       price: saleDataInit && saleDataInit.Item && saleDataInit.Item.price,
       seller: saleDataInit && saleDataInit.Item && saleDataInit.Item.seller,
       priceHistory: assetData && assetData.Item && assetData.Item.priceHistory,
-      listings: assetData && assetData.Item && assetData.Item.listings
+      activity: assetData && assetData.Item && assetData.Item.activity
     }
   };
 
@@ -350,21 +350,21 @@ export default function Asset({ assetDataInit }) {
               </HeadlessDisclosure>
             </div>
             {/* listings */}
-            <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
-              <HeadlessDisclosure title='Listings' defaultOpen={ assetData.Item.listings.length > 0 ? true : false }>
+            {/* <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
+              <HeadlessDisclosure title='Listings' defaultOpen={ assetData.Item.activity.length > 0 ? true : false }>
                 <div className='flex flex-col justify-center items-center w-full'>
-                  <AssetListings initialData={assetData.Item} />
+                  <AssetActivity initialData={assetData.Item} />
                 </div>
               </HeadlessDisclosure>
-            </div>
+            </div> */}
             {/* offers */}
-            <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
+            {/* <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
               <HeadlessDisclosure title='Offers'>
                 <div className='flex flex-col justify-center items-center w-full'>
                   <p>No offers</p>
                 </div>
               </HeadlessDisclosure>
-            </div>
+            </div> */}
             {/* more information */}
             <div className='lg:hidden flex flex-col gap-2 w-full'>
               {assetInformation()}
@@ -378,8 +378,10 @@ export default function Asset({ assetDataInit }) {
           <div className="flex flex-col gap-2 justify-center items-center w-full max-w-xl lg:max-w-full">
             {/* item activity */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
-              <HeadlessDisclosure title='Item Activity' defaultOpen={true}>
-                1 my asdjh aksdh askdh askdh kasdhkasjdh aksd
+              <HeadlessDisclosure title='Item Activity' defaultOpen={ assetData.Item.activity.length > 0 ? true : false }>
+                <div className='flex flex-col justify-center items-center w-full'>
+                  <AssetActivity initialData={assetData.Item} />
+                </div>
               </HeadlessDisclosure>
             </div>
             {/* more from this collection */}

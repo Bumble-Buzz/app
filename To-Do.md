@@ -59,7 +59,7 @@ Things left to do:
         - LSI: 
         - GSI: active, category + active, owner + active (only get data that you need) -> maybe for `name` and `contractAddress` for search results?
       - asset: List of assets
-        - contractAddress, tokenId, collectionId, commission, creator, owner, config, (extra: priceHistory, listings, offers)
+        - contractAddress, tokenId, collectionId, commission, creator, owner, config, priceHistory::array, listings::array, offers::array, activity::array
         - PK: contractAddress, tokenId
         - LSI: creator, owner
         - GSI: 

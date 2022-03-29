@@ -121,21 +121,21 @@ export default function AssetAction({children, links, content, isSignInValid, is
           const priceHistoryEth = [...content.priceHistory.ethPrice, (Number(content.price))];
           const priceHistoryUsd = [...content.priceHistory.usdPrice, (Number(priceInit.ethusd) * Number(content.price))];
           const priceHistory = { 'timestamp': priceHistoryTimestamp, 'label': priceHistoryLabel, 'ethPrice': priceHistoryEth, 'usdPrice': priceHistoryUsd };
-          const listings = [{
+          const activity = [{
             'unitPrice': Number(content.price),
             'usdUnitPrice': (Number(priceInit.ethusd) * Number(content.price)),
             'saleType' : Number(content.saleType),
             'seller': ethers.utils.getAddress(content.seller),
             'buyer': ethers.utils.getAddress(buyer)
           }];
-          listings.push(...content.listings);
+          activity.push(...content.activity);
           const payload = {
             'contractAddress': ethers.utils.getAddress(contractAddress),
             'tokenId': Number(tokenId),
             'saleId': Number(itemId),
             'buyer': ethers.utils.getAddress(buyer),
             'priceHistory': priceHistory,
-            'listings': listings
+            'activity': activity
           };
           await API.asset.update.postsale(payload);
 

@@ -3,27 +3,32 @@ import NumberFormatter from '@/utils/NumberFormatter';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
 
 
-export default function AssetListings({ initialData, classes }) {
+export default function AssetActivity({ initialData, classes }) {
 
-  if (!initialData || !initialData.listings || initialData.listings.length === 0 ) {
-    return (<p>No previous listings</p>)
+  if (!initialData || !initialData.activity || initialData.activity.length === 0 ) {
+    return (<p>No item activity</p>)
   }
 
   return (
     <>
-      {initialData && initialData.listings && initialData.listings.length > 0 && (
+      {initialData && initialData.activity && initialData.activity.length > 0 && (
         <div className={`flex flex-col overflow-y-auto max-h-56 w-full ${classes}`}>
           <div className='w-full'>
-            <div className='grid grid-cols-5'>
+            <div className='grid grid-cols-6'>
+              <div className="bg-blue-100 border px-1 py-1 text-center">Event</div>
               <div className="bg-blue-100 border px-1 py-1 text-center">Unit Price</div>
               <div className="bg-blue-100 border px-1 py-1 text-center">USD Unit Price</div>
               <div className="bg-blue-100 border px-1 py-1 text-center">Sale Type</div>
               <div className="bg-blue-100 border px-1 py-1 text-center">Seller</div>
               <div className="bg-blue-100 border px-1 py-1 text-center">Buyer</div>
             </div>
-            {initialData.listings.map((listing, index) => {
+            {initialData.activity.map((listing, index) => {
               return (
-                <div key={index} className='grid grid-cols-5 odd:bg-zinc-100'>
+                <div key={index} className='grid grid-cols-6 odd:bg-zinc-100'>
+                  <div className="border px-1 py-3 text-center flex justify-center">
+                    <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
+                    Sale
+                  </div>
                   <div className="border px-1 py-3 text-center flex justify-center">
                     <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
                     {listing.unitPrice}

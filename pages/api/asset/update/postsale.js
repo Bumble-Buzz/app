@@ -49,7 +49,7 @@ export default async function handler(req, res) {
   if (!session) return res.status(401).json({ 'error': 'not authenticated' });
   if (!data.contractAddress) return res.status(400).json({ 'error': 'invalid request parameters' });
   if (!data.buyer) return res.status(400).json({ 'error': 'invalid request parameters' });
-  if (!data.listings) return res.status(400).json({ 'error': 'invalid request parameters' });
+  if (!data.activity) return res.status(400).json({ 'error': 'invalid request parameters' });
 
   const formattedContract = ethers.utils.getAddress(data.contractAddress);
   const formattedTokenId = Number(data.tokenId);
@@ -68,9 +68,9 @@ export default async function handler(req, res) {
   const payload = {
     TableName: "asset",
     Key: { 'contractAddress': formattedContract, 'tokenId': formattedTokenId },
-    ExpressionAttributeNames: { "#owner": "owner", "#priceHistory": "priceHistory", "#listings": "listings" },
-    ExpressionAttributeValues: { ":owner": formattedBuyer, ":priceHistory": data.priceHistory, ":listings": data.listings },
-    UpdateExpression: `set #owner = :owner, #priceHistory = :priceHistory, #listings = :listings`
+    ExpressionAttributeNames: { "#owner": "owner", "#priceHistory": "priceHistory", "#activity": "activity" },
+    ExpressionAttributeValues: { ":owner": formattedBuyer, ":priceHistory": data.priceHistory, ":activity": data.activity },
+    UpdateExpression: `set #owner = :owner, #priceHistory = :priceHistory, #activity = :activity`
   };
   const results = await DynamoDbQuery.item.update(payload);
   const {Items, LastEvaluatedKey, Count, ScannedCount} = results;
