@@ -158,17 +158,6 @@ export default function Asset({ assetDataInit }) {
     )
   };
 
-  const getDisclosureTitle = (title, tooltip) => {
-    return (
-      <div className='flex flex-row gap-x-1 w-1/2'>
-        {title}
-        <Tooltip text={tooltip}>
-          <QuestionMarkCircleIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />
-        </Tooltip>
-      </div>
-    )
-  };
-
   const getAssetActionLinks = () => {
     return {
       cancelSale: `/asset/${assetData.Item.contractAddress}/${assetData.Item.tokenId}`,
@@ -282,7 +271,7 @@ export default function Asset({ assetDataInit }) {
             </div>
             {/* monetary */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
-              <HeadlessDisclosure title={getDisclosureTitle('Monetary','Important money related information')} classes='px-4 py-2'>
+              <HeadlessDisclosure title='Monetary' classes='px-4 py-2' defaultOpen={true}>
                 <div className='flex flex-col'>
                   {assetData.Item.commission > 0 && (
                     <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
