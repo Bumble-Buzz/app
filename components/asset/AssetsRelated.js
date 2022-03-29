@@ -8,12 +8,9 @@ import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/solid';
 
 
 export default function AssetsRelated({ initialData, classes }) {
-  console.log('initialData', initialData);
   const ROUTER = useRouter();
-
+  // swr call to fetch initial data
   const {data: relatedAssets} = useSWR(API.swr.asset.collection(initialData.contractAddress, 'null', 10), API.swr.fetcher, API.swr.options);
-  console.log('relatedAssets', relatedAssets);
-
   const [filteredRelatedAssets, setFilteredRelatedAssets] = useState([]);
 
   useEffect(() => {
