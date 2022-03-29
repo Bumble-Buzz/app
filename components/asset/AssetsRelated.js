@@ -28,7 +28,6 @@ export default function AssetsRelated({ initialData, classes }) {
     return (<p>No related assets in this collection</p>)
   }
 
-  console.log('filteredRelatedAssets', filteredRelatedAssets);
 
   return (
     <>
