@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import IPFS from '@/utils/ipfs';
 
 
-export default function NftCard({children, innerRef, link, header, image, body, footer}) {
+export default function CollectionCard({children, innerRef, link, header, image, body, footer}) {
   const ROUTER = useRouter();
 
   return (

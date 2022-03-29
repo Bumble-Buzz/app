@@ -109,33 +109,37 @@ export default function Created({ initialData }) {
         <div className='py-2 flex flex-wrap gap-4 justify-center items-center'>
           {filteredAssets.map((asset, index) => {
             return (
-              <NftCard
+              <div
                 key={index}
-                innerRef={index === filteredAssets.length - 1 ? observe : null}
-                link={`/asset/${asset.contractAddress}/${asset.tokenId}`}
-                header={(<>
-                  <div className="flex-1 font-bold text-purple-500 text-xl truncate">{asset.config.name}</div>
-                  <div className='flex items-center'>
-                    {asset.collectionId === 1 && <ShieldExclamationIcon className="w-5 h-5" fill="#ff3838" alt="unverified" title="unverified" aria-hidden="true" />}
-                    {asset.collectionId !== 1 && <ShieldCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />}
-                  </div>
-                </>)}
-                image={asset.config.image}
-                body={(<>
-                  <div className="flex flex-nowrap flex-row gap-2 text-left">
-                    <div className="flex-1 truncate">{asset.collectionName}</div>
-                    <div className="truncate"></div>
-                  </div>
-                  <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
-                    <div className="grow w-full truncate">Owner</div>
-                    <div className="truncate">{asset.owner}</div>
-                  </div>
-                </>)}
-                footer={(<>
-                  <div className="flex-1 truncate">{asset.config.name}</div>
-                  <div className="truncate">{asset.config.name}</div>
-                </>)}
-              />
+                className='w-full grow w-36 xsm:w-40 sm:w-60 max-w-xs border rounded-lg overflow-hidden shadow-lg transform transition duration-500 hover:scale-105 cursor-pointer'
+                ref={index === filteredAssets.length - 1 ? observe : null}
+                onClick={() => ROUTER.push(`/asset/${asset.contractAddress}/${asset.tokenId}`)}
+              >
+                <NftCard
+                  header={(<>
+                    <div className="flex-1 font-bold text-purple-500 text-xl truncate">{asset.config.name}</div>
+                    <div className='flex items-center'>
+                      {asset.collectionId === 1 && <ShieldExclamationIcon className="w-5 h-5" fill="#ff3838" alt="unverified" title="unverified" aria-hidden="true" />}
+                      {asset.collectionId !== 1 && <ShieldCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />}
+                    </div>
+                  </>)}
+                  image={asset.config.image}
+                  body={(<>
+                    <div className="flex flex-nowrap flex-row gap-2 text-left">
+                      <div className="flex-1 truncate">{asset.collectionName}</div>
+                      <div className="truncate"></div>
+                    </div>
+                    <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
+                      <div className="grow w-full truncate">Owner</div>
+                      <div className="truncate">{asset.owner}</div>
+                    </div>
+                  </>)}
+                  footer={(<>
+                    <div className="flex-1 truncate">{asset.config.name}</div>
+                    <div className="truncate">{asset.config.name}</div>
+                  </>)}
+                />
+              </div>
             )
           })}
         </div>

@@ -1,18 +1,9 @@
 import { useEffect, useState } from 'react';
-import { ethers } from 'ethers';
 import { useRouter } from 'next/router';
-import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import InputWrapper from '@/components/wrappers/InputWrapper';
-import Toast from '@/components/Toast';
-import WalletUtil from '@/components/wallet/WalletUtil';
-import NftCard from '@/components/nftAssets/NftCard';
 import API from '@/components/Api';
-import IPFS from '@/utils/ipfs';
-import { BadgeCheckIcon, XIcon } from '@heroicons/react/solid';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
-
-import AvaxTradeNftAbi from '@/artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
 export default function Listings({ initialData }) {

@@ -10,8 +10,9 @@ import PageError from '@/components/PageError';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import AssetImage from '@/components/asset/AssetImage';
 import AssetAction from '@/components/asset/AssetAction';
-import AssetListings from '@/components/asset/AssetListings';
 import AssetPriceHistory from '@/components/asset/AssetPriceHistory';
+import AssetListings from '@/components/asset/AssetListings';
+import AssetsRelated from '@/components/asset/AssetsRelated';
 import HeadlessDisclosure from '@/components/HeadlessDisclosure';
 import NumberFormatter from '@/utils/NumberFormatter';
 import Tooltip from '@/components/Tooltip';
@@ -384,7 +385,9 @@ export default function Asset({ assetDataInit }) {
             {/* more from this collection */}
             <div className='flex flex-col flex-nowrap justify-center items-center w-full'>
               <HeadlessDisclosure title='More From This Collection' defaultOpen={true}>
-                1 my asdjh aksdh askdh askdh kasdhkasjdh aksd
+                <div className='flex flex-col justify-center items-center w-full'>
+                  <AssetsRelated initialData={assetData.Item} />
+                </div>
               </HeadlessDisclosure>
             </div>
           </div>
