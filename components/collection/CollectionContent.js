@@ -99,6 +99,15 @@ const reducer = (state, action) => {
       return newState
     case 'categories-items':
       return categoriesItems(state, action)
+    case 'clear':
+      newState = JSON.parse(JSON.stringify(state));
+      newState.search.items.searchBar = null;
+      newState.type.items.buyNow = false;
+      newState.type.items.auction = false;
+      newState.price.items.min = null;
+      newState.price.items.max = null;
+      newState.categories.items = getCategoriesState();
+      return newState
     case 'update':
       newState = JSON.parse(JSON.stringify(state));
       return newState
@@ -140,9 +149,12 @@ export default function CollectionContent({ initialData, collectionData }) {
     console.log('state.price.items', state.price.items);
     if (!state.price.items.min && !state.price.items.max) {
       Toast.error('Fill out one of the price ranges');
+      return;
     } else if (state.price.items.min && state.price.items.max && state.price.items.min > state.price.items.max) {
       Toast.error('Price min value must be less than max value');
+      return;
     }
+    dispatch({ type: 'update' });
   };
 
   const filters = [
@@ -216,6 +228,18 @@ export default function CollectionContent({ initialData, collectionData }) {
       items: getCategoriesState()
     }
   });
+
+  const areFiltersSet = () => {
+    const areCategoryFiltersSet = () => {
+      const exists = Object.getOwnPropertyNames(CATEGORIES).filter(key => state.categories.items[key] === true)
+      return (exists && exists.length > 0);
+    };
+    return (
+      state.type.items.buyNow || state.type.items.auction ||
+      state.price.items.min || state.price.items.max ||
+      areCategoryFiltersSet()
+    );
+  };
 
   const [assets, setAssets] = useState([]);
   const [filteredAssets, setFilteredAssets] = useState([]);
@@ -319,6 +343,32 @@ export default function CollectionContent({ initialData, collectionData }) {
     };
   };
 
+  const minMaxFilterButton = (_filterItem, _filterName, _itemName) => {
+    if (_filterItem !== 'price-items') return (<></>);
+
+    const minValue = state[_filterName].items['min'];
+    const maxValue = state[_filterName].items['max'];
+
+    if (_itemName === 'min') {
+      if (minValue > 0 && maxValue > 0) return (<>{minValue} {'-'} {maxValue}</>);
+      if (minValue > 0 && maxValue <= 0) return (<> {'>'} {minValue} </>);
+      return (<></>);
+    }
+    if (_itemName === 'max') {
+      if (minValue <= 0 && maxValue > 0) return (<> {'<'} {maxValue} </>);
+      return (<></>);
+    }
+  };
+
+  const isMaxFilterValid = (_filterName, _itemName) => {
+    if (_itemName !== 'max') return true;
+
+    const minValue = state[_filterName].items['min'];
+    const maxValue = state[_filterName].items['max'];
+    if (minValue <= 0 && maxValue > 0) return true;
+    return false;
+  };
+
 
   return (
     <div className='flex flex-col sm:flex-row'>
@@ -335,32 +385,42 @@ export default function CollectionContent({ initialData, collectionData }) {
 
       <div className="px-2 bg-white w-full">
 
-        {/* above search bar */}
-        <div className='flex flex-row flex-wrap gap-2 justify-between items-top'>
-          {/* filter button */}
-          <div className='flex flex-nowrap gap-2 justify-start items-top'>
-            {search && (<div className="">
-              <ButtonWrapper classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0" onClick={() => {
-                setSearch(''); updateFilteredAssets('');
-              }}>
-                {search}
-                <XIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
-              </ButtonWrapper>
-            </div>)}
-          </div>
-          {/* sort dropdown */}
-          <div className='flex flex-nowrap gap-2 justify-start items-top w-1/2'>
-            <DropDown
-              title='Sort By' items={[1,2,3,4]} getItem={getItem}
-              titleStyle='p-2 flex flex-row justify-between font-thin w-full border'
-              menuStyle='right-0 w-full z-10 mt-0 origin-top-right'
-            />
-          </div>
+        {/* filter button */}
+        <div className='mt-1 flex flex-row flex-wrap gap-2 justify-start items-center content-center'>
+          {filters && filters.length > 0 && filters.map((filter, index1) => {
+            return (
+              filter.items && filter.items.length > 0 && filter.name !== 'search' && filter.items.map((item, index) => {
+                if (state[filter.name].items[item.name] && isMaxFilterValid(filter.name, item.name)) {
+                  return (
+                    <ButtonWrapper
+                      key={index}
+                      classes="border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0"
+                      onClick={() => {
+                        dispatch({ type: filter.filterItem, payload: { item: item.name } });
+                        if (filter.filterItem === 'price-items') dispatch({ type: 'update' });
+                      }}
+                    >
+                      {minMaxFilterButton(filter.filterItem, filter.name, item.name)}
+                      {filter.filterItem !== 'price-items' && item.label}
+                      <XIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
+                    </ButtonWrapper>
+                  )
+                }
+              })
+            )
+          })}
+          {areFiltersSet() && (
+            <ButtonWrapper
+              classes="border-inherit rounded-2xl text-black bg-red-300 hover:bg-red-400 focus:ring-0"
+              onClick={() => dispatch({ type: 'clear' })}
+            >
+              Clear All
+            </ButtonWrapper>
+          )}
         </div>
 
-
-        {/* search bar */}
-        <div className='flex flex-nowrap gap-2 justify-start items-top'>
+        <div className='mt-1 flex flex-row flex-nowrap gap-2 justify-between items-center content-center'>
+          {/* search bar */}
           <div className="flex-1">
             <InputWrapper
               type="search"
@@ -372,6 +432,14 @@ export default function CollectionContent({ initialData, collectionData }) {
               classes="w-full"
               value={search}
               onChange={(e) => {setSearch(e.target.value); updateFilteredAssets(e.target.value);}}
+            />
+          </div>
+          {/* sort dropdown */}
+          <div className='flex flex-nowrap flex-1 gap-2 justify-start items-top w-full max-w-md'>
+            <DropDown
+              title='Sort By' items={[1,2,3,4]} getItem={getItem}
+              titleStyle='p-2 flex flex-row justify-between font-thin w-full border border-gray-300'
+              menuStyle='right-0 w-full z-10 mt-0 origin-top-right'
             />
           </div>
         </div>

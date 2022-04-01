@@ -11,7 +11,7 @@ export default function InputWrapper({ ...props }) {
       type="text"
       autoComplete="off"
       placeholder=""
-      className={`mt-1 focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md ${classes}`}
+      className={`focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md font-thin ${classes}`}
       {...props}
     />
   );

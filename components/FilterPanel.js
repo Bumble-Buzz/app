@@ -105,8 +105,8 @@ export const FilterPanel = ({ children, filters, state, dispatch }) => {
           id={item.name}
           name={item.name}
           // required
-          classes="w-full sm:w-52"
-          placeholder={item.name}
+          classes="w-full sm:w-52 font-normal"
+          placeholder={state[filterName].items[item.name]}
           // defaultValue={state[filterName].items[item.name]}
           onChange={(e) => dispatch({ type: filterItem, payload: { item: item.name, [item.name]: parseInt(e.target.value,10) } })}
           // onBlur={() => dispatch({ type: 'update' })}
