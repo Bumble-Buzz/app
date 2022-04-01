@@ -308,7 +308,7 @@ export default function CollectionContent({ initialData, collectionData }) {
     setExclusiveStartKey(latestSortKey);
   };
   
-  const getItem = (itemId) => {
+  const getSortDropdownItems = (itemId) => {
     switch(itemId) {
       case 1:
         return {
@@ -341,6 +341,14 @@ export default function CollectionContent({ initialData, collectionData }) {
       default:
         return {};
     };
+  };
+  const getSortDropdownItemsList = () => {
+    let items = [1,2];
+    if (Number(collectionData.id) === Number(process.env.NEXT_PUBLIC_LOCAL_COLLECTION_ID)) {
+        items.push(3);
+        items.push(4);
+    }
+    return items;
   };
 
   const minMaxFilterButton = (_filterItem, _filterName, _itemName) => {
@@ -437,7 +445,7 @@ export default function CollectionContent({ initialData, collectionData }) {
           {/* sort dropdown */}
           <div className='flex flex-nowrap flex-1 gap-2 justify-start items-top w-full max-w-md'>
             <DropDown
-              title='Sort By' items={[1,2,3,4]} getItem={getItem}
+              title='Sort By' items={getSortDropdownItemsList()} getItem={getSortDropdownItems}
               titleStyle='p-2 flex flex-row justify-between font-thin w-full border border-gray-300'
               menuStyle='right-0 w-full z-10 mt-0 origin-top-right'
             />
