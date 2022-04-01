@@ -1,15 +1,17 @@
 import { useEffect, useState, useReducer } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import ButtonWrapper from '../wrappers/ButtonWrapper';
-import InputWrapper from '../wrappers/InputWrapper';
-import { FilterPanel, FILTER_TYPES } from '../FilterPanel';
-import Toast from '../Toast';
-import { CATEGORIES } from '@/enum/Categories';
-import NftCard from '../nftAssets/NftCard';
-import API from '../Api';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
+import API from '@/components/Api';
+import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
+import InputWrapper from '@/components/wrappers/InputWrapper';
+import { FilterPanel, FILTER_TYPES } from '@/components/FilterPanel';
+import DropDown from '@/components/navbar/DropDown';
+import Toast from '@/components/Toast';
+import Sort from '@/utils/Sort';
+import { CATEGORIES } from '@/enum/Categories';
+import NftCard from '@/components/nftAssets/NftCard';
 import { ShieldCheckIcon, ShieldExclamationIcon, XIcon } from '@heroicons/react/solid';
 
 
@@ -281,6 +283,41 @@ export default function CollectionContent({ initialData, collectionData }) {
     setFilteredAssets([...filteredAssets]);
     setExclusiveStartKey(latestSortKey);
   };
+  
+  const getItem = (itemId) => {
+    switch(itemId) {
+      case 1:
+        return {
+          label: 'Name: Ascending',
+          action: () => setFilteredAssets([...Sort.sortString(filteredAssets, ['config','name'], Sort.order.ASCENDING)]),
+          icon: (<></>),
+          iconOutline: (<></>)
+        };
+      case 2:
+        return {
+          label: 'Name: Descending',
+          action: () => setFilteredAssets([...Sort.sortString(filteredAssets, ['config','name'], Sort.order.DESCENDING)]),
+          icon: (<></>),
+          iconOutline: (<></>)
+        };
+      case 3:
+        return {
+          label: 'Artist Commission: Low to High',
+          action: () => setFilteredAssets([...Sort.sortNumber(filteredAssets, ['commission'], Sort.order.ASCENDING)]),
+          icon: (<></>),
+          iconOutline: (<></>)
+        };
+      case 4:
+        return {
+          label: 'Artist Commission: High to Low',
+          action: () => setFilteredAssets([...Sort.sortNumber(filteredAssets, ['commission'], Sort.order.DESCENDING)]),
+          icon: (<></>),
+          iconOutline: (<></>)
+        };
+      default:
+        return {};
+    };
+  };
 
 
   return (
@@ -291,24 +328,39 @@ export default function CollectionContent({ initialData, collectionData }) {
 {/* <p onClick={() => {console.log('assets', assets)}}>See assets</p> */}
 {/* <p onClick={() => {console.log('filteredAssets', filteredAssets)}}>See filteredAssets</p> */}
 
+      {/* filter panel */}
       <div className="-px-2 -ml-2 bg-white">
         <FilterPanel filters={filters} state={state} dispatch={dispatch} />
       </div>
 
       <div className="px-2 bg-white w-full">
 
-        <div className='flex flex-wrap gap-2 justify-start items-top'>
-          {search && (<div className="">
-            <ButtonWrapper classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0" onClick={() => {
-              setSearch(''); updateFilteredAssets('');
-            }}>
-              {search}
-              <XIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
-            </ButtonWrapper>
-          </div>)}
+        {/* above search bar */}
+        <div className='flex flex-row flex-wrap gap-2 justify-between items-top'>
+          {/* filter button */}
+          <div className='flex flex-nowrap gap-2 justify-start items-top'>
+            {search && (<div className="">
+              <ButtonWrapper classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0" onClick={() => {
+                setSearch(''); updateFilteredAssets('');
+              }}>
+                {search}
+                <XIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
+              </ButtonWrapper>
+            </div>)}
+          </div>
+          {/* sort dropdown */}
+          <div className='flex flex-nowrap gap-2 justify-start items-top w-1/2'>
+            <DropDown
+              title='Sort By' items={[1,2,3,4]} getItem={getItem}
+              titleStyle='p-2 flex flex-row justify-between font-thin w-full border'
+              menuStyle='right-0 w-full z-10 mt-0 origin-top-right'
+            />
+          </div>
         </div>
 
-        <div className='flex flex-wrap gap-2 justify-start items-top'>
+
+        {/* search bar */}
+        <div className='flex flex-nowrap gap-2 justify-start items-top'>
           <div className="flex-1">
             <InputWrapper
               type="search"
@@ -324,6 +376,7 @@ export default function CollectionContent({ initialData, collectionData }) {
           </div>
         </div>
 
+        {/* content */}
         <div className='py-2 flex flex-wrap gap-4 justify-center items-center'>
           {filteredAssets.map((asset, index) => {
             return (
@@ -359,10 +412,10 @@ export default function CollectionContent({ initialData, collectionData }) {
                       </div>
                     </div>
                   </>)}
-                  footer={(<>
-                    <div className="flex-1 truncate">{asset.config.name}</div>
-                    <div className="truncate">{asset.config.name}</div>
-                  </>)}
+                  // footer={(<>
+                  //   <div className="flex-1 truncate">{asset.config.name}</div>
+                  //   <div className="truncate">{asset.config.name}</div>
+                  // </>)}
                 />
               </div>
             )

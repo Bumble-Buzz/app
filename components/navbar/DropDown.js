@@ -5,32 +5,34 @@ import { Menu, Transition } from '@headlessui/react';
 import {ChevronDownIcon} from '@heroicons/react/solid';
 
 
-export default function DropDown({ children, title, items, getItem, isImage, isSvg, image = '/avocado.jpg', imageStyle = 'h-10 w-10 border-2 border-black-600 rounded-full overflow-hidden' }) {
-  // console.log('items: ', items);
+export default function DropDown({
+    children, items, getItem,
+    title, titleStyle = 'inline-flex justify-center w-full font-medium bg-opacity-20 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75',
+    isImage, isSvg, image = '/avocado.jpg', imageStyle = 'h-10 w-10 border-2 border-black-600 rounded-full overflow-hidden',
+    menuStyle = 'right-0 w-48 z-10 mt-2 origin-top-right'
+  }) {
   const ROUTER = useRouter();
   return (
-      <Menu as="div" className="relative">
+      <Menu as="div" className="relative w-full">
 
-        {/* <div> */}
-          {!isImage && (
-            <Menu.Button className="inline-flex justify-center w-full font-medium rounded-md bg-opacity-20 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-              {title}
-              <ChevronDownIcon className="w-5 h-5 pt-1 pr-1 text-violet-200 hover:text-violet-100" aria-hidden="true" />
-            </Menu.Button>
-          )}
-          {isImage && !isSvg && (
-            <Menu.Button className="inline-flex justify-center flex flex-col justify-center items-center text-center">
-              <div className={`relative ${imageStyle}`}>
-                <Image src={image} placeholder='blur' blurDataURL='/avocado.jpg' alt='Profile' layout="fill" objectFit="cover" sizes='50vw' />
-              </div>
-            </Menu.Button>
-          )}
-          {isImage && isSvg && (
-            <Menu.Button className="flex justify-center flex flex-col justify-center items-center text-center">
-              {image}
-            </Menu.Button>
-          )}
-        {/* </div> */}
+        {!isImage && (
+          <Menu.Button className={`rounded-md ${titleStyle}`}>
+            {title}
+            <ChevronDownIcon className="w-5 h-5 pt-1 pr-1 text-violet-200 hover:text-violet-100" aria-hidden="true" />
+          </Menu.Button>
+        )}
+        {isImage && !isSvg && (
+          <Menu.Button className="flex flex-col justify-center items-center text-center">
+            <div className={`relative ${imageStyle}`}>
+              <Image src={image} placeholder='blur' blurDataURL='/avocado.jpg' alt='Profile' layout="fill" objectFit="cover" sizes='50vw' />
+            </div>
+          </Menu.Button>
+        )}
+        {isImage && isSvg && (
+          <Menu.Button className="flex flex-col justify-center items-center text-center">
+            {image}
+          </Menu.Button>
+        )}
 
         <Transition
           as={Fragment}
@@ -41,255 +43,31 @@ export default function DropDown({ children, title, items, getItem, isImage, isS
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="absolute right-0 w-48 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-            <div className="px-1 py-1 ">
-
-            {items && items.length > 0 && items.map((item, index) => {
-              return (
-                <Menu.Item key={index} onClick={() => {ROUTER.push(getItem(item).link)}}>
-                  {({ active }) => (
-                    <button
-                      className={`${
-                        active ? 'bg-violet-500 text-gray-900 hover:underline' : 'text-gray-900'
-                      } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                    >
-                      {active ? (
-                        getItem(item).icon
-                      ) : (
-                        getItem(item).iconOutline
-                      )}
-                      {getItem(item).label}
-                    </button>
-                  )}
-                </Menu.Item>
-              )
-            })}
+          <Menu.Items className={`absolute bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden ${menuStyle}`}>
+            <div className="">
+              {items && items.length > 0 && items.map((item, index) => {
+                return (
+                  <Menu.Item key={index} onClick={() => {
+                    if (getItem(item).link) return ROUTER.push(getItem(item).link);
+                    if (getItem(item).action) return getItem(item).action();
+                  }}>
+                    {({ active }) => (
+                      <button
+                        className={`${
+                          active ? 'bg-gray-300 text-gray-600' : 'text-gray-600'
+                        } px-2 py-2 group flex border-b border-gray-200 items-center w-full text-sm`}
+                      >
+                        {active ? getItem(item).icon : getItem(item).iconOutline}
+                        {getItem(item).label}
+                      </button>
+                    )}
+                  </Menu.Item>
+                )
+              })}
             </div>
           </Menu.Items>
         </Transition>
 
       </Menu>
-  )
-}
-
-function EditInactiveIcon(props) {
-  return (
-    <svg
-      {...props}
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M4 13V16H7L16 7L13 4L4 13Z"
-        fill="#EDE9FE"
-        stroke="#A78BFA"
-        strokeWidth="2"
-      />
-    </svg>
-  )
-}
-
-function EditActiveIcon(props) {
-  return (
-    <svg
-      {...props}
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M4 13V16H7L16 7L13 4L4 13Z"
-        fill="#8B5CF6"
-        stroke="#C4B5FD"
-        strokeWidth="2"
-      />
-    </svg>
-  )
-}
-
-function DuplicateInactiveIcon(props) {
-  return (
-    <svg
-      {...props}
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M4 4H12V12H4V4Z"
-        fill="#EDE9FE"
-        stroke="#A78BFA"
-        strokeWidth="2"
-      />
-      <path
-        d="M8 8H16V16H8V8Z"
-        fill="#EDE9FE"
-        stroke="#A78BFA"
-        strokeWidth="2"
-      />
-    </svg>
-  )
-}
-
-function DuplicateActiveIcon(props) {
-  return (
-    <svg
-      {...props}
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M4 4H12V12H4V4Z"
-        fill="#8B5CF6"
-        stroke="#C4B5FD"
-        strokeWidth="2"
-      />
-      <path
-        d="M8 8H16V16H8V8Z"
-        fill="#8B5CF6"
-        stroke="#C4B5FD"
-        strokeWidth="2"
-      />
-    </svg>
-  )
-}
-
-function ArchiveInactiveIcon(props) {
-  return (
-    <svg
-      {...props}
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <rect
-        x="5"
-        y="8"
-        width="10"
-        height="8"
-        fill="#EDE9FE"
-        stroke="#A78BFA"
-        strokeWidth="2"
-      />
-      <rect
-        x="4"
-        y="4"
-        width="12"
-        height="4"
-        fill="#EDE9FE"
-        stroke="#A78BFA"
-        strokeWidth="2"
-      />
-      <path d="M8 12H12" stroke="#A78BFA" strokeWidth="2" />
-    </svg>
-  )
-}
-
-function ArchiveActiveIcon(props) {
-  return (
-    <svg
-      {...props}
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <rect
-        x="5"
-        y="8"
-        width="10"
-        height="8"
-        fill="#8B5CF6"
-        stroke="#C4B5FD"
-        strokeWidth="2"
-      />
-      <rect
-        x="4"
-        y="4"
-        width="12"
-        height="4"
-        fill="#8B5CF6"
-        stroke="#C4B5FD"
-        strokeWidth="2"
-      />
-      <path d="M8 12H12" stroke="#A78BFA" strokeWidth="2" />
-    </svg>
-  )
-}
-
-function MoveInactiveIcon(props) {
-  return (
-    <svg
-      {...props}
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M10 4H16V10" stroke="#A78BFA" strokeWidth="2" />
-      <path d="M16 4L8 12" stroke="#A78BFA" strokeWidth="2" />
-      <path d="M8 6H4V16H14V12" stroke="#A78BFA" strokeWidth="2" />
-    </svg>
-  )
-}
-
-function MoveActiveIcon(props) {
-  return (
-    <svg
-      {...props}
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M10 4H16V10" stroke="#C4B5FD" strokeWidth="2" />
-      <path d="M16 4L8 12" stroke="#C4B5FD" strokeWidth="2" />
-      <path d="M8 6H4V16H14V12" stroke="#C4B5FD" strokeWidth="2" />
-    </svg>
-  )
-}
-
-function DeleteInactiveIcon(props) {
-  return (
-    <svg
-      {...props}
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <rect
-        x="5"
-        y="6"
-        width="10"
-        height="10"
-        fill="#EDE9FE"
-        stroke="#A78BFA"
-        strokeWidth="2"
-      />
-      <path d="M3 6H17" stroke="#A78BFA" strokeWidth="2" />
-      <path d="M8 6V4H12V6" stroke="#A78BFA" strokeWidth="2" />
-    </svg>
-  )
-}
-
-function DeleteActiveIcon(props) {
-  return (
-    <svg
-      {...props}
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <rect
-        x="5"
-        y="6"
-        width="10"
-        height="10"
-        fill="#8B5CF6"
-        stroke="#C4B5FD"
-        strokeWidth="2"
-      />
-      <path d="M3 6H17" stroke="#C4B5FD" strokeWidth="2" />
-      <path d="M8 6V4H12V6" stroke="#C4B5FD" strokeWidth="2" />
-    </svg>
   )
 }
