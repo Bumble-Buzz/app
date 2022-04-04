@@ -11,30 +11,19 @@ import DropDown from '@/components/navbar/DropDown';
 import Toast from '@/components/Toast';
 import Sort from '@/utils/Sort';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
-import { CATEGORIES } from '@/enum/Categories';
 import NftCard from '@/components/nftAssets/NftCard';
 import { ShieldCheckIcon, ShieldExclamationIcon, XIcon } from '@heroicons/react/solid';
+const _ = require('lodash');
 
 
 const BATCH_SIZE = 20;
 let APPLIED_FILTERS = {};
 
-
-const getCategoriesFilters = () => {
-  let filters = [];
-  Object.getOwnPropertyNames(CATEGORIES).forEach((key) => {
-    const filter = { name: key, label: CATEGORIES[key], type: FILTER_TYPES.SWITCH };
-    filters.push(filter);
+const _doesArrayInclude = (_array, _identifier = {}) => {
+  const match = _array.find((arrayElement) => {
+      return _.isEqual(arrayElement, _identifier);
   });
-  return filters;
-};
-
-const getCategoriesState = () => {
-  let state = {};
-  Object.getOwnPropertyNames(CATEGORIES).forEach((key) => {
-    state[key] = false;
-  });
-  return state;
+  return match == undefined ? false : true;
 };
 
 
@@ -52,16 +41,14 @@ export default function CollectionContent({ initialData, collectionData }) {
   const { observe } = useInView({
     threshold: 0,
     onEnter: async ({ unobserve }) => {
-      // if (!search && !areFiltersSet()) {
-        if (!exclusiveStartKey) {
-          if (assets.length > filteredAssets.length) {
-            updateFilterAssets();
-          } else {
-            unobserve();
-          }
+      if (!exclusiveStartKey) {
+        if (assets.length > filteredAssets.length) {
+          updateFilterAssets();
+        } else {
+          unobserve();
         }
-        setApiSortKey(exclusiveStartKey);
-      // }
+      }
+      setApiSortKey(exclusiveStartKey);
     },
   });
 
@@ -75,8 +62,7 @@ export default function CollectionContent({ initialData, collectionData }) {
       onSuccess: (_data) => {
         const lastEle = _data[_data.length - 1];
         setAssets([...assets, ...lastEle.Items]);
-        // setFilteredAssets([...filteredAssets, ...lastEle.Items]);
-        applyFilters(JSON.parse(JSON.stringify([...filteredAssets, ...lastEle.Items])), { search: search });
+        applyFilters(JSON.parse(JSON.stringify([...assets, ...lastEle.Items])), { search: search });
         setExclusiveStartKey(lastEle.LastEvaluatedKey);
       },
       ...API.swr.options
@@ -93,32 +79,16 @@ export default function CollectionContent({ initialData, collectionData }) {
 
 
   /** reducer methods **/
-  const searchItems = (state, action) => {
-    switch(action.payload.item) {
-      case 'searchBar':
-        state.search.items.searchBar = action.payload.searchBar;
-        return state
-      case 'searchBarClear':
-        const newState = JSON.parse(JSON.stringify(state));
-        newState.search.items.searchBar = null;
-        return newState
-      default:
-        return state
-    }
-  };
-
   const typeItems = (state, action) => {
     let newState;
     switch(action.payload.item) {
       case 'buyNow':
         newState = JSON.parse(JSON.stringify(state));
         newState.type.items.buyNow = !state.type.items.buyNow;
-        console.log('newState.type.items.buyNow', newState.type.items.buyNow);
         return newState
       case 'auction':
         newState = JSON.parse(JSON.stringify(state));
         newState.type.items.auction = !state.type.items.auction;
-        console.log('newState.type.items.auction', newState.type.items.auction);
         return newState
       default:
         return state
@@ -138,27 +108,9 @@ export default function CollectionContent({ initialData, collectionData }) {
     }
   };
 
-  const categoriesItems = (state, action) => {
-    let newState;
-    if (action.payload.item && CATEGORIES[action.payload.item]) {
-      newState = JSON.parse(JSON.stringify(state));
-      newState.categories.items[action.payload.item] = !state.categories.items[action.payload.item];
-      // console.log(`newState.categories.items[${action.payload.item}]`, newState.categories.items[action.payload.item]);
-      return newState
-    } else {
-      return state
-    }
-  };
-
   const reducer = (state, action) => {
     let newState;
     switch(action.type) {
-      case 'search':
-        newState = JSON.parse(JSON.stringify(state));
-        newState.search.isSelected = !state.search.isSelected;
-        return newState
-      case 'search-items':
-        return searchItems(state, action)
       case 'type':
         newState = JSON.parse(JSON.stringify(state));
         newState.type.isSelected = !state.type.isSelected;
@@ -171,22 +123,14 @@ export default function CollectionContent({ initialData, collectionData }) {
         return newState
       case 'price-items':
         return priceItems(state, action)
-      case 'categories':
-        newState = JSON.parse(JSON.stringify(state));
-        newState.categories.isSelected = !state.categories.isSelected;
-        return newState
-      case 'categories-items':
-        return categoriesItems(state, action)
       case 'clear':
         APPLIED_FILTERS = {}
         setSearch('');
         newState = JSON.parse(JSON.stringify(state));
-        newState.search.items.searchBar = null;
         newState.type.items.buyNow = false;
         newState.type.items.auction = false;
         newState.price.items.min = 0;
         newState.price.items.max = 0;
-        newState.categories.items = getCategoriesState();
         return newState
       case 'update':
         newState = JSON.parse(JSON.stringify(state));
@@ -196,41 +140,8 @@ export default function CollectionContent({ initialData, collectionData }) {
     }
   };
 
-  /** filter action methods **/
-  const searchFilterApply = (e, _override) => {
-    e.preventDefault();
-
-    console.log('state.search.items.searchBar', state.search.items.searchBar);
-  }
-
-  const priceFilterApply = (e) => {
-    e.preventDefault();
-
-    console.log('state.price.items', state.price.items);
-    if (!state.price.items.min && !state.price.items.max) {
-      Toast.error('Fill out one of the price ranges');
-      return false;
-    } else if (state.price.items.min && state.price.items.max && state.price.items.min > state.price.items.max) {
-      Toast.error('Price min value must be less than max value');
-      return false;
-    }
-    dispatch({ type: 'update' });
-    return true;
-  };
-
   /** filter config **/
-  const filters = [
-    {
-      name: 'search',
-      label: 'Search',
-      payload: { onSubmit: searchFilterApply },
-      filterItem: 'search-items',
-      items: [
-        { name: 'searchBar', label: 'Search by name', type: FILTER_TYPES.SEARCH }
-      ],
-      add: () => {},
-      remove: () => {}
-    },
+  const filterConfig = [
     {
       name: 'type',
       label: 'Type',
@@ -241,39 +152,39 @@ export default function CollectionContent({ initialData, collectionData }) {
         { name: 'auction', label: 'Auction', type: FILTER_TYPES.SWITCH_BUTTON }
       ],
       add: async (item, useFilteredAssets = areFiltersSet()) => {
-        console.log('button add', item);
         switch(item) {
           case 'buyNow':
             APPLIED_FILTERS['buyNow'] = true;
-            return await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => asset.sale && asset.sale.saleType === 1));
+            return await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => asset.sale && asset.sale.saleType === process.env.NEXT_PUBLIC_SALE_TYPE_IMMEDIATE));
           case 'auction':
             APPLIED_FILTERS['auction'] = true;
-            return await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => asset.sale && asset.sale.saleType === 2));
+            return await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => asset.sale && asset.sale.saleType === process.env.NEXT_PUBLIC_SALE_TYPE_AUCTION));
           default:
             return console.error('Filter panel: type add => internal error');
         }
       },
       remove: async (item) => {
-        console.log('button remove', item);
         delete APPLIED_FILTERS[item];
         applyFilters(JSON.parse(JSON.stringify(assets)), { search: search });
-        // setSearch('');
-        // if (state.price.items['min'] > 0 || state.price.items['max'] > 0 || areCategoryFiltersSet()) {
-        //   filters.forEach((filter) => {
-        //     if (filter.name === 'type') return;
-            
-        //     if (filter.name === 'price' && (state.price.items.min > 0 || state.price.items.max > 0)) filter.add(false);
-        //   });
-        //   setSearch('');
-        // } else {
-        //   updateFilterAssets();
-        // }
       }
     },
     {
       name: 'price',
       label: 'Price',
-      payload: { onSubmit: priceFilterApply },
+      payload: {
+        onSubmit: (e) => {
+          e.preventDefault();
+      
+          if (!filterState.price.items.min && !filterState.price.items.max) {
+            Toast.error('Fill out one of the price ranges');
+            return false;
+          } else if (filterState.price.items.min && filterState.price.items.max && filterState.price.items.min > filterState.price.items.max) {
+            Toast.error('Price min value must be less than max value');
+            return false;
+          }
+          dispatch({ type: 'update' });
+          return true;
+        }},
       filterItem: 'price-items',
       items: [
         { name: 'min', label: 'Min', type: FILTER_TYPES.INPUT_FIELD },
@@ -286,55 +197,27 @@ export default function CollectionContent({ initialData, collectionData }) {
         }
       ],
       add: async (useFilteredAssets = areFiltersSet()) => {
-        console.log('price add');
+        if (APPLIED_FILTERS.price) useFilteredAssets = false;
         await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => {
           if (asset.sale) {
-            if (state.price.items['min'] > 0 || state.price.items['max'] > 0) APPLIED_FILTERS['price'] = true;
-            if (state.price.items['min'] > 0 && state.price.items['max'] > 0) {
-              return (asset.sale.price >= state.price.items['min'] && asset.sale.price <= state.price.items['max']);
+            if (filterState.price.items['min'] > 0 || filterState.price.items['max'] > 0) APPLIED_FILTERS['price'] = true;
+            if (filterState.price.items['min'] > 0 && filterState.price.items['max'] > 0) {
+              return (asset.sale.price >= filterState.price.items['min'] && asset.sale.price <= filterState.price.items['max']);
             }
-            if (state.price.items['min'] > 0) return (asset.sale.price >= state.price.items['min']);
-            if (state.price.items['max'] > 0) return (asset.sale.price <= state.price.items['max']);
+            if (filterState.price.items['min'] > 0) return (asset.sale.price >= filterState.price.items['min']);
+            if (filterState.price.items['max'] > 0) return (asset.sale.price <= filterState.price.items['max']);
           }
         }));
       },
       remove: async () => {
-        console.log('price remove');
         delete APPLIED_FILTERS.price;
         applyFilters(JSON.parse(JSON.stringify(assets)), { search: search });
-        // setSearch('');
-        // if (state.type.items.buyNow || state.type.items.auction || areCategoryFiltersSet()) {
-        //   filters.forEach((filter) => {
-        //     if (filter.name === 'price') return;
-            
-        //     if (filter.name === 'type' && state.type.items.buyNow) filter.add('buyNow', false);
-        //     if (filter.name === 'type' && state.type.items.auction) filter.add('auction', false);
-        //   });
-        //   setSearch('');
-        // } else {
-        //   updateFilterAssets();
-        // }
       }
-    },
-    {
-      name: 'categories',
-      label: 'Categories',
-      payload: {},
-      filterItem: 'categories-items',
-      items: getCategoriesFilters(),
-      add: () => {},
-      remove: () => {}
     }
   ];
 
   /** filter state **/
-  const [state, dispatch] = useReducer(reducer, {
-    search: {
-      isSelected: false,
-      items: {
-        searchBar: null,
-      }
-    },
+  const [filterState, dispatch] = useReducer(reducer, {
     type: {
       isSelected: true,
       items: {
@@ -348,29 +231,24 @@ export default function CollectionContent({ initialData, collectionData }) {
         min: 0,
         max: 0
       }
-    },
-    categories: {
-      isSelected: false,
-      items: getCategoriesState()
     }
   });
 
-  const areCategoryFiltersSet = () => {
-    const exists = Object.getOwnPropertyNames(CATEGORIES).filter(key => state.categories.items[key] === true)
-    return (exists && exists.length > 0);
-  };
   const areFiltersSet = () => {
     return (
-      state.type.items.buyNow || state.type.items.auction ||
-      state.price.items.min > 0 || state.price.items.max > 0 ||
-      areCategoryFiltersSet()
+      filterState.type.items.buyNow || filterState.type.items.auction ||
+      filterState.price.items.min > 0 || filterState.price.items.max > 0
     );
   };
 
   const updateFilterAssets = async () => {
-    const nextBatch = assets.slice(0, filteredAssets.length+BATCH_SIZE);
-    // setFilteredAssets([...nextBatch]);
-    applyFilters(JSON.parse(JSON.stringify([...nextBatch])), { search: search });
+    const filteredAssetTokenIds = [];
+    filteredAssets.forEach((asset) => filteredAssetTokenIds.push(asset.tokenId));
+    const newFilteredAssets = assets.filter((asset) => {
+      return !_doesArrayInclude(filteredAssetTokenIds, asset.tokenId)
+    });
+    const nextBatch = newFilteredAssets.slice(0, BATCH_SIZE);
+    applyFilters(JSON.parse(JSON.stringify([...filteredAssets, ...nextBatch])), { search: search });
   };
 
   const searchFilterAssets = async (_value) => {
@@ -384,7 +262,7 @@ export default function CollectionContent({ initialData, collectionData }) {
     clearTimeout(searchTimer);
     
     const newTimer = setTimeout(async () => {
-      await filterAssets(areFiltersSet(), (newAssets) => {
+      await filterAssets(false, (newAssets) => {
         return newAssets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(_value.toString().toLowerCase()) >= 0);
       }, { search: _value });
     }, 500);
@@ -393,7 +271,7 @@ export default function CollectionContent({ initialData, collectionData }) {
   };
 
   const filterAssets = async (useFilteredAssets = false, filter, options = {}) => {
-    // new Promise(async (resolve) => {
+    return new Promise(async (resolve) => {
       let dbAssets = [];
       let workingAssets = JSON.parse(JSON.stringify(assets));
       if (useFilteredAssets) workingAssets = JSON.parse(JSON.stringify(filteredAssets));
@@ -419,52 +297,40 @@ export default function CollectionContent({ initialData, collectionData }) {
       }
       setAssets([...assets, ...dbAssets]);
       applyFilters(newFilteredAssets, options); // pass-by-reference and update newFilteredAssets
-      // setFilteredAssets([...newFilteredAssets]);
       setExclusiveStartKey(latestSortKey);
 
-    //   resolve();
-    // });
+      resolve();
+    });
   };
 
   const applyFilters = (initAssets, options = {}) => {
     let workingAssets = initAssets;
-    // console.log('workingAssets', workingAssets);
-    // let workingAssets = JSON.parse(JSON.stringify(assets));
-    console.log('appliedFilters', APPLIED_FILTERS);
-    // console.log('state.type.items.buyNow', state.type.items.buyNow);
-    // console.log('state.type.items.auction', state.type.items.auction);
-    // console.log('state.price.items.min', state.price.items.min);
-    // console.log('state.price.items.max', state.price.items.max);
-    filters.forEach((filter) => {
-      console.log('filter.name', filter.name);
-
+    filterConfig.forEach((filter) => {
       if (filter.name === 'type' && APPLIED_FILTERS.buyNow) {
-        workingAssets = workingAssets.filter((asset) => asset.sale && asset.sale.saleType === 1);
+        workingAssets = workingAssets.filter((asset) => asset.sale && asset.sale.saleType === process.env.NEXT_PUBLIC_SALE_TYPE_IMMEDIATE);
       };
       if (filter.name === 'type' && APPLIED_FILTERS.auction) {
-        workingAssets = workingAssets.filter((asset) => asset.sale && asset.sale.saleType === 2);
+        workingAssets = workingAssets.filter((asset) => asset.sale && asset.sale.saleType === process.env.NEXT_PUBLIC_SALE_TYPE_AUCTION);
       };
       if (filter.name === 'price' && (APPLIED_FILTERS.price)) {
         workingAssets = workingAssets.filter((asset) => {
           if (asset.sale) {
-            if (state.price.items['min'] > 0 && state.price.items['max'] > 0) {
-              return (asset.sale.price >= state.price.items['min'] && asset.sale.price <= state.price.items['max']);
+            if (filterState.price.items['min'] > 0 && filterState.price.items['max'] > 0) {
+              return (asset.sale.price >= filterState.price.items['min'] && asset.sale.price <= filterState.price.items['max']);
             }
-            if (state.price.items['min'] > 0) return (asset.sale.price >= state.price.items['min']);
-            if (state.price.items['max'] > 0) return (asset.sale.price <= state.price.items['max']);
+            if (filterState.price.items['min'] > 0) return (asset.sale.price >= filterState.price.items['min']);
+            if (filterState.price.items['max'] > 0) return (asset.sale.price <= filterState.price.items['max']);
           }
         });
       };
 
       // search
       if (options && options.search) {
-        console.log('search', options.search);
         workingAssets = workingAssets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(options.search.toString().toLowerCase()) >= 0);
       }
 
       // update state
       setFilteredAssets([...workingAssets]);
-      // return workingAssets;
     });
   }
   
@@ -514,8 +380,8 @@ export default function CollectionContent({ initialData, collectionData }) {
   const minMaxFilterButton = (_filterItem, _filterName, _itemName) => {
     if (_filterItem !== 'price-items') return (<></>);
 
-    const minValue = state[_filterName].items['min'];
-    const maxValue = state[_filterName].items['max'];
+    const minValue = filterState[_filterName].items['min'];
+    const maxValue = filterState[_filterName].items['max'];
 
     if (_itemName === 'min') {
       if (minValue > 0 && maxValue > 0) return (<>{minValue} {'-'} {maxValue}</>);
@@ -531,8 +397,8 @@ export default function CollectionContent({ initialData, collectionData }) {
   const isMaxFilterValid = (_filterName, _itemName) => {
     if (_itemName !== 'max') return true;
 
-    const minValue = state[_filterName].items['min'];
-    const maxValue = state[_filterName].items['max'];
+    const minValue = filterState[_filterName].items['min'];
+    const maxValue = filterState[_filterName].items['max'];
     if (minValue <= 0 && maxValue > 0) return true;
     return false;
   };
@@ -548,17 +414,17 @@ export default function CollectionContent({ initialData, collectionData }) {
 
       {/* filter panel */}
       <div className="-px-2 -ml-2 bg-white">
-        <FilterPanel isShowingInit={true} filters={filters} state={state} dispatch={dispatch} />
+        <FilterPanel isShowingInit={true} filters={filterConfig} state={filterState} dispatch={dispatch} />
       </div>
 
       <div className="px-2 bg-white w-full">
 
         {/* filter button */}
         <div className='mt-1 flex flex-row flex-wrap gap-2 justify-start items-center content-center'>
-          {filters && filters.length > 0 && filters.map((filter, index1) => {
+          {filterConfig && filterConfig.length > 0 && filterConfig.map((filter, index1) => {
             return (
               filter.items && filter.items.length > 0 && filter.name !== 'search' && filter.items.map((item, index) => {
-                if (state[filter.name].items[item.name] && isMaxFilterValid(filter.name, item.name)) {
+                if (filterState[filter.name].items[item.name] && isMaxFilterValid(filter.name, item.name)) {
                   return (
                     <ButtonWrapper
                       key={index}
@@ -584,7 +450,7 @@ export default function CollectionContent({ initialData, collectionData }) {
           {areFiltersSet() && (
             <ButtonWrapper
               classes="border-inherit rounded-2xl text-black bg-red-300 hover:bg-red-400 focus:ring-0"
-              onClick={() => { dispatch({ type: 'clear' }); updateFilterAssets(); }}
+              onClick={() => { dispatch({ type: 'clear' }); setFilteredAssets([...assets.slice(0, filteredAssets.length+BATCH_SIZE)]); }}
             >
               Clear All
             </ButtonWrapper>
