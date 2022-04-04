@@ -245,7 +245,7 @@ export default function CollectionContent({ initialData, collectionData }) {
     const filteredAssetTokenIds = [];
     filteredAssets.forEach((asset) => filteredAssetTokenIds.push(asset.tokenId));
     const newFilteredAssets = assets.filter((asset) => {
-      return !_doesArrayInclude(filteredAssetTokenIds, asset.tokenId)
+      return !_doesArrayInclude(filteredAssets, asset);
     });
     const nextBatch = newFilteredAssets.slice(0, BATCH_SIZE);
     applyFilters(JSON.parse(JSON.stringify([...filteredAssets, ...nextBatch])), { search: search });
