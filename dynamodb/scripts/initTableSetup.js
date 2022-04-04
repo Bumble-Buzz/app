@@ -702,7 +702,7 @@ const mockAssets = async () => {
         'owner': item.owner,
         'config': itemConfig,
         'priceHistory': item.priceHistory,
-        'listings': item.listings,
+        'activity': item.activity,
         'offers': item.offers
       }
     };
@@ -734,7 +734,7 @@ const mockSales = async () => {
         'collectionId': item.collectionId,
         'seller': item.seller,
         'buyer': item.buyer,
-        'price': item.price,
+        'price': i+1,
         'sold': item.sold,
         'saleType': item.saleType,
         'category': item.category,
@@ -748,7 +748,7 @@ const mockSales = async () => {
 
 const mock = async () => {
   // await mockCollections();
-  // await mockAssets();
+  await mockAssets();
   await mockSales();
 };
 

@@ -19,8 +19,8 @@ export const FILTER_TYPES = {
   INPUT_FIELD: 'input-field'
 };
 
-export const FilterPanel = ({ children, filters, state, dispatch }) => {
-  const [isShowing, setIsShowing] = useState(false);
+export const FilterPanel = ({ children, isShowingInit = false, filters, state, dispatch }) => {
+  const [isShowing, setIsShowing] = useState(isShowingInit);
 
   const MenuItem = (props) => {
     return (
@@ -37,7 +37,7 @@ export const FilterPanel = ({ children, filters, state, dispatch }) => {
 
   const MenuSubItem = (props) => {
     return (
-      <form onSubmit={(e) => {props.filter.payload.onSubmit(e)}} method="POST"
+      <form onSubmit={(e) => {if (props.filter.payload.onSubmit(e)) props.filter.add()} } method="POST"
         className={`px-4 py-2 flex flex-col flex-wrap gap-2 border-t border-gray-200 ${props.class}`}
       >
         {props.filter.items && props.filter.items.length > 0 && props.filter.items.map((item, index) => {
@@ -45,7 +45,7 @@ export const FilterPanel = ({ children, filters, state, dispatch }) => {
             <div key={index} className="flex flex-row grow">
               {item.type === FILTER_TYPES.SEARCH && <SearchBar item={item} filterItem={props.filter.filterItem} />}
               {item.type === FILTER_TYPES.BUTTON && <Button item={item} />}
-              {item.type === FILTER_TYPES.SWITCH_BUTTON && <SwitchButton item={item} filterName={props.filter.name} filterItem={props.filter.filterItem} />}
+              {item.type === FILTER_TYPES.SWITCH_BUTTON && <SwitchButton item={item} filterName={props.filter.name} filterItem={props.filter.filterItem} filterAdd={props.filter.add} filterRemove={props.filter.remove} />}
               {item.type === FILTER_TYPES.INPUT_FIELD && <InputField item={item} filterName={props.filter.name} filterItem={props.filter.filterItem} />}
               {item.type === FILTER_TYPES.SWITCH && <Switch item={item} filterName={props.filter.name} filterItem={props.filter.filterItem} />}
             </div>
@@ -74,18 +74,24 @@ export const FilterPanel = ({ children, filters, state, dispatch }) => {
     return (<ButtonWrapper type={item.payload.type} classes="grow">{item.label}</ButtonWrapper>)
   };
 
-  const SwitchButton = ({item, filterName, filterItem}) => {
+  const SwitchButton = ({item, filterName, filterItem, filterAdd, filterRemove}) => {
     return (
       state[filterName].items[item.name] ?
       (<ButtonWrapper
-        onClick={() => dispatch({ type: filterItem, payload: { item: item.name } })}
+        onClick={() => {
+          dispatch({ type: filterItem, payload: { item: item.name } });
+          filterRemove(item.name);
+        }}
         classes="grow bg-indigo-800 hover:bg-indigo-600"
       >
         {item.label}
       </ButtonWrapper>)
       :
       (<ButtonWrapper
-        onClick={() => dispatch({ type: filterItem, payload: { item: item.name } })}
+        onClick={() => {
+          dispatch({ type: filterItem, payload: { item: item.name } });
+          filterAdd(item.name);
+        }}
         classes="grow bg-indigo-600 hover:bg-indigo-800"
       >
         {item.label}
@@ -130,7 +136,6 @@ export const FilterPanel = ({ children, filters, state, dispatch }) => {
 
   return (
     <div className="flex flex-col sticky top-16 overflow-y-auto sm:[height:calc(100vh-4rem)] h-fit">
-      {/* {console.log('isShowing', isShowing)} */}
       {isShowing ?
         (<MenuItem
           leftIcon={<FilterIcon className="w-5 h-5 mr-2" aria-hidden="true" />}

@@ -9,20 +9,24 @@ export default async function handler(req, res) {
 
   //check params
   if (!contract || contract === 'null') return res.status(400).json({ invalid: contract });
-  const contractAddress = ethers.utils.getAddress(contract);
+
+  const formattedContract = ethers.utils.getAddress(contract);
+  const formattedTokenId = Number(tokenId);
+  let formattedLimit = Number(limit);
+  if (formattedLimit > 50) limit = 50;
 
   let exclusiveStartKey = undefined;
-  if (contract && tokenId && Number.isInteger(Number(tokenId))) {
-    exclusiveStartKey = { 'contractAddress': contractAddress, 'tokenId': Number(tokenId) };
+  if (contract && formattedTokenId && Number.isInteger(formattedTokenId)) {
+    exclusiveStartKey = { 'contractAddress': formattedContract, 'tokenId': formattedTokenId };
   }
 
   let payload = {
     TableName: "asset",
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress' },
-    ExpressionAttributeValues: { ':contractAddress': contractAddress },
+    ExpressionAttributeValues: { ':contractAddress': formattedContract },
     KeyConditionExpression: '#contractAddress = :contractAddress',
     ExclusiveStartKey: exclusiveStartKey,
-    Limit: Number(limit) || 10
+    Limit: formattedLimit || 10
   };
   let results = await DynamoDbQuery.item.query(payload);
   const {Items, LastEvaluatedKey, Count, ScannedCount} = results;
@@ -31,22 +35,38 @@ export default async function handler(req, res) {
   if (Items.length > 0) {
     let walletIds = {};
     Items.forEach(item => walletIds[item.owner] = item.owner);
-    const payloadKeys = Object.values(walletIds).map(id => ({'walletId': id}));
+    const userPayloadKeys = Object.values(walletIds).map(id => ({'walletId': id}));
+    const salePayloadKeys = Object.values(Items).map(item => ({'contractAddress': item.contractAddress, 'tokenId': item.tokenId}));
     payload = {
       RequestItems: {
         users: {
-          Keys: payloadKeys,
+          Keys: userPayloadKeys,
           ExpressionAttributeNames: { '#walletId': 'walletId', '#name': 'name' },
           ProjectionExpression: "#walletId, #name"
+        },
+        sale: {
+          Keys: salePayloadKeys,
+          ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId', '#saleId': 'saleId', '#price': 'price', '#saleType': 'saleType' },
+          ProjectionExpression: '#contractAddress, #tokenId, #saleId, #price, #saleType'
         }
-      },
+      }
     };
     results = await DynamoDbQuery.item.getBatch(payload);
     const users = results.Responses.users;
-    users.forEach(user => {
-      Items.forEach(item => {
+    const sales = results.Responses.sale;
+    Items.forEach(item => {
+      users.forEach(user => {
         if (item.owner === user.walletId) {
           item['ownerName'] = user.name
+        }
+      });
+      sales.forEach(sale => {
+        if (item.contractAddress === sale.contractAddress && item.tokenId === sale.tokenId) {
+          item.sale = {
+            saleId: sale.saleId,
+            price: sale.price,
+            saleType: sale.saleType
+          };
         }
       });
     });

@@ -25,16 +25,17 @@ export default async function handler(req, res) {
   if (Item) {
     const arr = [ Item.owner, Item.creator ];
     const wallets = [...new Set(arr)]; // remove any duplicates
-    const payloadKeys = Object.values(wallets).map(id => ({'walletId': id}));
+    const userPayloadKeys = Object.values(wallets).map(id => ({'walletId': id}));
+    const collectionPayloadKeys = [{ 'id': Item.collectionId }];
     payload = {
       RequestItems: {
         users: {
-          Keys: payloadKeys,
+          Keys: userPayloadKeys,
           ExpressionAttributeNames: { '#walletId': 'walletId', '#name': 'name' },
           ProjectionExpression: '#walletId, #name'
         },
         collection: {
-          Keys: [{ 'id': Item.collectionId }],
+          Keys: collectionPayloadKeys,
           ExpressionAttributeNames: { '#category': 'category' },
           ProjectionExpression: '#category'
         }
