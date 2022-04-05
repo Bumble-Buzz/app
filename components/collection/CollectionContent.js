@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { useEffect, useState, useReducer } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -13,11 +14,13 @@ import Sort from '@/utils/Sort';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
 import NftCard from '@/components/nftAssets/NftCard';
 import { ShieldCheckIcon, ShieldExclamationIcon, XIcon } from '@heroicons/react/solid';
-const _ = require('lodash');
 
 
 const BATCH_SIZE = 20;
-let APPLIED_FILTERS = {};
+const FILTERS = {
+  panel: {},
+  page: {}
+};
 
 const _doesArrayInclude = (_array, _identifier = {}) => {
   const match = _array.find((arrayElement) => {
@@ -32,10 +35,9 @@ export default function CollectionContent({ initialData, collectionData }) {
 
   const [assets, setAssets] = useState([]);
   const [filteredAssets, setFilteredAssets] = useState([]);
-  const [search, setSearch] = useState('');
-  const [searchTimer, setSearchTimer] = useState(null)
   const [apiSortKey, setApiSortKey] = useState(null);
   const [exclusiveStartKey, setExclusiveStartKey] = useState(null);
+  const [userInputTimer, setUserInputTimer] = useState(null)
 
   // on scroll fetch data
   const { observe } = useInView({
@@ -62,7 +64,7 @@ export default function CollectionContent({ initialData, collectionData }) {
       onSuccess: (_data) => {
         const lastEle = _data[_data.length - 1];
         setAssets([...assets, ...lastEle.Items]);
-        applyFilters(JSON.parse(JSON.stringify([...assets, ...lastEle.Items])), { search: search });
+        applyFilters(JSON.parse(JSON.stringify([...assets, ...lastEle.Items])));
         setExclusiveStartKey(lastEle.LastEvaluatedKey);
       },
       ...API.swr.options
@@ -124,8 +126,8 @@ export default function CollectionContent({ initialData, collectionData }) {
       case 'price-items':
         return priceItems(state, action)
       case 'clear':
-        APPLIED_FILTERS = {}
-        setSearch('');
+        FILTERS.panel = {};
+        FILTERS.page = {};
         newState = JSON.parse(JSON.stringify(state));
         newState.type.items.buyNow = false;
         newState.type.items.auction = false;
@@ -154,18 +156,18 @@ export default function CollectionContent({ initialData, collectionData }) {
       add: async (item, useFilteredAssets = areFiltersSet()) => {
         switch(item) {
           case 'buyNow':
-            APPLIED_FILTERS['buyNow'] = true;
-            return await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => asset.sale && asset.sale.saleType === process.env.NEXT_PUBLIC_SALE_TYPE_IMMEDIATE));
+            FILTERS.panel['buyNow'] = true;
+            return await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => asset.sale && asset.sale.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_IMMEDIATE)));
           case 'auction':
-            APPLIED_FILTERS['auction'] = true;
-            return await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => asset.sale && asset.sale.saleType === process.env.NEXT_PUBLIC_SALE_TYPE_AUCTION));
+            FILTERS.panel['auction'] = true;
+            return await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => asset.sale && asset.sale.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_AUCTION)));
           default:
             return console.error('Filter panel: type add => internal error');
         }
       },
       remove: async (item) => {
-        delete APPLIED_FILTERS[item];
-        applyFilters(JSON.parse(JSON.stringify(assets)), { search: search });
+        delete FILTERS.panel[item];
+        applyFilters(JSON.parse(JSON.stringify(assets)));
       }
     },
     {
@@ -197,10 +199,10 @@ export default function CollectionContent({ initialData, collectionData }) {
         }
       ],
       add: async (useFilteredAssets = areFiltersSet()) => {
-        if (APPLIED_FILTERS.price) useFilteredAssets = false;
+        if (FILTERS.panel.price) useFilteredAssets = false;
         await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => {
           if (asset.sale) {
-            if (filterState.price.items['min'] > 0 || filterState.price.items['max'] > 0) APPLIED_FILTERS['price'] = true;
+            if (filterState.price.items['min'] > 0 || filterState.price.items['max'] > 0) FILTERS.panel['price'] = true;
             if (filterState.price.items['min'] > 0 && filterState.price.items['max'] > 0) {
               return (asset.sale.price >= filterState.price.items['min'] && asset.sale.price <= filterState.price.items['max']);
             }
@@ -210,8 +212,8 @@ export default function CollectionContent({ initialData, collectionData }) {
         }));
       },
       remove: async () => {
-        delete APPLIED_FILTERS.price;
-        applyFilters(JSON.parse(JSON.stringify(assets)), { search: search });
+        delete FILTERS.panel.price;
+        applyFilters(JSON.parse(JSON.stringify(assets)));
       }
     }
   ];
@@ -248,29 +250,29 @@ export default function CollectionContent({ initialData, collectionData }) {
       return !_doesArrayInclude(filteredAssets, asset);
     });
     const nextBatch = newFilteredAssets.slice(0, BATCH_SIZE);
-    applyFilters(JSON.parse(JSON.stringify([...filteredAssets, ...nextBatch])), { search: search });
+    applyFilters(JSON.parse(JSON.stringify([...filteredAssets, ...nextBatch])));
   };
 
   const searchFilterAssets = async (_value) => {
     if (!_value || _value === '') {
       if (!areFiltersSet()) return setFilteredAssets(assets.slice(0, BATCH_SIZE));
 
-      applyFilters(JSON.parse(JSON.stringify(assets)), { search: _value });
+      applyFilters(JSON.parse(JSON.stringify(assets)));
       return;
     }
 
-    clearTimeout(searchTimer);
+    clearTimeout(userInputTimer);
     
     const newTimer = setTimeout(async () => {
       await filterAssets(false, (newAssets) => {
         return newAssets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(_value.toString().toLowerCase()) >= 0);
-      }, { search: _value });
+      });
     }, 500);
 
-    setSearchTimer(newTimer);
+    setUserInputTimer(newTimer);
   };
 
-  const filterAssets = async (useFilteredAssets = false, filter, options = {}) => {
+  const filterAssets = async (useFilteredAssets = false, filter) => {
     return new Promise(async (resolve) => {
       let dbAssets = [];
       let workingAssets = JSON.parse(JSON.stringify(assets));
@@ -296,23 +298,23 @@ export default function CollectionContent({ initialData, collectionData }) {
         latestSortKey = nextAssets.data.LastEvaluatedKey;
       }
       setAssets([...assets, ...dbAssets]);
-      applyFilters(newFilteredAssets, options); // pass-by-reference and update newFilteredAssets
+      applyFilters(newFilteredAssets); // pass-by-reference and update newFilteredAssets
       setExclusiveStartKey(latestSortKey);
 
       resolve();
     });
   };
 
-  const applyFilters = (initAssets, options = {}) => {
+  const applyFilters = (initAssets) => {
     let workingAssets = initAssets;
     filterConfig.forEach((filter) => {
-      if (filter.name === 'type' && APPLIED_FILTERS.buyNow) {
-        workingAssets = workingAssets.filter((asset) => asset.sale && asset.sale.saleType === process.env.NEXT_PUBLIC_SALE_TYPE_IMMEDIATE);
+      if (filter.name === 'type' && FILTERS.panel.buyNow) {
+        workingAssets = workingAssets.filter((asset) => asset.sale && asset.sale.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_IMMEDIATE));
       };
-      if (filter.name === 'type' && APPLIED_FILTERS.auction) {
-        workingAssets = workingAssets.filter((asset) => asset.sale && asset.sale.saleType === process.env.NEXT_PUBLIC_SALE_TYPE_AUCTION);
+      if (filter.name === 'type' && FILTERS.panel.auction) {
+        workingAssets = workingAssets.filter((asset) => asset.sale && asset.sale.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_AUCTION));
       };
-      if (filter.name === 'price' && (APPLIED_FILTERS.price)) {
+      if (filter.name === 'price' && (FILTERS.panel.price)) {
         workingAssets = workingAssets.filter((asset) => {
           if (asset.sale) {
             if (filterState.price.items['min'] > 0 && filterState.price.items['max'] > 0) {
@@ -325,8 +327,13 @@ export default function CollectionContent({ initialData, collectionData }) {
       };
 
       // search
-      if (options && options.search) {
-        workingAssets = workingAssets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(options.search.toString().toLowerCase()) >= 0);
+      if (FILTERS.page.search && FILTERS.page.search !== '') {
+        workingAssets = workingAssets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(FILTERS.page.search.toString().toLowerCase()) >= 0);
+      }
+
+      // sort
+      if (FILTERS.page.sort) {
+        workingAssets = FILTERS.page.sort(workingAssets);
       }
 
       // update state
@@ -335,41 +342,68 @@ export default function CollectionContent({ initialData, collectionData }) {
   }
   
   const getSortDropdownItems = (itemId) => {
+    let sort;
     switch(itemId) {
       case 1:
+        sort = (assets) => Sort.sortString(assets, ['config','name'], Sort.order.ASCENDING);
+        FILTERS.page.sort = sort;
         return {
           label: 'Name: Ascending',
-          action: () => setFilteredAssets([...Sort.sortString(filteredAssets, ['config','name'], Sort.order.ASCENDING)]),
+          action: () => setFilteredAssets([...sort(filteredAssets)]),
           icon: (<></>),
           iconOutline: (<></>)
         };
       case 2:
+        sort = (assets) => Sort.sortString(assets, ['config','name'], Sort.order.DESCENDING);
+        FILTERS.page.sort = sort;
         return {
           label: 'Name: Descending',
-          action: () => setFilteredAssets([...Sort.sortString(filteredAssets, ['config','name'], Sort.order.DESCENDING)]),
+          action: () => setFilteredAssets([...sort(filteredAssets)]),
           icon: (<></>),
           iconOutline: (<></>)
         };
       case 3:
+        sort = (assets) => Sort.sortNumber(assets, ['commission'], Sort.order.ASCENDING);
+        FILTERS.page.sort = sort;
         return {
           label: 'Artist Commission: Low to High',
-          action: () => setFilteredAssets([...Sort.sortNumber(filteredAssets, ['commission'], Sort.order.ASCENDING)]),
+          action: () => setFilteredAssets([...sort(filteredAssets)]),
           icon: (<></>),
           iconOutline: (<></>)
         };
       case 4:
+        sort = (assets) => Sort.sortNumber(assets, ['commission'], Sort.order.DESCENDING);
+        FILTERS.page.sort = sort;
         return {
           label: 'Artist Commission: High to Low',
-          action: () => setFilteredAssets([...Sort.sortNumber(filteredAssets, ['commission'], Sort.order.DESCENDING)]),
+          action: () => setFilteredAssets([...sort(filteredAssets)]),
+          icon: (<></>),
+          iconOutline: (<></>)
+        };
+      case 5:
+        sort = (assets) => Sort.sortNumber(assets, ['sale','price'], Sort.order.ASCENDING);
+        FILTERS.page.sort = sort;
+        return {
+          label: 'Price: Low to High',
+          action: () => setFilteredAssets([...sort(filteredAssets)]),
+          icon: (<></>),
+          iconOutline: (<></>)
+        };
+      case 6:
+        sort = (assets) => Sort.sortNumber(assets, ['sale','price'], Sort.order.DESCENDING);
+        FILTERS.page.sort = sort;
+        return {
+          label: 'Price: High to Low',
+          action: () => setFilteredAssets([...sort(filteredAssets)]),
           icon: (<></>),
           iconOutline: (<></>)
         };
       default:
-        return {};
+        console.error('sort dropdown : not a valid sort option');
     };
   };
   const getSortDropdownItemsList = () => {
-    let items = [1,2];
+    let items = [1,2,5,6];
     if (Number(collectionData.id) === Number(process.env.NEXT_PUBLIC_LOCAL_COLLECTION_ID)) {
         items.push(3);
         items.push(4);
@@ -411,6 +445,7 @@ export default function CollectionContent({ initialData, collectionData }) {
 {/* <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p> */}
 {/* <p onClick={() => {console.log('assets', assets)}}>See assets</p> */}
 {/* <p onClick={() => {console.log('filteredAssets', filteredAssets)}}>See filteredAssets</p> */}
+{/* <p onClick={() => {console.log('FILTERS', FILTERS)}}>See FILTERS</p> */}
 
       {/* filter panel */}
       <div className="-px-2 -ml-2 bg-white">
@@ -423,7 +458,7 @@ export default function CollectionContent({ initialData, collectionData }) {
         <div className='mt-1 flex flex-row flex-wrap gap-2 justify-start items-center content-center'>
           {filterConfig && filterConfig.length > 0 && filterConfig.map((filter, index1) => {
             return (
-              filter.items && filter.items.length > 0 && filter.name !== 'search' && filter.items.map((item, index) => {
+              filter.items && filter.items.length > 0 && filter.items.map((item, index) => {
                 if (filterState[filter.name].items[item.name] && isMaxFilterValid(filter.name, item.name)) {
                   return (
                     <ButtonWrapper
@@ -462,20 +497,20 @@ export default function CollectionContent({ initialData, collectionData }) {
           <div className="flex-1">
             <InputWrapper
               type="search"
-              id="created-search"
-              name="created-search"
-              placeholder="Search by name"
-              aria-label="created-search"
-              aria-describedby="created-search"
+              id="page-search"
+              name="page-search"
+              placeholder="Search"
+              aria-label="page-search"
+              aria-describedby="page-search"
               classes="w-full"
-              value={search}
-              onChange={(e) => {setSearch(e.target.value); searchFilterAssets(e.target.value);}}
+              value={FILTERS.page && FILTERS.page.search ? FILTERS.page.search : ''}
+              onChange={(e) => {FILTERS.page.search = e.target.value; searchFilterAssets(e.target.value);}}
             />
           </div>
           {/* sort dropdown */}
           <div className='flex flex-nowrap flex-1 gap-2 justify-start items-top w-full max-w-md'>
             <DropDown
-              title='Sort By' items={getSortDropdownItemsList()} getItem={getSortDropdownItems}
+              title='Sort By' items={getSortDropdownItemsList()} getItem={getSortDropdownItems} showSelectedItem={(FILTERS.page && FILTERS.page.sort)}
               titleStyle='p-2 flex flex-row justify-between font-thin w-full border border-gray-300'
               menuStyle='right-0 w-full z-10 mt-0 origin-top-right'
             />

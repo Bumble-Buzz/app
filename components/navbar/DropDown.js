@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Fragment } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -6,18 +7,27 @@ import {ChevronDownIcon} from '@heroicons/react/solid';
 
 
 export default function DropDown({
-    children, items, getItem,
+    children,
+    items, getItem, showSelectedItem = false,
     title, titleStyle = 'inline-flex justify-center w-full font-medium bg-opacity-20 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75',
     isImage, isSvg, image = '/avocado.jpg', imageStyle = 'h-10 w-10 border-2 border-black-600 rounded-full overflow-hidden',
     menuStyle = 'right-0 w-48 z-10 mt-2 origin-top-right'
   }) {
   const ROUTER = useRouter();
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const label = () => {
+    if (!selectedItem) return (<>{title}</>);
+    if (showSelectedItem) return (<>{getItem(selectedItem).label}</>);
+    return (<>{title}</>);
+  };
+
   return (
       <Menu as="div" className="relative w-full">
 
         {!isImage && (
           <Menu.Button className={`rounded-md ${titleStyle}`}>
-            {title}
+            {label()}
             <ChevronDownIcon className="w-5 h-5 pt-1 pr-1 text-violet-200 hover:text-violet-100" aria-hidden="true" />
           </Menu.Button>
         )}
@@ -48,6 +58,7 @@ export default function DropDown({
               {items && items.length > 0 && items.map((item, index) => {
                 return (
                   <Menu.Item key={index} onClick={() => {
+                    setSelectedItem(item);
                     if (getItem(item).link) return ROUTER.push(getItem(item).link);
                     if (getItem(item).action) return getItem(item).action();
                   }}>
