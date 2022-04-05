@@ -3,7 +3,7 @@ import LineChart from '@/components/charts/LineChart';
 
 export default function AssetPriceHistory({ type, initialData }) {
 
-  if (!initialData || !initialData.priceHistory || initialData.priceHistory.length === 0 ) {
+  if (!initialData || !initialData.priceHistory || !initialData.priceHistory.timestamp || initialData.priceHistory.timestamp.length === 0 ) {
     return (<p>No price history</p>)
   }
 

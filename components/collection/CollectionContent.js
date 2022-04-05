@@ -244,8 +244,6 @@ export default function CollectionContent({ initialData, collectionData }) {
   };
 
   const updateFilterAssets = async () => {
-    const filteredAssetTokenIds = [];
-    filteredAssets.forEach((asset) => filteredAssetTokenIds.push(asset.tokenId));
     const newFilteredAssets = assets.filter((asset) => {
       return !_doesArrayInclude(filteredAssets, asset);
     });
@@ -339,7 +337,7 @@ export default function CollectionContent({ initialData, collectionData }) {
       // update state
       setFilteredAssets([...workingAssets]);
     });
-  }
+  };
   
   const getSortDropdownItems = (itemId) => {
     let sort;
