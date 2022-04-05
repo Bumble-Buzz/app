@@ -538,10 +538,6 @@ export default function CollectionContent({ initialData, collectionData }) {
                   image={asset.config.image}
                   body={(<>
                     <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
-                      <div className="flex-1">ID</div>
-                      <div className="truncate">{asset.tokenId}</div>
-                    </div>
-                    <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
                       <div className="flex-1">Price</div>
                       <div className="flex flex-row flex-nowrap justify-center items-center">
                       <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>

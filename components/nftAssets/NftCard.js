@@ -22,7 +22,7 @@ export default function NftCard({children, innerRef, link, header, image, body, 
       </div>
       {body && (<>
         <hr />
-        <div className="px-2 flex flex-col h-20">
+        <div className="px-2 flex flex-col max-h-20">
           {body}
         </div>
       </>)}
