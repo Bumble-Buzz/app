@@ -106,6 +106,7 @@ const asset = async () => {
     AttributeDefinitions: [
       { AttributeName: "contractAddress", AttributeType: "S" },
       { AttributeName: "tokenId", AttributeType: "N" },
+      { AttributeName: "onSale", AttributeType: "N" },
       { AttributeName: "creator", AttributeType: "S" },
       { AttributeName: "owner", AttributeType: "S" }
     ],
@@ -128,6 +129,18 @@ const asset = async () => {
         IndexName: "owner-lsi",
         KeySchema: [
           { AttributeName: "contractAddress", KeyType: "HASH" },
+          { AttributeName: "owner", KeyType: "RANGE" }
+        ],
+        Projection: {
+          ProjectionType: "ALL"
+        }
+      }
+    ],
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: "onSale-gsi",
+        KeySchema: [
+          { AttributeName: "onSale", KeyType: "HASH" },
           { AttributeName: "owner", KeyType: "RANGE" }
         ],
         Projection: {

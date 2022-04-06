@@ -41,9 +41,9 @@ export default async function handler(req, res) {
   if (!session) return res.status(401).json({ 'error': 'not authenticated' });
 
   // @todo This can only be run locally at the moment. Once deployed on testnet/mainnet, this needs to run
-  if (!(await checkBlockchainOwner(data))) return res.status(400).json({ 'error': 'record not found on blockchain' });
+  if (!(await checkBlockchainOwner(data))) return res.status(400).json({ 'error': 'record with owner not found on blockchain' });
   if (ethers.utils.getAddress(data.contractAddress) === process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS) {
-    if (!(await checkBlockchainCreator(data))) return res.status(400).json({ 'error': 'record not found on blockchain' });
+    if (!(await checkBlockchainCreator(data))) return res.status(400).json({ 'error': 'record with creator not found on blockchain' });
   }
 
   // ensure if id already exists, we don't overwrite the record
@@ -57,9 +57,16 @@ export default async function handler(req, res) {
       'creator': ethers.utils.getAddress(data.creator),
       'owner': ethers.utils.getAddress(data.owner),
       'config': data.config,
+      'onSale': Number(0),
+      'saleId': Number(0),
+      'buyer': ethers.utils.getAddress(process.env.NEXT_PUBLIC_EMPTY_ADDRESS),
+      'price': Number(0),
+      'saleType': Number(process.env.NEXT_PUBLIC_SALE_TYPE_NOT_EXTSTS),
       'priceHistory': { 'timestamp': [], 'label': [], 'ethPrice': [], 'usdPrice': [] },
       'activity': [],
-      'offers': []
+      'offers': [],
+      'category': 'null',
+      'active': 1
     },
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
     ExpressionAttributeValues: { ':contractAddress': data.contractAddress, ':tokenId': data.tokenId },

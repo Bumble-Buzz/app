@@ -34,7 +34,7 @@ export default function Listings({ initialData }) {
   // fetch data from database using SWR
   useSWRInfinite(
     (pageIndex, previousPageData) => {
-      return API.swr.sale.created(ROUTER.query.wallet, apiSortKey.contractAddress, apiSortKey.tokenId, 20);
+      return API.swr.asset.sale.owner(ROUTER.query.wallet, apiSortKey.contractAddress, apiSortKey.tokenId, 20);
     },
     API.swr.fetcher,
     {
@@ -76,7 +76,7 @@ export default function Listings({ initialData }) {
       if (!latestSortKey) break;
 
       // fetch next batch from db
-      const nextAssets = await API.asset.created(ROUTER.query.wallet, latestSortKey.tokenId, 20);
+      const nextAssets = await API.asset.sale.owner(ROUTER.query.wallet, latestSortKey.contractAddress, latestSortKey.tokenId, 20);
 
       newAssets.push(...nextAssets.data.Items);
       latestSortKey = nextAssets.data.LastEvaluatedKey;

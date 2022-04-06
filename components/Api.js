@@ -51,6 +51,10 @@ module.exports = {
     asset: {
       id: (contract,tokenId) => `asset/${contract}/${tokenId}`,
       created: (id,tokenId,limit) => `asset/created/${id}?tokenId=${tokenId}&limit=${limit}`,
+      sale: {
+        owner: (id,contract,tokenId,limit) => `asset/sale/${id}?contract=${contract}&tokenId=${tokenId}&limit=${limit}`,
+        all: (id,contract,tokenId,limit) => `asset/sale/all?owner=${id}&contract=${contract}&tokenId=${tokenId}&limit=${limit}`
+      },
       collection: (id,tokenId,limit) => `asset/${id}?tokenId=${tokenId}&limit=${limit}`
     },
     collection: {
@@ -81,9 +85,15 @@ module.exports = {
     create: payload => API.post(`asset/create`, payload),
     batch: payload => API.post(`asset/batch`, payload),
     created: (id,tokenId,limit) => API.get(`asset/created/${id}?tokenId=${tokenId}&limit=${limit}`),
+    sale: {
+      owner: (id,contract,tokenId,limit) => API.get(`asset/sale/${id}?contract=${contract}&tokenId=${tokenId}&limit=${limit}`),
+      all: (id,contract,tokenId,limit) => API.get(`asset/sale/all?owner=${id}&contract=${contract}&tokenId=${tokenId}&limit=${limit}`)
+    },
     collection: (id,tokenId,limit) => API.get(`asset/${id}?tokenId=${tokenId}&limit=${limit}`),
     update: {
-      postsale: payload => API.post(`asset/update/postsale`, payload)
+      saleCreate: payload => API.post(`asset/update/saleCreate`, payload),
+      saleCancel: payload => API.post(`asset/update/saleCancel`, payload),
+      saleComplete: payload => API.post(`asset/update/saleComplete`, payload)
     }
   },
   collection: {
@@ -135,7 +145,10 @@ module.exports = {
       id: (id) => BACKEND_API.get(`user/${id}`)
     },
     asset: {
-      id: (contract,tokenId) => BACKEND_API.get(`asset/${contract}/${tokenId}`)
+      id: (contract,tokenId) => BACKEND_API.get(`asset/${contract}/${tokenId}`),
+      sale: {
+        all: (id,contract,tokenId,limit) => BACKEND_API.get(`asset/sale/all?owner=${id}&contract=${contract}&tokenId=${tokenId}&limit=${limit}`)
+      }
     },
     collection: {
       id: id => BACKEND_API.get(`collection/${id}`)

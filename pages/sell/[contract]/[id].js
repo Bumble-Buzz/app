@@ -17,7 +17,12 @@ export default function Sell({ assetDataInit }) {
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
   // swr call to fetch initial data
-  const {data: saleDataInit} = useSWR(API.swr.sale.id(assetDataInit.contractAddress, assetDataInit.tokenId), API.swr.fetcher, API.swr.options);
+  const {data: assetData} = useSWR(API.swr.asset.id(
+    (!assetDataInit.Item) ? '' : assetDataInit.Item.contractAddress, (!assetDataInit.Item) ? '' : assetDataInit.Item.tokenId
+  ), API.swr.fetcher, {
+    fallbackData: assetDataInit,
+    ...API.swr.options
+  });
 
   const [tab, setTab] = useState('immediate');
   const [isSaleCreated, setSaleCreated] = useState(false);
@@ -31,15 +36,15 @@ export default function Sell({ assetDataInit }) {
   };
   const isAssetOwner = () => {
     if (!isSignInValid()) return false;
-    return (session.user.id === assetDataInit.owner);
+    return (session.user.id === assetData.Item.owner);
   };
   const isAssetOnSale = () => {
-    return (saleDataInit && saleDataInit.Item && saleDataInit.Item.seller === assetDataInit.owner);
+    return (assetData.Item.onSale !== 0);
   }
 
 
   // catch invalids early
-  if (!assetDataInit || !assetDataInit.tokenId) return (<PageError>This asset does not exist</PageError>);
+  if (!assetData.Item || !assetData.Item.tokenId) return (<PageError>This asset does not exist</PageError>);
   if (!isSignInValid()) return (<Unauthenticated link={'/auth/signin'}></Unauthenticated>)
   if (!isAssetOwner()) return (<PageError>You are not the owner of this asset</PageError>);
   if (isAssetOnSale()) return (<PageError>You have already put this asset on sale</PageError>);
@@ -93,8 +98,8 @@ export default function Sell({ assetDataInit }) {
               }
             </div>
 
-            {tab === 'immediate' && <Immediate assetDataInit={assetDataInit} setSaleCreated={setSaleCreated} />}
-            {tab === 'auction' && <Auction assetDataInit={assetDataInit} setSaleCreated={setSaleCreated} />}
+            {tab === 'immediate' && <Immediate assetDataInit={assetData.Item} setSaleCreated={setSaleCreated} />}
+            {tab === 'auction' && <Auction assetDataInit={assetData.Item} setSaleCreated={setSaleCreated} />}
 
           </div>
         }
@@ -108,7 +113,7 @@ export async function getServerSideProps(context) {
   const { data } = await API.backend.asset.id(context.query.contract, context.query.id);
   return {
     props: {
-      assetDataInit: data.Item || {},
+      assetDataInit: data,
       session: await getSession(context)
     }
   }

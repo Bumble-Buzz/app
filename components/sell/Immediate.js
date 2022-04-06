@@ -63,14 +63,12 @@ export default function Immediate({children, assetDataInit, setSaleCreated}) {
           'contractAddress': ethers.utils.getAddress(blockchainResults.contractAddress),
           'tokenId': Number(blockchainResults.tokenId),
           'saleId': Number(blockchainResults.itemId),
-          'collectionId': Number(assetDataInit.collectionId),
-          'seller': ethers.utils.getAddress(blockchainResults.seller),
-          'buyer': ethers.utils.getAddress(EMPTY_ADDRESS),
+          'owner': ethers.utils.getAddress(blockchainResults.seller),
           'price': Number(state.price),
           'saleType': Number(blockchainResults.saleType),
           'category': state.category
         };
-        await API.sale.create(payload);
+        await API.asset.update.saleCreate(payload);
 
         setSaleCreated(true);
       } catch (e) {
