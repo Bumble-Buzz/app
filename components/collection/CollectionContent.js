@@ -157,10 +157,10 @@ export default function CollectionContent({ initialData, collectionData }) {
         switch(item) {
           case 'buyNow':
             FILTERS.panel['buyNow'] = true;
-            return await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => asset.sale && asset.sale.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_IMMEDIATE)));
+            return await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => asset.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_IMMEDIATE)));
           case 'auction':
             FILTERS.panel['auction'] = true;
-            return await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => asset.sale && asset.sale.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_AUCTION)));
+            return await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => asset.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_AUCTION)));
           default:
             return console.error('Filter panel: type add => internal error');
         }
@@ -201,13 +201,13 @@ export default function CollectionContent({ initialData, collectionData }) {
       add: async (useFilteredAssets = areFiltersSet()) => {
         if (FILTERS.panel.price) useFilteredAssets = false;
         await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => {
-          if (asset.sale) {
+          if (asset.onSale > 0) {
             if (filterState.price.items['min'] > 0 || filterState.price.items['max'] > 0) FILTERS.panel['price'] = true;
             if (filterState.price.items['min'] > 0 && filterState.price.items['max'] > 0) {
-              return (asset.sale.price >= filterState.price.items['min'] && asset.sale.price <= filterState.price.items['max']);
+              return (asset.price >= filterState.price.items['min'] && asset.price <= filterState.price.items['max']);
             }
-            if (filterState.price.items['min'] > 0) return (asset.sale.price >= filterState.price.items['min']);
-            if (filterState.price.items['max'] > 0) return (asset.sale.price <= filterState.price.items['max']);
+            if (filterState.price.items['min'] > 0) return (asset.price >= filterState.price.items['min']);
+            if (filterState.price.items['max'] > 0) return (asset.price <= filterState.price.items['max']);
           }
         }));
       },
@@ -307,19 +307,19 @@ export default function CollectionContent({ initialData, collectionData }) {
     let workingAssets = initAssets;
     filterConfig.forEach((filter) => {
       if (filter.name === 'type' && FILTERS.panel.buyNow) {
-        workingAssets = workingAssets.filter((asset) => asset.sale && asset.sale.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_IMMEDIATE));
+        workingAssets = workingAssets.filter((asset) => asset.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_IMMEDIATE));
       };
       if (filter.name === 'type' && FILTERS.panel.auction) {
-        workingAssets = workingAssets.filter((asset) => asset.sale && asset.sale.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_AUCTION));
+        workingAssets = workingAssets.filter((asset) => asset.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_AUCTION));
       };
       if (filter.name === 'price' && (FILTERS.panel.price)) {
         workingAssets = workingAssets.filter((asset) => {
-          if (asset.sale) {
+          if (asset.onSale > 0) {
             if (filterState.price.items['min'] > 0 && filterState.price.items['max'] > 0) {
-              return (asset.sale.price >= filterState.price.items['min'] && asset.sale.price <= filterState.price.items['max']);
+              return (asset.price >= filterState.price.items['min'] && asset.price <= filterState.price.items['max']);
             }
-            if (filterState.price.items['min'] > 0) return (asset.sale.price >= filterState.price.items['min']);
-            if (filterState.price.items['max'] > 0) return (asset.sale.price <= filterState.price.items['max']);
+            if (filterState.price.items['min'] > 0) return (asset.price >= filterState.price.items['min']);
+            if (filterState.price.items['max'] > 0) return (asset.price <= filterState.price.items['max']);
           }
         });
       };
@@ -379,7 +379,7 @@ export default function CollectionContent({ initialData, collectionData }) {
           iconOutline: (<></>)
         };
       case 5:
-        sort = (assets) => Sort.sortNumber(assets, ['sale','price'], Sort.order.ASCENDING);
+        sort = (assets) => Sort.sortNumber(assets, ['price'], Sort.order.ASCENDING);
         FILTERS.page.sort = sort;
         return {
           label: 'Price: Low to High',
@@ -388,7 +388,7 @@ export default function CollectionContent({ initialData, collectionData }) {
           iconOutline: (<></>)
         };
       case 6:
-        sort = (assets) => Sort.sortNumber(assets, ['sale','price'], Sort.order.DESCENDING);
+        sort = (assets) => Sort.sortNumber(assets, ['price'], Sort.order.DESCENDING);
         FILTERS.page.sort = sort;
         return {
           label: 'Price: High to Low',
@@ -539,7 +539,7 @@ export default function CollectionContent({ initialData, collectionData }) {
                       <div className="flex-1">Price</div>
                       <div className="flex flex-row flex-nowrap justify-center items-center">
                       <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
-                        <div className="truncate">{asset.sale ? asset.sale.price : 0}</div>
+                        <div className="truncate">{asset.price}</div>
                       </div>
                     </div>
                     <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">

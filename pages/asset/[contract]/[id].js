@@ -38,9 +38,6 @@ export default function Asset({ assetDataInit }) {
   const {data: collectionDataInit} = useSWR(API.swr.collection.id(
     (!assetData.Item) ? '' : assetData.Item.collectionId
   ), API.swr.fetcher, API.swr.options);
-  const {data: saleDataInit} = useSWR(API.swr.sale.id(
-    (!assetData.Item) ? '' : assetData.Item.contractAddress, (!assetData.Item) ? '' : assetData.Item.tokenId
-  ), API.swr.fetcher, API.swr.options);
 
   // catch invalids early
   if (!assetData || !assetData.Item || !assetData.Item.config) return (<PageError>This asset does not exist</PageError>);
@@ -56,7 +53,7 @@ export default function Asset({ assetDataInit }) {
     return (session.user.id === assetData.Item.owner);
   };
   const isAssetOnSale = () => {
-    return (saleDataInit && saleDataInit.Item && saleDataInit.Item.seller === assetData.Item.owner);
+    return (assetData.Item.onSale !== 0);
   };
 
   const getArrayAttributes = (attributes) => {
@@ -169,14 +166,14 @@ export default function Asset({ assetDataInit }) {
   };
   const getAssetActionContent = () => {
     return {
-      contractAddress: saleDataInit && saleDataInit.Item && saleDataInit.Item.contractAddress,
-      tokenId: saleDataInit && saleDataInit.Item && saleDataInit.Item.tokenId,
-      saleId: saleDataInit && saleDataInit.Item && saleDataInit.Item.saleId,
-      saleType: saleDataInit && saleDataInit.Item && saleDataInit.Item.saleType,
-      price: saleDataInit && saleDataInit.Item && saleDataInit.Item.price,
-      seller: saleDataInit && saleDataInit.Item && saleDataInit.Item.seller,
-      priceHistory: assetData && assetData.Item && assetData.Item.priceHistory,
-      activity: assetData && assetData.Item && assetData.Item.activity
+      contractAddress: assetData.Item.contractAddress,
+      tokenId: assetData.Item.tokenId,
+      saleId: assetData.Item.saleId,
+      saleType: assetData.Item.saleType,
+      price: assetData.Item.price,
+      seller: assetData.Item.owner,
+      priceHistory: assetData.Item.priceHistory,
+      activity: assetData.Item.activity
     }
   };
 

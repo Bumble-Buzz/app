@@ -4,6 +4,8 @@ const ACTION = SCRIPT_ARGS.action;
 const TABLE_NAME = SCRIPT_ARGS.table;
 const DynamoDbQuery = require('../../components/backend/db/DynamoDbQuery');
 
+const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000'
+
 
 const list = async () => {
   const results = await DynamoDbQuery.table.list({});
@@ -677,7 +679,7 @@ const mockCollections = async () => {
 
 const mockAssets = async () => {
   const pk = '0x640C20ff0F34b75BDA2fCdB4334Acca32B599A81';
-  const sk = 1;
+  const sk = 2;
   let payload = {
     TableName: "asset",
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
@@ -701,6 +703,11 @@ const mockAssets = async () => {
         'creator': item.creator,
         'owner': item.owner,
         'config': itemConfig,
+        'onSale': Number(0),
+        'saleId': Number(0),
+        'buyer': EMPTY_ADDRESS,
+        'price': Number(0),
+        'saleType': Number(3),
         'priceHistory': item.priceHistory,
         'activity': item.activity,
         'offers': item.offers
@@ -712,6 +719,34 @@ const mockAssets = async () => {
 };
 
 const mockSales = async () => {
+  const pk = '0x640C20ff0F34b75BDA2fCdB4334Acca32B599A81';
+  const sk = 2;
+  let payload = {
+    TableName: "asset",
+    ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
+    ExpressionAttributeValues: { ':contractAddress': pk, ':tokenId': sk },
+    KeyConditionExpression: '#contractAddress = :contractAddress AND #tokenId = :tokenId'
+  };
+  const results = await DynamoDbQuery.item.query(payload);
+  console.log('Query item:', results.Items);
+  const item = results.Items[0];
+  const itemConfig = item.config;
+
+  for (let i = sk+1; i < 99; i++) {
+    itemConfig.name = `asd${i}`
+    payload = {
+      TableName: "asset",
+      Key: { 'contractAddress': item.contractAddress, 'tokenId': i },
+      ExpressionAttributeNames: { "#onSale": "onSale", "#saleId": "saleId", "#price": "price", "#saleType": "saleType", "#category": "category" },
+      ExpressionAttributeValues: { ":onSale": Number(1), ":saleId": i, ":price": i+1, ":saleType": 1, ":category": 'Art' },
+      UpdateExpression: `set #onSale = :onSale, #saleId = :saleId, #price = :price, #saleType = :saleType, #category = :category`
+    };
+    // console.log('payload', payload);
+    await DynamoDbQuery.item.update(payload);
+  }
+};
+
+const mockSalesOld = async () => {
   const pk = '0x640C20ff0F34b75BDA2fCdB4334Acca32B599A81';
   const sk = 1;
   let payload = {

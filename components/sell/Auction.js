@@ -63,14 +63,12 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
           'contractAddress': ethers.utils.getAddress(blockchainResults.contractAddress),
           'tokenId': Number(blockchainResults.tokenId),
           'saleId': Number(blockchainResults.itemId),
-          'collectionId': Number(assetDataInit.collectionId),
-          'seller': ethers.utils.getAddress(blockchainResults.seller),
-          'buyer': ethers.utils.getAddress(EMPTY_ADDRESS),
+          'owner': ethers.utils.getAddress(blockchainResults.seller),
           'price': Number(state.price),
           'saleType': Number(blockchainResults.saleType),
           'category': state.category
         };
-        await API.sale.create(payload);
+        await API.asset.update.saleCreate(payload);
 
         setSaleCreated(true);
       } catch (e) {
@@ -174,8 +172,9 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 
       // create market sale
+      const formattedPrice = ethers.utils.parseEther(state.price.toString());
       const val = await contract.createMarketSale(
-        assetDataInit.tokenId, assetDataInit.contractAddress, EMPTY_ADDRESS, state.price, 1
+        assetDataInit.tokenId, assetDataInit.contractAddress, EMPTY_ADDRESS, formattedPrice, 1
       );
         
       await WalletUtil.checkTransaction(val);
@@ -285,6 +284,7 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
               <input
                 type="number"
                 min="0"
+                step="any"
                 name="price"
                 id="price"
                 defaultValue={state.price}

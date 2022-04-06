@@ -59,16 +59,19 @@ Things left to do:
         - LSI: 
         - GSI: active, category + active, owner + active (only get data that you need) -> maybe for `name` and `contractAddress` for search results?
       - asset: List of assets
-        - contractAddress, tokenId, collectionId, commission, creator, owner, config, priceHistory::array, listings::array, offers::array, activity::array
+        - contractAddress, tokenId, collectionId, commission, creator (0x===verified/unverified collections), owner, config, onSale (0===no sale, 1===yes sale), saleId (0===no sale), buyer (0x===no buyer), price (0===no sale), saleType::number (3===no sale), priceHistory::array, activity::array, offers::array, category ('null'===verified collections), active::number
         - PK: contractAddress, tokenId
         - LSI: creator, owner
-        - GSI: 
+        - GSI: onSale + owner
       - sale: List of assets on sale in marketplace
         - contractAddress, tokenId, saleId, collectionId, seller, buyer, price, sold, saleType::number, category, active::number
         - PK: contractAddress, tokenId
         - LSI: seller, buyer
         - GSI: seller + active, category + active (only get data that you need)
 - Front-end dapp
+  - change API pull BATCH_SIZE to 50 from 20.
+    - It needs to be big enough to accomodate for large screen size, so user can scroll down to pull more data
+  - what happens is asset is already on sale when creating asset record in database?
   - Ensure no entered number is greater than `Number.MAX_SAFE_INTEGER`. Or find a solution to deal with this.
   - Ensure images can be loaded via both IPFS and direct url
   - Ability to delete collection from db and blockchain

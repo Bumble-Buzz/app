@@ -255,7 +255,7 @@ export default function Explore({ rawSaleIds }) {
   // fetch data from database using SWR
   useSWRInfinite(
     (pageIndex, previousPageData) => {
-      return API.swr.sale.all(apiSortKey.contractAddress, apiSortKey.tokenId, BATCH_SIZE);
+      return API.swr.asset.sale.all(apiSortKey.owner, apiSortKey.contractAddress, apiSortKey.tokenId, BATCH_SIZE);
     },
     API.swr.fetcher,
     {
@@ -328,7 +328,7 @@ export default function Explore({ rawSaleIds }) {
         if (!latestSortKey) break;
   
         // fetch next batch from db
-        const {data: saleIds} = await API.sale.all(latestSortKey.contractAddress, latestSortKey.tokenId, BATCH_SIZE);
+        const {data: saleIds} = await API.asset.sale.all(latestSortKey.owner, latestSortKey.contractAddress, latestSortKey.tokenId, BATCH_SIZE);
         latestSortKey = saleIds.LastEvaluatedKey;
   
         const payload = { ids: saleIds.Items };
@@ -442,7 +442,7 @@ export default function Explore({ rawSaleIds }) {
 }
 
 export async function getServerSideProps(context) {
-  const { data } = await API.backend.sale.all('null', 'null', BATCH_SIZE);
+  const { data } = await API.backend.asset.sale.all('null', 'null', 'null', BATCH_SIZE);
   return {
     props: {
       rawSaleIds: data,
