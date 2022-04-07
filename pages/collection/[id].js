@@ -18,12 +18,15 @@ import { CHAIN_ICONS } from '@/enum/ChainIcons';
 import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/solid';
 
 
+const BATCH_SIZE = 40;
+
+
 export default function Collection({ collectionDataInit }) {
   const ROUTER = useRouter();
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();  
   // swr call to fetch initial data
-  const {data: assetInit} = useSWR(API.swr.asset.collection(collectionDataInit.contractAddress, 'null', 20), API.swr.fetcher, API.swr.options);
+  const {data: assetInit} = useSWR(API.swr.asset.collection(collectionDataInit.contractAddress, 'null', BATCH_SIZE), API.swr.fetcher, API.swr.options);
 
 
   // catch invalids early

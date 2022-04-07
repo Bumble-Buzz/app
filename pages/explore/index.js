@@ -3,7 +3,7 @@ import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import ExploreContent from '@/components/explore/ExploreContent';
 
 
-const BATCH_SIZE = 20;
+const BATCH_SIZE = 40;
 
 
 export default function Explore({ assetDataInit }) {

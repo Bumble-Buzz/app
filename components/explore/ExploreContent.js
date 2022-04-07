@@ -16,7 +16,7 @@ import NftCard from '@/components/nftAssets/NftCard';
 import { ShieldCheckIcon, ShieldExclamationIcon, XIcon } from '@heroicons/react/solid';
 
 
-const BATCH_SIZE = 20;
+const BATCH_SIZE = 40;
 const FILTERS = {
   panel: {},
   page: {}
@@ -64,7 +64,8 @@ export default function ExploreContent({ initialData }) {
       onSuccess: (_data) => {
         const lastEle = _data[_data.length - 1];
         setAssets([...assets, ...lastEle.Items]);
-        applyFilters(JSON.parse(JSON.stringify([...assets, ...lastEle.Items])));
+        const newFilteredAssets = applyFilters([...assets, ...lastEle.Items]);
+        setFilteredAssets([...newFilteredAssets]);
         setExclusiveStartKey(lastEle.LastEvaluatedKey);
       },
       ...API.swr.options
@@ -167,7 +168,8 @@ export default function ExploreContent({ initialData }) {
       },
       remove: async (item) => {
         delete FILTERS.panel[item];
-        applyFilters(JSON.parse(JSON.stringify(assets)));
+        const newFilteredAssets = applyFilters([...assets]);
+        setFilteredAssets([...newFilteredAssets]);
       }
     },
     {
@@ -211,7 +213,8 @@ export default function ExploreContent({ initialData }) {
       },
       remove: async () => {
         delete FILTERS.panel.price;
-        applyFilters(JSON.parse(JSON.stringify(assets)));
+        const newFilteredAssets = applyFilters([...assets]);
+        setFilteredAssets([...newFilteredAssets]);
       }
     }
   ];
@@ -242,18 +245,34 @@ export default function ExploreContent({ initialData }) {
   };
 
   const updateFilterAssets = async () => {
-    const newFilteredAssets = assets.filter((asset) => {
+    const hiddenFilteredAssets = assets.filter((asset) => {
       return !_doesArrayInclude(filteredAssets, asset);
     });
-    const nextBatch = newFilteredAssets.slice(0, BATCH_SIZE);
-    applyFilters(JSON.parse(JSON.stringify([...filteredAssets, ...nextBatch])));
+
+    let startPosition = 0;
+    const stepSize = BATCH_SIZE*2;
+    let newFilteredAssets;
+    const iterationSize = Math.round(hiddenFilteredAssets.length / stepSize);
+    for (let i=0; i < iterationSize; i++) {
+      let nextBatch;
+      if (startPosition+BATCH_SIZE > hiddenFilteredAssets.length) {
+        nextBatch = hiddenFilteredAssets.slice(startPosition);
+      } else {
+        nextBatch = hiddenFilteredAssets.slice(startPosition, startPosition+stepSize);
+      }
+      startPosition += BATCH_SIZE;
+      newFilteredAssets = applyFilters([...filteredAssets, ...nextBatch]);
+      if (newFilteredAssets.length > filteredAssets.length) break;
+    }
+    setFilteredAssets([...newFilteredAssets]);
   };
 
   const searchFilterAssets = async (_value) => {
     if (!_value || _value === '') {
       if (!areFiltersSet()) return setFilteredAssets(assets.slice(0, BATCH_SIZE));
 
-      applyFilters(JSON.parse(JSON.stringify(assets)));
+      const newFilteredAssets= applyFilters([...assets]);
+      setFilteredAssets([...newFilteredAssets]);
       return;
     }
 
@@ -294,15 +313,15 @@ export default function ExploreContent({ initialData }) {
         latestSortKey = nextAssets.data.LastEvaluatedKey;
       }
       setAssets([...assets, ...dbAssets]);
-      applyFilters(newFilteredAssets); // pass-by-reference and update newFilteredAssets
+      newFilteredAssets = applyFilters([...newFilteredAssets]);
+      setFilteredAssets([...newFilteredAssets]);
       setExclusiveStartKey(latestSortKey);
 
       resolve();
     });
   };
 
-  const applyFilters = (initAssets) => {
-    let workingAssets = initAssets;
+  const applyFilters = ([...workingAssets]) => {
     filterConfig.forEach((filter) => {
       if (filter.name === 'type' && FILTERS.panel.buyNow) {
         workingAssets = workingAssets.filter((asset) => asset.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_IMMEDIATE));
@@ -319,20 +338,20 @@ export default function ExploreContent({ initialData }) {
           if (filterState.price.items['max'] > 0) return (asset.price <= filterState.price.items['max']);
         });
       };
-
-      // search
-      if (FILTERS.page.search && FILTERS.page.search !== '') {
-        workingAssets = workingAssets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(FILTERS.page.search.toString().toLowerCase()) >= 0);
-      }
-
-      // sort
-      if (FILTERS.page.sort) {
-        workingAssets = FILTERS.page.sort(workingAssets);
-      }
-
-      // update state
-      setFilteredAssets([...workingAssets]);
     });
+
+    // search
+    if (FILTERS.page.search && FILTERS.page.search !== '') {
+      workingAssets = workingAssets.filter((asset) => asset.config.name.toString().toLowerCase().indexOf(FILTERS.page.search.toString().toLowerCase()) >= 0);
+    }
+
+    // sort
+    if (FILTERS.page.sort) {
+      workingAssets = FILTERS.page.sort(workingAssets);
+    }
+
+    // return filterd assets
+    return [...workingAssets];
   };
   
   const getSortDropdownItems = (itemId) => {
@@ -434,7 +453,7 @@ export default function ExploreContent({ initialData }) {
 {/* <p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p> */}
 {/* <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p> */}
 {/* <p onClick={() => {console.log('assets', assets)}}>See assets</p> */}
-{/* <p onClick={() => {console.log('filteredAssets', filteredAssets)}}>See filteredAssets</p> */}
+{/* <p onClick={() => {console.log('filteredAssets', filteredAssets); console.log('filteredAssets', filteredAssets.map((asset) => asset.price));}}>See filteredAssets</p> */}
 {/* <p onClick={() => {console.log('FILTERS', FILTERS)}}>See FILTERS</p> */}
 
       {/* filter panel */}
