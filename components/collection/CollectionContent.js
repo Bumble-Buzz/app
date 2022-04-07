@@ -201,14 +201,12 @@ export default function CollectionContent({ initialData, collectionData }) {
       add: async (useFilteredAssets = areFiltersSet()) => {
         if (FILTERS.panel.price) useFilteredAssets = false;
         await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => {
-          if (asset.onSale > 0) {
-            if (filterState.price.items['min'] > 0 || filterState.price.items['max'] > 0) FILTERS.panel['price'] = true;
-            if (filterState.price.items['min'] > 0 && filterState.price.items['max'] > 0) {
-              return (asset.price >= filterState.price.items['min'] && asset.price <= filterState.price.items['max']);
-            }
-            if (filterState.price.items['min'] > 0) return (asset.price >= filterState.price.items['min']);
-            if (filterState.price.items['max'] > 0) return (asset.price <= filterState.price.items['max']);
+          if (filterState.price.items['min'] > 0 || filterState.price.items['max'] > 0) FILTERS.panel['price'] = true;
+          if (filterState.price.items['min'] > 0 && filterState.price.items['max'] > 0) {
+            return (asset.price >= filterState.price.items['min'] && asset.price <= filterState.price.items['max']);
           }
+          if (filterState.price.items['min'] > 0) return (asset.price >= filterState.price.items['min']);
+          if (filterState.price.items['max'] > 0) return (asset.price <= filterState.price.items['max']);
         }));
       },
       remove: async () => {
@@ -314,13 +312,11 @@ export default function CollectionContent({ initialData, collectionData }) {
       };
       if (filter.name === 'price' && (FILTERS.panel.price)) {
         workingAssets = workingAssets.filter((asset) => {
-          if (asset.onSale > 0) {
-            if (filterState.price.items['min'] > 0 && filterState.price.items['max'] > 0) {
-              return (asset.price >= filterState.price.items['min'] && asset.price <= filterState.price.items['max']);
-            }
-            if (filterState.price.items['min'] > 0) return (asset.price >= filterState.price.items['min']);
-            if (filterState.price.items['max'] > 0) return (asset.price <= filterState.price.items['max']);
+          if (filterState.price.items['min'] > 0 && filterState.price.items['max'] > 0) {
+            return (asset.price >= filterState.price.items['min'] && asset.price <= filterState.price.items['max']);
           }
+          if (filterState.price.items['min'] > 0) return (asset.price >= filterState.price.items['min']);
+          if (filterState.price.items['max'] > 0) return (asset.price <= filterState.price.items['max']);
         });
       };
 
@@ -521,7 +517,7 @@ export default function CollectionContent({ initialData, collectionData }) {
             return (
               <div
                 key={index}
-                className='w-full grow w-36 xsm:w-40 sm:w-60 max-w-xs border rounded-lg overflow-hidden shadow-lg transform transition duration-500 hover:scale-105 cursor-pointer'
+                className='w-full xxsm:w-40 xsm:w-44 sm:w-60 max-w-xs border rounded-lg overflow-hidden shadow-lg transform transition duration-500 hover:scale-105 cursor-pointer'
                 ref={index === filteredAssets.length - 1 ? observe : null}
                 onClick={() => ROUTER.push(`/asset/${collectionData.contractAddress}/${asset.tokenId}`)}
               >
