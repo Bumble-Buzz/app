@@ -30,27 +30,34 @@ export default async function handler(req, res) {
 
   // for each item, get unique list of collectionIds, and also return collection names
   if (Items.length > 0) {
-    let collectionIds = {};
-    Items.forEach(item => collectionIds[item.collectionId] = item.collectionId);
-    const payloadKeys = Object.values(collectionIds).map(id => ({'id': id}));
+    let walletIds = {};
+    Items.forEach(item => walletIds[item.owner] = item.owner);
+    const payloadKeys = Object.values(walletIds).map(id => ({'walletId': id}));
     payload = {
       RequestItems: {
-        collection: {
+        users: {
           Keys: payloadKeys,
-          ExpressionAttributeNames: { '#id': 'id', '#name': 'name' },
-          ProjectionExpression: "#id, #name"
+          ExpressionAttributeNames: { '#walletId': 'walletId', '#name': 'name' },
+          ProjectionExpression: "#walletId, #name"
         }
       },
     };
     results = await DynamoDbQuery.item.getBatch(payload);
-    const collections = results.Responses.collection;
-    collections.forEach(collection => {
-      Items.forEach(item => {
-        if (item.collectionId === collection.id) {
-          item['collectionName'] = collection.name
+    const users = results.Responses.users;
+    Items.forEach(item => {
+      users.forEach(user => {
+        if (item.owner === user.walletId) {
+          item['ownerName'] = user.name
         }
       });
     });
+    // users.forEach(users => {
+    //   Items.forEach(item => {
+    //     if (item.collectionId === users.id) {
+    //       item['collectionName'] = users.name
+    //     }
+    //   });
+    // });
   }
 
   res.status(200).json({ Items, LastEvaluatedKey, Count, ScannedCount });
