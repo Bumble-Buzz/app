@@ -1,9 +1,10 @@
-import { useState, useReducer } from 'react';
+import { useEffect, useState, useReducer } from 'react';
 import { Transition } from '@headlessui/react';
 import { useRouter } from 'next/router';
 import ButtonWrapper from './wrappers/ButtonWrapper';
 import InputWrapper from './wrappers/InputWrapper';
 import HeadlessSwitch from './HeadlessSwitch';
+import useWindowDimensions from '@/hooks/useWindowDimensions';
 import {ChevronRightIcon, ChevronLeftIcon, ChevronUpIcon, ChevronDownIcon, FilterIcon, SearchIcon} from '@heroicons/react/solid';
 import {
   PencilIcon as PencilIconOutline
@@ -20,7 +21,19 @@ export const FILTER_TYPES = {
 };
 
 export const FilterPanel = ({ children, isShowingInit = false, filters, state, dispatch }) => {
-  const [isShowing, setIsShowing] = useState(isShowingInit);
+  const { width: currentWindowWidth } = useWindowDimensions();
+
+  const [isShowing, setIsShowing] = useState(false);
+
+  // if screen size is md (640px) or greater, only then use the passed in value. Else, always keep the panel closed
+  useEffect(() => {
+    if (currentWindowWidth && currentWindowWidth < 640) {
+      setIsShowing(false);
+    } else {
+      setIsShowing(isShowingInit);
+    }
+  }, [currentWindowWidth]);
+
 
   const MenuItem = (props) => {
     return (
@@ -132,10 +145,9 @@ export const FilterPanel = ({ children, isShowingInit = false, filters, state, d
       </HeadlessSwitch>
     )
   };
-
-
+  
   return (
-    <div className="flex flex-col sticky top-16 overflow-y-auto sm:[height:calc(100vh-4rem)] h-fit">
+  <div className="flex flex-col sticky top-16 overflow-y-auto sm:[height:calc(100vh-4rem)] h-fit">
       {isShowing ?
         (<MenuItem
           leftIcon={<FilterIcon className="w-5 h-5 mr-2" aria-hidden="true" />}
