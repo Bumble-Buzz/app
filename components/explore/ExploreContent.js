@@ -12,6 +12,7 @@ import DropDown from '@/components/navbar/DropDown';
 import Toast from '@/components/Toast';
 import Sort from '@/utils/Sort';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
+import { CATEGORIES } from '@/enum/Categories';
 import NftCard from '@/components/nftAssets/NftCard';
 import { ShieldCheckIcon, ShieldExclamationIcon, XIcon } from '@heroicons/react/solid';
 
@@ -111,6 +112,19 @@ export default function ExploreContent({ initialData }) {
     }
   };
 
+  const categoriesItems = (state, action) => {
+    let newState;
+    if (action.payload.item && CATEGORIES[action.payload.item]) {
+      newState = JSON.parse(JSON.stringify(state));
+      // turn off all category selections
+      Object.getOwnPropertyNames(CATEGORIES).forEach(key => newState.categories.items[key] = false);
+      newState.categories.items[action.payload.item] = !state.categories.items[action.payload.item];
+      return newState
+    } else {
+      return state
+    }
+  };
+
   const reducer = (state, action) => {
     let newState;
     switch(action.type) {
@@ -126,6 +140,12 @@ export default function ExploreContent({ initialData }) {
         return newState
       case 'price-items':
         return priceItems(state, action)
+      case 'categories':
+        newState = JSON.parse(JSON.stringify(state));
+        newState.categories.isSelected = !state.categories.isSelected;
+        return newState
+      case 'categories-items':
+        return categoriesItems(state, action)
       case 'clear':
         FILTERS.panel = {};
         FILTERS.page = {};
@@ -134,6 +154,7 @@ export default function ExploreContent({ initialData }) {
         newState.type.items.auction = false;
         newState.price.items.min = 0;
         newState.price.items.max = 0;
+        newState.categories.items = getCategoriesState();
         return newState
       case 'update':
         newState = JSON.parse(JSON.stringify(state));
@@ -141,6 +162,23 @@ export default function ExploreContent({ initialData }) {
       default:
         return state
     }
+  };
+
+  const getCategoriesFilters = () => {
+    let filters = [];
+    Object.getOwnPropertyNames(CATEGORIES).forEach((key) => {
+      const filter = { name: key, label: CATEGORIES[key], type: FILTER_TYPES.SWITCH };
+      filters.push(filter);
+    });
+    return filters;
+  };
+
+  const getCategoriesState = () => {
+    let state = {};
+    Object.getOwnPropertyNames(CATEGORIES).forEach((key) => {
+      state[key] = false;
+    });
+    return state;
   };
 
   /** filter config **/
@@ -169,7 +207,7 @@ export default function ExploreContent({ initialData }) {
       remove: async (item) => {
         delete FILTERS.panel[item];
         const newFilteredAssets = applyFilters([...assets]);
-        setFilteredAssets([...newFilteredAssets]);
+        setFilteredAssets([...newFilteredAssets.slice(0, BATCH_SIZE)]);
       }
     },
     {
@@ -214,7 +252,24 @@ export default function ExploreContent({ initialData }) {
       remove: async () => {
         delete FILTERS.panel.price;
         const newFilteredAssets = applyFilters([...assets]);
-        setFilteredAssets([...newFilteredAssets]);
+        setFilteredAssets([...newFilteredAssets.slice(0, BATCH_SIZE)]);
+      }
+    },
+    {
+      name: 'categories',
+      label: 'Categories',
+      payload: {},
+      filterItem: 'categories-items',
+      items: getCategoriesFilters(),
+      add: async (item, useFilteredAssets = false) => {
+        FILTERS.panel.categories = {};
+        FILTERS.panel.categories[item] = true;
+        return await filterAssets(useFilteredAssets, (newAssets) => newAssets.filter((asset) => asset.category.toLowerCase().indexOf(item.toString().toLowerCase()) >= 0));
+      },
+      remove: async (item) => {
+        delete FILTERS.panel.categories[item];
+        const newFilteredAssets = applyFilters([...assets]);
+        setFilteredAssets([...newFilteredAssets.slice(0, BATCH_SIZE)]);
       }
     }
   ];
@@ -234,13 +289,22 @@ export default function ExploreContent({ initialData }) {
         min: 0,
         max: 0
       }
+    },
+    categories: {
+      isSelected: false,
+      items: getCategoriesState()
     }
   });
 
+  const areCategoryFiltersSet = () => {
+    const exists = Object.getOwnPropertyNames(CATEGORIES).filter(key => filterState.categories.items[key] === true);
+    return (exists && exists.length > 0);
+  };
   const areFiltersSet = () => {
     return (
       filterState.type.items.buyNow || filterState.type.items.auction ||
-      filterState.price.items.min > 0 || filterState.price.items.max > 0
+      filterState.price.items.min > 0 || filterState.price.items.max > 0 ||
+      areCategoryFiltersSet()
     );
   };
 
@@ -314,7 +378,7 @@ export default function ExploreContent({ initialData }) {
       }
       setAssets([...assets, ...dbAssets]);
       newFilteredAssets = applyFilters([...newFilteredAssets]);
-      setFilteredAssets([...newFilteredAssets]);
+      setFilteredAssets([...newFilteredAssets.slice(0, BATCH_SIZE)]);
       setExclusiveStartKey(latestSortKey);
 
       resolve();
@@ -338,6 +402,15 @@ export default function ExploreContent({ initialData }) {
           if (filterState.price.items['max'] > 0) return (asset.price <= filterState.price.items['max']);
         });
       };
+      if (filter.name === 'categories' && (FILTERS.panel.categories)) {
+        const enabledCategories = Object.getOwnPropertyNames(CATEGORIES).filter(key => FILTERS.panel.categories[key] === true);
+        if (enabledCategories.length <= 0) return;
+
+        workingAssets = workingAssets.filter((asset) => {
+          const category = asset.category.toString().toLowerCase();
+          return _doesArrayInclude(enabledCategories, category);
+        });
+      }
     });
 
     // search

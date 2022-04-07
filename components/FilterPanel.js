@@ -60,7 +60,7 @@ export const FilterPanel = ({ children, isShowingInit = false, filters, state, d
               {item.type === FILTER_TYPES.BUTTON && <Button item={item} />}
               {item.type === FILTER_TYPES.SWITCH_BUTTON && <SwitchButton item={item} filterName={props.filter.name} filterItem={props.filter.filterItem} filterAdd={props.filter.add} filterRemove={props.filter.remove} />}
               {item.type === FILTER_TYPES.INPUT_FIELD && <InputField item={item} filterName={props.filter.name} filterItem={props.filter.filterItem} />}
-              {item.type === FILTER_TYPES.SWITCH && <Switch item={item} filterName={props.filter.name} filterItem={props.filter.filterItem} />}
+              {item.type === FILTER_TYPES.SWITCH && <Switch item={item} filterName={props.filter.name} filterItem={props.filter.filterItem} filterAdd={props.filter.add} filterRemove={props.filter.remove} />}
             </div>
           )
         })}
@@ -134,15 +134,31 @@ export const FilterPanel = ({ children, isShowingInit = false, filters, state, d
     )
   };
 
-  const Switch = ({item, filterName, filterItem}) => {
+  const Switch = ({item, filterName, filterItem, filterAdd, filterRemove}) => {
     return (
-      <HeadlessSwitch
-        classes=""
-        enabled={state[filterName].items[item.name]}
-        onChange={() => dispatch({ type: filterItem, payload: { item: item.name } })}
-      >
-        {item.label}
-      </HeadlessSwitch>
+      state[filterName].items[item.name] ? (
+        <HeadlessSwitch
+          classes=""
+          enabled={state[filterName].items[item.name]}
+          onChange={() => {
+            dispatch({ type: filterItem, payload: { item: item.name } });
+            filterRemove(item.name);
+          }}
+        >
+          {item.label}
+        </HeadlessSwitch>
+      ) : (
+        <HeadlessSwitch
+          classes=""
+          enabled={state[filterName].items[item.name]}
+          onChange={() => {
+            dispatch({ type: filterItem, payload: { item: item.name } });
+            filterAdd(item.name);
+          }}
+        >
+          {item.label}
+        </HeadlessSwitch>
+      )
     )
   };
   
