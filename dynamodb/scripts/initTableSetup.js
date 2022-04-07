@@ -679,7 +679,7 @@ const mockCollections = async () => {
 
 const mockAssets = async () => {
   const pk = '0x640C20ff0F34b75BDA2fCdB4334Acca32B599A81';
-  const sk = 2;
+  const sk = 3;
   let payload = {
     TableName: "asset",
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
@@ -720,7 +720,7 @@ const mockAssets = async () => {
 
 const mockSales = async () => {
   const pk = '0x640C20ff0F34b75BDA2fCdB4334Acca32B599A81';
-  const sk = 2;
+  const sk = 3;
   let payload = {
     TableName: "asset",
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },

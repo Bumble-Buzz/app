@@ -30,7 +30,7 @@ const _doesArrayInclude = (_array, _identifier = {}) => {
 };
 
 
-export default function CollectionContent({ initialData, collectionData }) {
+export default function ExploreContent({ initialData }) {
   const ROUTER = useRouter();
 
   const [assets, setAssets] = useState([]);
@@ -57,7 +57,7 @@ export default function CollectionContent({ initialData, collectionData }) {
   // fetch data from database using SWR
   useSWRInfinite(
     (pageIndex, previousPageData) => {
-      return API.swr.asset.collection(collectionData.contractAddress, apiSortKey.tokenId, 20);
+      return API.swr.asset.sale.all(apiSortKey.owner, apiSortKey.contractAddress, apiSortKey.tokenId, BATCH_SIZE);
     },
     API.swr.fetcher,
     {
@@ -286,7 +286,7 @@ export default function CollectionContent({ initialData, collectionData }) {
         if (dbFetchCount >= dbFetchLimit) break;
   
         // fetch next batch from db
-        const nextAssets = await API.asset.collection(collectionData.contractAddress, latestSortKey.tokenId, 20);
+        const nextAssets = await API.asset.sale.all(latestSortKey.owner, latestSortKey.contractAddress, latestSortKey.tokenId, BATCH_SIZE);
         dbFetchCount++;
   
         workingAssets.push(...nextAssets.data.Items);
@@ -398,10 +398,6 @@ export default function CollectionContent({ initialData, collectionData }) {
   };
   const getSortDropdownItemsList = () => {
     let items = [1,2,5,6];
-    if (Number(collectionData.id) === Number(process.env.NEXT_PUBLIC_LOCAL_COLLECTION_ID)) {
-        items.push(3);
-        items.push(4);
-    }
     return items;
   };
 
@@ -519,7 +515,7 @@ export default function CollectionContent({ initialData, collectionData }) {
                 key={index}
                 className='w-full grow xxsm:w-40 max-w-xs border rounded-lg overflow-hidden shadow-lg transform transition duration-500 hover:scale-105 cursor-pointer'
                 ref={index === filteredAssets.length - 1 ? observe : null}
-                onClick={() => ROUTER.push(`/asset/${collectionData.contractAddress}/${asset.tokenId}`)}
+                onClick={() => ROUTER.push(`/asset/${asset.contractAddress}/${asset.tokenId}`)}
               >
                 <NftCard
                   header={(<>
@@ -531,6 +527,12 @@ export default function CollectionContent({ initialData, collectionData }) {
                   </>)}
                   image={asset.config.image}
                   body={(<>
+                    <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
+                      <div className="flex-1">Collection</div>
+                      <div className="truncate">
+                        {asset.collectionName && (<Link href={`/collection/${asset.collectionId}`} passHref={true}><a className='text-blue-500'>{asset.collectionName}</a></Link>)}
+                      </div>
+                    </div>
                     <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
                       <div className="flex-1">Price</div>
                       <div className="flex flex-row flex-nowrap justify-center items-center">
@@ -546,10 +548,6 @@ export default function CollectionContent({ initialData, collectionData }) {
                       </div>
                     </div>
                   </>)}
-                  // footer={(<>
-                  //   <div className="flex-1 truncate">{asset.config.name}</div>
-                  //   <div className="truncate">{asset.config.name}</div>
-                  // </>)}
                 />
               </div>
             )

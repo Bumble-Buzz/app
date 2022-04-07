@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import IPFS from '@/utils/ipfs';
 
 
-export default function NftCard({children, innerRef, link, header, image, body, footer}) {
+export default function NftCard({children, innerRef, link, header, image, body, footer, zIndex = 'z-0'}) {
   const ROUTER = useRouter();
 
   return (
@@ -14,10 +14,11 @@ export default function NftCard({children, innerRef, link, header, image, body, 
         </div>
         <hr />
       </>)}
-      <div className='relative h-24 sm:h-40 '>
+      <div className={`block ${zIndex}`}>
         <Image
           src={IPFS.getValidHttpUrl(image)}
-          placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado' layout="fill" objectFit="contain" sizes='50vw'
+          placeholder='blur' blurDataURL='/avocado.jpg' alt='avocado'
+          layout="responsive" sizes="50vw" width="64" height="64"
         />
       </div>
       {body && (<>
