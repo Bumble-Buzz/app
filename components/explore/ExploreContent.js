@@ -513,7 +513,7 @@ export default function ExploreContent({ initialData }) {
             return (
               <div
                 key={index}
-                className='w-full grow xxsm:w-40 max-w-xs border rounded-lg overflow-hidden shadow-lg transform transition duration-500 hover:scale-105 cursor-pointer'
+                className='w-full grow xxsm:w-40 xsm:w-44 xxsm:max-w-[15rem] border rounded-lg overflow-hidden shadow-lg transform transition duration-500 hover:scale-105 cursor-pointer'
                 ref={index === filteredAssets.length - 1 ? observe : null}
                 onClick={() => ROUTER.push(`/asset/${asset.contractAddress}/${asset.tokenId}`)}
               >
