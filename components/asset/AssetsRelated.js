@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
 import API from '@/components/Api';
-import NftCard from '../nftAssets/NftCard';
-import Link from 'next/link';
+import NftCard from '@/components/nftAssets/NftCard';
+import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/solid';
 
 
@@ -63,8 +63,8 @@ export default function AssetsRelated({ initialData, classes }) {
                       <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
                         <div className="flex-1">Owner</div>
                         <div className="truncate">
-                          {asset.ownerName && (<Link href={`/profile/${asset.owner}`} passHref={true}><a className='text-blue-500'>{asset.ownerName}</a></Link>)}
-                          {!asset.ownerName && (<Link href={`/profile/${asset.owner}`} passHref={true}><a className='text-blue-500'>{asset.owner}</a></Link>)}
+                          {asset.ownerName && (<LinkWrapper link={`/profile/${asset.owner}`} linkText={asset.ownerName} />)}
+                          {!asset.ownerName && (<LinkWrapper link={`/profile/${asset.owner}`} linkText={asset.owner} />)}
                         </div>
                       </div>
                     </>)}

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { useEffect, useState, useReducer } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
+import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
 import API from '@/components/Api';
@@ -549,7 +549,7 @@ export default function Listings({ initialData }) {
                     <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
                       <div className="flex-1">Collection</div>
                       <div className="truncate">
-                        {asset.collectionName && (<Link href={`/collection/${asset.collectionId}`} passHref={true}><a className='text-blue-500'>{asset.collectionName}</a></Link>)}
+                        {asset.collectionName && (<LinkWrapper link={`/collection/${asset.collectionId}`} linkText={asset.collectionName} />)}
                       </div>
                     </div>
                     <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
@@ -562,8 +562,8 @@ export default function Listings({ initialData }) {
                     <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
                       <div className="flex-1">Owner</div>
                       <div className="truncate">
-                        {asset.ownerName && (<Link href={`/profile/${asset.owner}`} passHref={true}><a className='text-blue-500'>{asset.ownerName}</a></Link>)}
-                        {!asset.ownerName && (<Link href={`/profile/${asset.owner}`} passHref={true}><a className='text-blue-500'>{asset.owner}</a></Link>)}
+                        {asset.ownerName && (<LinkWrapper link={`/profile/${asset.owner}`} linkText={asset.ownerName} />)}
+                        {!asset.ownerName && (<LinkWrapper link={`/profile/${asset.owner}`} linkText={asset.owner} />)}
                       </div>
                     </div>
                   </>)}

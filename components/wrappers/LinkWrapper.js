@@ -13,7 +13,7 @@ export default function LinkWrapper({ children, link, linkText, ...props }) {
       passHref={true}
       {...props}
     >
-      <a className='text-blue-500'>{linkText}</a>
+      <a className={`text-blue-500 ${classes}`}>{linkText}</a>
     </Link>
   );
 }

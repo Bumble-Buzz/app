@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Link from 'next/link';
+import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import { useSession, getSession } from 'next-auth/react';
 import useSWR from 'swr';
 import API from '@/components/Api';
@@ -177,7 +177,6 @@ export default function Asset({ assetDataInit }) {
     }
   };
 
-
   return (
     <ContentWrapper>
       {/* Page Content */}
@@ -189,9 +188,7 @@ export default function Asset({ assetDataInit }) {
             {/* collection name & icon tray */}
             <div className='lg:hidden flex flex-row flex-nowrap justify-between items-center w-full'>
               <div className="truncate">
-                <Link href={collectionDataInit ? `/collection/${collectionDataInit.Items[0].id}` : '/'} passHref={true}>
-                  <a className='font-mono text-lg text-blue-500 hover:text-blue-600'>{collectionDataInit && collectionDataInit.Items[0].name}</a>
-                </Link>
+                <LinkWrapper link={`/collection/${assetData.Item.collectionId}`} linkText={assetData.Item.collectionName} />
               </div>
               <div className='flex flex-col flex-nowrap items-end xsm:items-center'>
                 <IconTray items={[]} specialItems={[]} />
@@ -236,9 +233,7 @@ export default function Asset({ assetDataInit }) {
             {/* collection name & icon tray */}
             <div className='hidden lg:flex flex-row flex-nowrap justify-between items-center w-full'>
               <div className="truncate">
-                <Link href={collectionDataInit ? `/collection/${collectionDataInit.Items[0].id}` : '/'} passHref={true}>
-                  <a className='font-mono text-lg text-blue-500 hover:text-blue-600'>{collectionDataInit && collectionDataInit.Items[0].name}</a>
-                </Link>
+                <LinkWrapper link={`/collection/${assetData.Item.collectionId}`} linkText={assetData.Item.collectionName} />
               </div>
               <div className='flex flex-col flex-nowrap items-end xsm:items-center'>
                 <IconTray items={[]} specialItems={[]} />
@@ -252,8 +247,8 @@ export default function Asset({ assetDataInit }) {
             <div className='flex flex-row flex-nowrap gap-x-1 text-left w-full'>
               <div className=''>Owned by</div>
               <div className="truncate">
-                {assetData.Item.ownerName && (<Link href={`/profile/${assetData.Item.owner}`} passHref={true}><a className='text-blue-500'>{assetData.Item.ownerName}</a></Link>)}
-                {!assetData.Item.ownerName && (<Link href={`/profile/${assetData.Item.owner}`} passHref={true}><a className='text-blue-500'>{assetData.Item.owner}</a></Link>)}
+                {assetData.Item.ownerName && (<LinkWrapper link={`/profile/${assetData.Item.owner}`} linkText={assetData.Item.ownerName} />)}
+                {!assetData.Item.ownerName && (<LinkWrapper link={`/profile/${assetData.Item.owner}`} linkText={assetData.Item.owner} />)}
               </div>
             </div>
             {/* marketplace actions */}

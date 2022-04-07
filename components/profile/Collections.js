@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
+import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import { useSession } from 'next-auth/react';
 import { useAuth } from '@/contexts/AuthContext';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
@@ -143,12 +143,9 @@ export default function Collections({ initialData }) {
                     (<div className="grow w-full font-bold truncate">{asset.name}</div>)
                   }
                   <div className="grow w-full -mt-2 truncate">
-                    <p>
-                      created by <Link href={`/profile/${asset.owner}`} passHref={true}><a className='text-blue-500'>
-                        {asset.ownerName &&  asset.ownerName }
-                        {!asset.ownerName &&  asset.owner }
-                      </a></Link>
-                    </p>
+                    <>created by </>
+                    {asset.ownerName && (<LinkWrapper link={`/profile/${asset.owner}`} linkText={asset.ownerName} />)}
+                    {!asset.ownerName && (<LinkWrapper link={`/profile/${asset.owner}`} linkText={asset.owner} />)}
                   </div>
                   <div className="grow w-full line-clamp-3">{asset.description}</div>
                 </div>

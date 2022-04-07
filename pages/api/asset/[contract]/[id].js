@@ -36,24 +36,25 @@ export default async function handler(req, res) {
         },
         collection: {
           Keys: collectionPayloadKeys,
-          ExpressionAttributeNames: { '#category': 'category' },
-          ProjectionExpression: '#category'
+          ExpressionAttributeNames: { '#id': 'id', '#name': 'name', '#category': 'category' },
+          ProjectionExpression: '#id, #name, #category'
         }
       }
     };
     results = await DynamoDbQuery.item.getBatch(payload);
-    const user = results.Responses.users;
-    user.forEach(item => {
-      if (Item.owner === item.walletId) {
-        Item['ownerName'] = item.name
+    const users = results.Responses.users;
+    users.forEach(user => {
+      if (Item.owner === user.walletId) {
+        Item['ownerName'] = user.name
       }
-      if (Item.creator === item.walletId) {
-        Item['creatorName'] = item.name
+      if (Item.creator === user.walletId) {
+        Item['creatorName'] = user.name
       }
     });
-    const collection = results.Responses.collection;
-    collection.forEach(item => {
-      Item['category'] = item.category
+    const collections = results.Responses.collection;
+    collections.forEach(collection => {
+      Item['collectionName'] = collection.name
+      Item['category'] = collection.category
     });
   }
 

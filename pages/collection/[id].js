@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ethers } from 'ethers';
 import Image from 'next/image';
 import Link from 'next/link';
+import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import { useRouter } from 'next/router';
 import { useSession, getSession } from 'next-auth/react';
 import useSWR from 'swr';
@@ -103,10 +104,9 @@ export default function Collection({ collectionDataInit }) {
             <div className='px-2 py-2 flex flex-col flex-wrap w-full text-center'>
               <div className='w-full text-4xl font-bold'>{collectionDataInit.name} asdas dasdasdasd asdasdasd</div>
               <div className='w-full truncate'>
-                created by <Link href={`/profile/${collectionDataInit.owner}`} passHref={true}><a className='text-blue-500 font-bold'>
-                  {collectionDataInit.ownerName && collectionDataInit.ownerName }
-                  {!collectionDataInit.ownerName && collectionDataInit.owner }
-                </a></Link>
+                <>created by </>
+                {collectionDataInit.ownerName && (<LinkWrapper link={`/profile/${collectionDataInit.owner}`} linkText={collectionDataInit.ownerName} />)}
+                {!collectionDataInit.ownerName && (<LinkWrapper link={`/profile/${collectionDataInit.owner}`} linkText={collectionDataInit.owner} />)}
               </div>
             </div>
             {/* description */}

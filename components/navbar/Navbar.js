@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import { useSession, getSession } from 'next-auth/react';
 import Menu from './Menu';
 import Notification from './Notification';
@@ -179,7 +179,7 @@ export default function Navbar() {
 
       {/* Logo */}
       <div className="flex items-center text-2xl lg:text-3xl font-bold text-gray-800">
-        <Link href='/' passHref={true}><a>{Lexicon.title}</a></Link>
+        <LinkWrapper link={`/`} linkText={Lexicon.title} classes='text-black' />
       </div>
 
       {/* Search bar */}
