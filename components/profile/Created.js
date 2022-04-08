@@ -1,10 +1,12 @@
 import _ from 'lodash';
 import { useEffect, useState, useReducer } from 'react';
 import { useRouter } from 'next/router';
-import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
 import API from '@/components/Api';
+import { useSession } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
+import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import InputWrapper from '@/components/wrappers/InputWrapper';
 import { FilterPanel, FILTER_TYPES } from '@/components/FilterPanel';
@@ -13,7 +15,7 @@ import Toast from '@/components/Toast';
 import Sort from '@/utils/Sort';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
 import NftCard from '@/components/nftAssets/NftCard';
-import { ShieldCheckIcon, ShieldExclamationIcon, XIcon } from '@heroicons/react/solid';
+import { ShieldCheckIcon, ShieldExclamationIcon, XIcon, ArrowRightIcon } from '@heroicons/react/solid';
 
 
 const BATCH_SIZE = 40;
@@ -31,6 +33,8 @@ const _doesArrayInclude = (_array, _identifier = {}) => {
 
 
 export default function Created({ initialData }) {
+  const AuthContext = useAuth();
+  const { data: session, status: sessionStatus } = useSession();
   const ROUTER = useRouter();
 
   const [assets, setAssets] = useState([]);
@@ -446,128 +450,153 @@ export default function Created({ initialData }) {
     return false;
   };
 
+  const isSignInValid = () => {
+    return (
+      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
+      AuthContext.state.isNetworkValid
+    )
+  };
+  const isProfileOwner = () => {
+    return (session.user.id === ROUTER.query.wallet)
+  };
+
 
   return (
-    <div className='flex flex-col sm:flex-row'>
+    <>
+      {/* <p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p> */}
+      {/* <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p> */}
+      {/* <p onClick={() => {console.log('assets', assets)}}>See assets</p> */}
+      {/* <p onClick={() => {console.log('filteredAssets', filteredAssets); console.log('filteredAssets', filteredAssets.map((asset) => asset.price));}}>See filteredAssets</p> */}
+      {/* <p onClick={() => {console.log('FILTERS', FILTERS)}}>See FILTERS</p> */}
 
-{/* <p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p> */}
-{/* <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p> */}
-{/* <p onClick={() => {console.log('assets', assets)}}>See assets</p> */}
-{/* <p onClick={() => {console.log('filteredAssets', filteredAssets); console.log('filteredAssets', filteredAssets.map((asset) => asset.price));}}>See filteredAssets</p> */}
-{/* <p onClick={() => {console.log('FILTERS', FILTERS)}}>See FILTERS</p> */}
-
-      {/* filter panel */}
-      <div className="-px-2 -ml-2 bg-white">
-        <FilterPanel isShowingInit={true} filters={filterConfig} state={filterState} dispatch={dispatch} />
-      </div>
-
-      <div className="px-2 bg-white w-full">
-
-        {/* filter button */}
-        <div className='mt-1 flex flex-row flex-wrap gap-2 justify-start items-center content-center'>
-          {filterConfig && filterConfig.length > 0 && filterConfig.map((filter, index1) => {
-            return (
-              filter.items && filter.items.length > 0 && filter.items.map((item, index) => {
-                if (filterState[filter.name].items[item.name] && isMaxFilterValid(filter.name, item.name)) {
-                  return (
-                    <ButtonWrapper
-                      key={index}
-                      classes="border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0"
-                      onClick={() => {
-                        dispatch({ type: filter.filterItem, payload: { item: item.name, [item.name]: 0 } });
-                        if (filter.filterItem === 'price-items') {
-                          dispatch({ type: filter.filterItem, payload: { item: 'max', 'max': 0 } });
-                          dispatch({ type: 'update' });
-                        }
-                        filter.remove(item.name);
-                      }}
-                    >
-                      {minMaxFilterButton(filter.filterItem, filter.name, item.name)}
-                      {filter.filterItem !== 'price-items' && item.label}
-                      <XIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
-                    </ButtonWrapper>
-                  )
-                }
-              })
-            )
-          })}
-          {areFiltersSet() && (
-            <ButtonWrapper
-              classes="border-inherit rounded-2xl text-black bg-red-300 hover:bg-red-400 focus:ring-0"
-              onClick={() => { dispatch({ type: 'clear' }); setFilteredAssets([...assets.slice(0, filteredAssets.length+BATCH_SIZE)]); }}
-            >
-              Clear All
-            </ButtonWrapper>
-          )}
+      {/* create button */}
+      {isSignInValid() && isProfileOwner() && (
+        <div className='py-2 flex flex-nowrap gap-2 justify-start items-center'>
+          <ButtonWrapper
+            classes="py-2 px-4 border border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0"
+            onClick={() => ROUTER.push('/asset/create')}
+          >
+            Create new NFT
+            <ArrowRightIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
+          </ButtonWrapper>
         </div>
+      )}
 
-        <div className='mt-1 flex flex-row flex-nowrap gap-2 justify-between items-center content-center'>
-          {/* search bar */}
-          <div className="flex-1">
-            <InputWrapper
-              type="search"
-              id="page-search"
-              name="page-search"
-              placeholder="Search"
-              aria-label="page-search"
-              aria-describedby="page-search"
-              classes="w-full"
-              value={FILTERS.page && FILTERS.page.search ? FILTERS.page.search : ''}
-              onChange={(e) => {FILTERS.page.search = e.target.value; searchFilterAssets(e.target.value);}}
-            />
-          </div>
-          {/* sort dropdown */}
-          <div className='flex flex-nowrap flex-1 gap-2 justify-start items-top w-full max-w-md'>
-            <DropDown
-              title='Sort By' items={getSortDropdownItemsList()} getItem={getSortDropdownItems} showSelectedItem={(FILTERS.page && FILTERS.page.sort)}
-              titleStyle='p-2 flex flex-row justify-between font-thin w-full border border-gray-300'
-              menuStyle='right-0 w-full z-10 mt-0 origin-top-right'
-            />
-          </div>
+      <div className='flex flex-col sm:flex-row'>
+        {/* filter panel */}
+        <div className="-px-2 -ml-2 bg-white">
+          <FilterPanel isShowingInit={true} filters={filterConfig} state={filterState} dispatch={dispatch} />
         </div>
 
         {/* content */}
-        <div className='py-2 flex flex-wrap gap-4 justify-center items-center'>
-          {filteredAssets.map((asset, index) => {
-            return (
-              <div
-                key={index}
-                className='w-full grow xxsm:w-40 xsm:w-44 xxsm:max-w-[15rem] border rounded-lg overflow-hidden shadow-lg transform transition duration-500 hover:scale-105 cursor-pointer'
-                ref={index === filteredAssets.length - 1 ? observe : null}
-                onClick={() => ROUTER.push(`/asset/${asset.contractAddress}/${asset.tokenId}`)}
+        <div className="px-2 bg-white w-full">
+          {/* filter button */}
+          <div className='mt-1 flex flex-row flex-wrap gap-2 justify-start items-center content-center'>
+            {filterConfig && filterConfig.length > 0 && filterConfig.map((filter, index1) => {
+              return (
+                filter.items && filter.items.length > 0 && filter.items.map((item, index) => {
+                  if (filterState[filter.name].items[item.name] && isMaxFilterValid(filter.name, item.name)) {
+                    return (
+                      <ButtonWrapper
+                        key={index}
+                        classes="border-inherit rounded-2xl text-black bg-indigo-300 hover:bg-indigo-400 focus:ring-0"
+                        onClick={() => {
+                          dispatch({ type: filter.filterItem, payload: { item: item.name, [item.name]: 0 } });
+                          if (filter.filterItem === 'price-items') {
+                            dispatch({ type: filter.filterItem, payload: { item: 'max', 'max': 0 } });
+                            dispatch({ type: 'update' });
+                          }
+                          filter.remove(item.name);
+                        }}
+                      >
+                        {minMaxFilterButton(filter.filterItem, filter.name, item.name)}
+                        {filter.filterItem !== 'price-items' && item.label}
+                        <XIcon className="w-5 h-5" alt="clear" title="clear" aria-hidden="true" />
+                      </ButtonWrapper>
+                    )
+                  }
+                })
+              )
+            })}
+            {areFiltersSet() && (
+              <ButtonWrapper
+                classes="border-inherit rounded-2xl text-black bg-red-300 hover:bg-red-400 focus:ring-0"
+                onClick={() => { dispatch({ type: 'clear' }); setFilteredAssets([...assets.slice(0, filteredAssets.length+BATCH_SIZE)]); }}
               >
-                <NftCard
-                  header={(<>
-                    <div className="flex-1 font-bold text-purple-500 text-xl truncate">{asset.config.name}</div>
-                    <div className='flex items-center'>
-                      {asset.collectionId === 1 && <ShieldExclamationIcon className="w-5 h-5" fill="#ff3838" alt="unverified" title="unverified" aria-hidden="true" />}
-                      {asset.collectionId !== 1 && <ShieldCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />}
-                    </div>
-                  </>)}
-                  image={asset.config.image}
-                  body={(<>
-                    <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
-                      <div className="flex-1">Price</div>
-                      <div className="flex flex-row flex-nowrap justify-center items-center">
-                      <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
-                        <div className="truncate">{asset.price}</div>
-                      </div>
-                    </div>
-                    <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
-                      <div className="flex-1">Owner</div>
-                      <div className="truncate">
-                        {asset.ownerName && (<LinkWrapper link={`/profile/${asset.owner}`} linkText={asset.ownerName} />)}
-                        {!asset.ownerName && (<LinkWrapper link={`/profile/${asset.owner}`} linkText={asset.owner} />)}
-                      </div>
-                    </div>
-                  </>)}
-                />
-              </div>
-            )
-          })}
-        </div>
+                Clear All
+              </ButtonWrapper>
+            )}
+          </div>
 
+          <div className='mt-1 flex flex-row flex-nowrap gap-2 justify-between items-center content-center'>
+            {/* search bar */}
+            <div className="flex-1">
+              <InputWrapper
+                type="search"
+                id="page-search"
+                name="page-search"
+                placeholder="Search"
+                aria-label="page-search"
+                aria-describedby="page-search"
+                classes="w-full"
+                value={FILTERS.page && FILTERS.page.search ? FILTERS.page.search : ''}
+                onChange={(e) => {FILTERS.page.search = e.target.value; searchFilterAssets(e.target.value);}}
+              />
+            </div>
+            {/* sort dropdown */}
+            <div className='flex flex-nowrap flex-1 gap-2 justify-start items-top w-full max-w-md'>
+              <DropDown
+                title='Sort By' items={getSortDropdownItemsList()} getItem={getSortDropdownItems} showSelectedItem={(FILTERS.page && FILTERS.page.sort)}
+                titleStyle='p-2 flex flex-row justify-between font-thin w-full border border-gray-300'
+                menuStyle='right-0 w-full z-10 mt-0 origin-top-right'
+              />
+            </div>
+          </div>
+
+          {/* content */}
+          <div className='py-2 flex flex-wrap gap-4 justify-center items-center'>
+            {filteredAssets.map((asset, index) => {
+              return (
+                <div
+                  key={index}
+                  className='w-full grow xxsm:w-40 xsm:w-44 xxsm:max-w-[15rem] border rounded-lg overflow-hidden shadow-lg transform transition duration-500 hover:scale-105 cursor-pointer'
+                  ref={index === filteredAssets.length - 1 ? observe : null}
+                  onClick={() => ROUTER.push(`/asset/${asset.contractAddress}/${asset.tokenId}`)}
+                >
+                  <NftCard
+                    header={(<>
+                      <div className="flex-1 font-bold text-purple-500 text-xl truncate">{asset.config.name}</div>
+                      <div className='flex items-center'>
+                        {asset.collectionId === 1 && <ShieldExclamationIcon className="w-5 h-5" fill="#ff3838" alt="unverified" title="unverified" aria-hidden="true" />}
+                        {asset.collectionId !== 1 && <ShieldCheckIcon className="w-5 h-5" fill="#33cc00" alt="verified" title="verified" aria-hidden="true" />}
+                      </div>
+                    </>)}
+                    image={asset.config.image}
+                    body={(<>
+                      <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
+                        <div className="flex-1">Price</div>
+                        <div className="flex flex-row flex-nowrap justify-center items-center">
+                        <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
+                          <div className="truncate">{asset.price}</div>
+                        </div>
+                      </div>
+                      <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
+                        <div className="flex-1">Owner</div>
+                        <div className="truncate">
+                          {asset.ownerName && (<LinkWrapper link={`/profile/${asset.owner}`} linkText={asset.ownerName} />)}
+                          {!asset.ownerName && (<LinkWrapper link={`/profile/${asset.owner}`} linkText={asset.owner} />)}
+                        </div>
+                      </div>
+                    </>)}
+                  />
+                </div>
+              )
+            })}
+          </div>
+
+        </div>
       </div>
-    </div>
+
+    </>
   )
 }
