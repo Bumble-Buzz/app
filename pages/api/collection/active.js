@@ -7,12 +7,14 @@ export default async function handler(req, res) {
   const { id, limit } = req.query
   // console.log('api param:', id, limit);
 
-  const session = await getSession({ req })
-  // console.log('session', session);
+
+  const formattedId = Number(id);
+  let formattedLimit = Number(limit);
+  if (formattedLimit > 50) limit = 50;
 
   let exclusiveStartKey = undefined;
-  if (id && Number.isInteger(Number(id))) {
-    exclusiveStartKey = { 'id': Number(id), 'active': 1 };
+  if (id && Number.isInteger(formattedId)) {
+    exclusiveStartKey = { 'id': formattedId, 'active': 1 };
   }
 
   let payload = {
@@ -22,7 +24,7 @@ export default async function handler(req, res) {
     ExpressionAttributeValues: { ':active': 1 },
     KeyConditionExpression: '#active = :active',
     ExclusiveStartKey: exclusiveStartKey,
-    Limit: Number(limit) || 10
+    Limit: formattedLimit || 10
   };
   let results = await DynamoDbQuery.item.query(payload);
   const {Items, LastEvaluatedKey, Count, ScannedCount} = results;

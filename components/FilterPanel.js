@@ -1,6 +1,5 @@
 import { useEffect, useState, useReducer } from 'react';
 import { Transition } from '@headlessui/react';
-import { useRouter } from 'next/router';
 import ButtonWrapper from './wrappers/ButtonWrapper';
 import InputWrapper from './wrappers/InputWrapper';
 import HeadlessSwitch from './HeadlessSwitch';
@@ -51,7 +50,7 @@ export const FilterPanel = ({ children, isShowingInit = false, filters, state, d
   const MenuSubItem = (props) => {
     return (
       <form onSubmit={(e) => {if (props.filter.payload.onSubmit(e)) props.filter.add()} } method="POST"
-        className={`px-4 py-2 flex flex-col flex-wrap gap-2 border-t border-gray-200 ${props.class}`}
+        className={`px-4 py-2 flex flex-col flex-nowrap gap-2 border-t border-gray-200 ${props.class}`}
       >
         {props.filter.items && props.filter.items.length > 0 && props.filter.items.map((item, index) => {
           return (
@@ -64,6 +63,16 @@ export const FilterPanel = ({ children, isShowingInit = false, filters, state, d
             </div>
           )
         })}
+      </form>
+    )
+  };
+
+  const MenuSubItemComponent = (props) => {
+    return (
+      <form onSubmit={(e) => {if (props.filter.payload.onSubmit(e)) props.filter.add()} } method="POST"
+        className={`px-4 py-2 flex flex-col flex-nowrap gap-2 border-t border-gray-200 ${props.class}`}
+      >
+        {props.filter.component}
       </form>
     )
   };
@@ -204,7 +213,11 @@ export const FilterPanel = ({ children, isShowingInit = false, filters, state, d
                   >
                     <div className="text-gray-400 text-base text-left w-full">{filter.label}</div>
                   </MenuItem>
-                  <MenuSubItem filter={filter} class="" />
+                  {filter.component ? (
+                    <MenuSubItemComponent filter={filter} />
+                  ) : (
+                    <MenuSubItem filter={filter} class={filter.class} />
+                  )}
                 </>)
                 :
                 (<>

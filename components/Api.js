@@ -100,6 +100,7 @@ module.exports = {
     id: id => API.get(`collection/${id}`),
     owned: (owner,id,limit) => API.get(`collection/owned/${owner}?id=${id}&limit=${limit}`),
     remove: payload => API.post(`collection/remove`, payload),
+    getActivate: (id,limit) => API.get(`collection/active?id=${id}&limit=${limit}`),
     active: {
       activate: payload => API.post(`collection/active/activate`, payload),
       deactivate: payload => API.post(`collection/active/deactivate`, payload)

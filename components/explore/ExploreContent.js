@@ -2,9 +2,11 @@ import _ from 'lodash';
 import { useEffect, useState, useReducer } from 'react';
 import { useRouter } from 'next/router';
 import LinkWrapper from '@/components/wrappers/LinkWrapper';
+import useSWR from 'swr';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
 import API from '@/components/Api';
+import ExploreCollectionsFilter from '@/components/explore/ExploreCollectionsFilter';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import InputWrapper from '@/components/wrappers/InputWrapper';
 import { FilterPanel, FILTER_TYPES } from '@/components/FilterPanel';
@@ -38,7 +40,9 @@ export default function ExploreContent({ initialData }) {
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [apiSortKey, setApiSortKey] = useState(null);
   const [exclusiveStartKey, setExclusiveStartKey] = useState(null);
-  const [userInputTimer, setUserInputTimer] = useState(null)
+  const [userInputTimer, setUserInputTimer] = useState(null);
+
+  const {data: collectionInit} = useSWR(API.swr.collection.active('null', BATCH_SIZE), API.swr.fetcher, API.swr.options);
 
   // on scroll fetch data
   const { observe } = useInView({
@@ -112,6 +116,28 @@ export default function ExploreContent({ initialData }) {
     }
   };
 
+  const collectionsItems = (state, action) => {
+    let newState;
+    if (action.payload.item !== 'searchBar' && action.payload.item !== 'searchBarClear') {
+      state.collections.items = action.payload.item;
+      return state
+    } else {
+      switch(action.payload.item) {
+        case 'searchBar':
+          console.log('searchBar');
+          state.collections.items.searchBar = action.payload.searchBar;
+          return state
+        case 'searchBarClear':
+          console.log('searchBarClear');
+          newState = JSON.parse(JSON.stringify(state));
+          newState.collections.items.searchBar = null;
+          return newState
+        default:
+          return state
+      }
+    }
+  };
+
   const categoriesItems = (state, action) => {
     let newState;
     if (action.payload.item && CATEGORIES[action.payload.item]) {
@@ -140,6 +166,12 @@ export default function ExploreContent({ initialData }) {
         return newState
       case 'price-items':
         return priceItems(state, action)
+      case 'collections':
+        newState = JSON.parse(JSON.stringify(state));
+        newState.collections.isSelected = !state.collections.isSelected;
+        return newState
+      case 'collections-items':
+        return collectionsItems(state, action)
       case 'categories':
         newState = JSON.parse(JSON.stringify(state));
         newState.categories.isSelected = !state.categories.isSelected;
@@ -154,6 +186,7 @@ export default function ExploreContent({ initialData }) {
         newState.type.items.auction = false;
         newState.price.items.min = 0;
         newState.price.items.max = 0;
+        newState.collections.items = {};
         newState.categories.items = getCategoriesState();
         return newState
       case 'update':
@@ -163,6 +196,31 @@ export default function ExploreContent({ initialData }) {
         return state
     }
   };
+
+  const getCollectionsFilters = () => {
+    let filters = [];
+    filters.push({ name: 'searchBar', label: 'Search by name', type: FILTER_TYPES.SEARCH });
+    if (collectionInit && collectionInit.Items && collectionInit.Items.length > 0) {
+      collectionInit.Items.forEach((collection) => {
+        const filter = { name: collection.id, label: collection.name, type: FILTER_TYPES.SWITCH, ui: { contained: true } };
+        filters.push(filter);
+      });
+    }
+    return filters;
+  };
+  // console.log('getCollectionsFilters', getCollectionsFilters());
+
+  const getCollectionsState = () => {
+    let state = {};
+    state.searchBar = false;
+    if (collectionInit && collectionInit.Items && collectionInit.Items.length > 0) {
+      collectionInit.Items.forEach((collection) => {
+        state[collection.id] = false;
+      });
+    }
+    return state;
+  };
+  // console.log('getCollectionsState', getCollectionsState());
 
   const getCategoriesFilters = () => {
     let filters = [];
@@ -256,6 +314,33 @@ export default function ExploreContent({ initialData }) {
       }
     },
     {
+      name: 'collections',
+      label: 'Collections',
+      payload: { onSubmit: (e, _override) => {
+        e.preventDefault();
+        console.log('collections...', filterState.collections.items.searchBar);
+      }},
+      filterItem: 'collections-items',
+      class: 'overflow-y-auto max-h-64',
+      observe: {
+        api: {
+          direct: async (id,limit) => await API.collection.getActivate(id, limit),
+          swr: (id,limit) => useSWR(API.swr.collection.active(id, limit), API.swr.fetcher, API.swr.options),
+        }
+      },
+      component: (<ExploreCollectionsFilter collectionInit={collectionInit} getCollections={(state) => {
+        console.log('state from ExploreCollectionsFilter', state);
+        dispatch({ type: 'collections-items', payload: { item: state } });
+        if (!FILTERS.panel.collections) FILTERS.panel.collections = {};
+        FILTERS.panel.collections = state;
+        // const newFilteredAssets = applyFilters([...assets]);
+        // setFilteredAssets([...newFilteredAssets]);
+      }} />),
+      items: getCollectionsFilters(),
+      add: async (item, useFilteredAssets = false) => {},
+      remove: async (item) => {}
+    },
+    {
       name: 'categories',
       label: 'Categories',
       payload: {},
@@ -289,6 +374,10 @@ export default function ExploreContent({ initialData }) {
         min: 0,
         max: 0
       }
+    },
+    collections: {
+      isSelected: false,
+      items: {}
     },
     categories: {
       isSelected: false,
@@ -371,7 +460,7 @@ export default function ExploreContent({ initialData }) {
         // fetch next batch from db
         const nextAssets = await API.asset.sale.all(latestSortKey.owner, latestSortKey.contractAddress, latestSortKey.tokenId, BATCH_SIZE);
         dbFetchCount++;
-  
+
         workingAssets.push(...nextAssets.data.Items);
         dbAssets.push(...nextAssets.data.Items);
         latestSortKey = nextAssets.data.LastEvaluatedKey;
@@ -402,6 +491,10 @@ export default function ExploreContent({ initialData }) {
           if (filterState.price.items['max'] > 0) return (asset.price <= filterState.price.items['max']);
         });
       };
+      // if (filter.name === 'collections' && (FILTERS.panel.collections)) {
+      //   const enabledCollections = Object.getOwnPropertyNames(FILTERS.panel.collections).filter(key => FILTERS.panel.collections[key] === true);
+      //   console.log('enabledCollections', enabledCollections);
+      // }
       if (filter.name === 'categories' && (FILTERS.panel.categories)) {
         const enabledCategories = Object.getOwnPropertyNames(CATEGORIES).filter(key => FILTERS.panel.categories[key] === true);
         if (enabledCategories.length <= 0) return;
@@ -527,7 +620,8 @@ export default function ExploreContent({ initialData }) {
 {/* <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p> */}
 {/* <p onClick={() => {console.log('assets', assets)}}>See assets</p> */}
 {/* <p onClick={() => {console.log('filteredAssets', filteredAssets); console.log('filteredAssets', filteredAssets.map((asset) => asset.price));}}>See filteredAssets</p> */}
-{/* <p onClick={() => {console.log('FILTERS', FILTERS)}}>See FILTERS</p> */}
+{/* <p onClick={() => {console.log('filterState', filterState)}}>filterState</p> */}
+{/* <p onClick={() => {console.log('FILTERS', FILTERS)}}>FILTERS</p> */}
 
       {/* filter panel */}
       <div className="-px-2 -ml-2 bg-white">
