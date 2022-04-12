@@ -5,14 +5,31 @@ import API from '@/components/Api';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import InputWrapper from '@/components/wrappers/InputWrapper';
 import HeadlessSwitch from '@/components/HeadlessSwitch';
+import Sort from '@/utils/Sort';
+import { useFilter, FILTER_CONTEXT_ACTIONS } from '@/contexts/FilterContext';
 
 
 const BATCH_SIZE = 40;
 
+export const _arrAddRemove = ([..._data] = [], _element) => {
+  if (!_element) return [..._data];
 
-export default function ExploreCollectionsFilter({children, collectionInit, getCollections}) {
+  const index = _data.indexOf(_element);
+  const exists = (index >= 0);
+  if (exists) {
+    const length = _data.length;
+    _data[index] = _data[length-1];
+    _data.pop();
+  } else {
+    _data.push(_element);
+  }
+  return [..._data];
+};
 
-  const [assets, setAssets] = useState([]);
+
+export default function ExploreCollectionsFilter({children, collectionInit}) {
+  const FilterContext = useFilter();
+
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [apiSortKey, setApiSortKey] = useState(null);
   const [exclusiveStartKey, setExclusiveStartKey] = useState(null);
@@ -42,67 +59,44 @@ export default function ExploreCollectionsFilter({children, collectionInit, getC
     {
       onSuccess: (_data) => {
         const lastEle = _data[_data.length - 1];
-        setAssets([...assets, ...lastEle.Items]);
-        setFilteredAssets([...filteredAssets, ...lastEle.Items]);
+        setFilteredAssets([...sortCollections([...filteredAssets, ...lastEle.Items])]);
         setExclusiveStartKey(lastEle.LastEvaluatedKey);
-        dispatch({ type: 'add', payload: getCollectionsState([...lastEle.Items]) });
+
+        const newState = [...FilterContext.state.collections.items, ...lastEle.Items];
+        FilterContext.dispatch({ type: FILTER_CONTEXT_ACTIONS.COLLECTIONS, payload: { collections: newState, exclusiveStartKey: lastEle.LastEvaluatedKey } });
       },
       ...API.swr.options
     }
   );
 
   useEffect(() => {
-    if (collectionInit) {
-      setAssets(collectionInit.Items);
-      setFilteredAssets(collectionInit.Items);
+    if (!FilterContext.state.collections.items && collectionInit) {
+      setFilteredAssets([...sortCollections(collectionInit.Items)]);
       setExclusiveStartKey(collectionInit.LastEvaluatedKey);
-      // getCollections(getCollectionsState(collectionInit.Items));
+      FilterContext.dispatch({ type: FILTER_CONTEXT_ACTIONS.COLLECTIONS, payload: { collections: [...collectionInit.Items], exclusiveStartKey: collectionInit.LastEvaluatedKey } });
+    } else if (FilterContext.state.collections.items) {
+      setFilteredAssets([...sortCollections(FilterContext.state.collections.items)]);
+      setExclusiveStartKey(FilterContext.state.collections.exclusiveStartKey);
     }
-  }, [collectionInit]);
+  }, []);
+
+  const sortCollections = (_data, _comparator = FilterContext.state.collections.selected) => {
+    return Sort.sortBoolean(_data, _comparator);
+  };
 
   const getCollectionsState = (collections) => {
-    let state = {};
+    let state = [];
     if (collections && collections.length > 0) {
-      collections.forEach((collection) => {
-        state[collection.id] = false;
-      });
+      state = JSON.parse(JSON.stringify(collections));
+      // state.forEach((ele) => {
+      //   ele.isSelected = false;
+      // });
     }
     return state;
   };
-  // console.log('getCollectionsState', getCollectionsState());
-
-  const reducer = (state, action) => {
-    let newState;
-    if (action.type !== 'add' && action.type !== 'clear' && action.type !== 'update') {
-      newState = JSON.parse(JSON.stringify(state));
-      newState[action.type] = !state[action.type];
-      getCollections(newState);
-      return newState
-    } else {
-      switch(action.type) {
-        case 'add':
-          newState = { ...state, ...action.payload };
-          getCollections(newState);
-          return newState
-        case 'clear':
-          newState = JSON.parse(JSON.stringify(state));
-          newState = getCollectionsState([...assets]);
-          getCollections(newState);
-          return newState
-        case 'update':
-          newState = JSON.parse(JSON.stringify(state));
-          getCollections(newState);
-          return newState
-        default:
-          getCollections(state);
-          return state
-      }
-    }
-  };
-  const [state, dispatch] = useReducer(reducer, getCollectionsState([...collectionInit.Items]));
 
   const searchFilterAssets = async (_value) => {
-    if (!_value || _value === '') return setFilteredAssets(assets);
+    if (!_value || _value === '') return setFilteredAssets([...sortCollections(FilterContext.state.collections.items)]);
 
     clearTimeout(userInputTimer);
     
@@ -118,7 +112,7 @@ export default function ExploreCollectionsFilter({children, collectionInit, getC
   const filterAssets = async (useFilteredAssets = false, filter) => {
     return new Promise(async (resolve) => {
       let dbAssets = [];
-      let workingAssets = JSON.parse(JSON.stringify(assets));
+      let workingAssets = JSON.parse(JSON.stringify(FilterContext.state.collections.items));
       if (useFilteredAssets) workingAssets = JSON.parse(JSON.stringify(filteredAssets));
       let newFilteredAssets = [];
       let latestSortKey = exclusiveStartKey;
@@ -140,9 +134,11 @@ export default function ExploreCollectionsFilter({children, collectionInit, getC
         dbAssets.push(...nextAssets.data.Items);
         latestSortKey = nextAssets.data.LastEvaluatedKey;
       }
-      setAssets([...assets, ...dbAssets]);
-      setFilteredAssets([...newFilteredAssets]);
+      setFilteredAssets([...sortCollections(newFilteredAssets)]);
       setExclusiveStartKey(latestSortKey);
+
+      const newState = [...FilterContext.state.collections.items, ...dbAssets];
+      FilterContext.dispatch({ type: FILTER_CONTEXT_ACTIONS.COLLECTIONS, payload: { collections: newState } });
 
       resolve();
     });
@@ -150,11 +146,10 @@ export default function ExploreCollectionsFilter({children, collectionInit, getC
 
   return (
     <>
-{/* <p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p> */}
-{/* <p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p> */}
-<p onClick={() => {console.log('assets', assets)}}>See assets</p>
+{/* <p onClick={() => {console.log('exclusiveStartKey', exclusiveStartKey)}}>See exclusiveStartKey</p>
+<p onClick={() => {console.log('apiSortKey', apiSortKey)}}>See apiSortKey</p>
 <p onClick={() => {console.log('filteredAssets', filteredAssets); console.log('filteredAssets', filteredAssets.map((asset) => asset.id));}}>See filteredAssets</p>
-<p onClick={() => {console.log('state', state, Object.getOwnPropertyNames(state).length)}}>See state</p>
+<p onClick={() => {console.log('state', FilterContext.state.collections.items, FilterContext.state.collections.items.length)}}>See state</p> */}
 
       {/* search */}
       <div className='flex flex-col grow'>
@@ -173,15 +168,19 @@ export default function ExploreCollectionsFilter({children, collectionInit, getC
 
       {/* collections */}
       <div className='flex flex-col overflow-y-auto max-h-52 gap-2 '>
-        {filteredAssets.map((asset, index) => {
+        {filteredAssets && filteredAssets.map((collection, index) => {
           return (
             <div key={index} ref={index === filteredAssets.length - 1 ? observe : null} className='flex flex-col grow'>
               <HeadlessSwitch
                 classes=""
-                enabled={state[asset.id]}
-                onChange={() => dispatch({ type: asset.id }) }
+                enabled={FilterContext.state.collections.selected.includes(collection.id)}
+                onChange={() => {
+                  const selectedCollections = _arrAddRemove([...FilterContext.state.collections.selected], collection.id);
+                  setFilteredAssets([...sortCollections(filteredAssets, selectedCollections)]);
+                  FilterContext.dispatch({ type: FILTER_CONTEXT_ACTIONS.COLLECTIONS_ITEMS, payload: { collection: collection.id } });
+                }}
               >
-                {asset.name}
+                {collection.name}
               </HeadlessSwitch>
             </div>
           )

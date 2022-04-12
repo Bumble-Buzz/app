@@ -1,12 +1,17 @@
+import { useEffect, useState, useReducer } from 'react';
 import API from '@/components/Api';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import ExploreContent from '@/components/explore/ExploreContent';
+import ExploreFilterPanel from '@/components/explore/ExploreFilterPanel';
+import { FilterProvider } from '@/contexts/FilterContext'
 
 
 const BATCH_SIZE = 40;
 
 
 export default function Explore({ assetDataInit }) {
+
+  // const [state, setState] = useState(null);
 
   const getSales = async () => {
     // const arr = getRandomBatch();
@@ -48,12 +53,15 @@ export default function Explore({ assetDataInit }) {
     </div> */}
 
       {/* Page Content */}
-      <div className='flex flex-col w-full items-center'>
-
-        <div className='gap-2 flex flex-col w-full'>
-          <ExploreContent initialData={assetDataInit} />
-        </div>
-
+      <div className='flex flex-col sm:flex-row w-full'>
+        <FilterProvider>
+          <div className="-px-2 -ml-2 bg-white">
+            <ExploreFilterPanel />
+          </div>
+          <div className="px-2 bg-white w-full">
+            <ExploreContent initialData={assetDataInit} />
+          </div>
+        </FilterProvider>
       </div>
     </ContentWrapper>
   )

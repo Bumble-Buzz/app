@@ -14,6 +14,23 @@ const _getElements = (_elements) => {
   return elements;
 };
 
+const _doesArrayInclude = (_array, _identifier = {}) => {
+  const match = _array.find((arrayElement) => {
+      return _.isEqual(arrayElement, _identifier);
+  });
+  return match == undefined ? false : true;
+};
+
+const sortBoolean = (_data = [], comparator = []) => {
+  return _data.sort((a, b) => {
+    const aVal = _doesArrayInclude(comparator, a.id);
+    const bVal = _doesArrayInclude(comparator, b.id);
+    if (aVal === bVal) return 0;
+    if (aVal === true) return -1;
+    if (bVal === true) return 1;
+  });
+};
+
 const _sortNumberAsc = (firstVal, secondVal) => firstVal - secondVal;
 const _sortNumberDesc = (firstVal, secondVal) => secondVal - firstVal;
 
@@ -55,6 +72,7 @@ const sortString = (_data, _elements = [], order = 'asc') => {
 
 module.exports = {
   order: ORDER,
+  sortBoolean,
   sortNumber,
   sortString
 }
