@@ -2,11 +2,11 @@ import _ from 'lodash';
 import { useEffect, useState, useReducer } from 'react';
 import useSWR from 'swr';
 import API from '@/components/Api';
-import ExploreTypeFilter from '@/components/explore/ExploreTypeFilter';
-import ExplorePriceFilter from '@/components/explore/ExplorePriceFilter';
-import ExploreCategoriesFilter from '@/components/explore/ExploreCategoriesFilter';
-import ExploreCollectionsFilter from '@/components/explore/ExploreCollectionsFilter';
-import { FilterPanel, FILTER_TYPES } from '@/components/FilterPanel';
+import { FilterPanel, FILTER_TYPES } from '@/components/filters/FilterPanel';
+import ExploreTypeFilter from '@/components/filters/TypeFilter';
+import ExplorePriceFilter from '@/components/filters/PriceFilter';
+import ExploreCategoriesFilter from '@/components/filters/CategoriesFilter';
+import ExploreCollectionsFilter from '@/components/filters/CollectionsFilter';
 
 
 const BATCH_SIZE = 40;
@@ -17,7 +17,6 @@ const FILTERS = {
 
 
 export default function ExploreContent({ }) {
-
   const {data: collectionInit} = useSWR(API.swr.collection.active('null', BATCH_SIZE), API.swr.fetcher, API.swr.options);
 
   /** reducer **/

@@ -1,8 +1,8 @@
 import { useEffect, useState, useReducer } from 'react';
 import { Transition } from '@headlessui/react';
-import ButtonWrapper from './wrappers/ButtonWrapper';
-import InputWrapper from './wrappers/InputWrapper';
-import HeadlessSwitch from './HeadlessSwitch';
+import ButtonWrapper from '../wrappers/ButtonWrapper';
+import InputWrapper from '../wrappers/InputWrapper';
+import HeadlessSwitch from '../HeadlessSwitch';
 import useWindowDimensions from '@/hooks/useWindowDimensions';
 import {ChevronRightIcon, ChevronLeftIcon, ChevronUpIcon, ChevronDownIcon, FilterIcon, SearchIcon} from '@heroicons/react/solid';
 import {

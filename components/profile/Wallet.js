@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { useRouter } from 'next/router';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import InputWrapper from '@/components/wrappers/InputWrapper';
-import { FilterPanel, FILTER_TYPES } from '@/components/FilterPanel';
+import { FilterPanel, FILTER_TYPES } from '@/components/filters/FilterPanel';
 import Toast from '@/components/Toast';
 import { CATEGORIES } from '@/enum/Categories';
 import WalletUtil from '@/components/wallet/WalletUtil';

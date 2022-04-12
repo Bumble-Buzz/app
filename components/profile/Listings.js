@@ -7,7 +7,7 @@ import useSWRInfinite from 'swr/infinite';
 import API from '@/components/Api';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import InputWrapper from '@/components/wrappers/InputWrapper';
-import { FilterPanel, FILTER_TYPES } from '@/components/FilterPanel';
+import { FilterPanel, FILTER_TYPES } from '@/components/filters/FilterPanel';
 import DropDown from '@/components/navbar/DropDown';
 import Toast from '@/components/Toast';
 import Sort from '@/utils/Sort';
