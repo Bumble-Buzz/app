@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { ethers } from 'ethers';
 import Image from 'next/image';
-import Link from 'next/link';
 import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import { useRouter } from 'next/router';
 import { useSession, getSession } from 'next-auth/react';
@@ -13,7 +11,9 @@ import TilePanel from '@/components/TilePanel';
 import PageError from '@/components/PageError';
 import API from '@/components/Api';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
+import { FilterProvider } from '@/contexts/FilterContext';
 import CollectionContent from '@/components/collection/CollectionContent';
+import CollectionFilterPanel from '@/components/collection/CollectionFilterPanel';
 import Tooltip from '@/components/Tooltip';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
 import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/solid';
@@ -134,8 +134,15 @@ export default function Collection({ collectionDataInit }) {
         </div>
 
         {/* bottom */}
-        <div className='gap-2 flex flex-col w-full'>
-          <CollectionContent initialData={assetInit} collectionData={collectionDataInit} />
+        <div className='flex flex-col sm:flex-row w-full'>
+          <FilterProvider>
+            <div className="-px-2 -ml-2 bg-white">
+              <CollectionFilterPanel />
+            </div>
+            <div className="px-2 bg-white w-full">
+              <CollectionContent initialData={assetInit} collectionData={collectionDataInit} />
+            </div>
+          </FilterProvider>
         </div>
 
       </div>

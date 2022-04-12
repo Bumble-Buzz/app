@@ -1,12 +1,7 @@
-import _ from 'lodash';
 import { useEffect, useState, useReducer } from 'react';
-import useSWR from 'swr';
-import API from '@/components/Api';
 import { FilterPanel, FILTER_TYPES } from '@/components/filters/FilterPanel';
 import TypeFilter from '@/components/filters/TypeFilter';
 import PriceFilter from '@/components/filters/PriceFilter';
-import CategoriesFilter from '@/components/filters/CategoriesFilter';
-import CollectionsFilter from '@/components/filters/CollectionsFilter';
 
 
 const BATCH_SIZE = 40;
@@ -16,8 +11,7 @@ const FILTERS = {
 };
 
 
-export default function ExploreContent({ }) {
-  const {data: collectionInit} = useSWR(API.swr.collection.active('null', BATCH_SIZE), API.swr.fetcher, API.swr.options);
+export default function CollectionFilterPanel({ }) {
 
   /** reducer **/
   const reducer = (state, action) => {
@@ -30,14 +24,6 @@ export default function ExploreContent({ }) {
       case 'price':
         newState = JSON.parse(JSON.stringify(state));
         newState.price.isSelected = !state.price.isSelected;
-        return newState
-      case 'collections':
-        newState = JSON.parse(JSON.stringify(state));
-        newState.collections.isSelected = !state.collections.isSelected;
-        return newState
-      case 'categories':
-        newState = JSON.parse(JSON.stringify(state));
-        newState.categories.isSelected = !state.categories.isSelected;
         return newState
       case 'clear':
         FILTERS.panel = {};
@@ -73,16 +59,6 @@ export default function ExploreContent({ }) {
           { name: 'max', label: 'Max', type: FILTER_TYPES.INPUT_FIELD }
         ]
       } />)
-    },
-    {
-      name: 'collections',
-      label: 'Collections',
-      component: (<CollectionsFilter collectionInit={collectionInit} />)
-    },
-    {
-      name: 'categories',
-      label: 'Categories',
-      component: (<CategoriesFilter collectionInit={collectionInit} />)
     }
   ];
 
@@ -94,14 +70,6 @@ export default function ExploreContent({ }) {
     },
     price: {
       isSelected: true,
-      items: {}
-    },
-    collections: {
-      isSelected: false,
-      items: {}
-    },
-    categories: {
-      isSelected: false,
       items: {}
     }
   });

@@ -1,6 +1,6 @@
 import API from '@/components/Api';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
-import { FilterProvider } from '@/contexts/FilterContext'
+import { FilterProvider } from '@/contexts/FilterContext';
 import ExploreContent from '@/components/explore/ExploreContent';
 import ExploreFilterPanel from '@/components/explore/ExploreFilterPanel';
 
