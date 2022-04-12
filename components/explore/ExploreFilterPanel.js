@@ -1,5 +1,4 @@
-import _ from 'lodash';
-import { useEffect, useState, useReducer } from 'react';
+import { useReducer } from 'react';
 import useSWR from 'swr';
 import API from '@/components/Api';
 import { FilterPanel, FILTER_TYPES } from '@/components/filters/FilterPanel';

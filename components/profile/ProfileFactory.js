@@ -1,7 +1,7 @@
 import General from './General';
 import Wallet from './Wallet';
 import Collections from './Collections';
-import Created from './Created';
+import Created from './created/Created';
 import Listings from './Listings';
 import Admin from './admin/Admin';
 

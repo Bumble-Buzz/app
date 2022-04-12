@@ -11,7 +11,7 @@ const FILTERS = {
 };
 
 
-export default function CollectionFilterPanel({ }) {
+export default function CreatedFilterPanel({ }) {
 
   /** reducer **/
   const reducer = (state, action) => {
