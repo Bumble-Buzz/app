@@ -1,21 +1,20 @@
 import _ from 'lodash';
 import { useEffect, useState, useReducer } from 'react';
 import { useRouter } from 'next/router';
+import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
 import API from '@/components/Api';
-import { useSession } from 'next-auth/react';
-import { useAuth } from '@/contexts/AuthContext';
-import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import InputWrapper from '@/components/wrappers/InputWrapper';
+import { FilterPanel, FILTER_TYPES } from '@/components/filters/FilterPanel';
 import DropDown from '@/components/navbar/DropDown';
 import Toast from '@/components/Toast';
 import Sort from '@/utils/Sort';
 import { useFilter, FILTER_CONTEXT_ACTIONS } from '@/contexts/FilterContext';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
 import NftCard from '@/components/nftAssets/NftCard';
-import { ShieldCheckIcon, ShieldExclamationIcon, XIcon, ArrowRightIcon } from '@heroicons/react/solid';
+import { ShieldCheckIcon, ShieldExclamationIcon, XIcon } from '@heroicons/react/solid';
 
 
 const BATCH_SIZE = 40;
@@ -32,7 +31,7 @@ const _doesArrayInclude = (_array, _identifier = {}) => {
 };
 
 
-export default function CreatedContent({ initialData }) {
+export default function ListingsContent({ initialData }) {
   const FilterContext = useFilter();
   const ROUTER = useRouter();
 
@@ -60,7 +59,7 @@ export default function CreatedContent({ initialData }) {
   // fetch data from database using SWR
   useSWRInfinite(
     (pageIndex, previousPageData) => {
-      return API.swr.asset.created(ROUTER.query.wallet, apiSortKey.tokenId, BATCH_SIZE);
+      return API.swr.asset.sale.owner(ROUTER.query.wallet, apiSortKey.contractAddress, apiSortKey.tokenId, BATCH_SIZE);
     },
     API.swr.fetcher,
     {
@@ -160,7 +159,7 @@ export default function CreatedContent({ initialData }) {
         if (dbFetchCount >= dbFetchLimit) break;
   
         // fetch next batch from db
-        const nextAssets = await API.asset.created(ROUTER.query.wallet, latestSortKey.tokenId, BATCH_SIZE);
+        const nextAssets = await API.asset.sale.owner(ROUTER.query.wallet, latestSortKey.contractAddress, latestSortKey.tokenId, BATCH_SIZE);
         dbFetchCount++;
   
         workingAssets.push(...nextAssets.data.Items);
@@ -383,6 +382,7 @@ export default function CreatedContent({ initialData }) {
         </div>
       </div>
 
+
       {/* content */}
       <div className='py-2 flex flex-wrap gap-4 justify-center items-center'>
         {filteredAssets.map((asset, index) => {
@@ -403,6 +403,12 @@ export default function CreatedContent({ initialData }) {
                 </>)}
                 image={asset.config.image}
                 body={(<>
+                  <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
+                    <div className="flex-1">Collection</div>
+                    <div className="truncate">
+                      {asset.collectionName && (<LinkWrapper link={`/collection/${asset.collectionId}`} linkText={asset.collectionName} />)}
+                    </div>
+                  </div>
                   <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
                     <div className="flex-1">Price</div>
                     <div className="flex flex-row flex-nowrap justify-center items-center">
