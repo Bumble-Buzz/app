@@ -1,5 +1,5 @@
 import General from './General';
-import Wallet from './Wallet';
+import Wallet from './wallet/Wallet';
 import Collections from './Collections';
 import Created from './created/Created';
 import Listings from './listings/Listings';
