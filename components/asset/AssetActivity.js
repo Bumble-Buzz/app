@@ -1,4 +1,4 @@
-import AssetListingsUser from '@/components/asset/AssetListingsUser';
+import AssetActivityUser from '@/components/asset/AssetActivityUser';
 import NumberFormatter from '@/utils/NumberFormatter';
 import CreateIcon from '@/public/market/create-outline.svg';
 import TransferIcon from '@/public/market/transfer-outline.svg';
@@ -47,10 +47,10 @@ export default function AssetActivity({ initialData, classes }) {
                     {listing.saleType === Number(process.env.NEXT_PUBLIC_SALE_TYPE_AUCTION) && <p>Auction</p>}
                   </div>
                   <div className="border px-1 py-3 text-center truncate">
-                    <AssetListingsUser api={listing.seller} />
+                    <AssetActivityUser api={listing.seller} />
                   </div>
                   <div className="border px-1 py-3 text-center truncate">
-                    <AssetListingsUser api={listing.buyer} />
+                    <AssetActivityUser api={listing.buyer} />
                   </div>
                 </div>
               )
