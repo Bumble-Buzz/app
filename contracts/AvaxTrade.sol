@@ -66,6 +66,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
   event onCreateMarketSale(uint256 indexed itemId, uint256 indexed tokenId, address indexed contractAddress, address seller, SALE_TYPE saleType);
   event onCancelMarketSale(uint256 indexed itemId, uint256 indexed tokenId, address indexed contractAddress, address seller);
   event onCompleteMarketSale(uint256 indexed itemId, uint256 indexed tokenId, address indexed contractAddress, address buyer, uint256 saleProfit);
+  event onClaimRewards(address indexed user, uint256 indexed reward, string rewardType);
 
 
   function initialize(address _owner) initializer public {
@@ -457,6 +458,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
     // todo ensure this is a safe way to transfer funds
     ( bool success, ) = payable(msg.sender).call{ value: reward }("");
     require(success, "General reward transfer to user was unccessfull");
+    emit onClaimRewards(msg.sender, reward, 'general');
     return reward;
   }
 
@@ -469,6 +471,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
     // todo ensure this is a safe way to transfer funds
     ( bool success, ) = payable(msg.sender).call{ value: reward }("");
     require(success, "Nft commission reward transfer to user was unccessfull");
+    emit onClaimRewards(msg.sender, reward, 'nft_commission');
     return reward;
   }
 
@@ -481,6 +484,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
     // todo ensure this is a safe way to transfer funds
     ( bool success, ) = payable(msg.sender).call{ value: reward }("");
     require(success, "Collection commission reward transfer to user was unccessfull");
+    emit onClaimRewards(msg.sender, reward, 'collection_commission');
     return reward;
   }
 
@@ -500,6 +504,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
     } else {
       revert("Provided contract address is not valid");
     }
+    emit onClaimRewards(msg.sender, reward, 'collection_reflection');
     return reward;
   }
 

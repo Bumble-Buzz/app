@@ -69,6 +69,9 @@ Things left to do:
         - LSI: seller, buyer
         - GSI: seller + active, category + active (only get data that you need)
 - Front-end dapp
+  - Profile
+    - General
+      - Only show blockchain / monetary information if user is valid AND logged in
   - change API pull BATCH_SIZE to 50 from 20.
     - It needs to be big enough to accomodate for large screen size, so user can scroll down to pull more data
   - what happens is asset is already on sale when creating asset record in database?

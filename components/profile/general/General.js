@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
+import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
 import WalletUtil from '@/components/wallet/WalletUtil';
-import UserAccount from '@/components/profile/general/UserAccount';
+import UserAccount from '@/components/profile/general/user/UserAccount';
 import CollectionAccount from '@/components/profile/general/CollectionAccount';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import Toast from '@/components/Toast';
@@ -12,15 +14,20 @@ import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 
 export default function General() {
+  const ROUTER = useRouter();
+  const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
+
+  const [tab, setTab] = useState('user');
+  const [isSaleCreated, setSaleCreated] = useState(false);
 
   const [collection, setCollection] = useState(null);
   const [user, setUser] = useState(null);
   const [vault, setVault] = useState(null);
 
   useEffect(() => {
-    initialBlockchainFetch();
-  }, []);
+    if (AuthContext.state.account) initialBlockchainFetch();
+  }, [AuthContext.state.account]);
 
   const initialBlockchainFetch = async () => {
     try {
@@ -28,7 +35,7 @@ export default function General() {
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_BANK_CONTRACT_ADDRESS, BankAbi.abi, signer);
 
       // fetch monetary information
-      const val = await contract.getBank(session.user.id);
+      const val = await contract.getBank(AuthContext.state.account);
       setCollection(val.collection);
       setUser(val.user);
       setVault(val.vault);
@@ -38,6 +45,20 @@ export default function General() {
     }
   };
 
+  const isSignInValid = () => {
+    return (
+      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
+      AuthContext.state.isNetworkValid
+    )
+  };
+  const isProfileOwner = () => {
+    return (session.user.id === ROUTER.query.wallet)
+  };
+  const isProfileOwnerSignedIn = () => {
+    return (isSignInValid() && isProfileOwner())
+  };
+
+
   return (
     <ContentWrapper>
       {/* Page Content */}
@@ -46,16 +67,36 @@ export default function General() {
           General dashboard info. Place where users can redeem funds/rewards.
         </div>
 
-        <UserAccount initialData={user} />
+        {isProfileOwnerSignedIn() && (<>
+          {/* user / collection */}
+          <div className="px-4 gap-2 flex flex-row flex-wrap justify-center items-center text-center">
+            {tab === 'user' ?
+              (<button className="flex flex-nowrap text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('user')}>User Account</button>)
+              :
+              (<button className="flex flex-nowrap text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('user')}>User Account</button>)
+            }
+            {tab === 'collection' ?
+              (<button className="flex flex-nowrap text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('collection')}>Collection Account</button>)
+              :
+              (<button className="flex flex-nowrap text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('collection')}>Collection Account</button>)
+            }
+          </div>
 
-        <div className='flex flex-row flex-wrap w-full gap-2 justify-center items-center'>
-          <CollectionAccount />
-          <CollectionAccount />
-          <CollectionAccount />
-          <CollectionAccount />
-          <CollectionAccount />
-          <CollectionAccount />
-        </div>
+          {tab === 'user' && <UserAccount initialData={user} />}
+          {tab === 'collection' && (<><CollectionAccount /><CollectionAccount /><CollectionAccount /><CollectionAccount /><CollectionAccount /></>)}
+
+          {/* <UserAccount initialData={user} />
+
+          <div className='flex flex-row flex-wrap w-full gap-2 justify-center items-center'>
+            <CollectionAccount />
+            <CollectionAccount />
+            <CollectionAccount />
+            <CollectionAccount />
+            <CollectionAccount />
+            <CollectionAccount />
+          </div> */}
+        </>)}
+
       </div>
     </ContentWrapper>
   )
