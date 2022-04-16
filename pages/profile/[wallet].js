@@ -382,7 +382,7 @@ export default function Wallet({ userDataInit }) {
           </div>
 
           <div className="gap-2 flex flex-col w-full">
-            {tab === 'general' && ProfileFactory[tab]()}
+            {tab === 'general' && ProfileFactory[tab]({ initialData: collectionInit })}
             {tab === 'wallet' && ProfileFactory[tab]({ initialData: walletInit })}
             {tab === 'collections' && ProfileFactory[tab]({ initialData: collectionInit })}
             {tab === 'created' && ProfileFactory[tab]({ initialData: createdInit })}

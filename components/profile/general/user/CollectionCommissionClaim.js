@@ -20,9 +20,6 @@ export default function CollectionCommissionClaim({ isLoading, setLoading, setAc
     try {
       setLoading(ACCOUNT_IDENTIFIER);
 
-      console.log('isLoading', isLoading);
-      console.log('ACCOUNT_IDENTIFIER:', ACCOUNT_IDENTIFIER);
-
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 

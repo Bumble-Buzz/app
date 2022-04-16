@@ -3,21 +3,11 @@ import { ethers } from 'ethers';
 import GeneralClaim from '@/components/profile/general/user/GeneralClaim';
 import NftCommissionClaim from '@/components/profile/general/user/NftCommissionClaim';
 import CollectionCommissionClaim from '@/components/profile/general/user/CollectionCommissionClaim';
-import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import NumberFormatter from '@/utils/NumberFormatter';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
-import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
-
-const ACCOUNTS = {
-  GENERAL: 'general',
-  NFT_COMMISSION: 'nft_commission',
-  COLLECTION_COMMISSION: 'collection_commission',
-  ALL: 'all'
-};
 
 export default function UserAccount({ initialData }) {
-  console.log('initialData', initialData);
 
   const [general, setGeneral] = useState(0);
   const [nftCommission, setNftCommission] = useState(0);
@@ -37,16 +27,6 @@ export default function UserAccount({ initialData }) {
       setCollectionCommission(collectionCommissionBalance);
     }
   }, [initialData]);
-
-  const claim = (account) => {
-    console.log('account:', account);
-    setLoading(account);
-    console.log('start timeout');
-    setTimeout(() => {
-      console.log('end timeout');
-      setLoading(null);
-    }, 5000);
-  };
 
 
   return (
@@ -92,7 +72,7 @@ export default function UserAccount({ initialData }) {
           </div>
           {/* <div className='py-1 flex flex-row flex-wrap justify-center items-center gap-x-2 w-full'>
             <div className='flex-1'>
-              <GeneralClaim identifier={ACCOUNTS.ALL} isLoading={isLoading} setLoading={setLoading} classes='w-full' />
+              <GeneralClaim isLoading={isLoading} setLoading={setLoading} />
             </div>
           </div> */}
 

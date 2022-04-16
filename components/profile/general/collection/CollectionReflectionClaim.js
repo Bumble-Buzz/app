@@ -9,10 +9,19 @@ import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 
-const ACCOUNT_IDENTIFIER = 'general';
+const ACCOUNT_IDENTIFIER = 'collection_reflection';
 
-export default function UserAccountClaim({ isLoading, setLoading, setAccount }) {
+export default function CollectionReflectionClaim({ isLoading, setLoading, setAccount }) {
   const { data: session, status: sessionStatus } = useSession();
+
+  const claimTimeout = () => {
+    console.log('start timeout');
+    setTimeout(() => {
+      setAccount(0);
+      setLoading(null);
+      console.log('end timeout');
+    }, 5000);
+  };
 
   const claim = async (e) => {
     e.preventDefault();
@@ -21,11 +30,14 @@ export default function UserAccountClaim({ isLoading, setLoading, setAccount }) 
     try {
       setLoading(ACCOUNT_IDENTIFIER);
 
+      console.log('isLoading', isLoading);
+      console.log('ACCOUNT_IDENTIFIER:', ACCOUNT_IDENTIFIER);
+
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 
       // claim rewards
-      const val = await contract.claimGeneralRewardUserAccount();
+      const val = await contract.claimReflectionRewardCollectionAccount(1, "0xBDDf875B6f5Aa1C64aEA75c3bDf19b2b46215E29");
         
       await WalletUtil.checkTransaction(val);
 

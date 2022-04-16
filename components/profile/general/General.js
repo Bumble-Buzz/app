@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useAuth } from '@/contexts/AuthContext';
 import WalletUtil from '@/components/wallet/WalletUtil';
 import UserAccount from '@/components/profile/general/user/UserAccount';
-import CollectionAccount from '@/components/profile/general/CollectionAccount';
+import CollectionAccounts from '@/components/profile/general/collection/CollectionAccounts';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import Toast from '@/components/Toast';
 
@@ -13,13 +13,12 @@ import BankAbi from '@/artifacts/contracts/bank/Bank.sol/Bank.json';
 import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 
-export default function General() {
+export default function General({ initialData }) {
   const ROUTER = useRouter();
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
 
   const [tab, setTab] = useState('user');
-  const [isSaleCreated, setSaleCreated] = useState(false);
 
   const [collection, setCollection] = useState(null);
   const [user, setUser] = useState(null);
@@ -83,18 +82,7 @@ export default function General() {
           </div>
 
           {tab === 'user' && <UserAccount initialData={user} />}
-          {tab === 'collection' && (<><CollectionAccount /><CollectionAccount /><CollectionAccount /><CollectionAccount /><CollectionAccount /></>)}
-
-          {/* <UserAccount initialData={user} />
-
-          <div className='flex flex-row flex-wrap w-full gap-2 justify-center items-center'>
-            <CollectionAccount />
-            <CollectionAccount />
-            <CollectionAccount />
-            <CollectionAccount />
-            <CollectionAccount />
-            <CollectionAccount />
-          </div> */}
+          {tab === 'collection' && <CollectionAccounts collectionData={initialData} />}
         </>)}
 
       </div>

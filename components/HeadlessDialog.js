@@ -59,19 +59,17 @@ export default function HeadlessDialog({ children, open, setOpen, title, content
                 >
                   {title}
                 </Dialog.Title>
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500">
-                    {content}
-                  </p>
+                <div className="flex flex-col">
+                  {content}
                 </div>
 
-                <div className="mt-4">
+                <div className="flex justify-end">
                   <button
                     type="button"
                     className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
                     onClick={closeModal}
                   >
-                    Got it, thanks!
+                    Close!
                   </button>
                 </div>
               </div>
