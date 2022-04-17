@@ -702,14 +702,14 @@ describe("AvaxTrade - Bank", () => {
 
       let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
       expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
-      balance = await CONTRACT.connect(ACCOUNTS[0]).getCollectionCommissionUserAccount(ACCOUNTS[2].address);
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(400, ACCOUNTS[2].address);
       expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
 
       await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardCollectionAccount(400, ACCOUNTS[2].address);
       
       balance = await CONTRACT.provider.getBalance(CONTRACT.address);
       expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
-      balance = await CONTRACT.connect(ACCOUNTS[0]).getCollectionCommissionUserAccount(ACCOUNTS[2].address);
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(400, ACCOUNTS[2].address);
       expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
     });
     it('claim reflection reward collection account - invalid token id', async () => {
@@ -725,14 +725,14 @@ describe("AvaxTrade - Bank", () => {
 
       let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
       expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
-      balance = await CONTRACT.connect(ACCOUNTS[0]).getCollectionCommissionUserAccount(ACCOUNTS[2].address);
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(2, ACCOUNTS[2].address);
       expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
 
       await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardCollectionAccount(2, ACCOUNTS[2].address);
 
       balance = await CONTRACT.provider.getBalance(CONTRACT.address);
       expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
-      balance = await CONTRACT.connect(ACCOUNTS[0]).getCollectionCommissionUserAccount(ACCOUNTS[2].address);
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(2, ACCOUNTS[2].address);
       expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
     });
     it('claim reflection reward collection account - yes balance', async () => {
@@ -749,7 +749,105 @@ describe("AvaxTrade - Bank", () => {
 
       balance = await CONTRACT.provider.getBalance(CONTRACT.address);
       expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
-      balance = await CONTRACT.connect(ACCOUNTS[0]).getCollectionCommissionUserAccount(ACCOUNTS[2].address);
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(2, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+    });
+
+    it('claim reflection reward list collection account - not owner', async () => {
+      await CONTRACT.connect(ACCOUNTS[1]).claimReflectionRewardListCollectionAccount([1,2], ACCOUNTS[2].address)
+        .should.be.rejectedWith('AccessControl: account 0xc0e62f2f7fdfff0679ab940e29210e229cdcb8ed is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775');
+    });
+    it('claim reflection reward list collection account - owner account does not exist', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardListCollectionAccount([1,2], ACCOUNTS[2].address)
+        .should.be.rejectedWith('Collection account not initialized');
+    });
+    it('claim reflection reward list collection account - bank exists - vault not initialized', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
+
+      await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardListCollectionAccount([1,2], ACCOUNTS[2].address)
+        .should.be.rejectedWith('Collection account not initialized');
+    });
+    it('claim reflection reward list collection account - bank & vault exists - token id out of bounds', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[2].address, 3);
+
+      let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(400, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+
+      await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardListCollectionAccount([400], ACCOUNTS[2].address);
+      
+      balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(400, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+    });
+    it('claim reflection reward list collection account - empty token id list', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[2].address, 3);
+
+      await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardListCollectionAccount([], ACCOUNTS[2].address)
+        .should.be.rejectedWith('Bank: Token id list is empty');
+    });
+    it('claim reflection reward list collection account - invalid token id', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[2].address, 3);
+
+      await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardListCollectionAccount([0], ACCOUNTS[2].address)
+        .should.be.rejectedWith('Bank: Invalid token id provided');
+    });
+    it('claim reflection reward list collection account - no balance', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[2].address, 3);
+
+      let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(1, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(2, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(3, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+
+      balance = await CONTRACT.connect(ACCOUNTS[0]).callStatic.claimReflectionRewardListCollectionAccount([1,2,3], ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardListCollectionAccount([1,2,3], ACCOUNTS[2].address);
+
+      balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(1, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(2, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(3, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+    });
+    it('claim reflection reward collection account - yes balance', async () => {
+      await CONTRACT.connect(ACCOUNTS[0]).addBank(ACCOUNTS[2].address);
+      await CONTRACT.connect(ACCOUNTS[0]).initReflectionVaultCollectionAccount(ACCOUNTS[2].address, 3);
+      await CONTRACT.connect(ACCOUNTS[0]).incrementCollectionAccount(ACCOUNTS[2].address, ethers.utils.parseEther('5'), 0);
+
+      let balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(1, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(2, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(3, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('5.0');
+
+      balance = await CONTRACT.connect(ACCOUNTS[0]).callStatic.claimReflectionRewardListCollectionAccount([1,2,3], ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('15.0');
+      await CONTRACT.connect(ACCOUNTS[0]).claimReflectionRewardListCollectionAccount([1,2,3], ACCOUNTS[2].address);
+
+      balance = await CONTRACT.provider.getBalance(CONTRACT.address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(1, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(2, ACCOUNTS[2].address);
+      expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
+      balance = await CONTRACT.connect(ACCOUNTS[0]).getReflectionRewardCollectionAccount(3, ACCOUNTS[2].address);
       expect(ethers.utils.formatEther(balance)).to.be.equal('0.0');
     });
 

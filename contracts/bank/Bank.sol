@@ -225,6 +225,21 @@ contract Bank is Initializable, UUPSUpgradeable, AccessControlUpgradeable, UserA
   }
 
   /**
+    * @dev Claim collection reflection reward for list of token ids
+  */
+  function claimReflectionRewardListCollectionAccount(uint256[] memory _tokenIds, address _contractAddress) external onlyRole(ADMIN_ROLE) returns (uint256) {
+    require(_tokenIds.length > 0, "Bank: Token id list is empty");
+
+    uint256 reward = 0;
+    for (uint256 i = 0; i < _tokenIds.length; i++) {
+      require(_tokenIds[i] > 0, "Bank: Invalid token id provided");
+      reward += _getReflectionVaultIndexCollectionAccount(_contractAddress, _tokenIds[i]);
+      _updateReflectionVaultIndexCollectionAccount(_contractAddress, _tokenIds[i], 0);
+    }
+    return reward;
+  }
+
+  /**
     * @dev Distribute collection reflection reward between all token id's
   */
   function distributeCollectionReflectionReward(address _contractAddress, uint256 _totalSupply, uint256 _reflectionReward) external onlyRole(ADMIN_ROLE) {

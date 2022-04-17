@@ -508,6 +508,28 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
     return reward;
   }
 
+  /**
+    * @dev Claim collection reflection reward for list of token ids
+  */
+  function claimReflectionRewardListCollectionAccount(uint256[] memory _tokenIds, address _contractAddress) external nonReentrant() returns (uint256) {
+    uint256 reward = Bank(CONTRACTS.bank).claimReflectionRewardListCollectionAccount(_tokenIds, _contractAddress);
+
+    if (IERC721(_contractAddress).supportsInterface(type(IERC721).interfaceId)) {
+      for (uint256 i = 0; i < _tokenIds.length; i++) {
+        // ownerOf(_tokenId) == msg.sender then continue, else revert transaction
+        require(IERC721(_contractAddress).ownerOf(_tokenIds[i]) == msg.sender, "You are not the owner of one of the items");
+      }
+
+      // todo ensure this is a safe way to transfer funds
+      ( bool success, ) = payable(msg.sender).call{ value: reward }("");
+      require(success, "Collection commission reward transfer to user was unccessfull");
+    } else {
+      revert("Provided contract address is not valid");
+    }
+    emit onClaimRewards(msg.sender, reward, 'collection_reflection');
+    return reward;
+  }
+
 
   /** 
     *****************************************************

@@ -51,6 +51,7 @@ module.exports = {
     asset: {
       id: (contract,tokenId) => `asset/${contract}/${tokenId}`,
       created: (id,tokenId,limit) => `asset/created/${id}?tokenId=${tokenId}&limit=${limit}`,
+      owned: (id,contract,tokenId,limit) => `asset/owned/${id}?contract=${contract}&tokenId=${tokenId}&limit=${limit}`,
       sale: {
         owner: (id,contract,tokenId,limit) => `asset/sale/${id}?contract=${contract}&tokenId=${tokenId}&limit=${limit}`,
         all: (id,contract,tokenId,limit) => `asset/sale/all?owner=${id}&contract=${contract}&tokenId=${tokenId}&limit=${limit}`

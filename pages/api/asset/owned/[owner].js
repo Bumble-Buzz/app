@@ -4,26 +4,32 @@ import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 
 
 export default async function handler(req, res) {
-  const { id, limit, tokenId } = req.query
-  // console.log('api param:', id, tokenId, limit);
+  const { owner, contract, tokenId, limit } = req.query
+  // console.log('api param:', id, contract, tokenId, limit);
 
   //check params
-  if (!id) return res.status(400).json({ invalid: id });
-  const checkSumId = ethers.utils.getAddress(id);
+  if (!owner) return res.status(400).json({ 'error': 'invalid request parameters' });
+  if (!contract) return res.status(400).json({ 'error': 'invalid request parameters' });
+
+  const formattedOwner = ethers.utils.getAddress(owner);
+  const formattedContract = ethers.utils.getAddress(contract);
+  const formattedTokenId = Number(tokenId);
+  let formattedLimit = Number(limit);
+  if (formattedLimit > 50) limit = 50;
 
   let exclusiveStartKey = undefined;
-  if (id && tokenId && Number.isInteger(Number(tokenId))) {
-    exclusiveStartKey = { 'contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, 'owner': checkSumId, 'tokenId': Number(tokenId) };
+  if (owner && tokenId && Number.isInteger(formattedTokenId)) {
+    exclusiveStartKey = { 'contractAddress': formattedContract, 'owner': formattedOwner, 'tokenId': formattedTokenId };
   }
 
   let payload = {
     TableName: "asset",
     IndexName: 'owner-lsi',
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#owner': 'owner' },
-    ExpressionAttributeValues: { ':contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, ':owner': checkSumId },
+    ExpressionAttributeValues: { ':contractAddress': formattedContract, ':owner': formattedOwner },
     KeyConditionExpression: '#contractAddress = :contractAddress AND #owner = :owner',
     ExclusiveStartKey: exclusiveStartKey,
-    Limit: Number(limit) || 10
+    Limit: formattedLimit || 10
   };
   let results = await DynamoDbQuery.item.query(payload);
   const {Items, LastEvaluatedKey, Count, ScannedCount} = results;

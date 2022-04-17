@@ -373,6 +373,11 @@ export default function Wallet({ userDataInit }) {
                 :
                 (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => updateTab('listings')}>Listings</button>)
               }
+              {tab === 'test' ?
+                (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('test')}>Test</button>)
+                :
+                (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => updateTab('test')}>Test</button>)
+              }
               {isUserAdmin() && (
                 tab === 'admin' ?
                   (<button className=" flex-1 text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('admin')}>Admin</button>)
@@ -387,6 +392,7 @@ export default function Wallet({ userDataInit }) {
             {tab === 'collections' && ProfileFactory[tab]({ initialData: collectionInit })}
             {tab === 'created' && ProfileFactory[tab]({ initialData: createdInit })}
             {tab === 'listings' && ProfileFactory[tab]({ initialData: listingInit })}
+            {tab === 'test' && ProfileFactory[tab]({ initialData: {} })}
             {tab === 'admin' && ProfileFactory[tab]({ initialData: {} })}
           </div>
 

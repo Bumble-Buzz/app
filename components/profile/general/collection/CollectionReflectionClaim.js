@@ -11,34 +11,26 @@ import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 const ACCOUNT_IDENTIFIER = 'collection_reflection';
 
-export default function CollectionReflectionClaim({ isLoading, setLoading, setAccount }) {
+export default function CollectionReflectionClaim({ isLoading, setLoading, setAccount, contractAddress, ownedTokenIds }) {
   const { data: session, status: sessionStatus } = useSession();
-
-  const claimTimeout = () => {
-    console.log('start timeout');
-    setTimeout(() => {
-      setAccount(0);
-      setLoading(null);
-      console.log('end timeout');
-    }, 5000);
-  };
 
   const claim = async (e) => {
     e.preventDefault();
 
+    // console.log('isLoading', isLoading);
+    // console.log('ACCOUNT_IDENTIFIER:', ACCOUNT_IDENTIFIER);
+    // console.log('contractAddress', contractAddress);
+    // console.log('ownedTokenIds', ownedTokenIds);
 
     try {
       setLoading(ACCOUNT_IDENTIFIER);
-
-      console.log('isLoading', isLoading);
-      console.log('ACCOUNT_IDENTIFIER:', ACCOUNT_IDENTIFIER);
 
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 
       // claim rewards
-      const val = await contract.claimReflectionRewardCollectionAccount(1, "0xBDDf875B6f5Aa1C64aEA75c3bDf19b2b46215E29");
-        
+      const val = await contract.claimReflectionRewardListCollectionAccount(ownedTokenIds, contractAddress);
+
       await WalletUtil.checkTransaction(val);
 
       const listener = async (user, reward, rewardType) => {
@@ -46,7 +38,7 @@ export default function CollectionReflectionClaim({ isLoading, setLoading, setAc
         const rewardClaim = Number(ethers.utils.formatEther(rewardInt.toString()));
         console.log('found claim rewards event: ', user, rewardInt, rewardType);
         if (session.user.id === user && ACCOUNT_IDENTIFIER === rewardType) {
-          Toast.success(`Reward claim: ${rewardClaim} ETH`);
+          Toast.success(`Reflection reward claim: ${rewardClaim} ETH`);
           setAccount(0);
           setLoading(null);
           contract.off("onClaimRewards", listener);
