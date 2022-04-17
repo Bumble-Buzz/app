@@ -11,7 +11,6 @@ import NumberFormatter from '@/utils/NumberFormatter';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
 
 import BankAbi from '@/artifacts/contracts/bank/Bank.sol/Bank.json';
-import IERC721Abi from '@/artifacts/@openzeppelin/contracts/token/ERC721/IERC721.sol/IERC721.json';
 
 
 const BATCH_SIZE = 20;
@@ -37,10 +36,6 @@ export default function CollectionAccount({ collection }) {
         const incentiveInt = Number(collectionAccount.incentiveVault);
         const incentiveBalance = Number(ethers.utils.formatEther(incentiveInt.toString()));
         setIncentive(incentiveBalance);
-  
-        // const contract2 = new ethers.Contract("0xBDDf875B6f5Aa1C64aEA75c3bDf19b2b46215E29", IERC721Abi.abi, signer);
-        // const ownerOf = await contract2.ownerOf(1);
-        // console.log('ownerOf', ownerOf);
       } catch (e) {
         console.error('e', e);
         Toast.error(e.message);
@@ -110,8 +105,7 @@ export default function CollectionAccount({ collection }) {
               <CollectionIncentive
                 isLoading={isLoading} setLoading={setLoading}
                 account={incentive} setAccount={setIncentive}
-                // ownerIncentiveAccess={collection.ownerIncentiveAccess}
-                ownerIncentiveAccess={true} // FIXME remove hard-coded true after testing is done
+                contractAddress={collection.contractAddress} ownerIncentiveAccess={collection.ownerIncentiveAccess}
               />
             </div>
           </div>

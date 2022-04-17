@@ -17,11 +17,6 @@ export default function CollectionReflectionClaim({ isLoading, setLoading, setAc
   const claim = async (e) => {
     e.preventDefault();
 
-    // console.log('isLoading', isLoading);
-    // console.log('ACCOUNT_IDENTIFIER:', ACCOUNT_IDENTIFIER);
-    // console.log('contractAddress', contractAddress);
-    // console.log('ownedTokenIds', ownedTokenIds);
-
     try {
       setLoading(ACCOUNT_IDENTIFIER);
 

@@ -69,6 +69,10 @@ Things left to do:
         - LSI: seller, buyer
         - GSI: seller + active, category + active (only get data that you need)
 - Front-end dapp
+  - Asset
+    - Monetary
+      - Artist Commission: Only show for Local assets. Do NOT show for other collections
+      - Collection Commission/Reflection/Incentive: Only show for verified collections (assets that are verified)
   - Profile
     - General
       - Only show blockchain / monetary information if user is valid AND logged in

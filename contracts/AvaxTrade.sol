@@ -67,6 +67,10 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
   event onCancelMarketSale(uint256 indexed itemId, uint256 indexed tokenId, address indexed contractAddress, address seller);
   event onCompleteMarketSale(uint256 indexed itemId, uint256 indexed tokenId, address indexed contractAddress, address buyer, uint256 saleProfit);
   event onClaimRewards(address indexed user, uint256 indexed reward, string rewardType);
+  event onDepositMarketplaceIncentive(address indexed user, uint256 indexed amount);
+  event onDepositCollectionIncentive(address indexed user, address indexed contractAddress, uint256 indexed amount);
+  event onWithdrawCollectionIncentive(address indexed user, address indexed contractAddress, uint256 indexed amount);
+  event onDistributeRewardInCollection(uint256 indexed collectionId, uint256 indexed amount);
 
 
   function initialize(address _owner) initializer public {
@@ -547,6 +551,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
     */
     Bank(CONTRACTS.bank).updateCollectionIncentiveReward(_contractAddress, msg.value, true);
     BALANCE_SHEET.collectionIncentive += msg.value;
+    emit onDepositCollectionIncentive(msg.sender, _contractAddress, msg.value);
   }
 
   /**
@@ -566,6 +571,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
     // todo ensure this is a safe way to transfer funds
     ( bool success, ) = payable(msg.sender).call{ value: _amount }("");
     require(success, "Collection commission reward transfer to user was unccessfull");
+    emit onWithdrawCollectionIncentive(msg.sender, _contractAddress, _amount);
   }
 
   /**
@@ -577,6 +583,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
 
     Bank(CONTRACTS.bank).distributeCollectionReflectionReward(collection.contractAddress, collection.totalSupply, msg.value);
     BALANCE_SHEET.collectionReflection += msg.value;
+    emit onDistributeRewardInCollection(_collectionId, msg.value);
   }
 
   /**
@@ -590,6 +597,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
 
     Bank(CONTRACTS.bank).distributeCollectionReflectionRewardList(collection.contractAddress, _tokenIds, msg.value);
     BALANCE_SHEET.collectionReflection += msg.value;
+    emit onDistributeRewardInCollection(_collectionId, msg.value);
   }
 
   /**
@@ -597,6 +605,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
   */
   function depositMarketplaceIncentiveVault() external nonReentrant() payable {
     BALANCE_SHEET.incentiveVault += msg.value;
+    emit onDepositMarketplaceIncentive(msg.sender, msg.value);
   }
 
 

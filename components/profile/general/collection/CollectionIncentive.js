@@ -17,70 +17,90 @@ const INCENTIVE_DEPOSIT = 'incentive_deposit';
 const INCENTIVE_WITHDRAW = 'incentive_withdraw';
 const DIALOG = { title: '', content: () => {} };
 
-export default function CollectionIncentive({ isLoading, setLoading, account, setAccount, ownerIncentiveAccess }) {
+export default function CollectionIncentive({ isLoading, setLoading, account, setAccount, contractAddress, ownerIncentiveAccess }) {
   const { data: session, status: sessionStatus } = useSession();
 
   const [isDialog, setDialog] = useState(false);
 
-  const claimTimeout = () => {
-    console.log('start timeout');
-    setTimeout(() => {
-      setAccount(0);
-      setLoading(null);
-      console.log('end timeout');
-    }, 5000);
-  };
+  const depositAction = async (e, _depositAmount) => {
+    e.preventDefault();
 
+    try {
+      setLoading(INCENTIVE_DEPOSIT);
+      setDialog(false);
+
+      const signer = await WalletUtil.getWalletSigner();
+      const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
+
+      // deposit incentives
+      const val = await contract.depositIncentiveCollectionAccount(contractAddress, { value: ethers.utils.parseEther(_depositAmount.toString()) });
+
+      await WalletUtil.checkTransaction(val);
+
+      const listener = async (user, _contractAddress, _amount) => {
+        const amountInt = Number(_amount);
+        const amount = Number(ethers.utils.formatEther(amountInt.toString()));
+        console.log('found deposit incentive event: ', user, _contractAddress, Number(_amount));
+        if (session.user.id === user && contractAddress === _contractAddress) {
+          Toast.success(`Incentive deposited: ${amount} ETH`);
+          setAccount(account+amount);
+          setLoading(null);
+          contract.off("onDepositCollectionIncentive", listener);
+        }
+      };
+      contract.on("onDepositCollectionIncentive", listener);
+    } catch (e) {
+      console.error('e', e);
+      Toast.error(e.message);
+      setLoading(null);
+    }
+  };
   const deposit = async (e) => {
     e.preventDefault();
 
     DIALOG.title = 'Deposit to incentive pool';
-    DIALOG.content = () => (<IncentiveDeposit  setOpen={setDialog} account={account} />);
-
+    DIALOG.content = () => (<IncentiveDeposit action={depositAction} />);
     setDialog(true);
+  };
+
+  const withdrawAction = async (e, _withdrawAmount) => {
+    e.preventDefault();
 
     try {
       setLoading(INCENTIVE_WITHDRAW);
-
-      console.log('isLoading', isLoading);
-      console.log('ACCOUNT_IDENTIFIER:', INCENTIVE_WITHDRAW);
+      setDialog(false);
 
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 
-      // claim rewards
-      claimTimeout();
+      // withdraw incentives
+      const val = await contract.withdrawIncentiveCollectionAccount(contractAddress, ethers.utils.parseEther(_withdrawAmount.toString()));
+
+      await WalletUtil.checkTransaction(val);
+
+      const listener = async (user, _contractAddress, _amount) => {
+        const amountInt = Number(_amount);
+        const amount = Number(ethers.utils.formatEther(amountInt.toString()));
+        if (session.user.id === user && contractAddress === _contractAddress) {
+          Toast.success(`Incentive withdrawn: ${amount} ETH`);
+          setAccount(account-amount);
+          setLoading(null);
+          contract.off("onWithdrawCollectionIncentive", listener);
+        }
+      };
+      contract.on("onWithdrawCollectionIncentive", listener);
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);
       setLoading(null);
     }
   };
-
   const withdraw = async (e) => {
     e.preventDefault();
 
     DIALOG.title = 'Withdraw from incentive pool';
-    DIALOG.content = () => (<IncentiveWithdraw setOpen={setDialog} account={account} />);
-
+    DIALOG.content = () => (<IncentiveWithdraw action={withdrawAction}  max={account} />);
     setDialog(true);
-
-    try {
-      setLoading(INCENTIVE_WITHDRAW);
-
-      console.log('isLoading', isLoading);
-      console.log('ACCOUNT_IDENTIFIER:', INCENTIVE_WITHDRAW);
-
-      const signer = await WalletUtil.getWalletSigner();
-      const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
-
-      // claim rewards
-      claimTimeout();
-    } catch (e) {
-      console.error('e', e);
-      Toast.error(e.message);
-      setLoading(null);
-    }
   };
 
   return (
