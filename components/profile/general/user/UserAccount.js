@@ -39,7 +39,7 @@ export default function UserAccount({ initialData }) {
             <div className='flex-1'>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
                 <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
-                <div className='truncate'>{NumberFormatter(general, 'decimal', { maximumFractionDigits: 2 })}</div>
+                <div className='truncate'>{NumberFormatter(general, 'decimal', { maximumFractionDigits: 4 })}</div>
               </div>
             </div>
             <div className='flex-1'>
@@ -51,7 +51,7 @@ export default function UserAccount({ initialData }) {
             <div className='flex-1'>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
                 <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
-                <div className='truncate'>{NumberFormatter(nftCommission, 'decimal', { maximumFractionDigits: 2 })}</div>
+                <div className='truncate'>{NumberFormatter(nftCommission, 'decimal', { maximumFractionDigits: 4 })}</div>
               </div>
             </div>
             <div className='flex-1'>
@@ -63,7 +63,7 @@ export default function UserAccount({ initialData }) {
             <div className='flex-1'>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
                 <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
-                <div className='truncate'>{NumberFormatter(collectionCommission, 'decimal', { maximumFractionDigits: 2 })}</div>
+                <div className='truncate'>{NumberFormatter(collectionCommission, 'decimal', { maximumFractionDigits: 4 })}</div>
               </div>
             </div>
             <div className='flex-1'>

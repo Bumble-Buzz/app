@@ -49,7 +49,7 @@ Things left to do:
         - LSI: timestamp ?
         - GSI: 
       - contracts: All known contracts (need to be updated constantly)
-        - [contractAddress]::set, chain, name, symbol, isVerified::number, type::721, size::number
+        - [contractAddress]::set (maybe no set just regular record?), chain, name, symbol, isVerified::number, type::721, size::number
         - PK: arbitrary-number, chain
         - LSI: isVerified, type, size
         - GSI: 

@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import WalletUtil from '@/components/wallet/WalletUtil';
 import UserAccount from '@/components/profile/general/user/UserAccount';
 import CollectionAccounts from '@/components/profile/general/collection/CollectionAccounts';
+import Marketplace from '@/components/profile/general/marketplace/Marketplace';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import Toast from '@/components/Toast';
 
@@ -56,6 +57,9 @@ export default function General({ initialData }) {
   const isProfileOwnerSignedIn = () => {
     return (isSignInValid() && isProfileOwner())
   };
+  const isUserAdmin = () => {
+    return (isProfileOwnerSignedIn() && AuthContext.state.account === process.env.NEXT_PUBLIC_ADMIN_WALLET_ID)
+  };
 
 
   return (
@@ -79,10 +83,17 @@ export default function General({ initialData }) {
               :
               (<button className="flex flex-nowrap text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('collection')}>Collection Account</button>)
             }
+            {isUserAdmin() && (
+              tab === 'marketplace' ?
+                (<button className="flex flex-nowrap text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('marketplace')}>Marketplace</button>)
+                :
+                (<button className="flex flex-nowrap text-gray-600 py-2 sm:py-4 px-4 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('marketplace')}>Marketplace</button>)
+            )}
           </div>
 
           {tab === 'user' && <UserAccount initialData={user} />}
           {tab === 'collection' && <CollectionAccounts collectionData={initialData} />}
+          {tab === 'marketplace' && <Marketplace />}
         </>)}
 
       </div>
