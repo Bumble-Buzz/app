@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import { useSession } from 'next-auth/react';
 import WalletUtil from '@/components/wallet/WalletUtil';
 import ListingPrice from '@/components/profile/general/marketplace/ListingPrice';
 import Commission from '@/components/profile/general/marketplace/Commission';
@@ -13,10 +12,7 @@ import { CHAIN_ICONS } from '@/enum/ChainIcons';
 import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 
-const BATCH_SIZE = 20;
-
 export default function Marketplace({ }) {
-  const { data: session, status: sessionStatus } = useSession();
   
   const [balanceSheet, setBalanceSheet] = useState({});
   const [listingPrice, setListingPrice] = useState(0);
@@ -30,32 +26,34 @@ export default function Marketplace({ }) {
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 
-      // fetch monetary information
-      let contractData = 0, valueInt = 0, valueFormatted = 0;
-
       // listing price
-      contractData = Number(await contract.getMarketplaceListingPrice());
-      const formattedListingPrice = Number(ethers.utils.formatEther(contractData.toString()));
-      setListingPrice(formattedListingPrice);
+      contract.getMarketplaceListingPrice().then((contractData) => {
+        const valueInt = Number(contractData);
+        const valueFormatted = Number(ethers.utils.formatEther(valueInt.toString()));
+        setListingPrice(valueFormatted);
+      });
 
       // commission
-      contractData = Number(await contract.getMarketplaceCommission());
-      if (contractData > 0) contractData = contractData/100;
-      setCommission(contractData);
+      contract.getMarketplaceCommission().then((_contractData) => {
+        if (_contractData > 0) _contractData = _contractData/100;
+        setCommission(_contractData);
+      });
 
       // balance sheet
-      contractData = await contract.getBalanceSheet();
-      setBalanceSheet(contractData);
+      contract.getBalanceSheet().then((_contractData) => {
+        setBalanceSheet(_contractData);
 
-      // incentive amount
-      valueInt = Number(contractData.incentiveVault);
-      valueFormatted = Number(ethers.utils.formatEther(valueInt.toString()));
-      setIncentiveAmount(valueFormatted);
+        // incentive amount
+        const valueInt = Number(_contractData.incentiveVault);
+        const valueFormatted = Number(ethers.utils.formatEther(valueInt.toString()));
+        setIncentiveAmount(valueFormatted);
+      });
 
       // incentive percent
-      contractData = Number(await contract.getMarketplaceIncentiveCommission());
-      if (contractData > 0) contractData = contractData/100;
-      setIncentivePercent(contractData);
+      contract.getMarketplaceIncentiveCommission().then((_contractData) => {
+        if (_contractData > 0) _contractData = _contractData/100;
+        setIncentivePercent(_contractData);
+      });
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);
