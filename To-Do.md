@@ -42,12 +42,21 @@ Things left to do:
   - Put a max limit number on all APIs that use the limit parameter
   - Convert all getter API calls from `query` to `get`
   - Database
-    - Tables (per network/chain)
+    - Tables (per network/chain) (timestamp for all table records?)
       - users: User information
         - walletId, name, bio, picture, [notifications], timestamp
         - PK: walletId
         - LSI: timestamp ?
         - GSI: 
+        - notifications::[]
+          - { event, unitPrice, unitPriceUsd, saleType, seller, buyer }
+          - attributes
+            - event: sale, mint
+            - unitPrice: ETH
+            - unitPriceUsd: USD
+            - saleType: direct, immediate, auction
+            - seller: walletId
+            - buyer: walletId
       - contracts: All known contracts (need to be updated constantly)
         - contractAddress, name, symbol, type::number (0===invalid, 721===ERC721, 1155=ERC1155), isVerified::number (0===no, 1===yes), isProcessed::number (0===no, 1===yes)
         - PK: contractAddress

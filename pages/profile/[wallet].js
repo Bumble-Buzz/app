@@ -176,14 +176,14 @@ export default function Wallet({ userDataInit }) {
 
     try {
       // upload image to IPFS
-      const cid = await uploadImage(image);
+      const imageCid = await uploadImage(image);
+      const ipfsImage = `ipfs://${imageCid}`;
 
       // update image on page
-      const validUrl = IPFS.getValidBaseUrl() + cid;
-      dispatch({ type: 'picture', payload: { picture: validUrl } });
+      dispatch({ type: 'picture', payload: { picture: ipfsImage } });
 
       // upload picture cid in database
-      await updateUsersDbPic(validUrl);
+      await updateUsersDbPic(ipfsImage);
 
       Toast.success('Profile picture updated successfully');
     } catch (e) {
@@ -265,7 +265,7 @@ export default function Wallet({ userDataInit }) {
             <div className="p-1 rounded-lg shadow-lg bg-white flex flex-col sm:flex-row items-center text-center">
               <div className="relative w-20 sm:w-32 md:w-44 lg:w-60 h-20 sm:h-32 md:h-44 lg:h-60">
                 <Image
-                  src={ userState.picture === '' ? '/person.png' : userState.picture } alt='profile' aria-hidden="true"
+                  src={ userState.picture === '' ? '/person.png' : IPFS.getValidHttpUrl(userState.picture) } alt='profile' aria-hidden="true"
                   placeholder='blur' blurDataURL='/avocado.jpg' layout="fill" objectFit="contain" sizes='50vw'
                   title={isProfileOwnerSignedIn() ? "Click to upload new image" : "Profile picture"}
                   onClick={triggerInputFile} className={ isProfileOwnerSignedIn() ? "cursor-pointer" : "" }
