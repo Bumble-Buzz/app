@@ -44,9 +44,6 @@ export default function Mint() {
       case 'category':
         state.category = action.payload.category;
         return state
-      case 'commission':
-        state.commission = action.payload.commission;
-        return state
       case 'attributes':
         newState = JSON.parse(JSON.stringify(state));
         newState.image = state.image;
@@ -66,6 +63,9 @@ export default function Mint() {
       case 'tokenId':
         state.tokenId = action.payload.tokenId;
         return state
+      case 'collectionId':
+        state.collectionId = action.payload.collectionId;
+        return state
       case 'contractAddress':
         state.contractAddress = action.payload.contractAddress;
         return state
@@ -78,9 +78,9 @@ export default function Mint() {
           name: '',
           description: '',
           category: 'Art',
-          commission: '',
           attributes: [],
           tokenId: null,
+          collectionId: null,
           contractAddress: '',
           image: null
         }
@@ -93,9 +93,9 @@ export default function Mint() {
     name: '',
     description: '',
     category: 'Art',
-    commission: '',
     attributes: [],
     tokenId: null,
+    collectionId: null,
     contractAddress: '',
     image: null
   });
@@ -109,8 +109,8 @@ export default function Mint() {
         const payload = {
           'contractAddress': ethers.utils.getAddress(state.contractAddress),
           'tokenId': Number(blockchainResults.tokenId),
-          'collectionId': Number(3),
-          'commission': Number(state.commission),
+          'collectionId': Number(state.collectionId),
+          'commission': Number(0),
           'creator': blockchainResults.to,
           'owner': blockchainResults.to,
           'config': blockchainResults.config
@@ -281,20 +281,6 @@ export default function Mint() {
 
                     <div className="w-full">
                       <div className="my-2">
-                        <label htmlFor="commission" className="block text-sm font-medium text-gray-700">{Lexicon.form.commission}</label>
-                        <input
-                          type="number"
-                          min="0"
-                          max="99"
-                          name="commission"
-                          id="commission"
-                          required
-                          className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
-                          onChange={(e) => dispatch({ type: 'commission', payload: { commission: e.target.value } })}
-                        />
-                      </div>
-
-                      <div className="my-2">
                         <label className="block text-sm font-medium text-gray-700">{Lexicon.form.attributes.text}</label>
                         <div className="flex flex-col xsm:flex-row flex-wrap xsm:flex-nowrap gap-2 xsm:items-end">
                           <div>
@@ -354,7 +340,7 @@ export default function Mint() {
                       </div>
 
                       <div className="my-2">
-                        <label htmlFor="commission" className="block text-sm font-medium text-gray-700">Token ID</label>
+                        <label htmlFor="token-id" className="block text-sm font-medium text-gray-700">Token ID</label>
                         <input
                           type="number"
                           min="0"
@@ -364,6 +350,18 @@ export default function Mint() {
                           required
                           className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
                           onChange={(e) => dispatch({ type: 'tokenId', payload: { tokenId: e.target.value } })}
+                        />
+                      </div>
+                      <div className="my-2">
+                        <label htmlFor="collection-id" className="block text-sm font-medium text-gray-700">Collection ID</label>
+                        <input
+                          type="number"
+                          min="0"
+                          name="collection-id"
+                          id="collection-id"
+                          required
+                          className="mt-1 w-44 xsm:w-full focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm border-gray-300 rounded-md"
+                          onChange={(e) => dispatch({ type: 'collectionId', payload: { collectionId: e.target.value } })}
                         />
                       </div>
                       <div className="my-2">

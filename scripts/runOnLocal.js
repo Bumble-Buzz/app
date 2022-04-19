@@ -11,7 +11,7 @@ const collection = async (_provider) => {
   console.log('onChainData', onChainData);
 };
 
-const bank = async (_provider) => {
+const bankReflectionVault = async (_provider) => {
   const contract = new ethers.Contract(process.env.NEXT_PUBLIC_BANK_CONTRACT_ADDRESS, BankAbi.abi, _provider);
   const onChainData = await contract.getReflectionVaultCollectionAccount('0xBDDf875B6f5Aa1C64aEA75c3bDf19b2b46215E29');
   const tokenId = 2;
@@ -20,13 +20,16 @@ const bank = async (_provider) => {
   const reflectionClaim = Number(ethers.utils.formatEther(reflectionInt.toString()));
   console.log('onChainData', reflectionClaim);
 };
+const bank = async (_provider) => {
+  bankReflectionVault(_provider)
+};
 
 
 (async () => {
   const provider = new ethers.providers.JsonRpcProvider(LOCAL_RPC);
 
-  await collection(provider);
-  // await bank(provider);
+  // await collection(provider);
+  await bank(provider);
 
   console.log('end');
 })();

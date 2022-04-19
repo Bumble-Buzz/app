@@ -1,6 +1,8 @@
-import { useState } from 'react';
-import LinkWrapper from '@/components/wrappers/LinkWrapper';
+import { useEffect, useState } from 'react';
+import { ethers } from 'ethers';
 import { useSession, getSession } from 'next-auth/react';
+import WalletUtil from '@/components/wallet/WalletUtil';
+import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import useSWR from 'swr';
 import API from '@/components/Api';
 import IPFS from '@/utils/ipfs';
@@ -14,6 +16,7 @@ import AssetPriceHistory from '@/components/asset/AssetPriceHistory';
 import AssetActivity from '@/components/asset/AssetActivity';
 import AssetsRelated from '@/components/asset/AssetsRelated';
 import HeadlessDisclosure from '@/components/HeadlessDisclosure';
+import Toast from '@/components/Toast';
 import NumberFormatter from '@/utils/NumberFormatter';
 import Tooltip from '@/components/Tooltip';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
@@ -24,10 +27,13 @@ import {
   DocumentIcon, DocumentTextIcon, DocumentReportIcon, ClipboardListIcon
 } from '@heroicons/react/outline';
 
+import BankAbi from '@/artifacts/contracts/bank/Bank.sol/Bank.json';
+
 
 export default function Asset({ assetDataInit }) {
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();
+
   // swr call to fetch initial data
   const {data: assetData} = useSWR(API.swr.asset.id(
     (!assetDataInit.Item) ? '' : assetDataInit.Item.contractAddress, (!assetDataInit.Item) ? '' : assetDataInit.Item.tokenId
@@ -38,6 +44,25 @@ export default function Asset({ assetDataInit }) {
   const {data: collectionDataInit} = useSWR(API.swr.collection.id(
     (!assetData.Item) ? '' : assetData.Item.collectionId
   ), API.swr.fetcher, API.swr.options);
+
+  const [incentiveAmount, setIncentiveAmount] = useState(0);
+  useEffect(async () => {
+    if (collectionDataInit && Number(collectionDataInit.Items[0].incentive) > 0) {
+      try {
+        const signer = await WalletUtil.getWalletSigner();
+        const contract = new ethers.Contract(process.env.NEXT_PUBLIC_BANK_CONTRACT_ADDRESS, BankAbi.abi, signer);
+
+        // incentive amount
+        const collectionAccount = await contract.getCollectionAccount(collectionDataInit.Items[0].contractAddress);
+        const incentiveInt = Number(collectionAccount.incentiveVault);
+        const incentiveBalance = Number(ethers.utils.formatEther(incentiveInt.toString()));
+        setIncentiveAmount(incentiveBalance);
+      } catch (e) {
+        console.error('e', e);
+        Toast.error(e.message);
+      }
+    }
+  }, [collectionDataInit]);
 
   // catch invalids early
   if (!assetData || !assetData.Item || !assetData.Item.config) return (<PageError>This asset does not exist</PageError>);
@@ -314,7 +339,10 @@ export default function Asset({ assetDataInit }) {
                               <QuestionMarkCircleIcon className="w-5 h-5" alt="verified" title="verified" aria-hidden="true" />
                             </Tooltip>
                           </div>
-                          <div className='truncate'>{NumberFormatter(123456,'decimal')}</div>
+                          <div className='flex flex-row flex-nowrap justify-center items-center'>
+                            <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
+                            <div className='truncate'>{NumberFormatter(incentiveAmount,'decimal')}</div>
+                          </div>
                         </div>
                       )}
                     </>
