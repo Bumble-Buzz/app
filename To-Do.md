@@ -49,10 +49,10 @@ Things left to do:
         - LSI: timestamp ?
         - GSI: 
       - contracts: All known contracts (need to be updated constantly)
-        - contractAddress, name, symbol, isVerified::number, type::721
+        - contractAddress, name, symbol, type::number (0===invalid, 721===ERC721, 1155=ERC1155), isVerified::number, isProcessed::number
         - PK: contractAddress
         - LSI: 
-        - GSI: isVerified, type
+        - GSI: type, isVerified, isProcessed
       - collection: List of collections
         - id, name, contractAddress, description, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number, category, image
         - PK: id
