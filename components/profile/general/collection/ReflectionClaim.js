@@ -11,7 +11,7 @@ import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 const ACCOUNT_IDENTIFIER = 'collection_reflection';
 
-export default function CollectionReflectionClaim({ isLoading, setLoading, setAccount, contractAddress, ownedTokenIds }) {
+export default function ReflectionClaim({ isLoading, setLoading, setAccount, contractAddress, ownedTokenIds }) {
   const { data: session, status: sessionStatus } = useSession();
 
   const claim = async (e) => {

@@ -27,7 +27,7 @@ export default function Collection({ collectionDataInit }) {
   const AuthContext = useAuth();
   const { data: session, status: sessionStatus } = useSession();  
   // swr call to fetch initial data
-  const {data: assetInit} = useSWR(API.swr.asset.collection(collectionDataInit.contractAddress, 'null', BATCH_SIZE), API.swr.fetcher, API.swr.options);
+  const {data: assetInit} = useSWR(API.swr.asset.collectionId(collectionDataInit.id, 'null', 'null', BATCH_SIZE), API.swr.fetcher, API.swr.options);
 
 
   // catch invalids early

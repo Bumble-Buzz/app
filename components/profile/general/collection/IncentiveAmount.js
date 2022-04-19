@@ -17,7 +17,7 @@ const INCENTIVE_DEPOSIT = 'incentive_deposit';
 const INCENTIVE_WITHDRAW = 'incentive_withdraw';
 const DIALOG = { title: '', content: () => {} };
 
-export default function CollectionIncentive({ isLoading, setLoading, account, setAccount, contractAddress, ownerIncentiveAccess }) {
+export default function IncentiveAmount({ isLoading, setLoading, account, setAccount, contractAddress, ownerIncentiveAccess }) {
   const { data: session, status: sessionStatus } = useSession();
 
   const [isDialog, setDialog] = useState(false);

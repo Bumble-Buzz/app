@@ -4,8 +4,9 @@ import { useSession } from 'next-auth/react';
 import useSWR from 'swr';
 import API from '@/components/Api';
 import WalletUtil from '@/components/wallet/WalletUtil';
-import CollectionIncentive from '@/components/profile/general/collection/CollectionIncentive';
-import CollectionReflectionClaim from '@/components/profile/general/collection/CollectionReflectionClaim';
+import ReflectionClaim from '@/components/profile/general/collection/ReflectionClaim';
+import IncentiveAmount from '@/components/profile/general/collection/IncentiveAmount';
+import IncentivePercent from '@/components/profile/general/collection/IncentivePercent';
 import Toast from '@/components/Toast';
 import NumberFormatter from '@/utils/NumberFormatter';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
@@ -20,7 +21,8 @@ export default function CollectionAccount({ collection }) {
   const {data: ownedAssets} = useSWR(API.swr.asset.owned(session.user.id, collection.contractAddress, 'null', BATCH_SIZE), API.swr.fetcher, API.swr.options);
   
   const [reflection, setReflection] = useState(0);
-  const [incentive, setIncentive] = useState(0);
+  const [incentiveAmount, setIncentiveAmount] = useState(0);
+  const [incentivePercent, setIncentivePercent] = useState(0);
   const [isLoading, setLoading] = useState(null);
   const [ownedTokenIds, setOwnedTokenIds] = useState([]);
 
@@ -33,9 +35,14 @@ export default function CollectionAccount({ collection }) {
         // fetch monetary information
         const collectionAccount = await contract.getCollectionAccount(collection.contractAddress);
 
+        // incentive amount
         const incentiveInt = Number(collectionAccount.incentiveVault);
         const incentiveBalance = Number(ethers.utils.formatEther(incentiveInt.toString()));
-        setIncentive(incentiveBalance);
+        setIncentiveAmount(incentiveBalance);
+
+        // incentive percent
+        const incentivePercent = collection.incentive > 0 ? collection.incentive/100 : collection.incentive;
+        setIncentivePercent(incentivePercent);
       } catch (e) {
         console.error('e', e);
         Toast.error(e.message);
@@ -77,6 +84,7 @@ export default function CollectionAccount({ collection }) {
           <div className='py-1 flex flex-row flex-wrap justify-center items-center gap-x-2 w-full'>
             <div className='flex-1'>{collection.name}</div>
           </div>
+
           <div className='py-1 flex flex-row flex-wrap justify-between items-center gap-x-2 w-full'>
             <div className='flex-1'>Reflection</div>
             <div className='flex-1'>
@@ -86,26 +94,44 @@ export default function CollectionAccount({ collection }) {
               </div>
             </div>
             <div className='flex-1'>
-              <CollectionReflectionClaim
+              <ReflectionClaim
                 isLoading={isLoading} setLoading={setLoading}
                 account={reflection} setAccount={setReflection}
                 contractAddress={collection.contractAddress} ownedTokenIds={ownedTokenIds}
               />
             </div>
           </div>
+
           <div className='py-1 flex flex-row flex-wrap justify-between items-center gap-x-2 w-full'>
-            <div className='flex-1'>Incentive</div>
+            <div className='flex-1'>Incentive Amount</div>
             <div className='flex-1'>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
                 <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
-                <div className='truncate'>{NumberFormatter(incentive, 'decimal', { maximumFractionDigits: 6 })}</div>
+                <div className='truncate'>{NumberFormatter(incentiveAmount, 'decimal', { maximumFractionDigits: 6 })}</div>
               </div>
             </div>
             <div className='flex flex-1 flex-row gap-x-1 justify-center items-center'>
-              <CollectionIncentive
+              <IncentiveAmount
                 isLoading={isLoading} setLoading={setLoading}
-                account={incentive} setAccount={setIncentive}
+                account={incentiveAmount} setAccount={setIncentiveAmount}
                 contractAddress={collection.contractAddress} ownerIncentiveAccess={collection.ownerIncentiveAccess}
+              />
+            </div>
+          </div>
+
+          <div className='py-1 flex flex-row flex-wrap justify-between items-center gap-x-2 w-full'>
+            <div className='flex-1'>Incentive Percent</div>
+            <div className='flex-1'>
+              <div className='flex flex-row flex-nowrap justify-center items-center'>
+                <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
+                <div className='truncate'>{NumberFormatter(incentivePercent, 'percent')}</div>
+              </div>
+            </div>
+            <div className='flex flex-1 flex-row gap-x-1 justify-center items-center'>
+              <IncentivePercent
+                isLoading={isLoading} setLoading={setLoading}
+                account={incentivePercent} setAccount={setIncentivePercent}
+                collection={collection}
               />
             </div>
           </div>

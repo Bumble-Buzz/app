@@ -58,7 +58,7 @@ export default function CollectionContent({ initialData, collectionData }) {
   // fetch data from database using SWR
   useSWRInfinite(
     (pageIndex, previousPageData) => {
-      return API.swr.asset.collection(collectionData.contractAddress, apiSortKey.tokenId, BATCH_SIZE);
+      return API.swr.asset.collectionId(collectionData.id, apiSortKey.contractAddress, apiSortKey.tokenId, BATCH_SIZE);
     },
     API.swr.fetcher,
     {
@@ -159,7 +159,7 @@ export default function CollectionContent({ initialData, collectionData }) {
         if (dbFetchCount >= dbFetchLimit) break;
   
         // fetch next batch from db
-        const nextAssets = await API.asset.collection(collectionData.contractAddress, latestSortKey.tokenId, BATCH_SIZE);
+        const nextAssets = await API.asset.collectionId(collectionData.id, latestSortKey.contractAddress, latestSortKey.tokenId, BATCH_SIZE);
         dbFetchCount++;
   
         workingAssets.push(...nextAssets.data.Items);
@@ -394,7 +394,7 @@ export default function CollectionContent({ initialData, collectionData }) {
               key={index}
               className='w-full grow xxsm:w-40 xsm:w-44 xxsm:max-w-[15rem] border rounded-lg overflow-hidden shadow-lg transform transition duration-500 hover:scale-105 cursor-pointer'
               ref={index === filteredAssets.length - 1 ? observe : null}
-              onClick={() => ROUTER.push(`/asset/${collectionData.contractAddress}/${asset.tokenId}`)}
+              onClick={() => ROUTER.push(`/asset/${asset.contractAddress}/${asset.tokenId}`)}
             >
               <NftCard
                 header={(<>

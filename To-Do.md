@@ -62,7 +62,7 @@ Things left to do:
         - contractAddress, tokenId, collectionId, commission, creator (0x===verified/unverified collections), owner, config, onSale (0===no sale, 1===yes sale), saleId (0===no sale), buyer (0x===no buyer), price (0===no sale), saleType::number (3===no sale), priceHistory::array, activity::array, offers::array, category ('null'===verified collections), active::number
         - PK: contractAddress, tokenId
         - LSI: creator, owner
-        - GSI: onSale + owner
+        - GSI: collectionId, onSale + owner
       - sale: List of assets on sale in marketplace
         - contractAddress, tokenId, saleId, collectionId, seller, buyer, price, sold, saleType::number, category, active::number
         - PK: contractAddress, tokenId
