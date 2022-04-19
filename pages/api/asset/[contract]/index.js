@@ -43,11 +43,6 @@ export default async function handler(req, res) {
           Keys: userPayloadKeys,
           ExpressionAttributeNames: { '#walletId': 'walletId', '#name': 'name' },
           ProjectionExpression: "#walletId, #name"
-        },
-        sale: {
-          Keys: salePayloadKeys,
-          ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId', '#saleId': 'saleId', '#price': 'price', '#saleType': 'saleType' },
-          ProjectionExpression: '#contractAddress, #tokenId, #saleId, #price, #saleType'
         }
       }
     };
@@ -58,15 +53,6 @@ export default async function handler(req, res) {
       users.forEach(user => {
         if (item.owner === user.walletId) {
           item['ownerName'] = user.name
-        }
-      });
-      sales.forEach(sale => {
-        if (item.contractAddress === sale.contractAddress && item.tokenId === sale.tokenId) {
-          item.sale = {
-            saleId: sale.saleId,
-            price: sale.price,
-            saleType: sale.saleType
-          };
         }
       });
     });

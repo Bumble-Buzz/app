@@ -66,11 +66,6 @@ module.exports = {
       active: (id,limit) => `collection/active?id=${id}&limit=${limit}`,
       inactive: (id,limit) => `collection/inactive?id=${id}&limit=${limit}`
     },
-    sale: {
-      id: (contract,tokenId) => `sale/${contract}/${tokenId}`,
-      created: (id,contract,tokenId,limit) => `sale/created/${id}?contract=${contract}&tokenId=${tokenId}&limit=${limit}`,
-      all: (id,tokenId,limit) => `sale/all?id=${id}&tokenId=${tokenId}&limit=${limit}`
-    },
     contracts: (limit,uid,chain) => `contracts?limit=${limit}&uid=${uid}&chain=${chain}`
   },
   ipfs: {
@@ -117,13 +112,6 @@ module.exports = {
       ownerincentiveaccess: (id,payload) => API.post(`collection/update/${id}/ownerincentiveaccess`, payload)
     }
   },
-  sale: {
-    id: (contract,tokenId) => API.get(`sale/${contract}/${tokenId}`),
-    batch: payload => API.post(`sale/batch`, payload),
-    all: (id,tokenId,limit) => API.post(`sale/all?id=${id}&tokenId=${tokenId}&limit=${limit}`),
-    create: payload => API.post(`sale/create`, payload),
-    remove: payload => API.post(`sale/remove`, payload)
-  },
   db: {
     table: {
       list: payload => API.put(`db/table/list`, payload),
@@ -155,9 +143,6 @@ module.exports = {
     },
     collection: {
       id: id => BACKEND_API.get(`collection/${id}`)
-    },
-    sale: {
-      all: (id,tokenId,limit) => BACKEND_API.post(`sale/all?id=${id}&tokenId=${tokenId}&limit=${limit}`)
     }
   },
   cancelApi

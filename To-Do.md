@@ -49,7 +49,7 @@ Things left to do:
         - LSI: timestamp ?
         - GSI: 
       - contracts: All known contracts (need to be updated constantly)
-        - contractAddress, name, symbol, type::number (0===invalid, 721===ERC721, 1155=ERC1155), isVerified::number, isProcessed::number
+        - contractAddress, name, symbol, type::number (0===invalid, 721===ERC721, 1155=ERC1155), isVerified::number (0===no, 1===yes), isProcessed::number (0===no, 1===yes)
         - PK: contractAddress
         - LSI: 
         - GSI: type, isVerified, isProcessed
@@ -63,11 +63,6 @@ Things left to do:
         - PK: contractAddress, tokenId
         - LSI: creator, owner
         - GSI: collectionId, onSale + owner
-      - sale: List of assets on sale in marketplace
-        - contractAddress, tokenId, saleId, collectionId, seller, buyer, price, sold, saleType::number, category, active::number
-        - PK: contractAddress, tokenId
-        - LSI: seller, buyer
-        - GSI: seller + active, category + active (only get data that you need)
 - Front-end dapp
   - Asset
     - Monetary

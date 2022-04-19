@@ -9,27 +9,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 
 
-const contractsDb = async () => {
-  const payload = {
-    TableName: "contracts",
-    AttributeDefinitions: [
-      {
-        AttributeName: "contractAddress",
-        AttributeType: "S",
-      }
-    ],
-    KeySchema: [
-      {
-        AttributeName: "contractAddress",
-        KeyType: "HASH",
-      }
-    ],
-    BillingMode: "PAY_PER_REQUEST",
-  };
-  const results = await API.db.table.create(payload);
-  console.log('Created:', results.data);
-};
-
 const usersDb = async () => {
   const payload = {
     TableName: "users",
@@ -164,79 +143,12 @@ const asset = async () => {
   console.log('Created:', results.data);
 };
 
-const sales = async () => {
-  const payload = {
-    TableName: "sale",
-    AttributeDefinitions: [
-      { AttributeName: "contractAddress", AttributeType: "S" },
-      { AttributeName: "tokenId", AttributeType: "N" },
-      { AttributeName: "seller", AttributeType: "S" },
-      { AttributeName: "buyer", AttributeType: "S" },
-      { AttributeName: "category", AttributeType: "S" },
-      { AttributeName: "active", AttributeType: "N" }
-    ],
-    KeySchema: [
-      { AttributeName: "contractAddress", KeyType: "HASH" },
-      { AttributeName: "tokenId", KeyType: "RANGE" }
-    ],
-    LocalSecondaryIndexes: [
-      {
-        IndexName: "seller-lsi",
-        KeySchema: [
-          { AttributeName: "contractAddress", KeyType: "HASH" },
-          { AttributeName: "seller", KeyType: "RANGE" }
-        ],
-        Projection: {
-          ProjectionType: "ALL"
-        }
-      },
-      {
-        IndexName: "buyer-lsi",
-        KeySchema: [
-          { AttributeName: "contractAddress", KeyType: "HASH" },
-          { AttributeName: "buyer", KeyType: "RANGE" }
-        ],
-        Projection: {
-          ProjectionType: "ALL"
-        }
-      }
-    ],
-    GlobalSecondaryIndexes: [
-      {
-        IndexName: "seller-gsi",
-        KeySchema: [
-          { AttributeName: "seller", KeyType: "HASH" },
-          { AttributeName: "active", KeyType: "RANGE" }
-        ],
-        Projection: {
-          ProjectionType: "ALL"
-        }
-      },
-      {
-        IndexName: "category-gsi",
-        KeySchema: [
-          { AttributeName: "category", KeyType: "HASH" },
-          { AttributeName: "active", KeyType: "RANGE" }
-        ],
-        Projection: {
-          ProjectionType: "ALL"
-        }
-      }
-    ],
-    BillingMode: "PAY_PER_REQUEST",
-  };
-  const results = await API.db.table.create(payload);
-  console.log('Created:', results.data);
-};
-
 const initTableSetup = async () => {
   console.log('start - initTableSetup');
 
-  // await contractsDb();
   await usersDb();
   await collection();
   await asset();
-  await sales();
 
   console.log('end - initTableSetup');
 };
