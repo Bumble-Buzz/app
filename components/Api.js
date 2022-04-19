@@ -77,6 +77,10 @@ module.exports = {
       config: payload => API.post(`ipfs/get/config`, payload)
     }
   },
+  user: {
+    id: (id) => API.get(`user/${id}`),
+    create: (payload) => API.post(`user/create`, payload),
+  },
   asset: {
     id: (contract,tokenId) => API.get(`asset/${contract}/${tokenId}`),
     create: payload => API.post(`asset/create`, payload),

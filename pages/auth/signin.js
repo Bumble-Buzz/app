@@ -1,11 +1,11 @@
 import Image from 'next/image';
-import { useRouter } from 'next/router';
 import { ethers } from 'ethers';
 import { useSession, getSession, getProviders, signIn, signOut } from 'next-auth/react';
-import API from '@/components/Api';
-import Toast from '@/components/Toast';
-import WalletUtil from '@/components/wallet/WalletUtil';
+import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
+import API from '@/components/Api';
+import WalletUtil from '@/components/wallet/WalletUtil';
+import Toast from '@/components/Toast';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 
 
@@ -163,28 +163,13 @@ export default function SignIn() {
   };
 
   const getUsersDb = async () => {
-    const payload = {
-      TableName: "users",
-      Key: {
-        'walletId': AuthContext.state.account
-      }
-    };
-    const results = await API.db.item.get(payload);
-    return results.data;
+    const results = await API.user.id(AuthContext.state.account);
+    return results.data.Item;
   };
 
   const putUsersDb = async () => {
-    const payload = {
-      TableName: "users",
-      Item: {
-        'walletId': AuthContext.state.account,
-        'name': 'Anon',
-        'bio': '',
-        'picture': '',
-        'timestamp': ''
-      }
-    };
-    await API.db.item.put(payload);
+    const payload = {id: AuthContext.state.account};
+    await API.user.create(payload);
   };
 
   const handleSignIn = async () => {

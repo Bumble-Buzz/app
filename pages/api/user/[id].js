@@ -13,9 +13,7 @@ export default async function handler(req, res) {
 
   let payload = {
     TableName: "users",
-    Key: {
-      'walletId': checkSumId
-    }
+    Key: {'walletId': checkSumId}
   };
   let results = await DynamoDbQuery.item.get(payload);
   const {Item} = results;
