@@ -36,41 +36,30 @@ export default async function handler(req, res) {
   const {Items, LastEvaluatedKey, Count, ScannedCount} = results;
 
   // for item, also include owner alias and creator alias if available
-  // if (Item) {
-  //   const arr = [ Item.owner, Item.creator ];
-  //   const wallets = [...new Set(arr)]; // remove any duplicates
-  //   const userPayloadKeys = Object.values(wallets).map(id => ({'walletId': id}));
-  //   const collectionPayloadKeys = [{ 'id': Item.collectionId }];
-  //   payload = {
-  //     RequestItems: {
-  //       users: {
-  //         Keys: userPayloadKeys,
-  //         ExpressionAttributeNames: { '#walletId': 'walletId', '#name': 'name' },
-  //         ProjectionExpression: '#walletId, #name'
-  //       },
-  //       collection: {
-  //         Keys: collectionPayloadKeys,
-  //         ExpressionAttributeNames: { '#id': 'id', '#name': 'name', '#category': 'category' },
-  //         ProjectionExpression: '#id, #name, #category'
-  //       }
-  //     }
-  //   };
-  //   results = await DynamoDbQuery.item.getBatch(payload);
-  //   const users = results.Responses.users;
-  //   users.forEach(user => {
-  //     if (Item.owner === user.walletId) {
-  //       Item['ownerName'] = user.name
-  //     }
-  //     if (Item.creator === user.walletId) {
-  //       Item['creatorName'] = user.name
-  //     }
-  //   });
-  //   const collections = results.Responses.collection;
-  //   collections.forEach(collection => {
-  //     Item['collectionName'] = collection.name
-  //     Item['category'] = collection.category
-  //   });
-  // }
+  if (Items.length > 0) {
+    let walletIds = {};
+    Items.forEach(item => walletIds[item.owner] = item.owner);
+    const userPayloadKeys = Object.values(walletIds).map(id => ({'walletId': id}));
+    payload = {
+      RequestItems: {
+        users: {
+          Keys: userPayloadKeys,
+          ExpressionAttributeNames: { '#walletId': 'walletId', '#name': 'name' },
+          ProjectionExpression: "#walletId, #name"
+        }
+      }
+    };
+    results = await DynamoDbQuery.item.getBatch(payload);
+    const users = results.Responses.users;
+    const sales = results.Responses.sale;
+    Items.forEach(item => {
+      users.forEach(user => {
+        if (item.owner === user.walletId) {
+          item['ownerName'] = user.name
+        }
+      });
+    });
+  }
 
   res.status(200).json({ Items, LastEvaluatedKey, Count, ScannedCount });
 };

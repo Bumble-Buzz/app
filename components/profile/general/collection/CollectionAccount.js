@@ -7,6 +7,7 @@ import WalletUtil from '@/components/wallet/WalletUtil';
 import ReflectionClaim from '@/components/profile/general/collection/ReflectionClaim';
 import IncentiveAmount from '@/components/profile/general/collection/IncentiveAmount';
 import IncentivePercent from '@/components/profile/general/collection/IncentivePercent';
+import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import Toast from '@/components/Toast';
 import NumberFormatter from '@/utils/NumberFormatter';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
@@ -51,12 +52,18 @@ export default function CollectionAccount({ collection }) {
   }, [collection]);
 
   useEffect(async () => {
-    if (ownedAssets && ownedAssets.Items.length > 0) {
+    if (
+      Number(collection.id) !== Number(process.env.NEXT_PUBLIC_UNVERIFIED_COLLECTION_ID) &&
+      Number(collection.id) !== Number(process.env.NEXT_PUBLIC_LOCAL_COLLECTION_ID) &&
+      ownedAssets && ownedAssets.Items.length > 0)
+    {
       try {
         const signer = await WalletUtil.getWalletSigner();
         const contract = new ethers.Contract(process.env.NEXT_PUBLIC_BANK_CONTRACT_ADDRESS, BankAbi.abi, signer);
   
         const collectionReflection = await contract.getReflectionVaultCollectionAccount(collection.contractAddress);
+        if (collectionReflection.length === 0) return;
+
         let totalReflection = 0;
         let myTokenIds = []
         ownedAssets.Items.forEach((asset) => {
@@ -82,7 +89,9 @@ export default function CollectionAccount({ collection }) {
         <div className="flex flex-col items-center divide-y w-full">
 
           <div className='py-1 flex flex-row flex-wrap justify-center items-center gap-x-2 w-full'>
-            <div className='flex-1'>{collection.name}</div>
+            <div className='flex-1'>
+              {collection.name && (<LinkWrapper link={`/collection/${collection.id}`} linkText={collection.name} />)}
+            </div>
           </div>
 
           <div className='py-1 flex flex-row flex-wrap justify-between items-center gap-x-2 w-full'>

@@ -782,9 +782,9 @@ const mockSalesOld = async () => {
 };
 
 const mock = async () => {
-  await mockCollections();
-  // await mockAssets();
-  // await mockSales();
+  // await mockCollections();
+  await mockAssets();
+  await mockSales();
 };
 
 (async () => {
