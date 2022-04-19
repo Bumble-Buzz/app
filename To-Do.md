@@ -42,17 +42,17 @@ Things left to do:
   - Put a max limit number on all APIs that use the limit parameter
   - Convert all getter API calls from `query` to `get`
   - Database
-    - Tables (per network)
+    - Tables (per network/chain)
       - users: User information
         - walletId, name, bio, picture, [notifications], timestamp
         - PK: walletId
         - LSI: timestamp ?
         - GSI: 
       - contracts: All known contracts (need to be updated constantly)
-        - [contractAddress]::set (maybe no set just regular record?), chain, name, symbol, isVerified::number, type::721, size::number
-        - PK: arbitrary-number, chain
-        - LSI: isVerified, type, size
-        - GSI: 
+        - contractAddress, name, symbol, isVerified::number, type::721
+        - PK: contractAddress
+        - LSI: 
+        - GSI: isVerified, type
       - collection: List of collections
         - id, name, contractAddress, description, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number, category, image
         - PK: id
