@@ -20,21 +20,15 @@ export default async function handler(req, res) {
 
   const payload = {
     TableName: "users",
-    Item: {
-      'walletId': formattedWalletId,
-      'name': 'Anon',
-      'bio': '',
-      'picture': '',
-      'notifications': [],
-      'timestamp': Date.getTimestamp().toString()
-    },
-    ExpressionAttributeNames: { '#walletId': 'walletId' },
-    ExpressionAttributeValues: { ':walletId': formattedWalletId },
-    ConditionExpression: "#walletId <> :walletId"
+    Key: { 'walletId': formattedWalletId },
+    ExpressionAttributeNames: { '#notifications': 'notifications', '#timestamp': 'timestamp' },
+    ExpressionAttributeValues: { ':notifications': data.notifications, ':timestamp': Date.getTimestamp().toString() },
+    UpdateExpression: 'set #notifications = :notifications, #timestamp = :timestamp'
   };
-  await DynamoDbQuery.item.put(payload);
+  const results = await DynamoDbQuery.item.update(payload);
+  const {Items, LastEvaluatedKey, Count, ScannedCount} = results;
 
-  res.status(200).json({ 'status': 'success' });
+  res.status(200).json({ Items, LastEvaluatedKey, Count, ScannedCount });
 };
 
 

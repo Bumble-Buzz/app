@@ -130,14 +130,8 @@ export default function Wallet({ userDataInit }) {
     try {
       setLoading(true);
 
-      const payload = {
-        TableName: "users",
-        Key: { 'walletId': AuthContext.state.account },
-        ExpressionAttributeNames: { "#myName": "name", "#myBio": "bio" },
-        UpdateExpression: `set #myName = :name, #myBio = :bio`,
-        ExpressionAttributeValues: { ":name": userState.name, ":bio": userState.bio }
-      };
-      await API.db.item.update(payload);
+      const payload = { name: userState.name, bio: userState.bio };
+      await API.user.update.id(AuthContext.state.account, payload);
 
       // pull from db since it has now been updated
       await mutate(API.swr.user.id(ROUTER.query.wallet));
@@ -153,13 +147,10 @@ export default function Wallet({ userDataInit }) {
 
   const updateUsersDbPic = async (_url) => {
     const payload = {
-      TableName: "users",
-      Key: { 'walletId': AuthContext.state.account },
-      ExpressionAttributeNames: { "#myPic": "picture" },
-      UpdateExpression: `set #myPic = :picture`,
-      ExpressionAttributeValues: { ":picture": _url }
+      'id': AuthContext.state.account,
+      'picture': _url
     };
-    await API.db.item.update(payload);
+    await API.user.update.picture(payload);
   };
 
   const triggerInputFile = () => {

@@ -48,7 +48,7 @@ export default function AssetActionBuy({ content, isSignInValid, priceInit }) {
           'type': ASSET_EVENTS.sale
         }];
         activity.push(...content.activity);
-        const payload = {
+        let payload = {
           'contractAddress': ethers.utils.getAddress(blockchainResults.contractAddress),
           'tokenId': Number(blockchainResults.tokenId),
           'saleId': Number(blockchainResults.itemId),
@@ -60,6 +60,25 @@ export default function AssetActionBuy({ content, isSignInValid, priceInit }) {
 
         // pull from db since it has now been updated
         await mutate(API.swr.asset.id(ethers.utils.getAddress(blockchainResults.contractAddress), Number(blockchainResults.tokenId)));
+
+        // notify buyer
+        const results = await API.user.id(ethers.utils.getAddress(blockchainResults.buyer));
+        let userNotifications = results.data.Item.notifications;
+        console.log('userNotifications', userNotifications);
+        userNotifications.push({
+          'type': ASSET_EVENTS.sale,
+          'unitPrice': Number(content.price),
+          'usdUnitPrice': (Number(priceInit.ethusd) * Number(content.price)),
+          'saleType' : Number(content.saleType),
+          'seller': ethers.utils.getAddress(content.seller),
+          'buyer': ethers.utils.getAddress(blockchainResults.buyer),
+          'timestamp': timestamp.toString()
+        });
+        payload = {
+          'id': ethers.utils.getAddress(blockchainResults.buyer),
+          'notifications': userNotifications
+        };
+        await API.user.update.notification(payload);
 
         Toast.success(blockchainResults.message);
         dbTriggered = false;

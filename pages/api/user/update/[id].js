@@ -7,34 +7,30 @@ import Date from '@/utils/Date';
 
 export default async function handler(req, res) {
   const session = await getSession({ req });
+  const { id } = req.query
   const data = req.body;
   // console.log('req.body', data);
 
   //check params
+  if (!id) return res.status(400).json({ 'error': 'invalid request parameters' });
   if (!data) return res.status(400).json({ 'error': 'invalid request parameters' });
   if (!session) return res.status(401).json({ 'error': 'not authenticated' });
 
-  const formattedWalletId = ethers.utils.getAddress(data.id);
+  const formattedWalletId = ethers.utils.getAddress(id);
 
   if (session.user.id !== formattedWalletId) return res.status(401).json({ 'error': 'not authenticated' });
 
   const payload = {
     TableName: "users",
-    Item: {
-      'walletId': formattedWalletId,
-      'name': 'Anon',
-      'bio': '',
-      'picture': '',
-      'notifications': [],
-      'timestamp': Date.getTimestamp().toString()
-    },
-    ExpressionAttributeNames: { '#walletId': 'walletId' },
-    ExpressionAttributeValues: { ':walletId': formattedWalletId },
-    ConditionExpression: "#walletId <> :walletId"
+    Key: { 'walletId': formattedWalletId },
+    ExpressionAttributeNames: { '#name': 'name', '#bio': 'bio', '#timestamp': 'timestamp' },
+    ExpressionAttributeValues: { ':name': data.name, ':bio': data.bio, ':timestamp': Date.getTimestamp().toString() },
+    UpdateExpression: 'set #name = :name, #bio = :bio, #timestamp = :timestamp'
   };
-  await DynamoDbQuery.item.put(payload);
+  const results = await DynamoDbQuery.item.update(payload);
+  const {Items, LastEvaluatedKey, Count, ScannedCount} = results;
 
-  res.status(200).json({ 'status': 'success' });
+  res.status(200).json({ Items, LastEvaluatedKey, Count, ScannedCount });
 };
 
 

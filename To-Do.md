@@ -46,10 +46,10 @@ Things left to do:
       - users: User information
         - walletId, name, bio, picture, [notifications], timestamp
         - PK: walletId
-        - LSI: timestamp ?
+        - LSI: timestamp
         - GSI: 
         - notifications::[]
-          - { event, unitPrice, unitPriceUsd, saleType, seller, buyer }
+          - { event, unitPrice, unitPriceUsd, saleType, seller, buyer, timestamp }
           - attributes
             - event: sale, mint
             - unitPrice: ETH
@@ -57,6 +57,7 @@ Things left to do:
             - saleType: direct, immediate, auction
             - seller: walletId
             - buyer: walletId
+            - timestamp: timestamp when notofication was created
       - contracts: All known contracts (need to be updated constantly)
         - contractAddress, name, symbol, type::number (0===invalid, 721===ERC721, 1155=ERC1155), isVerified::number (0===no, 1===yes), isProcessed::number (0===no, 1===yes)
         - PK: contractAddress
@@ -91,6 +92,7 @@ Things left to do:
   - API
     - Make sure secure APIs are only accessable who is allowed to
     - Ensure to check blockchain in API calls when necessary
+    - Remove generic db table/item APIs
   - AWS
     - IAM
       - Dynamodb: Give only appropriate access as needed

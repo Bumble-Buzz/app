@@ -182,7 +182,6 @@ export default function SignIn() {
     };
     const data = await getUsersDb();
     if (data) {
-      console.log('user exists, do nothing. or update timestamp?');
       userInfo.name = data.name;
       userInfo.bio = data.bio;
       userInfo.picture = data.picture;

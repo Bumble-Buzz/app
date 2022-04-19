@@ -80,6 +80,11 @@ module.exports = {
   user: {
     id: (id) => API.get(`user/${id}`),
     create: (payload) => API.post(`user/create`, payload),
+    update: {
+      id: (id,payload) => API.post(`user/update/${id}`, payload),
+      notification: (payload) => API.post(`user/update/notification`, payload),
+      picture: (payload) => API.post(`user/update/picture`, payload)
+    }
   },
   asset: {
     id: (contract,tokenId) => API.get(`asset/${contract}/${tokenId}`),
