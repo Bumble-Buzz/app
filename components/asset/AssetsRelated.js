@@ -18,7 +18,7 @@ export default function AssetsRelated({ initialData, classes }) {
       const filteredAssets = assets.Items.filter((asset) => asset.tokenId !== initialData.tokenId);
       setFilteredAssets(filteredAssets);
     }
-  }, [assets]);
+  }, [initialData]);
 
   if (
     !initialData ||

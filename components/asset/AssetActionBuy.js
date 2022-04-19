@@ -64,7 +64,6 @@ export default function AssetActionBuy({ content, isSignInValid, priceInit }) {
         // notify buyer
         const results = await API.user.id(ethers.utils.getAddress(blockchainResults.buyer));
         let userNotifications = results.data.Item.notifications;
-        console.log('userNotifications', userNotifications);
         userNotifications.push({
           'type': ASSET_EVENTS.sale,
           'unitPrice': Number(content.price),
