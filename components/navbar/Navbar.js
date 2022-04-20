@@ -27,7 +27,7 @@ export default function Navbar() {
 
   const [isNotificationOpen, setNotificationOpen] = useState(false);
   const [notificationClickTime, setNotificationClickTime] = useState(0);
-  const [notificationCount, setNotificationCount] = useState(1);
+  const [notificationCount, setNotificationCount] = useState(ProfileContext.state.notifications.length);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [menuClickTime, setMenuClickTime] = useState(0);
 
@@ -64,12 +64,15 @@ export default function Navbar() {
             timestamp: userData.timestamp,
           }
         });
+        // user notifications
+        setNotificationCount(userData.notifications.length);
       }
     } else {
       // clear profile context
       ProfileContext.dispatch({
         type: PROFILE_CONTEXT_ACTIONS.CLEAR
       });
+      setNotificationCount(0);
     }
   }, [session, sessionStatus]);
 

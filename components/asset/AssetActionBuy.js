@@ -62,20 +62,23 @@ export default function AssetActionBuy({ content, isSignInValid, priceInit }) {
         await mutate(API.swr.asset.id(ethers.utils.getAddress(blockchainResults.contractAddress), Number(blockchainResults.tokenId)));
 
         // notify buyer
-        const results = await API.user.id(ethers.utils.getAddress(blockchainResults.buyer));
-        let userNotifications = results.data.Item.notifications;
-        userNotifications.push({
+        const sellerUserData = await API.user.id(ethers.utils.getAddress(content.seller));
+        const newNotification = {
           'type': ASSET_EVENTS.sale,
+          'contractAddress': ethers.utils.getAddress(blockchainResults.contractAddress),
+          'tokenId': Number(blockchainResults.tokenId),
           'unitPrice': Number(content.price),
           'usdUnitPrice': (Number(priceInit.ethusd) * Number(content.price)),
           'saleType' : Number(content.saleType),
           'seller': ethers.utils.getAddress(content.seller),
           'buyer': ethers.utils.getAddress(blockchainResults.buyer),
           'timestamp': timestamp.toString()
-        });
+        };
+        const newNotifications = [...sellerUserData.data.Item.notifications, newNotification];
         payload = {
-          'id': ethers.utils.getAddress(blockchainResults.buyer),
-          'notifications': userNotifications
+          'seller': ethers.utils.getAddress(content.seller),
+          'buyer': ethers.utils.getAddress(blockchainResults.buyer),
+          'notifications': newNotifications
         };
         await API.user.update.notification(payload);
 

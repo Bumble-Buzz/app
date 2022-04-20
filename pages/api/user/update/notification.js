@@ -14,13 +14,14 @@ export default async function handler(req, res) {
   if (!data) return res.status(400).json({ 'error': 'invalid request parameters' });
   if (!session) return res.status(401).json({ 'error': 'not authenticated' });
 
-  const formattedWalletId = ethers.utils.getAddress(data.id);
+  const formattedSeller = ethers.utils.getAddress(data.seller);
+  const formattedBuyer = ethers.utils.getAddress(data.buyer);
 
-  if (session.user.id !== formattedWalletId) return res.status(401).json({ 'error': 'not authenticated' });
+  if (session.user.id !== formattedBuyer) return res.status(401).json({ 'error': 'not authenticated' });
 
   const payload = {
     TableName: "users",
-    Key: { 'walletId': formattedWalletId },
+    Key: { 'walletId': formattedSeller },
     ExpressionAttributeNames: { '#notifications': 'notifications', '#timestamp': 'timestamp' },
     ExpressionAttributeValues: { ':notifications': data.notifications, ':timestamp': Date.getTimestamp().toString() },
     UpdateExpression: 'set #notifications = :notifications, #timestamp = :timestamp'
