@@ -44,7 +44,6 @@ export default function Navbar() {
 
   useEffect(async () => {
     if (isSessionValid()) {
-      console.log('sign in valid');
       // if profile context is empty, populate it. Else no need to do anything
       if (!ProfileContext || !ProfileContext.state || !ProfileContext.state.walletId) {
         const getUsersDb = async () => {
@@ -67,7 +66,6 @@ export default function Navbar() {
         });
       }
     } else {
-      console.log('sign in invalid');
       // clear profile context
       ProfileContext.dispatch({
         type: PROFILE_CONTEXT_ACTIONS.CLEAR
