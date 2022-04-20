@@ -6,7 +6,7 @@ import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import useSWR from 'swr';
 import API from '@/components/Api';
 import IPFS from '@/utils/ipfs';
-import { useAuth } from '@/contexts/AuthContext';
+import { useWallet } from '@/contexts/WalletContext';
 import IconTray from '@/components/IconTray';
 import PageError from '@/components/PageError';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
@@ -31,7 +31,7 @@ import BankAbi from '@/artifacts/contracts/bank/Bank.sol/Bank.json';
 
 
 export default function Asset({ assetDataInit }) {
-  const AuthContext = useAuth();
+  const WalletContext = useWallet();
   const { data: session, status: sessionStatus } = useSession();
 
   // swr call to fetch initial data
@@ -69,8 +69,8 @@ export default function Asset({ assetDataInit }) {
 
   const isSignInValid = () => {
     return (
-      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
-      AuthContext.state.isNetworkValid
+      session && sessionStatus === 'authenticated' && session.user.id === WalletContext.state.account &&
+      WalletContext.state.isNetworkValid
     )
   };
   const isAssetOwner = () => {

@@ -6,7 +6,7 @@ import Menu from './Menu';
 import Notification from './Notification';
 import DropDown from './DropDown';
 import HeadlessSlideOver from '../HeadlessSlideOver';
-import { useAuth, AUTH_CONTEXT_ACTIONS } from '@/contexts/AuthContext';
+import { useWallet, WALLET_CONTEXT_ACTIONS } from '@/contexts/WalletContext';
 import WalletUtil from '@/components/wallet/WalletUtil';
 import Lexicon from '@/lexicon/navbar';
 import {
@@ -18,7 +18,7 @@ import {
 
 
 export default function Navbar() {
-  const AuthContext = useAuth();
+  const WalletContext = useWallet();
   const { data: session, status: sessionStatus } = useSession();
   // console.log('session', session, sessionStatus);
 
@@ -33,10 +33,10 @@ export default function Navbar() {
   }, []);
 
   const walletInit = async () => {
-    await WalletUtil.__init__(AuthContext.dispatch);
+    await WalletUtil.__init__(WalletContext.dispatch);
 
-    AuthContext.dispatch({
-      type: AUTH_CONTEXT_ACTIONS.ALL,
+    WalletContext.dispatch({
+      type: WALLET_CONTEXT_ACTIONS.ALL,
       payload: {
         isWalletFound: WalletUtil.isW3WalletFound(),
         isMetamaskFound: WalletUtil.isMetamaskFound(),
@@ -95,14 +95,14 @@ export default function Navbar() {
       case 11:
         return {
           label: (Lexicon.avatar.profile),
-          link: `/profile/${AuthContext.state.account}`,
+          link: `/profile/${WalletContext.state.account}`,
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };
       case 12:
         return {
           label: (Lexicon.avatar.myCollections),
-          link: `/profile/${AuthContext.state.account}?tab=collections`,
+          link: `/profile/${WalletContext.state.account}?tab=collections`,
           icon: (<PencilIcon className="w-5 h-5 mr-2" aria-hidden="true" />),
           iconOutline: (<PencilIconOutline className="w-5 h-5 mr-2" aria-hidden="true" />)
         };

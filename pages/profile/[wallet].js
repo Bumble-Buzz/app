@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useSession, getSession } from 'next-auth/react';
 import FormData from 'form-data';
 import useSWR, { mutate } from 'swr';
-import { useAuth } from '@/contexts/AuthContext';
+import { useWallet } from '@/contexts/WalletContext';
 import PageError from '@/components/PageError';
 import API from '@/components/Api';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
@@ -52,7 +52,7 @@ const reducer = (state, action) => {
 
 export default function Wallet({ userDataInit }) {
   const ROUTER = useRouter();
-  const AuthContext = useAuth();
+  const WalletContext = useWallet();
 
   const [isLoading, setLoading] = useState(false);
   const [tab, setTab] = useState(ROUTER.query.tab || 'general');
@@ -101,8 +101,8 @@ export default function Wallet({ userDataInit }) {
 
   const isSignInValid = () => {
     return (
-      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
-      AuthContext.state.isNetworkValid
+      session && sessionStatus === 'authenticated' && session.user.id === WalletContext.state.account &&
+      WalletContext.state.isNetworkValid
     )
   };
   const isProfileOwner = () => {
@@ -112,7 +112,7 @@ export default function Wallet({ userDataInit }) {
     return (isSignInValid() && isProfileOwner())
   };
   const isUserAdmin = () => {
-    return (isProfileOwnerSignedIn() && AuthContext.state.account === process.env.NEXT_PUBLIC_ADMIN_WALLET_ID)
+    return (isProfileOwnerSignedIn() && WalletContext.state.account === process.env.NEXT_PUBLIC_ADMIN_WALLET_ID)
   };
 
   // catch invalids early
@@ -131,7 +131,7 @@ export default function Wallet({ userDataInit }) {
       setLoading(true);
 
       const payload = { name: userState.name, bio: userState.bio };
-      await API.user.update.id(AuthContext.state.account, payload);
+      await API.user.update.id(WalletContext.state.account, payload);
 
       // pull from db since it has now been updated
       await mutate(API.swr.user.id(ROUTER.query.wallet));
@@ -147,7 +147,7 @@ export default function Wallet({ userDataInit }) {
 
   const updateUsersDbPic = async (_url) => {
     const payload = {
-      'id': AuthContext.state.account,
+      'id': WalletContext.state.account,
       'picture': _url
     };
     await API.user.update.picture(payload);

@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { useSession, getSession } from 'next-auth/react';
 import useSWR from 'swr';
 import IPFS from '@/utils/ipfs';
-import { useAuth } from '@/contexts/AuthContext';
+import { useWallet } from '@/contexts/WalletContext';
 import IconTray from '@/components/IconTray';
 import TilePanel from '@/components/TilePanel';
 import PageError from '@/components/PageError';
@@ -24,7 +24,7 @@ const BATCH_SIZE = 40;
 
 export default function Collection({ collectionDataInit }) {
   const ROUTER = useRouter();
-  const AuthContext = useAuth();
+  const WalletContext = useWallet();
   const { data: session, status: sessionStatus } = useSession();  
   // swr call to fetch initial data
   const {data: assetInit} = useSWR(API.swr.asset.collectionId(collectionDataInit.id, 'null', 'null', BATCH_SIZE), API.swr.fetcher, API.swr.options);
@@ -49,8 +49,8 @@ export default function Collection({ collectionDataInit }) {
 
   const isSignInValid = () => {
     return (
-      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
-      AuthContext.state.isNetworkValid
+      session && sessionStatus === 'authenticated' && session.user.id === WalletContext.state.account &&
+      WalletContext.state.isNetworkValid
     )
   };
   const isCollectionOwner = () => {

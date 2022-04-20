@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import FormData from 'form-data';
 import { useRouter } from 'next/router';
 import WalletUtil from '@/components/wallet/WalletUtil';
-import { useAuth } from '@/contexts/AuthContext';
+import { useWallet } from '@/contexts/WalletContext';
 import API from '@/components/Api';
 import Toast from '@/components/Toast';
 import NoImageAvailable from '@/public/no-image-available.png';
@@ -52,7 +52,7 @@ const reducer = (state, action) => {
 
 export default function Unverified() {
   const ROUTER = useRouter();
-  const AuthContext = useAuth();
+  const WalletContext = useWallet();
   const { data: session, status: sessionStatus } = useSession();
 
   let dbTriggered = false;
@@ -69,7 +69,7 @@ export default function Unverified() {
           'id': Number(blockchainResults.id),
           'name': state.name,
           'description': state.description,
-          'owner': AuthContext.state.account,
+          'owner': WalletContext.state.account,
           'image': `ipfs://${blockchainResults.imageCid}`,
         };
         await API.collection.create.unverified(payload);
@@ -104,7 +104,7 @@ export default function Unverified() {
 
       if (state.dbOnly) {
         setBlockchainResults({
-          owner: AuthContext.state.account, EMPTY_ADDRESS, collectionType: 'unverified', id: process.env.NEXT_PUBLIC_UNVERIFIED_COLLECTION_ID, imageCid
+          owner: WalletContext.state.account, EMPTY_ADDRESS, collectionType: 'unverified', id: process.env.NEXT_PUBLIC_UNVERIFIED_COLLECTION_ID, imageCid
         });
       } else {
         const signer = await WalletUtil.getWalletSigner();
@@ -151,7 +151,7 @@ export default function Unverified() {
   };
 
 
-  if (!session || sessionStatus !== 'authenticated' || session.user.id !== AuthContext.state.account || !AuthContext.state.isNetworkValid) {
+  if (!session || sessionStatus !== 'authenticated' || session.user.id !== WalletContext.state.account || !WalletContext.state.isNetworkValid) {
     return (
       <Unauthenticated link={'/auth/signin'}></Unauthenticated>
     )

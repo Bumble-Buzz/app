@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import FormData from 'form-data';
 import { useRouter } from 'next/router';
 import WalletUtil from '@/components/wallet/WalletUtil';
-import { useAuth } from '@/contexts/AuthContext';
+import { useWallet } from '@/contexts/WalletContext';
 import API from '@/components/Api';
 import Toast from '@/components/Toast';
 import NoImageAvailable from '@/public/no-image-available.png';
@@ -20,7 +20,7 @@ import AvaxTradeNftAbi from '@/artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft
 
 export default function Create() {
   const ROUTER = useRouter();
-  const AuthContext = useAuth();
+  const WalletContext = useWallet();
   const { data: session, status: sessionStatus } = useSession();
 
   let dbTriggered = false;
@@ -424,7 +424,7 @@ export default function Create() {
   }
 
 
-  if (!session || sessionStatus !== 'authenticated' || session.user.id !== AuthContext.state.account || !AuthContext.state.isNetworkValid) {
+  if (!session || sessionStatus !== 'authenticated' || session.user.id !== WalletContext.state.account || !WalletContext.state.isNetworkValid) {
     return (
       <Unauthenticated link={'/auth/signin'}></Unauthenticated>
     )

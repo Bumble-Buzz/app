@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSession, getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useAuth } from '@/contexts/AuthContext';
+import { useWallet } from '@/contexts/WalletContext';
 import useSWR from 'swr';
 import API from '@/components/Api';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
@@ -14,7 +14,7 @@ import Unauthenticated from '@/components/Unauthenticated';
 
 export default function Sell({ assetDataInit }) {
   const ROUTER = useRouter();
-  const AuthContext = useAuth();
+  const WalletContext = useWallet();
   const { data: session, status: sessionStatus } = useSession();
   // swr call to fetch initial data
   const {data: assetData} = useSWR(API.swr.asset.id(
@@ -30,8 +30,8 @@ export default function Sell({ assetDataInit }) {
 
   const isSignInValid = () => {
     return (
-      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
-      AuthContext.state.isNetworkValid
+      session && sessionStatus === 'authenticated' && session.user.id === WalletContext.state.account &&
+      WalletContext.state.isNetworkValid
     )
   };
   const isAssetOwner = () => {
@@ -68,7 +68,7 @@ export default function Sell({ assetDataInit }) {
                 <button
                   type="button"
                   className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  onClick={() => ROUTER.push(`/profile/${AuthContext.state.account}?tab=listings`)}
+                  onClick={() => ROUTER.push(`/profile/${WalletContext.state.account}?tab=listings`)}
                 >
                   See your assets on sale
                 </button>

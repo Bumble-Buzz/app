@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import FormData from 'form-data';
 import { useRouter } from 'next/router';
 import WalletUtil from '@/components/wallet/WalletUtil';
-import { useAuth } from '@/contexts/AuthContext';
+import { useWallet } from '@/contexts/WalletContext';
 import API from '@/components/Api';
 import Toast from '@/components/Toast';
 import NoImageAvailable from '@/public/no-image-available.png';
@@ -85,7 +85,7 @@ const reducer = (state, action) => {
 
 export default function Verified() {
   const ROUTER = useRouter();
-  const AuthContext = useAuth();
+  const WalletContext = useWallet();
   const { data: session, status: sessionStatus } = useSession();
 
   let dbTriggered = false;
@@ -106,7 +106,7 @@ export default function Verified() {
           'totalSupply': Number(state.supply),
           'reflection': Number(state.reflection),
           'commission': Number(state.commission),
-          'owner': AuthContext.state.account,
+          'owner': WalletContext.state.account,
           'ownerIncentiveAccess': state.incentive,
           'category': state.category,
           'image': `ipfs://${blockchainResults.imageCid}`,
@@ -164,7 +164,7 @@ export default function Verified() {
 
       // add collection in blockchain
       const val = await contract.createVerifiedCollection(
-        state.address, state.supply, state.reflection, state.commission, AuthContext.state.account, state.incentive
+        state.address, state.supply, state.reflection, state.commission, WalletContext.state.account, state.incentive
       );
         
       await WalletUtil.checkTransaction(val);
@@ -205,7 +205,7 @@ export default function Verified() {
   };
 
 
-  if (!session || sessionStatus !== 'authenticated' || session.user.id !== AuthContext.state.account || !AuthContext.state.isNetworkValid) {
+  if (!session || sessionStatus !== 'authenticated' || session.user.id !== WalletContext.state.account || !WalletContext.state.isNetworkValid) {
     return (
       <Unauthenticated link={'/auth/signin'}></Unauthenticated>
     )

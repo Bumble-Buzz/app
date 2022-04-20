@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { AUTH_CONTEXT_ACTIONS } from '@/contexts/AuthContext';
+import { WALLET_CONTEXT_ACTIONS } from '@/contexts/WalletContext';
 const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 
@@ -8,11 +8,11 @@ const __init__ = async (dispatch) => {
 
   ethereum.on('chainChanged', async (_chainId) => {
     dispatch({
-      type: AUTH_CONTEXT_ACTIONS.NETWORK,
+      type: WALLET_CONTEXT_ACTIONS.NETWORK,
       payload: { isNetworkValid: await isNetworkValid() }
     });
     dispatch({
-      type: AUTH_CONTEXT_ACTIONS.NETWORK_VERSION,
+      type: WALLET_CONTEXT_ACTIONS.NETWORK_VERSION,
       payload: { networkVersion: await getNetworkVersion() }
     });
   });
@@ -25,7 +25,7 @@ const __init__ = async (dispatch) => {
       currentAccount = ethers.utils.getAddress(_accounts[0]);
 
       dispatch({
-        type: AUTH_CONTEXT_ACTIONS.ACCOUNT,
+        type: WALLET_CONTEXT_ACTIONS.ACCOUNT,
         payload: { account: currentAccount }
       });
     }

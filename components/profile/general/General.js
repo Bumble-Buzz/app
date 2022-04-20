@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useWallet } from '@/contexts/WalletContext';
 import WalletUtil from '@/components/wallet/WalletUtil';
 import UserAccount from '@/components/profile/general/user/UserAccount';
 import CollectionAccounts from '@/components/profile/general/collection/CollectionAccounts';
@@ -16,7 +16,7 @@ import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 export default function General({ initialData }) {
   const ROUTER = useRouter();
-  const AuthContext = useAuth();
+  const WalletContext = useWallet();
   const { data: session, status: sessionStatus } = useSession();
 
   const [tab, setTab] = useState('user');
@@ -26,8 +26,8 @@ export default function General({ initialData }) {
   const [vault, setVault] = useState(null);
 
   useEffect(() => {
-    if (AuthContext.state.account) initialBlockchainFetch();
-  }, [AuthContext.state.account]);
+    if (WalletContext.state.account) initialBlockchainFetch();
+  }, [WalletContext.state.account]);
 
   const initialBlockchainFetch = async () => {
     try {
@@ -35,7 +35,7 @@ export default function General({ initialData }) {
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_BANK_CONTRACT_ADDRESS, BankAbi.abi, signer);
 
       // fetch monetary information
-      const val = await contract.getBank(AuthContext.state.account);
+      const val = await contract.getBank(WalletContext.state.account);
       setCollection(val.collection);
       setUser(val.user);
       setVault(val.vault);
@@ -47,8 +47,8 @@ export default function General({ initialData }) {
 
   const isSignInValid = () => {
     return (
-      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
-      AuthContext.state.isNetworkValid
+      session && sessionStatus === 'authenticated' && session.user.id === WalletContext.state.account &&
+      WalletContext.state.isNetworkValid
     )
   };
   const isProfileOwner = () => {
@@ -58,7 +58,7 @@ export default function General({ initialData }) {
     return (isSignInValid() && isProfileOwner())
   };
   const isUserAdmin = () => {
-    return (isProfileOwnerSignedIn() && AuthContext.state.account === process.env.NEXT_PUBLIC_ADMIN_WALLET_ID)
+    return (isProfileOwnerSignedIn() && WalletContext.state.account === process.env.NEXT_PUBLIC_ADMIN_WALLET_ID)
   };
 
 

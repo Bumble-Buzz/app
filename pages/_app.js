@@ -7,13 +7,13 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { SessionProvider } from "next-auth/react"
-import { AuthProvider } from '@/contexts/AuthContext'
+import { WalletProvider } from '@/contexts/WalletContext'
 
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   return (
     <SessionProvider session={session}>
-      <AuthProvider>
+      <WalletProvider>
         <Head>
           <title>AvaxTrade</title>
           <meta name="description" content="Generated a AvaxTrade NFT on AVAX!" />
@@ -35,7 +35,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
         <Navbar {...pageProps} />
         <Component {...pageProps} />
         <Footer />
-      </AuthProvider>
+      </WalletProvider>
     </SessionProvider>
   )
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import { useSession } from 'next-auth/react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useWallet } from '@/contexts/WalletContext';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import InputWrapper from '@/components/wrappers/InputWrapper';
 import CollectionCard from '@/components/nftAssets/CollectionCard';
@@ -13,7 +13,7 @@ import { ArrowRightIcon } from '@heroicons/react/solid';
 
 
 export default function Collections({ initialData }) {
-  const AuthContext = useAuth();
+  const WalletContext = useWallet();
   const { data: session, status: sessionStatus } = useSession();
   const ROUTER = useRouter();
 
@@ -86,8 +86,8 @@ export default function Collections({ initialData }) {
 
   const isSignInValid = () => {
     return (
-      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
-      AuthContext.state.isNetworkValid
+      session && sessionStatus === 'authenticated' && session.user.id === WalletContext.state.account &&
+      WalletContext.state.isNetworkValid
     )
   };
   const isProfileOwner = () => {

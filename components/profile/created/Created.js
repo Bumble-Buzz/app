@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useWallet } from '@/contexts/WalletContext';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import { FilterProvider } from '@/contexts/FilterContext';
@@ -10,14 +10,14 @@ import { ArrowRightIcon } from '@heroicons/react/solid';
 
 
 export default function Created({ initialData }) {
-  const AuthContext = useAuth();
+  const WalletContext = useWallet();
   const { data: session, status: sessionStatus } = useSession();
   const ROUTER = useRouter();
 
   const isSignInValid = () => {
     return (
-      session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account &&
-      AuthContext.state.isNetworkValid
+      session && sessionStatus === 'authenticated' && session.user.id === WalletContext.state.account &&
+      WalletContext.state.isNetworkValid
     )
   };
   const isProfileOwner = () => {

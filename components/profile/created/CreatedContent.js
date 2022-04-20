@@ -5,7 +5,7 @@ import useInView from 'react-cool-inview';
 import useSWRInfinite from 'swr/infinite';
 import API from '@/components/Api';
 import { useSession } from 'next-auth/react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useWallet } from '@/contexts/WalletContext';
 import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import InputWrapper from '@/components/wrappers/InputWrapper';

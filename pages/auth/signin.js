@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { ethers } from 'ethers';
 import { useSession, getSession, getProviders, signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useAuth } from '@/contexts/AuthContext';
+import { useWallet } from '@/contexts/WalletContext';
 import API from '@/components/Api';
 import WalletUtil from '@/components/wallet/WalletUtil';
 import Toast from '@/components/Toast';
@@ -155,7 +155,7 @@ const initTableSetup = async () => {
 
 export default function SignIn() {
   const ROUTER = useRouter();
-  const AuthContext = useAuth();
+  const WalletContext = useWallet();
   const { data: session, status: sessionStatus } = useSession();
 
   const walletConnect = async () => {
@@ -163,19 +163,19 @@ export default function SignIn() {
   };
 
   const getUsersDb = async () => {
-    const results = await API.user.id(AuthContext.state.account);
+    const results = await API.user.id(WalletContext.state.account);
     return results.data.Item;
   };
 
   const putUsersDb = async () => {
-    const payload = {id: AuthContext.state.account};
+    const payload = {id: WalletContext.state.account};
     await API.user.create(payload);
   };
 
   const handleSignIn = async () => {
     let userInfo = {
       name: 'Anon',
-      wallet: AuthContext.state.account,
+      wallet: WalletContext.state.account,
       bio: '',
       picture: '',
       timestamp: ''
@@ -209,7 +209,7 @@ export default function SignIn() {
       content: 'User Authentication',
       user: {
         name: userInfo.name,
-        wallet: AuthContext.state.account
+        wallet: WalletContext.state.account
       },
     };
 
@@ -222,7 +222,7 @@ export default function SignIn() {
       const CredProviders = await getProviders();
       const signedIn = await signIn(CredProviders.myCredentials.id, {
         redirect: false,
-        walletId: AuthContext.state.account,
+        walletId: WalletContext.state.account,
         signature,
         recoveredAddress
       });
@@ -254,22 +254,22 @@ export default function SignIn() {
         <div className="p-2 flex flex-col items-center text-center">
           <div className="block p-6 rounded-lg shadow-lg bg-white">
 
-            {!AuthContext.state.isWalletFound && (
+            {!WalletContext.state.isWalletFound && (
               <p className="text-gray-700 text-base mb-4">No Web3 wallet found</p>
             )}
-            {!AuthContext.state.isMetamaskFound && (
+            {!WalletContext.state.isMetamaskFound && (
               <p className="text-gray-700 text-base mb-4">No MetaMask wallet found</p>
             )}
-            {AuthContext.state.isWalletFound && AuthContext.state.isMetamaskFound && (
+            {WalletContext.state.isWalletFound && WalletContext.state.isMetamaskFound && (
               <Image src={'/metamask.svg'} alt='avocado' width='200' height='200' />
             )}
-            {/* {!AuthContext.state.isConnected && (
+            {/* {!WalletContext.state.isConnected && (
               <p className="text-gray-700 text-base mb-4">MetaMask is not connected to any chain</p>
             )} */}
-            {!AuthContext.state.isNetworkValid && (
+            {!WalletContext.state.isNetworkValid && (
               <p className="text-gray-700 text-base mb-4">MetaMask is not connected to Avalanche chain</p>
             )}
-            {!AuthContext.state.account && (
+            {!WalletContext.state.account && (
               <>
                 <p className="text-gray-700 text-base mb-4">No account is connected.</p>
                 <button
@@ -282,10 +282,10 @@ export default function SignIn() {
               </>
             )}
 
-            {AuthContext.state.isWalletFound && AuthContext.state.isMetamaskFound && AuthContext.state.isNetworkValid && AuthContext.state.account && (
+            {WalletContext.state.isWalletFound && WalletContext.state.isMetamaskFound && WalletContext.state.isNetworkValid && WalletContext.state.account && (
               <>
                 <div className="text-gray-700 text-base break-all">Sign in using account:</div>
-                <div className="text-gray-700 text-base break-all mb-4"><b>{AuthContext.state.account}</b></div>
+                <div className="text-gray-700 text-base break-all mb-4"><b>{WalletContext.state.account}</b></div>
                 <button
                   type="submit"
                   className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

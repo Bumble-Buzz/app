@@ -6,7 +6,7 @@ import FormData from 'form-data';
 import { useRouter } from 'next/router';
 import IPFS from '@/utils/ipfs';
 import WalletUtil from '@/components/wallet/WalletUtil';
-import { useAuth } from '@/contexts/AuthContext';
+import { useWallet } from '@/contexts/WalletContext';
 import API from '@/components/Api';
 import Toast from '@/components/Toast';
 import NoImageAvailable from '@/public/no-image-available.png';
@@ -68,7 +68,7 @@ const reducer = (state, action) => {
 
 export default function EditCollection({ collectionDataInit }) {
   const ROUTER = useRouter();
-  const AuthContext = useAuth();
+  const WalletContext = useWallet();
   const inputFile = useRef(null) 
   const { data: session, status: sessionStatus } = useSession();
 
@@ -86,7 +86,7 @@ export default function EditCollection({ collectionDataInit }) {
           'id': Number(blockchainResults.id),
           'name': state.name,
           'contractAddress': ethers.utils.getAddress(state.address),
-          'owner': AuthContext.state.account,
+          'owner': WalletContext.state.account,
           'description': state.description,
           'reflection': Number(state.reflection),
           'commission': Number(state.commission),
@@ -134,7 +134,7 @@ export default function EditCollection({ collectionDataInit }) {
   });
 
 
-  const isSignInValid = () => session && sessionStatus === 'authenticated' && session.user.id === AuthContext.state.account && AuthContext.state.isNetworkValid;
+  const isSignInValid = () => session && sessionStatus === 'authenticated' && session.user.id === WalletContext.state.account && WalletContext.state.isNetworkValid;
   // catch invalids early
   if (!collectionDataInit) return (<PageError>This collection does not exist</PageError>);
   if (!isSignInValid()) return (<Unauthenticated link={'/auth/signin'}></Unauthenticated>);
@@ -169,7 +169,7 @@ export default function EditCollection({ collectionDataInit }) {
         const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, signer);
         // update collection in blockchain
         const val = await contract.updateCollection(
-          collectionDataInit.id, state.reflection, state.commission, state.incentive, AuthContext.state.account
+          collectionDataInit.id, state.reflection, state.commission, state.incentive, WalletContext.state.account
         );
           
         await WalletUtil.checkTransaction(val);
