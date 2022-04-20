@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { useSession, getSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useWallet, WALLET_CONTEXT_ACTIONS } from '@/contexts/WalletContext';
 import { useProfile, PROFILE_CONTEXT_ACTIONS } from '@/contexts/ProfileContext';
 import API from '@/components/Api';
@@ -20,7 +20,7 @@ import {
 } from '@heroicons/react/outline';
 
 
-export default function Navbar({ userDataInit }) {
+export default function Navbar() {
   const WalletContext = useWallet();
   const ProfileContext = useProfile();
   const { data: session, status: sessionStatus } = useSession();
@@ -42,25 +42,38 @@ export default function Navbar({ userDataInit }) {
     )
   };
 
-  useEffect(() => {
-    if (isSessionValid() && userDataInit && userDataInit.Item && userDataInit.Item.walletId === session.user.id) {
-      ProfileContext.dispatch({
-        type: PROFILE_CONTEXT_ACTIONS.ALL,
-        payload: {
-          walletId: userDataInit.Item.walletId,
-          name: userDataInit.Item.name,
-          bio: userDataInit.Item.bio,
-          notifications: userDataInit.Item.notifications,
-          picture: userDataInit.Item.picture,
-          timestamp: userDataInit.Item.timestamp,
-        }
-      });
-    } else if (!isSessionValid()) {
+  useEffect(async () => {
+    if (isSessionValid()) {
+      console.log('sign in valid');
+      // if profile context is empty, populate it. Else no need to do anything
+      if (!ProfileContext || !ProfileContext.state || !ProfileContext.state.walletId) {
+        const getUsersDb = async () => {
+          const results = await API.user.id(session.user.id);
+          return results.data.Item;
+        };
+        const userData = await getUsersDb();
+        if (!userData) return;
+        // update profile context
+        ProfileContext.dispatch({
+          type: PROFILE_CONTEXT_ACTIONS.ALL,
+          payload: {
+            walletId: userData.walletId,
+            name: userData.name,
+            bio: userData.bio,
+            notifications: userData.notifications,
+            picture: userData.picture,
+            timestamp: userData.timestamp,
+          }
+        });
+      }
+    } else {
+      console.log('sign in invalid');
+      // clear profile context
       ProfileContext.dispatch({
         type: PROFILE_CONTEXT_ACTIONS.CLEAR
       });
     }
-  }, [userDataInit, session, sessionStatus]);
+  }, [session, sessionStatus]);
 
   useEffect(() => {
     walletInit();
@@ -274,15 +287,4 @@ export default function Navbar({ userDataInit }) {
 
     </nav>
   )
-}
-
-export async function getServerSideProps(context) {
-  const session = await getSession(context);
-  const { data } = await API.backend.user.id(session.user.id);
-  return {
-    props: {
-      userDataInit: data,
-      session
-    },
-  }
 }

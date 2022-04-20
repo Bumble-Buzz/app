@@ -34,7 +34,10 @@ export default function DropDown({
         {isImage && !isSvg && (
           <Menu.Button className="flex flex-col justify-center items-center text-center">
             <div className={`relative ${imageStyle}`}>
-              <Image src={image} placeholder='blur' blurDataURL='/person.png' alt='Profile' layout="fill" objectFit="cover" sizes='50vw' />
+              <Image
+                src={image} placeholder='blur' blurDataURL='/person.png' alt='Profile' aria-hidden="true"
+                layout="fill" objectFit="contain" sizes='50vw'
+              />
             </div>
           </Menu.Button>
         )}
