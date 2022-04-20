@@ -191,6 +191,7 @@ export default function Asset({ assetDataInit }) {
   };
   const getAssetActionContent = () => {
     return {
+      assetName: assetData.Item.config.name,
       contractAddress: assetData.Item.contractAddress,
       tokenId: assetData.Item.tokenId,
       saleId: assetData.Item.saleId,

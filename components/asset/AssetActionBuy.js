@@ -65,6 +65,7 @@ export default function AssetActionBuy({ content, isSignInValid, priceInit }) {
         const sellerUserData = await API.user.id(ethers.utils.getAddress(content.seller));
         const newNotification = {
           'type': ASSET_EVENTS.sale,
+          'assetName': content.assetName,
           'contractAddress': ethers.utils.getAddress(blockchainResults.contractAddress),
           'tokenId': Number(blockchainResults.tokenId),
           'unitPrice': Number(content.price),

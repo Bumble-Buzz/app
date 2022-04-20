@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export default function LinkWrapper({ children, link, linkText, ...props }) {
+export default function LinkWrapper({ children, link, linkText, onClick, ...props }) {
   // extract classes from props
   let classes = '';
   if (props.classes) {
@@ -13,7 +13,7 @@ export default function LinkWrapper({ children, link, linkText, ...props }) {
       passHref={true}
       {...props}
     >
-      <a className={`text-blue-500 ${classes}`}>{linkText}</a>
+      <a className={`text-blue-500 ${classes}`} onClick={onClick}>{linkText}</a>
     </Link>
   );
 }
