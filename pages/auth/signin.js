@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { useSession, getSession, getProviders, signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useWallet } from '@/contexts/WalletContext';
+import { useProfile, PROFILE_CONTEXT_ACTIONS } from '@/contexts/ProfileContext';
 import API from '@/components/Api';
 import WalletUtil from '@/components/wallet/WalletUtil';
 import Toast from '@/components/Toast';
@@ -156,6 +157,7 @@ const initTableSetup = async () => {
 export default function SignIn() {
   const ROUTER = useRouter();
   const WalletContext = useWallet();
+  const ProfileContext = useProfile();
   const { data: session, status: sessionStatus } = useSession();
 
   const walletConnect = async () => {
@@ -177,6 +179,7 @@ export default function SignIn() {
       name: 'Anon',
       wallet: WalletContext.state.account,
       bio: '',
+      notifications: [],
       picture: '',
       timestamp: ''
     };
@@ -184,6 +187,7 @@ export default function SignIn() {
     if (data) {
       userInfo.name = data.name;
       userInfo.bio = data.bio;
+      userInfo.notifications = data.notifications;
       userInfo.picture = data.picture;
       userInfo.timestamp = data.timestamp;
     }
@@ -227,7 +231,26 @@ export default function SignIn() {
         recoveredAddress
       });
       if (signedIn && signedIn.ok) {
-        if (!data) {
+        if (data) {
+          // console.log('data exists in db');
+          // update profile context
+          ProfileContext.dispatch({
+            type: PROFILE_CONTEXT_ACTIONS.ALL,
+            payload: {
+              walletId: WalletContext.state.account,
+              name: data.name,
+              bio: data.bio,
+              notifications: data.notifications,
+              picture: data.picture,
+              timestamp: data.timestamp
+            }
+          });
+        } else {
+          // console.log('data does not exist in db');
+          ProfileContext.dispatch({
+            type: PROFILE_CONTEXT_ACTIONS.WALLET_ID,
+            payload: { walletId: WalletContext.state.account }
+          });
           await putUsersDb();
         }
         ROUTER.back();

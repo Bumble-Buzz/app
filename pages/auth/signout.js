@@ -1,13 +1,18 @@
 import { useRouter } from 'next/router';
 import { getSession, signOut } from 'next-auth/react';
+import { useProfile, PROFILE_CONTEXT_ACTIONS } from '@/contexts/ProfileContext';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 
 
 export default function SignIn() {
   const ROUTER = useRouter();
+  const ProfileContext = useProfile();
 
   const handleSignOut = async () => {
     signOut({redirect: false});
+    ProfileContext.dispatch({
+      type: PROFILE_CONTEXT_ACTIONS.CLEAR,
+    });
     ROUTER.back();
   };
 

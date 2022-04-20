@@ -10,7 +10,7 @@ export default function DropDown({
     children,
     items, getItem, showSelectedItem = false,
     title, titleStyle = 'inline-flex justify-center w-full font-medium bg-opacity-20 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75',
-    isImage, isSvg, image = '/avocado.jpg', imageStyle = 'h-10 w-10 border-2 border-black-600 rounded-full overflow-hidden',
+    isImage, isSvg, image = '/person.png', imageStyle = 'h-10 w-10 border-2 border-black-600 rounded-full overflow-hidden',
     menuStyle = 'right-0 w-48 z-10 mt-2 origin-top-right'
   }) {
   const ROUTER = useRouter();
@@ -34,7 +34,7 @@ export default function DropDown({
         {isImage && !isSvg && (
           <Menu.Button className="flex flex-col justify-center items-center text-center">
             <div className={`relative ${imageStyle}`}>
-              <Image src={image} placeholder='blur' blurDataURL='/avocado.jpg' alt='Profile' layout="fill" objectFit="cover" sizes='50vw' />
+              <Image src={image} placeholder='blur' blurDataURL='/person.png' alt='Profile' layout="fill" objectFit="cover" sizes='50vw' />
             </div>
           </Menu.Button>
         )}

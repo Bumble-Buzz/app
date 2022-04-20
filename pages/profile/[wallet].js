@@ -1,12 +1,13 @@
 import { useEffect, useState, useReducer, useRef } from 'react'
 import Image from 'next/image';
+import FormData from 'form-data';
 import { useRouter } from 'next/router';
 import { useSession, getSession } from 'next-auth/react';
-import FormData from 'form-data';
-import useSWR, { mutate } from 'swr';
 import { useWallet } from '@/contexts/WalletContext';
-import PageError from '@/components/PageError';
+import { useProfile, PROFILE_CONTEXT_ACTIONS } from '@/contexts/ProfileContext';
+import useSWR, { mutate } from 'swr';
 import API from '@/components/Api';
+import PageError from '@/components/PageError';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import ProfileFactory from '@/components/profile/ProfileFactory';
@@ -53,6 +54,7 @@ const reducer = (state, action) => {
 export default function Wallet({ userDataInit }) {
   const ROUTER = useRouter();
   const WalletContext = useWallet();
+  const ProfileContext = useProfile();
 
   const [isLoading, setLoading] = useState(false);
   const [tab, setTab] = useState(ROUTER.query.tab || 'general');
@@ -136,6 +138,16 @@ export default function Wallet({ userDataInit }) {
       // pull from db since it has now been updated
       await mutate(API.swr.user.id(ROUTER.query.wallet));
 
+      // update profile context
+      ProfileContext.dispatch({
+        type: PROFILE_CONTEXT_ACTIONS.NAME,
+        payload: { name: userState.name }
+      });
+      ProfileContext.dispatch({
+        type: PROFILE_CONTEXT_ACTIONS.BIO,
+        payload: { bio: userState.bio }
+      });
+
       Toast.success('Profile info updated successfully');
       setLoading(false);
     } catch (e) {
@@ -175,6 +187,12 @@ export default function Wallet({ userDataInit }) {
 
       // upload picture cid in database
       await updateUsersDbPic(ipfsImage);
+
+      // update profile context
+      ProfileContext.dispatch({
+        type: PROFILE_CONTEXT_ACTIONS.PICTURE,
+        payload: { picture: ipfsImage }
+      });
 
       Toast.success('Profile picture updated successfully');
     } catch (e) {

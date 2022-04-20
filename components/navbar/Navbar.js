@@ -1,13 +1,16 @@
 
 import { useEffect, useState } from 'react';
-import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import { useSession, getSession } from 'next-auth/react';
-import Menu from './Menu';
-import Notification from './Notification';
-import DropDown from './DropDown';
-import HeadlessSlideOver from '../HeadlessSlideOver';
 import { useWallet, WALLET_CONTEXT_ACTIONS } from '@/contexts/WalletContext';
+import { useProfile, PROFILE_CONTEXT_ACTIONS } from '@/contexts/ProfileContext';
+import API from '@/components/Api';
 import WalletUtil from '@/components/wallet/WalletUtil';
+import Menu from '@/components/navbar/Menu';
+import Notification from '@/components/navbar/Notification';
+import DropDown from '@/components/navbar/DropDown';
+import HeadlessSlideOver from '@/components/HeadlessSlideOver';
+import LinkWrapper from '@/components/wrappers/LinkWrapper';
+import IPFS from '@/utils/ipfs';
 import Lexicon from '@/lexicon/navbar';
 import {
   PencilIcon, SearchIcon, MenuIcon, XIcon, BellIcon, ShoppingCartIcon
@@ -17,16 +20,47 @@ import {
 } from '@heroicons/react/outline';
 
 
-export default function Navbar() {
+export default function Navbar({ userDataInit }) {
   const WalletContext = useWallet();
+  const ProfileContext = useProfile();
   const { data: session, status: sessionStatus } = useSession();
-  // console.log('session', session, sessionStatus);
 
   const [isNotificationOpen, setNotificationOpen] = useState(false);
   const [notificationClickTime, setNotificationClickTime] = useState(0);
   const [notificationCount, setNotificationCount] = useState(1);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [menuClickTime, setMenuClickTime] = useState(0);
+
+
+  const isSessionValid = () => {
+    return (session && sessionStatus === 'authenticated' && session.user.id)
+  };
+  const isSignInValid = () => {
+    return (
+      isSessionValid() && session.user.id === WalletContext.state.account &&
+      WalletContext.state.isNetworkValid
+    )
+  };
+
+  useEffect(() => {
+    if (isSessionValid() && userDataInit && userDataInit.Item && userDataInit.Item.walletId === session.user.id) {
+      ProfileContext.dispatch({
+        type: PROFILE_CONTEXT_ACTIONS.ALL,
+        payload: {
+          walletId: userDataInit.Item.walletId,
+          name: userDataInit.Item.name,
+          bio: userDataInit.Item.bio,
+          notifications: userDataInit.Item.notifications,
+          picture: userDataInit.Item.picture,
+          timestamp: userDataInit.Item.timestamp,
+        }
+      });
+    } else if (!isSessionValid()) {
+      ProfileContext.dispatch({
+        type: PROFILE_CONTEXT_ACTIONS.CLEAR
+      });
+    }
+  }, [userDataInit, session, sessionStatus]);
 
   useEffect(() => {
     walletInit();
@@ -218,9 +252,15 @@ export default function Navbar() {
         {/* avatar */}
         <div className="cursor-pointer ml-2">
           {session && sessionStatus === 'authenticated' ?
-            (<DropDown title={Lexicon.avatar.text} items={[11,12,13,15]} getItem={getItem} isImage={true}></DropDown>)
+            (<DropDown
+              title={Lexicon.avatar.text} items={[11,12,13,15]} getItem={getItem}
+              isImage={true} image={ ProfileContext && ProfileContext.state && ProfileContext.state.picture ? IPFS.getValidHttpUrl(ProfileContext.state.picture) : '/person.png' }
+            />)
             :
-            (<DropDown title={Lexicon.avatar.text} items={[11,12,13,14]} getItem={getItem} isImage={true}></DropDown>)
+            (<DropDown
+              title={Lexicon.avatar.text} items={[11,12,13,14]} getItem={getItem}
+              isImage={true} image={ ProfileContext && ProfileContext.state && ProfileContext.state.picture ? IPFS.getValidHttpUrl(ProfileContext.state.picture) : '/person.png' }
+            />)
           }
         </div>
         {/* menu open */}
@@ -237,9 +277,12 @@ export default function Navbar() {
 }
 
 export async function getServerSideProps(context) {
+  const session = await getSession(context);
+  const { data } = await API.backend.user.id(session.user.id);
   return {
     props: {
-      session: await getSession(context)
+      userDataInit: data,
+      session
     },
   }
 }
