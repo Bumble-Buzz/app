@@ -44,7 +44,7 @@ export default function Navbar() {
 
   useEffect(async () => {
     if (isSessionValid()) {
-      // if profile context is empty, populate it. Else no need to do anything
+      // if profile context is empty, populate it. Else, use profile context to update notification count
       if (!ProfileContext || !ProfileContext.state || !ProfileContext.state.walletId) {
         const getUsersDb = async () => {
           const results = await API.user.id(session.user.id);
@@ -66,15 +66,20 @@ export default function Navbar() {
         });
         // user notifications
         setNotificationCount(userData.notifications.length);
+      } else {
+        // user notifications
+        setNotificationCount(ProfileContext.state.notifications.length);
       }
     } else {
-      // clear profile context
-      ProfileContext.dispatch({
-        type: PROFILE_CONTEXT_ACTIONS.CLEAR
-      });
-      setNotificationCount(0);
+      // clear profile context if it exists
+      if (ProfileContext.state.walletId) {
+        ProfileContext.dispatch({
+          type: PROFILE_CONTEXT_ACTIONS.CLEAR
+        });
+        setNotificationCount(0);
+      }
     }
-  }, [session, sessionStatus]);
+  }, [session, sessionStatus, ProfileContext.state.walletId, ProfileContext.state.notifications]);
 
   useEffect(() => {
     walletInit();

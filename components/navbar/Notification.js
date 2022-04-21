@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile, PROFILE_CONTEXT_ACTIONS } from '@/contexts/ProfileContext';
+import { useSession } from 'next-auth/react';
+import API from '@/components/Api';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import { CHAIN_ICONS } from '@/enum/ChainIcons';
@@ -7,22 +9,66 @@ import { CHAIN_ICONS } from '@/enum/ChainIcons';
 
 export default function Notification({ children, handleClick }) {
   const ProfileContext = useProfile();
+  const { data: session, status: sessionStatus } = useSession();
 
-  const removeNotification = (e, notification) => {
+  const removeNotification = async (e, _notification) => {
     e.preventDefault();
 
-    console.log('removeNotification', notification);
+    const newNotifications = ProfileContext.state.notifications.filter(
+      notification => notification.tokenId !== _notification.tokenId
+    );
+
+    ProfileContext.dispatch({
+      type: PROFILE_CONTEXT_ACTIONS.NOTIFICATIONS,
+      payload: { notifications: newNotifications }
+    });
+
+    const payload = {
+      'walletId': session.user.id,
+      'notifications': newNotifications
+    };
+    await API.user.update.myNotifications(payload);
   };
 
-  return (
-    <div className="flex flex-col flex-wrap justify-center">
+  const removeAllNotifications = async (e) => {
+    e.preventDefault();
 
+    ProfileContext.dispatch({
+      type: PROFILE_CONTEXT_ACTIONS.NOTIFICATIONS,
+      payload: { notifications: [] }
+    });
+
+    const payload = {
+      'walletId': session.user.id,
+      'notifications': []
+    };
+    await API.user.update.myNotifications(payload);
+  };
+
+
+  return (
+    <div className="flex flex-col flex-nowrap gap-4 justify-start [height:calc(100vh-6rem)] h-fit">
+
+      {/* If no notifications exist, display message */}
+      {(!ProfileContext || !ProfileContext.state || !ProfileContext.state || ProfileContext.state.notifications.length === 0) && (
+        <div className="flex flex-row flex-wrap gap-x-1 justify-center text-gray-700 text-base">
+          No notifications found
+        </div>
+      )}
+
+      {/* if notifications exist, display count */}
+      {(ProfileContext && ProfileContext.state && ProfileContext.state && ProfileContext.state.notifications.length > 0) && (
+        <div className="p-2 flex flex-row flex-wrap gap-x-1 text-gray-700 text-base w-full">
+          Notifications: {ProfileContext.state.notifications.length}
+        </div>
+      )}
+
+      {/* if notifications exist, iterate through them and create visual components */}
       {ProfileContext && ProfileContext.state && ProfileContext.state.notifications.map((notification, index) => {
-        console.log('notification', notification);
         return (
-          <div key={index} className="block m-2 p-2 rounded-lg shadow-lg bg-white max-w-sm relative">
+          <div key={index} className="block p-2 m-2 rounded-lg shadow-lg bg-white max-w-sm relative">
             <span
-              className="-mx-2 -mt-3 px-1.5 text-white bg-red-700 absolute right-0 rounded-full text-xs cursor-pointer"
+              className="-mx-1 -mt-3 px-1.5 text-white bg-red-700 absolute right-0 rounded-full text-xs cursor-pointer"
               onClick={(e) => removeNotification(e, notification)}
             >
               X
@@ -47,20 +93,17 @@ export default function Notification({ children, handleClick }) {
         )
       })}
 
-      {/* <div className="block m-2 p-2 rounded-lg shadow-lg bg-white max-w-sm relative">
-        <span className="-mx-2 -mt-3 px-1.5 text-white bg-red-700 absolute right-0 rounded-full text-xs cursor-pointer">X</span>
-        <p className="text-gray-700 text-base">
-          You have received a new bid on NFT SALE TITLE sale.
-        </p>
-      </div>
-      <div className="block m-2 p-2 rounded-lg shadow-lg bg-white max-w-sm relative">
-        <span className="-mx-2 -mt-3 px-1.5 text-white bg-red-700 absolute right-0 rounded-full text-xs cursor-pointer">X</span>
-        <p className="text-gray-700 text-base">
-          You have received a new bid on NFT SALE TITLE sale.
-        </p>
-      </div> */}
+      {/* if notifications exist, show a clear all button */}
+      {(ProfileContext && ProfileContext.state && ProfileContext.state && ProfileContext.state.notifications.length > 0) && (
+        <div className="p-2 flex flex-col flex-nowrap w-full">
+          <ButtonWrapper classes="bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-0" onClick={removeAllNotifications}>Clear All</ButtonWrapper>
+        </div>
+      )}
 
-      <ButtonWrapper className="mt-4 focus:outline-none" onClick={() => handleClick(false)}>Notification Close</ButtonWrapper>
+      {/* show a button to close the notification panel */}
+      <div className='p-2 flex flex-col flex-nowrap w-full sticky top-[100vh]'>
+        <ButtonWrapper classes="bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-0" onClick={() => handleClick(false)}>Notification Close</ButtonWrapper>
+      </div>
 
     </div>
   );

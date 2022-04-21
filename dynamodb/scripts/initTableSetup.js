@@ -746,45 +746,56 @@ const mockSales = async () => {
   }
 };
 
-const mockSalesOld = async () => {
-  const pk = '0x640C20ff0F34b75BDA2fCdB4334Acca32B599A81';
+const mockNotifications = async () => {
+  const pk = '0xdA121aB48c7675E4F25E28636e3Efe602e49eec6';
   const sk = 1;
   let payload = {
-    TableName: "sale",
-    ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
-    ExpressionAttributeValues: { ':contractAddress': pk, ':tokenId': sk },
-    KeyConditionExpression: '#contractAddress = :contractAddress AND #tokenId = :tokenId'
+    TableName: "users",
+    ExpressionAttributeNames: { '#walletId': 'walletId' },
+    ExpressionAttributeValues: { ':walletId': pk },
+    KeyConditionExpression: '#walletId = :walletId'
   };
   const results = await DynamoDbQuery.item.query(payload);
   console.log('Query item:', results.Items);
   const item = results.Items[0];
+  const existingSeedNotification = item.notifications[0];
+  console.log('existingSeedNotification', existingSeedNotification);
 
+  let newNotifications = [];
   for (let i = sk+1; i < 99; i++) {
-    payload = {
-      TableName: "sale",
-      Item: {
-        'contractAddress': item.contractAddress,
-        'tokenId': i,
-        'saleId': i,
-        'collectionId': item.collectionId,
-        'seller': item.seller,
-        'buyer': item.buyer,
-        'price': i+1,
-        'sold': item.sold,
-        'saleType': item.saleType,
-        'category': item.category,
-        'active': item.active
-      }
+    const newNotification = {
+      'type': existingSeedNotification.type,
+      'assetName': `${existingSeedNotification.assetName} - mocked:${i}`,
+      'contractAddress': existingSeedNotification.contractAddress,
+      'tokenId': Number(i),
+      'unitPrice': existingSeedNotification.unitPrice,
+      'usdUnitPrice': existingSeedNotification.usdUnitPrice,
+      'saleType' : existingSeedNotification.saleType,
+      'seller': existingSeedNotification.seller,
+      'buyer': existingSeedNotification.buyer,
+      'timestamp': existingSeedNotification.timestamp
     };
-    // console.log('payload', payload);
-    await DynamoDbQuery.item.put(payload);
-  }
+    newNotifications.push(newNotification);
+  };
+
+  const notifications = [existingSeedNotification, ...newNotifications];
+  console.log('notifications', notifications);
+
+  payload = {
+    TableName: "users",
+    Key: { 'walletId': pk },
+    ExpressionAttributeNames: { '#notifications': 'notifications' },
+    ExpressionAttributeValues: { ':notifications': notifications },
+    UpdateExpression: 'set #notifications = :notifications'
+  };
+  await DynamoDbQuery.item.update(payload);
 };
 
 const mock = async () => {
   // await mockCollections();
-  await mockAssets();
-  await mockSales();
+  // await mockAssets();
+  // await mockSales();
+  await mockNotifications();
 };
 
 (async () => {

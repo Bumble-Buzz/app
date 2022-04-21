@@ -74,6 +74,8 @@ Things left to do:
         - LSI: creator, owner
         - GSI: collectionId, onSale + owner
 - Front-end dapp
+  - Database updates
+    - Should we update database but not await on the call? This should make the app more fast
   - Asset
     - Monetary
       - Artist Commission: Only show for Local assets. Do NOT show for other collections

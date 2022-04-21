@@ -83,6 +83,7 @@ module.exports = {
     update: {
       id: (id,payload) => API.post(`user/update/${id}`, payload),
       notification: (payload) => API.post(`user/update/notification`, payload),
+      myNotifications: (payload) => API.post(`user/update/myNotifications`, payload),
       picture: (payload) => API.post(`user/update/picture`, payload)
     }
   },
