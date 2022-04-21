@@ -38,7 +38,7 @@ export const FilterPanel = ({ children, isShowingInit = false, filters, state, d
     return (
       <button
         onClick={props.click}
-        className={`pl-2 flex flex-nowrap flex-row w-full gap-2 border-t border-gray-200 hover:bg-gray-50 cursor-pointer ${props.class}`}
+        className={`pl-2 flex flex-nowrap flex-row w-full gap-2 border-b border-gray-200 hover:bg-gray-50 cursor-pointer ${props.class}`}
       >
         <div>{props.leftIcon}</div>
         {props.children}
@@ -70,7 +70,7 @@ export const FilterPanel = ({ children, isShowingInit = false, filters, state, d
   const MenuSubItemComponent = (props) => {
     return (
       <form onSubmit={(e) => {if (props.filter.payload.onSubmit(e)) props.filter.add()} } method="POST"
-        className={`px-4 py-2 flex flex-col flex-nowrap gap-2 border-t border-gray-200 ${props.class}`}
+        className={`px-4 py-2 flex flex-col flex-nowrap gap-2 border-b border-gray-200 ${props.class}`}
       >
         {props.filter.component}
       </form>

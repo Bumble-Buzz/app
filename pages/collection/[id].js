@@ -134,7 +134,7 @@ export default function Collection({ collectionDataInit }) {
         </div>
 
         {/* bottom */}
-        <div className='flex flex-col sm:flex-row w-full'>
+        <div className='flex flex-col sm:flex-row w-full border-t'>
           <FilterProvider>
             <div className="-px-2 -ml-2 bg-white">
               <CollectionFilterPanel />
