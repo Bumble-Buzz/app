@@ -11,23 +11,23 @@ export default {
   },
   binance: {
     mainnet: { name: 'Binance', id: 56, currency: 'BNB' },
-    testnet: { name: 'Testnet', id: 97, currency: 'BNB' }
+    testnet: { name: 'Binance Testnet', id: 97, currency: 'BNB' }
   },
   avalanche: {
     mainnet: { name: 'Avalanche', id: 43114, currency: 'AVAX' },
-    testnet: { name: 'Testnet', id: 43113, currency: 'AVAX' }
+    testnet: { name: 'Avalanche Testnet', id: 43113, currency: 'AVAX' }
   },
   aurora: {
     mainnet: { name: 'Aurora', id: 1313161554, currency: 'ETH' },
-    testnet: { name: 'Testnet', id: 1313161555, currency: 'ETH' },
-    betanet: { name: 'Betanet', id: 1313161556, currency: 'ETH' }
+    testnet: { name: 'Aurora Testnet', id: 1313161555, currency: 'ETH' },
+    betanet: { name: 'Aurora Betanet', id: 1313161556, currency: 'ETH' }
   },
   fantom: {
     mainnet: { name: 'Fantom', id: 250, currency: 'FTM' },
-    testnet: { name: 'Testnet', id: 4002, currency: 'FTM' }
+    testnet: { name: 'Fantom Testnet', id: 4002, currency: 'FTM' }
   },
   polygon: {
     mainnet: { name: 'Polygon', id: 137, currency: 'MATIC' },
-    mumbai: { name: 'mumbai', id: 80001, currency: 'MATIC' }
+    mumbai: { name: 'Polygon Mumbai', id: 80001, currency: 'MATIC' }
   }
 };
