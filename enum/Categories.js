@@ -1,4 +1,4 @@
-export const CATEGORIES = {
+export default {
   art: 'Art',
   games: 'Games',
   meme: 'Meme',
