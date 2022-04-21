@@ -5,7 +5,7 @@ import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 
 export default async function handler(req, res) {
   const { id, contract, tokenId, limit } = req.query
-  console.log('api param:', id, contract, tokenId, limit);
+  // console.log('api param:', id, contract, tokenId, limit);
 
   //check params
   if (!id || !Number.isInteger(Number(id))) return res.status(400).json({ error: `collection id '${id}' is invalid` });

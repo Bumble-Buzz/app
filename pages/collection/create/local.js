@@ -68,6 +68,7 @@ export default function Local() {
           'description': state.description,
           'owner': WalletContext.state.account,
           'image': `ipfs://${blockchainResults.imageCid}`,
+          'social': [ state.social.discord, state.social.twitter, state.social.website ]
         };
         await API.collection.create.local(payload);
 
@@ -86,7 +87,12 @@ export default function Local() {
     name: '',
     description: '',
     address: process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS,
-    image: null
+    image: null,
+    social: {
+      discord: { name: 'discord', link: '', hover: 'Discord', icon: '' },
+      twitter: { name: 'twitter', link: '', hover: 'Twitter', icon: '' },
+      website: { name: 'website', link: '', hover: 'Website', icon: '' }
+    }
   });
 
 

@@ -71,6 +71,7 @@ export default function Unverified() {
           'description': state.description,
           'owner': WalletContext.state.account,
           'image': `ipfs://${blockchainResults.imageCid}`,
+          'social': [ state.social.discord, state.social.twitter, state.social.website ]
         };
         await API.collection.create.unverified(payload);
 
@@ -89,7 +90,12 @@ export default function Unverified() {
     name: '',
     description: '',
     dbOnly: false,
-    image: null
+    image: null,
+    social: {
+      discord: { name: 'discord', link: '', hover: 'Discord', icon: '' },
+      twitter: { name: 'twitter', link: '', hover: 'Twitter', icon: '' },
+      website: { name: 'website', link: '', hover: 'Website', icon: '' }
+    }
   });
 
 

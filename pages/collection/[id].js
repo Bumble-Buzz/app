@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ethers } from 'ethers';
 import Image from 'next/image';
 import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import { useRouter } from 'next/router';
@@ -10,17 +11,20 @@ import IconTray from '@/components/IconTray';
 import TilePanel from '@/components/TilePanel';
 import PageError from '@/components/PageError';
 import API from '@/components/Api';
+import WalletUtil from '@/components/wallet/WalletUtil';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import { FilterProvider } from '@/contexts/FilterContext';
 import CollectionContent from '@/components/collection/CollectionContent';
 import CollectionFilterPanel from '@/components/collection/CollectionFilterPanel';
 import Tooltip from '@/components/Tooltip';
+import Toast from '@/components/Toast';
 import ENUM from '@/enum/ENUM';
 import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/solid';
 
+import BankAbi from '@/artifacts/contracts/bank/Bank.sol/Bank.json';
+
 
 const BATCH_SIZE = 40;
-
 
 export default function Collection({ collectionDataInit }) {
   const ROUTER = useRouter();
@@ -29,6 +33,27 @@ export default function Collection({ collectionDataInit }) {
   // swr call to fetch initial data
   const {data: assetInit} = useSWR(API.swr.asset.collectionId(collectionDataInit.id, 'null', 'null', BATCH_SIZE), API.swr.fetcher, API.swr.options);
 
+  const [incentiveAmount, setIncentiveAmount] = useState(0);
+  const incrementIncentiveAmount = (_amount) => setIncentiveAmount(incentiveAmount+_amount);
+  useEffect(async () => {
+    if (collectionDataInit) {
+      try {
+        const signer = await WalletUtil.getWalletSigner();
+        const contract = new ethers.Contract(process.env.NEXT_PUBLIC_BANK_CONTRACT_ADDRESS, BankAbi.abi, signer);
+  
+        // fetch monetary information
+        const collectionAccount = await contract.getCollectionAccount(collectionDataInit.contractAddress);
+
+        // incentive amount
+        const incentiveInt = Number(collectionAccount.incentiveVault);
+        const incentiveBalance = Number(ethers.utils.formatEther(incentiveInt.toString()));
+        setIncentiveAmount(incentiveBalance);
+      } catch (e) {
+        console.error('e', e);
+        Toast.error(e.message);
+      }
+    };
+  }, [collectionDataInit]);
 
   // catch invalids early
   if (!collectionDataInit || !collectionDataInit.id) return (<PageError>This collection does not exist</PageError>);
@@ -61,7 +86,7 @@ export default function Collection({ collectionDataInit }) {
     commission: { name: 'Commission', value: collectionDataInit.commission/100, format: 'percent', symbol: '' },
     reflection: { name: 'Reflection', value: collectionDataInit.reflection/100, format: 'percent', symbol: '' },
     incentive: { name: 'Incentive', value: collectionDataInit.incentive/100, format: 'percent', symbol: '' },
-    incentiveBal: { name: 'Incentive Balance', value: 0.00, format: 'decimal', symbol: ENUM.CURRENCY_ICONS.ethereum, itemSymbol: getItemSymbol() }
+    incentiveBal: { name: 'Incentive Balance', value: incentiveAmount, format: 'decimal', symbol: ENUM.CURRENCY_ICONS.ethereum, itemSymbol: getItemSymbol() }
   };
   const tilePanelAdditional = {
     items: { name: 'Items', value: collectionDataInit.totalSupply, format: 'decimal', symbol: '' },
@@ -71,6 +96,7 @@ export default function Collection({ collectionDataInit }) {
   };
   const iconTraySpecialItems = () => {
     let list = [];
+    list.push('Donate');
     if (isCollectionOwner()) list.push('Edit');
     return list;
   };
@@ -119,7 +145,10 @@ export default function Collection({ collectionDataInit }) {
           </div>
           {/* icon tray */}
           <div className='flex flex-col flex-nowrap items-end xsm:items-center'>
-            <IconTray items={collectionDataInit.social} specialItems={iconTraySpecialItems()} options={{ id: collectionDataInit.id }} />
+            <IconTray
+              items={collectionDataInit.social} specialItems={iconTraySpecialItems()}
+              options={{ id: collectionDataInit.id, contractAddress: collectionDataInit.contractAddress, incrementIncentiveAmount }}
+            />
           </div>
         </div>
 

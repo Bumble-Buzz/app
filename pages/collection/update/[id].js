@@ -283,8 +283,8 @@ export default function EditCollection({ collectionDataInit }) {
       {/* Page Content */}
       <div className="flex flex-col p-2 w-full">
 
-        <p onClick={() => {console.log('state', state)}}>See state</p>
-        <p onClick={() => {console.log('collectionDataInit', collectionDataInit)}}>See collectionDataInit</p>
+        {/* <p onClick={() => {console.log('state', state)}}>See state</p>
+        <p onClick={() => {console.log('collectionDataInit', collectionDataInit)}}>See collectionDataInit</p> */}
 
         <div className="p-2 flex flex-col">
           <h2 className="text-3xl font-semibold text-gray-800">Edit <span className="text-indigo-600">{collectionDataInit.name}</span> Collection</h2>
