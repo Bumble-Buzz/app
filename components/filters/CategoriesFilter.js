@@ -1,6 +1,6 @@
 import { useEffect, useState, useReducer } from 'react';
 import HeadlessSwitch from '@/components/HeadlessSwitch';
-import { CATEGORIES } from '@/enum/Categories';
+import ENUM from '@/enum/ENUM';
 import { useFilter, FILTER_CONTEXT_ACTIONS } from '@/contexts/FilterContext';
 
 
@@ -15,7 +15,7 @@ export default function ExploreCategoriesFilter({ }) {
 
   const getCategoriesState = () => {
     let state = {};
-    Object.getOwnPropertyNames(CATEGORIES).forEach((key) => {
+    Object.getOwnPropertyNames(ENUM.CATEGORIES).forEach((key) => {
       state[key] = false;
     });
     return state;

@@ -3,8 +3,7 @@ import NumberFormatter from '@/utils/NumberFormatter';
 import CreateIcon from '@/public/market/create-outline.svg';
 import TransferIcon from '@/public/market/transfer-outline.svg';
 import SellIcon from '@/public/market/sell-outline.svg';
-import { CHAIN_ICONS } from '@/enum/ChainIcons';
-import { ASSET_EVENTS } from '@/enum/AssetEvent';
+import ENUM from '@/enum/ENUM';
 
 
 export default function AssetActivity({ initialData, classes }) {
@@ -30,12 +29,12 @@ export default function AssetActivity({ initialData, classes }) {
               return (
                 <div key={index} className='grid grid-cols-6 odd:bg-zinc-100'>
                   <div className="border px-1 py-3 text-center flex justify-center items-center gap-x-1">
-                    {listing.type === ASSET_EVENTS.mint && (<><CreateIcon height={16} width={16} />{listing.type}</>)}
-                    {listing.type === ASSET_EVENTS.transfer && (<><TransferIcon height={16} width={16} />{listing.type}</>)}
-                    {listing.type === ASSET_EVENTS.sale && (<><SellIcon height={16} width={16} />{listing.type}</>)}
+                    {listing.type === ENUM.ASSET_EVENTS.mint && (<><CreateIcon height={16} width={16} />{listing.type}</>)}
+                    {listing.type === ENUM.ASSET_EVENTS.transfer && (<><TransferIcon height={16} width={16} />{listing.type}</>)}
+                    {listing.type === ENUM.ASSET_EVENTS.sale && (<><SellIcon height={16} width={16} />{listing.type}</>)}
                   </div>
                   <div className="border px-1 py-3 text-center flex justify-center">
-                    <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
+                    <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
                     {listing.unitPrice}
                   </div>
                   <div className="border px-1 py-3 text-center">

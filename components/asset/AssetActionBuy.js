@@ -10,7 +10,7 @@ import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import WalletUtil from '@/components/wallet/WalletUtil';
 import BuyIcon from '@/public/market/buy-outline.svg';
 import Date from '@/utils/Date';
-import { ASSET_EVENTS } from '@/enum/AssetEvent';
+import ENUM from '@/enum/ENUM';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
@@ -45,7 +45,7 @@ export default function AssetActionBuy({ content, isSignInValid, priceInit }) {
           'usdUnitPrice': (Number(priceInit.ethusd) * Number(content.price)),
           'seller': ethers.utils.getAddress(content.seller),
           'buyer': ethers.utils.getAddress(blockchainResults.buyer),
-          'type': ASSET_EVENTS.sale
+          'type': ENUM.ASSET_EVENTS.sale
         }];
         activity.push(...content.activity);
         let payload = {
@@ -64,7 +64,7 @@ export default function AssetActionBuy({ content, isSignInValid, priceInit }) {
         // notify buyer
         const sellerUserData = await API.user.id(ethers.utils.getAddress(content.seller));
         const newNotification = {
-          'type': ASSET_EVENTS.sale,
+          'type': ENUM.ASSET_EVENTS.sale,
           'assetName': content.assetName,
           'contractAddress': ethers.utils.getAddress(blockchainResults.contractAddress),
           'tokenId': Number(blockchainResults.tokenId),

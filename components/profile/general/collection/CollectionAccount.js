@@ -10,7 +10,7 @@ import IncentivePercent from '@/components/profile/general/collection/IncentiveP
 import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import Toast from '@/components/Toast';
 import NumberFormatter from '@/utils/NumberFormatter';
-import { CHAIN_ICONS } from '@/enum/ChainIcons';
+import ENUM from '@/enum/ENUM';
 
 import BankAbi from '@/artifacts/contracts/bank/Bank.sol/Bank.json';
 
@@ -98,7 +98,7 @@ export default function CollectionAccount({ collection }) {
             <div className='flex-1'>Reflection</div>
             <div className='flex-1'>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
-                <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
+                <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
                 <div className='truncate'>{NumberFormatter(reflection, 'decimal', { maximumFractionDigits: 6 })}</div>
               </div>
             </div>
@@ -115,7 +115,7 @@ export default function CollectionAccount({ collection }) {
             <div className='flex-1'>Incentive Amount</div>
             <div className='flex-1'>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
-                <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
+                <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
                 <div className='truncate'>{NumberFormatter(incentiveAmount, 'decimal', { maximumFractionDigits: 6 })}</div>
               </div>
             </div>
@@ -132,7 +132,7 @@ export default function CollectionAccount({ collection }) {
             <div className='flex-1'>Incentive Percent</div>
             <div className='flex-1'>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
-                <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
+                <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
                 <div className='truncate'>{NumberFormatter(incentivePercent, 'percent')}</div>
               </div>
             </div>

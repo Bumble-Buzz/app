@@ -12,8 +12,7 @@ import DropDown from '@/components/navbar/DropDown';
 import Toast from '@/components/Toast';
 import Sort from '@/utils/Sort';
 import { useFilter, FILTER_CONTEXT_ACTIONS } from '@/contexts/FilterContext';
-import { CHAIN_ICONS } from '@/enum/ChainIcons';
-import { CATEGORIES } from '@/enum/Categories';
+import ENUM from '@/enum/ENUM';
 import NftCard from '@/components/nftAssets/NftCard';
 import { ShieldCheckIcon, ShieldExclamationIcon, XIcon } from '@heroicons/react/solid';
 
@@ -98,7 +97,7 @@ export default function ExploreContent({ initialData }) {
   };
   const areCategoryFiltersSet = () => {
     if (!FilterContext.state.categories) return false;
-    const exists = Object.getOwnPropertyNames(CATEGORIES).filter(key => FilterContext.state.categories[key] === true);
+    const exists = Object.getOwnPropertyNames(ENUM.CATEGORIES).filter(key => FilterContext.state.categories[key] === true);
     return (exists && exists.length > 0);
   };
   const areFiltersSet = () => {
@@ -218,7 +217,7 @@ export default function ExploreContent({ initialData }) {
 
     // categories
     if (FilterContext.state.categories) {
-      const enabledCategories = Object.getOwnPropertyNames(CATEGORIES).filter(key => FilterContext.state.categories[key] === true);
+      const enabledCategories = Object.getOwnPropertyNames(ENUM.CATEGORIES).filter(key => FilterContext.state.categories[key] === true);
       if (enabledCategories.length > 0) {
         workingAssets = workingAssets.filter((asset) => {
           const category = asset.category.toString().toLowerCase();
@@ -472,7 +471,7 @@ export default function ExploreContent({ initialData }) {
                   <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
                     <div className="flex-1">Price</div>
                     <div className="flex flex-row flex-nowrap justify-center items-center">
-                    <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
+                    <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
                       <div className="truncate">{asset.price}</div>
                     </div>
                   </div>

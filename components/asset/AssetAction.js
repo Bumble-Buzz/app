@@ -5,7 +5,7 @@ import AssetActionSell from '@/components/asset/AssetActionSell';
 import AssetActionCancel from '@/components/asset/AssetActionCancel';
 import AssetActionBuy from '@/components/asset/AssetActionBuy';
 import NumberFormatter from '@/utils/NumberFormatter';
-import { CHAIN_ICONS } from '@/enum/ChainIcons';
+import ENUM from '@/enum/ENUM';
 
 
 export default function AssetAction({children, links, content, isSignInValid, isAssetOwner, isAssetOnSale}) {
@@ -50,7 +50,7 @@ export default function AssetAction({children, links, content, isSignInValid, is
     <div className='p-4 flex flex-col w-full gap-2 border rounded-lg overflow-hidden bg-zinc-50'>
       {text()}
       <div className='flex flex-row gap-x-1 items-center'>
-        <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
+        <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
         {price()}
       </div>
       <div className='flex flex-row flex-wrap gap-1'>

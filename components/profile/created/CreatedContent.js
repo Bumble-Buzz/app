@@ -13,7 +13,7 @@ import DropDown from '@/components/navbar/DropDown';
 import Toast from '@/components/Toast';
 import Sort from '@/utils/Sort';
 import { useFilter, FILTER_CONTEXT_ACTIONS } from '@/contexts/FilterContext';
-import { CHAIN_ICONS } from '@/enum/ChainIcons';
+import ENUM from '@/enum/ENUM';
 import NftCard from '@/components/nftAssets/NftCard';
 import { ShieldCheckIcon, ShieldExclamationIcon, XIcon, ArrowRightIcon } from '@heroicons/react/solid';
 
@@ -406,7 +406,7 @@ export default function CreatedContent({ initialData }) {
                   <div className="flex flex-nowrap flex-row gap-2 text-left hover:bg-gray-50">
                     <div className="flex-1">Price</div>
                     <div className="flex flex-row flex-nowrap justify-center items-center">
-                    <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
+                    <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
                       <div className="truncate">{asset.price}</div>
                     </div>
                   </div>

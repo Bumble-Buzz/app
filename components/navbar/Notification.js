@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import API from '@/components/Api';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import LinkWrapper from '@/components/wrappers/LinkWrapper';
-import { CHAIN_ICONS } from '@/enum/ChainIcons';
+import ENUM from '@/enum/ENUM';
 
 
 export default function Notification({ children, handleClick }) {
@@ -85,7 +85,7 @@ export default function Notification({ children, handleClick }) {
               </div>
               <div>has been sold for</div>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
-                <div className="relative h-5 w-5">{CHAIN_ICONS.ethereum}</div>
+                <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
                 {notification.unitPrice}.
               </div>
             </div>
