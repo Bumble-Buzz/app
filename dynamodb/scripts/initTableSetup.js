@@ -792,10 +792,10 @@ const mockNotifications = async () => {
 };
 
 const mock = async () => {
-  // await mockCollections();
+  await mockCollections();
   // await mockAssets();
   // await mockSales();
-  await mockNotifications();
+  // await mockNotifications();
 };
 
 (async () => {
