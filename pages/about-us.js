@@ -6,7 +6,7 @@ export default function AboutUs() {
         <div className="flex bg-grayDark" style={{minHeight: '500px'}}>
           <div className="flex flex-col">
             <div className="p-2 md:p-4">
-              <h2 className="text-3xl font-semibold text-gray-800 md:text-4xl">About AvaxTrade <span className="text-indigo-600">Team</span></h2>
+              <h2 className="text-3xl font-semibold text-gray-800 md:text-4xl">About BumbleBuzz <span className="text-indigo-600">Team</span></h2>
             </div>
             <div className="p-2 md:p-4">
               <span className="pl-4">

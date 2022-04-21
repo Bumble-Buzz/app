@@ -190,7 +190,7 @@ export default function SignIn() {
     }
 
     const domain = {
-      name: 'AvaxTrade',
+      name: 'BumbleBuzz',
       version: '1',
       chainId: process.env.NEXT_PUBLIC_CHAIN_ID,
       verifyingContract: process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, // contract address
@@ -268,7 +268,7 @@ export default function SignIn() {
               <p className="text-gray-700 text-base mb-4">MetaMask is not connected to any chain</p>
             )} */}
             {!WalletContext.state.isNetworkValid && (
-              <p className="text-gray-700 text-base mb-4">MetaMask is not connected to Avalanche chain</p>
+              <p className="text-gray-700 text-base mb-4">MetaMask is not connected to Aurora chain</p>
             )}
             {!WalletContext.state.account && (
               <>

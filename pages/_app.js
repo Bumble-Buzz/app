@@ -15,8 +15,8 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     <SessionProvider session={session}>
       <AppContext>
         <Head>
-          <title>AvaxTrade</title>
-          <meta name="description" content="Generated a AvaxTrade NFT on AVAX!" />
+          <title>BumbleBuzz</title>
+          <meta name="description" content="Generated a BumbleBuzz NFT on AVAX!" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
 

@@ -1,5 +1,5 @@
 export default {
-  title: 'AvaxTrade',
+  title: 'BumbleBuzz',
   explore: {
     text: 'Explore',
     allNfts: 'All NFTs',

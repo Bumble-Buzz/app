@@ -1,5 +1,5 @@
-# avaxtrade
-AVAX marketplace
+# bumblebuzz
+BumbleBuzz marketplace
 
 
 ## save command in bash_profile
@@ -88,7 +88,7 @@ eksctl utils associate-iam-oidc-provider \
 
 aws iam create-policy   \
   --policy-name k8s-asg-policy \
-  --policy-document file://~/repo/avaxtrade/k8s-autoscaler/asg-policy.json
+  --policy-document file://~/repo/bumblebuzz/k8s-autoscaler/asg-policy.json
 
 eksctl create iamserviceaccount \
     --name cluster-autoscaler \
@@ -100,7 +100,7 @@ eksctl create iamserviceaccount \
 
 kubectl -n kube-system describe sa cluster-autoscaler
 
-kubectl apply -f ~/repo/avaxtrade/k8s-autoscaler/cluster-autoscaler-autodiscover.yaml
+kubectl apply -f ~/repo/bumblebuzz/k8s-autoscaler/cluster-autoscaler-autodiscover.yaml
 
 kubectl -n kube-system \
     annotate deployment.apps/cluster-autoscaler \

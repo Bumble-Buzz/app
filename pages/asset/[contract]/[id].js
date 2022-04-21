@@ -167,7 +167,7 @@ export default function Asset({ assetDataInit }) {
               </div>
               <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
                 <div className='w-1/2'>Blockchain</div>
-                <div className='truncate'>Avalanche</div>
+                <div className='truncate'>Aurora</div>
               </div>
               <div className='flex flex-row flex-nowrap justify-between items-center gap-2 w-full'>
                 <div className='w-1/2'>Metadata</div>
