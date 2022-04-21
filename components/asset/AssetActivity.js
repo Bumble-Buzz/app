@@ -34,7 +34,7 @@ export default function AssetActivity({ initialData, classes }) {
                     {listing.type === ENUM.ASSET_EVENTS.sale && (<><SellIcon height={16} width={16} />{listing.type}</>)}
                   </div>
                   <div className="border px-1 py-3 text-center flex justify-center">
-                    <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
+                    <div className="relative h-5 w-5">{ENUM.CURRENCY_ICONS.ethereum}</div>
                     {listing.unitPrice}
                   </div>
                   <div className="border px-1 py-3 text-center">

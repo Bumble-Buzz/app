@@ -50,7 +50,7 @@ export default function AssetAction({children, links, content, isSignInValid, is
     <div className='p-4 flex flex-col w-full gap-2 border rounded-lg overflow-hidden bg-zinc-50'>
       {text()}
       <div className='flex flex-row gap-x-1 items-center'>
-        <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
+        <div className="relative h-5 w-5">{ENUM.CURRENCY_ICONS.ethereum}</div>
         {price()}
       </div>
       <div className='flex flex-row flex-wrap gap-1'>

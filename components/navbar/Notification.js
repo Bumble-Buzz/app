@@ -85,7 +85,7 @@ export default function Notification({ children, handleClick }) {
               </div>
               <div>has been sold for</div>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
-                <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
+                <div className="relative h-5 w-5">{ENUM.CURRENCY_ICONS.ethereum}</div>
                 {notification.unitPrice}.
               </div>
             </div>

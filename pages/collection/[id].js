@@ -61,13 +61,13 @@ export default function Collection({ collectionDataInit }) {
     commission: { name: 'Commission', value: collectionDataInit.commission/100, format: 'percent', symbol: '' },
     reflection: { name: 'Reflection', value: collectionDataInit.reflection/100, format: 'percent', symbol: '' },
     incentive: { name: 'Incentive', value: collectionDataInit.incentive/100, format: 'percent', symbol: '' },
-    incentiveBal: { name: 'Incentive Balance', value: 0.00, format: 'decimal', symbol: ENUM.CHAIN_ICONS.ethereum, itemSymbol: getItemSymbol() }
+    incentiveBal: { name: 'Incentive Balance', value: 0.00, format: 'decimal', symbol: ENUM.CURRENCY_ICONS.ethereum, itemSymbol: getItemSymbol() }
   };
   const tilePanelAdditional = {
     items: { name: 'Items', value: collectionDataInit.totalSupply, format: 'decimal', symbol: '' },
     owners: { name: 'Owners', value: 123, format: 'decimal', symbol: '' },
-    floor: { name: 'Floor Price', value: 0.00425744, format: 'decimal', symbol: ENUM.CHAIN_ICONS.ethereum },
-    volume: { name: 'Volume Traded', value: 0.0042344, format: 'decimal', symbol: ENUM.CHAIN_ICONS.ethereum }
+    floor: { name: 'Floor Price', value: 0.00425744, format: 'decimal', symbol: ENUM.CURRENCY_ICONS.ethereum },
+    volume: { name: 'Volume Traded', value: 0.0042344, format: 'decimal', symbol: ENUM.CURRENCY_ICONS.ethereum }
   };
   const iconTraySpecialItems = () => {
     let list = [];

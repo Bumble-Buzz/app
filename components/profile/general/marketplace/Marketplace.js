@@ -70,7 +70,7 @@ export default function Marketplace({ }) {
             <div className='flex-1'>Listing Price</div>
             <div className='flex-1'>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
-                <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
+                <div className="relative h-5 w-5">{ENUM.CURRENCY_ICONS.ethereum}</div>
                 <div className='truncate'>{NumberFormatter(listingPrice, 'decimal', { maximumFractionDigits: 6 })}</div>
               </div>
             </div>
@@ -83,7 +83,7 @@ export default function Marketplace({ }) {
             <div className='flex-1'>Commission</div>
             <div className='flex-1'>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
-                <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
+                <div className="relative h-5 w-5">{ENUM.CURRENCY_ICONS.ethereum}</div>
                 <div className='truncate'>{NumberFormatter(commission, 'percent')}</div>
               </div>
             </div>
@@ -96,7 +96,7 @@ export default function Marketplace({ }) {
             <div className='flex-1'>Incentive Amount</div>
             <div className='flex-1'>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
-                <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
+                <div className="relative h-5 w-5">{ENUM.CURRENCY_ICONS.ethereum}</div>
                 <div className='truncate'>{NumberFormatter(incentiveAmount, 'decimal', { maximumFractionDigits: 6 })}</div>
               </div>
             </div>
@@ -109,7 +109,7 @@ export default function Marketplace({ }) {
             <div className='flex-1'>Incentive Percent</div>
             <div className='flex-1'>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
-                <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
+                <div className="relative h-5 w-5">{ENUM.CURRENCY_ICONS.ethereum}</div>
                 <div className='truncate'>{NumberFormatter(incentivePercent, 'percent')}</div>
               </div>
             </div>

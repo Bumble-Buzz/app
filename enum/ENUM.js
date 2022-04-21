@@ -1,10 +1,12 @@
+import NETWORKS from '@/enum/Networks';
+import CURRENCY_ICONS from '@/enum/CurrencyIcons';
 import CATEGORIES from '@/enum/Categories';
-import CHAIN_ICONS from '@/enum/ChainIcons';
 import ASSET_EVENTS from '@/enum/AssetEvent';
 
 
 export default {
+  NETWORKS: NETWORKS,
+  CURRENCY_ICONS: CURRENCY_ICONS,
   CATEGORIES: CATEGORIES,
-  CHAIN_ICONS: CHAIN_ICONS,
   ASSET_EVENTS: ASSET_EVENTS
 };

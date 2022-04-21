@@ -229,7 +229,7 @@ export default function Asset({ assetDataInit }) {
               <AssetImage
                 header={(<>
                   <div className="flex-1">
-                    <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
+                    <div className="relative h-5 w-5">{ENUM.CURRENCY_ICONS.ethereum}</div>
                   </div>
                   <div className='flex items-center'>
                     {assetData.Item.collectionId === 1 && (
@@ -341,7 +341,7 @@ export default function Asset({ assetDataInit }) {
                             </Tooltip>
                           </div>
                           <div className='flex flex-row flex-nowrap justify-center items-center'>
-                            <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
+                            <div className="relative h-5 w-5">{ENUM.CURRENCY_ICONS.ethereum}</div>
                             <div className='truncate'>{NumberFormatter(incentiveAmount,'decimal')}</div>
                           </div>
                         </div>

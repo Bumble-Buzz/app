@@ -38,7 +38,7 @@ export default function UserAccount({ initialData }) {
             <div className='flex-1'>General Account</div>
             <div className='flex-1'>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
-                <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
+                <div className="relative h-5 w-5">{ENUM.CURRENCY_ICONS.ethereum}</div>
                 <div className='truncate'>{NumberFormatter(general, 'decimal', { maximumFractionDigits: 4 })}</div>
               </div>
             </div>
@@ -50,7 +50,7 @@ export default function UserAccount({ initialData }) {
             <div className='flex-1'>NFT Commission</div>
             <div className='flex-1'>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
-                <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
+                <div className="relative h-5 w-5">{ENUM.CURRENCY_ICONS.ethereum}</div>
                 <div className='truncate'>{NumberFormatter(nftCommission, 'decimal', { maximumFractionDigits: 4 })}</div>
               </div>
             </div>
@@ -62,7 +62,7 @@ export default function UserAccount({ initialData }) {
             <div className='flex-1'>Collection Commission</div>
             <div className='flex-1'>
               <div className='flex flex-row flex-nowrap justify-center items-center'>
-                <div className="relative h-5 w-5">{ENUM.CHAIN_ICONS.ethereum}</div>
+                <div className="relative h-5 w-5">{ENUM.CURRENCY_ICONS.ethereum}</div>
                 <div className='truncate'>{NumberFormatter(collectionCommission, 'decimal', { maximumFractionDigits: 4 })}</div>
               </div>
             </div>
