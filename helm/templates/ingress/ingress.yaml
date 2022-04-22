@@ -9,6 +9,12 @@ metadata:
     # nginx.ingress.kubernetes.io/proxy-max-temp-file-size: "1024m"
     # ingress.kubernetes.io/proxy-body-size: "50m"
   {{ if ne .Values.env "kind" }}
+    # external dns
+    external-dns.alpha.kubernetes.io/hostname: bumblebuzz.io
+    # SSL/TLS
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:817932929274:certificate/20b417b0-927c-4b59-96e5-f0ad4437f732
+    ## misc
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: instance
