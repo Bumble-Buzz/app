@@ -6,9 +6,23 @@ BumbleBuzz marketplace
 ## ensure env variable ACCOUNT_ID is used in all commands
 
 
-## save command in bash_profile
+# save command in bash_profile
+
+## save LBC_VERSION in bash_profile
 echo 'export LBC_VERSION="v2.3.0"' >>  ~/.bash_profile
-~/.bash_profile
+
+## save AWS_REGION in bash_profile
+echo 'export AWS_REGION="us-east-1"' >>  ~/.bash_profile
+<!-- echo 'export AWS_REGION="us-east-2"' >>  ~/.bash_profile -->
+
+## save ACCOUNT_ID in bash_profile
+echo 'export ACCOUNT_ID=$(aws sts get-caller-identity | jq -r ".Account")' >>  ~/.bash_profile
+
+## save MASTER_ARN in bash_profile
+echo 'export MASTER_ARN=$(aws kms describe-key --key-id alias/eksworkshop --query KeyMetadata.Arn --output text)' >>  ~/.bash_profile
+
+## update terminal with latest bash_profile changes
+source ~/.bash_profile
 
 
 ## create Ingress controller in EKS
@@ -55,7 +69,7 @@ eksctl create iamserviceaccount \
   --cluster bumblebuzz \
   --namespace default \
   --name eks-dynamodb \
-  --attach-policy-arn arn:aws:iam::817932929274:policy/EksDynamoDb \
+  --attach-policy-arn arn:aws:iam::${ACCOUNT_ID}:policy/EksDynamoDb \
   --override-existing-serviceaccounts \
   --approve
 
@@ -70,7 +84,7 @@ eksctl create iamserviceaccount \
   --cluster bumblebuzz \
   --namespace default \
   --name external-dns \
-  --attach-policy-arn arn:aws:iam::817932929274:policy/EksExternalDns \
+  --attach-policy-arn arn:aws:iam::${ACCOUNT_ID}:policy/EksExternalDns \
   --override-existing-serviceaccounts \
   --approve
 
@@ -82,7 +96,7 @@ aws acm list-certificates --max-items 10
 
 ## describe
 aws acm describe-certificate \
-	--certificate-arn arn:aws:acm:us-east-1:817932929274:certificate/20b417b0-927c-4b59-96e5-f0ad4437f732
+	--certificate-arn arn:aws:acm:${AWS_REGION}:${ACCOUNT_ID}:certificate/20b417b0-927c-4b59-96e5-f0ad4437f732
 
 ### create
 aws acm request-certificate \
@@ -94,7 +108,7 @@ aws acm request-certificate \
 
 ### delete
 aws acm delete-certificate \
-	--certificate-arn arn:aws:acm:us-east-1:817932929274:certificate/20b417b0-927c-4b59-96e5-f0ad4437f732
+	--certificate-arn arn:aws:acm:${AWS_REGION}:${ACCOUNT_ID}:certificate/20b417b0-927c-4b59-96e5-f0ad4437f732
 
 
 ## Auto scaling
