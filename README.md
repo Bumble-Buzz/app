@@ -1,6 +1,10 @@
 # bumblebuzz
 BumbleBuzz marketplace
 
+# todo:
+## download all external files and use them locally in all commands?
+## ensure env variable ACCOUNT_ID is used in all commands
+
 
 ## save command in bash_profile
 echo 'export LBC_VERSION="v2.3.0"' >>  ~/.bash_profile
@@ -12,7 +16,7 @@ echo 'export LBC_VERSION="v2.3.0"' >>  ~/.bash_profile
 
 eksctl utils associate-iam-oidc-provider \
 	--region ${AWS_REGION} \
-	--cluster nft-marketplace \
+	--cluster bumblebuzz \
 	--approve
 
 aws iam create-policy \
@@ -20,7 +24,7 @@ aws iam create-policy \
 	--policy-document file://~/aws/policy/AWSLoadBalancerControllerIAMPolicy.json
 
 eksctl create iamserviceaccount \
-  --cluster nft-marketplace \
+  --cluster bumblebuzz \
   --namespace kube-system \
   --name aws-load-balancer-controller \
   --attach-policy-arn arn:aws:iam::${ACCOUNT_ID}:policy/AWSLoadBalancerControllerIAMPolicy \
@@ -34,7 +38,7 @@ helm repo add eks https://aws.github.io/eks-charts
 helm upgrade -i aws-load-balancer-controller \
 	eks/aws-load-balancer-controller \
 	-n kube-system \
-	--set clusterName=nft-marketplace \
+	--set clusterName=bumblebuzz \
 	--set serviceAccount.create=false \
 	--set serviceAccount.name=aws-load-balancer-controller \
 	--set image.tag="${LBC_VERSION}"
@@ -48,7 +52,7 @@ aws iam create-policy \
 	--policy-document file://~/aws/policy/EksDynamoDb.json
 
 eksctl create iamserviceaccount \
-  --cluster nft-marketplace \
+  --cluster bumblebuzz \
   --namespace default \
   --name eks-dynamodb \
   --attach-policy-arn arn:aws:iam::817932929274:policy/EksDynamoDb \
@@ -63,7 +67,7 @@ aws iam create-policy \
   --policy-document file://~/aws/policy/EksExternalDns.json
 
 eksctl create iamserviceaccount \
-  --cluster nft-marketplace \
+  --cluster bumblebuzz \
   --namespace default \
   --name external-dns \
   --attach-policy-arn arn:aws:iam::817932929274:policy/EksExternalDns \
@@ -97,11 +101,11 @@ aws acm delete-certificate \
 
 aws autoscaling \
 	describe-auto-scaling-groups \
-	--query "AutoScalingGroups[? Tags[? (Key=='eks:cluster-name') && Value=='nft-marketplace']].[AutoScalingGroupName, MinSize, MaxSize,DesiredCapacity]" \
+	--query "AutoScalingGroups[? Tags[? (Key=='eks:cluster-name') && Value=='bumblebuzz']].[AutoScalingGroupName, MinSize, MaxSize,DesiredCapacity]" \
 	--output table
 
 ### we need the ASG name
-export ASG_NAME=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[? Tags[? (Key=='eks:cluster-name') && Value=='nft-marketplace']].AutoScalingGroupName" --output text)
+export ASG_NAME=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[? Tags[? (Key=='eks:cluster-name') && Value=='bumblebuzz']].AutoScalingGroupName" --output text)
 
 ### increase max capacity up to 4
 aws autoscaling \
@@ -114,12 +118,12 @@ aws autoscaling \
 ### Check new values
 aws autoscaling \
 	describe-auto-scaling-groups \
-	--query "AutoScalingGroups[? Tags[? (Key=='eks:cluster-name') && Value=='nft-marketplace']].[AutoScalingGroupName, MinSize, MaxSize,DesiredCapacity]" \
+	--query "AutoScalingGroups[? Tags[? (Key=='eks:cluster-name') && Value=='bumblebuzz']].[AutoScalingGroupName, MinSize, MaxSize,DesiredCapacity]" \
 	--output table
 
 eksctl utils associate-iam-oidc-provider \
 	--region ${AWS_REGION} \
-	--cluster nft-marketplace \
+	--cluster bumblebuzz \
 	--approve
 
 aws iam create-policy   \
@@ -129,7 +133,7 @@ aws iam create-policy   \
 eksctl create iamserviceaccount \
 	--name cluster-autoscaler \
 	--namespace kube-system \
-	--cluster nft-marketplace \
+	--cluster bumblebuzz \
 	--attach-policy-arn "arn:aws:iam::${ACCOUNT_ID}:policy/k8s-asg-policy" \
 	--approve \
 	--override-existing-serviceaccounts
