@@ -7,6 +7,7 @@ import API from '@/components/Api';
 import WalletUtil from '@/components/wallet/WalletUtil';
 import Toast from '@/components/Toast';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
+import CheckEnvironment from '@/components/CheckEnvironment';
 
 
 const usersDb = async () => {
@@ -301,7 +302,7 @@ export default function SignIn() {
           </div>
         </div>
 
-<p onClick={initTableSetup}>Test initTableSetup</p>
+{!CheckEnvironment.isDevAwsMode && (<p onClick={initTableSetup}>Test initTableSetup</p>)}
 
       </div>
     </ContentWrapper>
