@@ -53,6 +53,10 @@ module.exports = {
     rinkeby: {
       url: process.env.RINKEBY_ETH,
       accounts: [process.env.TEST_PRIVATE_KEY]
+    },
+    testnet_aurora: {
+      url: 'https://testnet.aurora.dev',
+      accounts: [process.env.TEST_PRIVATE_KEY]
     }
   }
 };

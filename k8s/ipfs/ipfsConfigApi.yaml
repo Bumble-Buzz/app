@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ipfs-api
+  namespace: kube-system
+data:
+  5001: "default/ipfs:5001"

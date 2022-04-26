@@ -26,7 +26,7 @@ const add = async (_inputFiles, _inDirectory = true) => {
     _inDirectory = true;
   }
 
-  const ipfsObject = await ipfs.add(inputFilesContent, { wrapWithDirectory: _inDirectory });
+  const ipfsObject = await ipfs.add(inputFilesContent, { pin: true, wrapWithDirectory: _inDirectory });
   const cid = ipfsObject.cid.toString();
   return cid
 };
