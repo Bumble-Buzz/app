@@ -9,7 +9,7 @@ BumbleBuzz marketplace
 # save command in bash_profile
 
 ## save LBC_VERSION in bash_profile
-echo 'export LBC_VERSION="v2.3.0"' >>  ~/.bash_profile
+echo 'export LBC_VERSION="v2.4.1"' >>  ~/.bash_profile
 
 ## save AWS_REGION in bash_profile
 echo 'export AWS_REGION="us-east-1"' >>  ~/.bash_profile
@@ -58,6 +58,9 @@ helm upgrade -i aws-load-balancer-controller \
 	--set image.tag="${LBC_VERSION}"
 kubectl -n kube-system rollout status deployment aws-load-balancer-controller
 
+kubectl get deploy -n kube-system aws-load-balancer-controller -owide
+kubectl get pods -n kube-system -l app.kubernetes.io/name=aws-load-balancer-controller -owide 
+
 
 ## Dynamo DB
 
@@ -96,7 +99,7 @@ aws acm list-certificates --max-items 10
 
 ## describe
 aws acm describe-certificate \
-	--certificate-arn arn:aws:acm:${AWS_REGION}:${ACCOUNT_ID}:certificate/20b417b0-927c-4b59-96e5-f0ad4437f732
+	--certificate-arn arn:aws:acm:${AWS_REGION}:${ACCOUNT_ID}:certificate/e749381f-8e05-4661-89f2-dec7f1dea099
 
 ### create
 aws acm request-certificate \
@@ -108,7 +111,7 @@ aws acm request-certificate \
 
 ### delete
 aws acm delete-certificate \
-	--certificate-arn arn:aws:acm:${AWS_REGION}:${ACCOUNT_ID}:certificate/20b417b0-927c-4b59-96e5-f0ad4437f732
+	--certificate-arn arn:aws:acm:${AWS_REGION}:${ACCOUNT_ID}:certificate/e749381f-8e05-4661-89f2-dec7f1dea099
 
 
 ## Auto scaling
