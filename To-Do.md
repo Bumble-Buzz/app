@@ -74,6 +74,8 @@ Things left to do:
         - LSI: creator, owner
         - GSI: collectionId, onSale + owner
 - Front-end dapp
+  - Collection creation
+    - Only true owner (check blockchain) of the collection is able to create the collection
   - Database updates
     - Should we update database but not await on the call? This should make the app more fast
   - Asset
