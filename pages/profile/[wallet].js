@@ -163,6 +163,9 @@ export default function Wallet({ userDataInit }) {
       'picture': _url
     };
     await API.user.update.picture(payload);
+
+    // pull from db since it has now been updated
+    await mutate(API.swr.user.id(ROUTER.query.wallet));
   };
 
   const triggerInputFile = () => {

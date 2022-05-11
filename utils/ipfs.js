@@ -18,6 +18,7 @@ const getValidHttpUrl = (_ipfsUrl) => {
     'ipfs://',
     getValidBaseUrl()
   );
+  console.log('validUrl', validUrl);
   return validUrl;
 };
 
