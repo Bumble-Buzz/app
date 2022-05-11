@@ -8,7 +8,12 @@ const CheckEnvironment = require('@/components/CheckEnvironment');
 const ipfsClient = require('ipfs-http-client');
 let ipfs;
 if (CheckEnvironment.isK8) {
-  ipfs = ipfsClient.create({ host: 'ipfs', port: '5001', protocol: 'http' });
+  // ipfs = ipfsClient.create({ host: 'localhost', port: '5001', protocol: 'http' });
+  // ipfs = ipfsClient.create({ protocol: 'https', port: '443', host: 'ipfs.bumblebuzz.io', path: 'create' });
+  // ipfs = ipfsClient.create({ url: 'https://ipfs.bumblebuzz.io/create' });
+  // ipfs = ipfsClient.create({ url: 'https://ipfspost.bumblebuzz.io' });
+  ipfs = ipfsClient.create({ host: 'service-name.mydomain.com', port: '5001', protocol: 'http' });
+  // ipfs = ipfsClient.create({ url: 'service-name.mydomain.com' });
 } else {
   ipfs = ipfsClient.create({ host: 'localhost', port: '5001', protocol: 'http' });
 }

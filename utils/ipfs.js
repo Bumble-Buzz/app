@@ -6,9 +6,9 @@ const getValidBaseUrl = (val = '') => {
   if (CheckEnvironment.isDevMode) {
     baseUrl = `http://localhost:8080/ipfs/${val}`;
   } else if (CheckEnvironment.isDevKindMode) {
-    baseUrl = `http://ipfs:8080/ipfs/${val}`;
+    baseUrl = `https://ipfs.bumblebuzz.io/ipfs/${val}`;
   } else {
-    baseUrl = `http://ipfs:8080/ipfs/${val}`;
+    baseUrl = `https://ipfs.bumblebuzz.io/ipfs/${val}`;
   }
   return baseUrl;
 };

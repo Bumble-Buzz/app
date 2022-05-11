@@ -11,10 +11,12 @@ module.exports = {
   images: {
     domains: [
       'localhost',
+      'bumblebuzz.io', 'ipfs.bumblebuzz.io',
       'ipfs', 'ipfs.io', 'gateway.pinata.cloud',
       'dynamodb-local',
       'amazonaws.com',
       'aurorascan.dev', 'etherscan.io', 'coingecko.com',
+      'mydomain', 'mydomain.com', 'service-name.mydomain.com',
     ],
   },
 }
