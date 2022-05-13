@@ -1,6 +1,6 @@
 const SCRIPT_ARGS = require('minimist')(process.argv.slice(2));
 process.env.NEXT_PUBLIC_APP_ENV = SCRIPT_ARGS.mode;
-const DynamoDbQuery = require('../../components/backend/db/DynamoDbQuery');
+const DynamoDbQuery = require('../../../components/backend/db/DynamoDbQuery');
 
 
 (async () => {

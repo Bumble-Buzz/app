@@ -2,7 +2,7 @@ const SCRIPT_ARGS = require('minimist')(process.argv.slice(2));
 process.env.NEXT_PUBLIC_APP_ENV = SCRIPT_ARGS.mode || 'dev';
 const ACTION = SCRIPT_ARGS.action;
 const TABLE_NAME = SCRIPT_ARGS.table;
-const DynamoDbQuery = require('../../components/backend/db/DynamoDbQuery');
+const DynamoDbQuery = require('../../../components/backend/db/DynamoDbQuery');
 
 const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000'
 
