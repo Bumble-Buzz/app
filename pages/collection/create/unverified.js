@@ -70,7 +70,7 @@ export default function Unverified() {
           'name': state.name,
           'description': state.description,
           'owner': WalletContext.state.account,
-          'image': `ipfs://${blockchainResults.imageCid}`,
+          'image': `bumblebuzz://${blockchainResults.imageCid}`,
           'social': [ state.social.discord, state.social.twitter, state.social.website ]
         };
         await API.collection.create.unverified(payload);

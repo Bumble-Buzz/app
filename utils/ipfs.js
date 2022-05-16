@@ -1,7 +1,7 @@
 import CheckEnvironment from '@/components/CheckEnvironment';
 
 
-const getValidBaseUrl = (val = '') => {
+const getIpfsBaseUrl = (val = '') => {
   let baseUrl;
   if (CheckEnvironment.isDevMode) {
     baseUrl = `http://localhost:8080/ipfs/${val}`;
@@ -13,22 +13,29 @@ const getValidBaseUrl = (val = '') => {
   return baseUrl;
 };
 
-const getValidHttpUrl = (_ipfsUrl) => {
-  const validUrl = _ipfsUrl.replace(
-    'ipfs://',
-    getValidBaseUrl()
-  );
-  console.log('validUrl', validUrl);
+const getBumbleBuzzBaseUrl = (val = '') => {
+  return `https://bumblebuzz.s3.us-east-1.amazonaws.com/image/${val}`;
+};
+
+const getValidHttpUrl = (_url) => {
+  let validUrl = '';
+  if (isBumbleBuzzUrl(_url)) validUrl = _url.replace('bumblebuzz://', getBumbleBuzzBaseUrl());
+  if (isIpfsUrl(_url)) validUrl = _url.replace('ipfs://', getIpfsBaseUrl());
+  console.log('valid url:', _url, validUrl);
   return validUrl;
 };
 
-const isIpfsUrl = (_ipfsUrl) => {
-  return (_ipfsUrl.includes("ipfs://"))
+const isBumbleBuzzUrl = (_url) => {
+  return (_url.includes("bumblebuzz://"))
+};
+const isIpfsUrl = (_url) => {
+  return (_url.includes("ipfs://"))
 };
 
 
 module.exports = {
-  getValidBaseUrl,
+  getIpfsBaseUrl,
   getValidHttpUrl,
+  isBumbleBuzzUrl,
   isIpfsUrl
 }

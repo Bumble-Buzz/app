@@ -23,7 +23,7 @@ function runMiddleware(req, res, fn) {
 };
 
 const API = axios.create({
-  baseURL: IPFS.getValidBaseUrl()
+  baseURL: IPFS.getIpfsBaseUrl()
 });
 
 

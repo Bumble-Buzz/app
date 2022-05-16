@@ -109,7 +109,7 @@ export default function Verified() {
           'owner': WalletContext.state.account,
           'ownerIncentiveAccess': state.incentive,
           'category': state.category,
-          'image': `ipfs://${blockchainResults.imageCid}`,
+          'image': `bumblebuzz://${blockchainResults.imageCid}`,
           'social': [ state.social.discord, state.social.twitter, state.social.website ]
         };
         await API.collection.create.verified(payload);

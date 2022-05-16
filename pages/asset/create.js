@@ -130,8 +130,8 @@ export default function Create() {
       const config = {
         name: state.name,
         description: state.description,
-        image: `ipfs://${imageCid}`,
-        imageHttp: `https://ipfs.io/ipfs/${imageCid}`,
+        image: `bumblebuzz://${imageCid}`,
+        // imageHttp: `https://ipfs.io/ipfs/${imageCid}`,
         attributes: state.attributes
       };
       const configCid = await uploadConfig(config);

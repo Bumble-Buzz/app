@@ -1,5 +1,6 @@
 import Cors from 'cors';
-const fs = require("fs");
+import { v4 as uuidv4 } from 'uuid';
+import S3Query from '@/components/backend/s3/S3Query';
 import IPFS from '@/utils/ipfs-js';
 
 
@@ -24,14 +25,18 @@ function runMiddleware(req, res, fn) {
 
 
 export default async function handler(req, res) {
-  const data = [
-    {
-      path: req.body.name,
-      content: Buffer.from(JSON.stringify(req.body))
-    }
-  ];
-  const cid = await IPFS.addData(data, false);
+  // const data = [
+  //   {
+  //     path: req.body.name,
+  //     content: Buffer.from(JSON.stringify(req.body))
+  //   }
+  // ];
+  // const cid = await IPFS.addData(data, false);
 
-  console.log('config cid:', cid);
-  res.status(200).json(cid);
+  const fileName = uuidv4();
+  const params = { Bucket: process.env.AWS_S3_BUCKET_NAME, Key: `config/${fileName}`, Body: JSON.stringify(req.body) };
+  await S3Query.put(params);
+
+  console.log('config fileName:', fileName);
+  res.status(200).json(fileName);
 }

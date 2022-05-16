@@ -127,6 +127,7 @@ export default function Wallet({ userDataInit }) {
   };
 
   const updateUsersDb = async (e) => {
+    console.log('updateUsersDb');
     e.preventDefault();
 
     try {
@@ -175,6 +176,7 @@ export default function Wallet({ userDataInit }) {
   };
 
   const handleImage = async (e) => {
+    console.log('handleImage');
     const image = e.target.files[0];
     if (image && image.size > 10485760) {
       Toast.error("Image size too big. Max 10mb");
@@ -183,7 +185,8 @@ export default function Wallet({ userDataInit }) {
     try {
       // upload image to IPFS
       const imageCid = await uploadImage(image);
-      const ipfsImage = `ipfs://${imageCid}`;
+      const ipfsImage = `bumblebuzz://${imageCid}`;
+      console.log('ipfsImage', ipfsImage);
 
       // update image on page
       dispatch({ type: 'picture', payload: { picture: ipfsImage } });
@@ -260,8 +263,8 @@ export default function Wallet({ userDataInit }) {
       {/* Page Content */}
       <div className="flex flex-col w-full">
 
-        {/* <p onClick={() => {console.log('userData', userData)}}>See userData</p> */}
-        {/* <p onClick={() => {console.log('userState', userState)}}>See userState</p> */}
+        <p onClick={() => {console.log('userData', userData)}}>See userData</p>
+        <p onClick={() => {console.log('userState', userState)}}>See userState</p>
         {/* <p onClick={() => ROUTER.push('/profile/0xdA121aB48c7675E4F25E28636e3Efe602e49eec6')}>user 0xdA121aB48c7675E4F25E28636e3Efe602e49eec6</p> */}
         {/* <p onClick={() => ROUTER.push('/profile/0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED')}>user 0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED</p> */}
         {/* <p onClick={() => {console.log('tab', tab)}}>See tab</p> */}

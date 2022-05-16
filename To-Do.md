@@ -74,6 +74,12 @@ Things left to do:
         - LSI: creator, owner
         - GSI: collectionId, onSale + owner
 - Front-end dapp
+  - Database lag
+    - When dApp is on AWS, there is a delay between loading recently updated data from dynamoDB. This needs to be dealt with
+    - Right now there is some delay before call is made to re-fetch data from dynamoDB
+  - IPFS
+    - Ensure if a resource is marked with `ipfs://`, internal ipfs node is used to fetch
+    - Ensure the internal ipfs endpoint is internally used, not externally available
   - Collection creation
     - Only true owner (check blockchain) of the collection is able to create the collection
   - Database updates

@@ -24,7 +24,7 @@ module.exports = {
     fetcher: (url) => API.get(url).then(res => res.data),
     options: {
       refreshInterval: 0, // disable auto api call
-      revalidateOnFocus: false,
+      // revalidateOnFocus: false,
     },
     ipfs: {
       config: (key,param) => `ipfs/get/config?${key}=${param}`

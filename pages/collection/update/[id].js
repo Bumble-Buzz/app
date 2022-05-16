@@ -243,7 +243,7 @@ export default function EditCollection({ collectionDataInit }) {
       const cid = await uploadImage(image);
 
       // update image on page
-      dispatch({ type: 'image', payload: { image: `ipfs://${cid}` } });
+      dispatch({ type: 'image', payload: { image: `bumblebuzz://${cid}` } });
     } catch (e) {
       Toast.error(e.message);
     }

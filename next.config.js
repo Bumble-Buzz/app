@@ -17,6 +17,7 @@ module.exports = {
       'amazonaws.com',
       'aurorascan.dev', 'etherscan.io', 'coingecko.com',
       'mydomain', 'mydomain.com', 'service-name.mydomain.com',
+      'amazonaws.com', ' https://bumblebuzz.s3.us-east-1.amazonaws.com', 'bumblebuzz.s3.us-east-1.amazonaws.com'
     ],
   },
 }
