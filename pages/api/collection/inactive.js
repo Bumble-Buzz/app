@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   }
 
   let payload = {
-    TableName: "collection",
+    TableName: "local_collection",
     IndexName: 'active-gsi',
     ExpressionAttributeNames: { '#active': 'active' },
     ExpressionAttributeValues: { ':active': 0 },

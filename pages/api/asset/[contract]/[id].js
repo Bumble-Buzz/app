@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   const tokenId = Number(id);
 
   let payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     Key: { 'contractAddress': contractAddress, 'tokenId': tokenId }
   };
   let results = await DynamoDbQuery.item.get(payload);
@@ -29,12 +29,12 @@ export default async function handler(req, res) {
     const collectionPayloadKeys = [{ 'id': Item.collectionId }];
     payload = {
       RequestItems: {
-        users: {
+        local_user: {
           Keys: userPayloadKeys,
           ExpressionAttributeNames: { '#walletId': 'walletId', '#name': 'name' },
           ProjectionExpression: '#walletId, #name'
         },
-        collection: {
+        local_collection: {
           Keys: collectionPayloadKeys,
           ExpressionAttributeNames: { '#id': 'id', '#name': 'name', '#category': 'category' },
           ProjectionExpression: '#id, #name, #category'
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
       }
     };
     results = await DynamoDbQuery.item.getBatch(payload);
-    const users = results.Responses.users;
+    const users = results.Responses.local_user;
     users.forEach(user => {
       if (Item.owner === user.walletId) {
         Item['ownerName'] = user.name
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
         Item['creatorName'] = user.name
       }
     });
-    const collections = results.Responses.collection;
+    const collections = results.Responses.local_collection;
     collections.forEach(collection => {
       Item['collectionName'] = collection.name
       Item['category'] = collection.category

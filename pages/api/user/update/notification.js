@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   if (session.user.id !== formattedBuyer) return res.status(401).json({ 'error': 'not authenticated' });
 
   const payload = {
-    TableName: "user",
+    TableName: "local_user",
     Key: { 'walletId': formattedSeller },
     ExpressionAttributeNames: { '#notifications': 'notifications', '#timestamp': 'timestamp' },
     ExpressionAttributeValues: { ':notifications': data.notifications, ':timestamp': Date.getTimestamp().toString() },

@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   }
 
   let payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     IndexName: 'creator-lsi',
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#creator': 'creator' },
     ExpressionAttributeValues: { ':contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, ':creator': checkSumId },
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     const payloadKeys = Object.values(walletIds).map(id => ({'walletId': id}));
     payload = {
       RequestItems: {
-        users: {
+        local_user: {
           Keys: payloadKeys,
           ExpressionAttributeNames: { '#walletId': 'walletId', '#name': 'name' },
           ProjectionExpression: "#walletId, #name"
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
       },
     };
     results = await DynamoDbQuery.item.getBatch(payload);
-    const users = results.Responses.users;
+    const users = results.Responses.local_user;
     Items.forEach(item => {
       users.forEach(user => {
         if (item.owner === user.walletId) {
@@ -51,13 +51,6 @@ export default async function handler(req, res) {
         }
       });
     });
-    // users.forEach(users => {
-    //   Items.forEach(item => {
-    //     if (item.collectionId === users.id) {
-    //       item['collectionName'] = users.name
-    //     }
-    //   });
-    // });
   }
 
   res.status(200).json({ Items, LastEvaluatedKey, Count, ScannedCount });

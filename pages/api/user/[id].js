@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   const checkSumId = ethers.utils.getAddress(id);
 
   let payload = {
-    TableName: "user",
+    TableName: "local_user",
     Key: {'walletId': checkSumId}
   };
   let results = await DynamoDbQuery.item.get(payload);

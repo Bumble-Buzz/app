@@ -65,7 +65,7 @@ export default async function handler(req, res) {
 
 
   const payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     Key: { 'contractAddress': formattedContract, 'tokenId': formattedTokenId },
     ExpressionAttributeNames: { "#onSale": "onSale", "#saleId": "saleId", "#price": "price", "#saleType": "saleType", "#category": "category" },
     ExpressionAttributeValues: { ":onSale": Number(0), ":saleId": Number(0), ":price": Number(0), ":saleType": Number(process.env.NEXT_PUBLIC_SALE_TYPE_NOT_EXTSTS), ":category": "null" },

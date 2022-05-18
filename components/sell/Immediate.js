@@ -148,7 +148,7 @@ export default function Immediate({children, assetDataInit, setSaleCreated}) {
       setLoading(true);
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(assetDataInit.contractAddress, IERC721Abi.abi, signer);
-      const val = await myContract.approve(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, assetDataInit.tokenId);
+      const val = await contract.approve(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, assetDataInit.tokenId);
       await WalletUtil.checkTransaction(val);
 
       const listener = async (owner, approved, tokenId) => {

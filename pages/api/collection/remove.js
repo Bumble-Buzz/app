@@ -43,7 +43,7 @@ export default async function handler(req, res) {
   if (!(await checkBlockchain(data))) return res.status(400).json({ 'error': 'record found on blockchain' });
 
   const payload = {
-    TableName: "collection",
+    TableName: "local_collection",
     Key: { 'id': Number(data.id) }
   };
   await DynamoDbQuery.item.delete(payload);

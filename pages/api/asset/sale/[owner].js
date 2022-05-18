@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   }
 
   let payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     IndexName: 'onSale-gsi',
     ExpressionAttributeNames: { '#onSale': 'onSale', '#owner': 'owner' },
     ExpressionAttributeValues: { ':onSale': Number(1), ':owner': formattedOwner },
@@ -47,12 +47,12 @@ export default async function handler(req, res) {
     const collectionPayloadKeys = Object.values(collectionIds).map(id => ({'id': id}));
     payload = {
       RequestItems: {
-        users: {
+        local_user: {
           Keys: userPayloadKeys,
           ExpressionAttributeNames: { '#walletId': 'walletId', '#name': 'name' },
           ProjectionExpression: "#walletId, #name"
         },
-        collection: {
+        local_collection: {
           Keys: collectionPayloadKeys,
           ExpressionAttributeNames: { '#id': 'id', '#name': 'name' },
           ProjectionExpression: "#id, #name"
@@ -60,8 +60,8 @@ export default async function handler(req, res) {
       },
     };
     results = await DynamoDbQuery.item.getBatch(payload);
-    const users = results.Responses.users;
-    const collections = results.Responses.collection;
+    const users = results.Responses.local_user;
+    const collections = results.Responses.local_collection;
     Items.forEach(item => {
       users.forEach(user => {
         if (item.owner === user.walletId) {

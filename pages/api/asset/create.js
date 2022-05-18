@@ -48,7 +48,7 @@ export default async function handler(req, res) {
 
   // ensure if id already exists, we don't overwrite the record
   const payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     Item: {
       'contractAddress': ethers.utils.getAddress(data.contractAddress),
       'tokenId': Number(data.tokenId),

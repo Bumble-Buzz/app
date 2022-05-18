@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   const collectionId = Number(id);
 
   let payload = {
-    TableName: "collection",
+    TableName: "local_collection",
     ExpressionAttributeNames: { '#id': 'id' },
     ExpressionAttributeValues: { ':id': collectionId },
     KeyConditionExpression: '#id = :id',
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
   if (Items.length > 0) {
     payload = {
-      TableName: "user",
+      TableName: "local_user",
       Key: {
         'walletId': Items[0].owner
       }

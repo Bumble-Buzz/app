@@ -12,7 +12,7 @@ import CheckEnvironment from '@/components/CheckEnvironment';
 
 const usersDb = async () => {
   const payload = {
-    TableName: "user",
+    TableName: "local_user",
     AttributeDefinitions: [
       {
         AttributeName: "walletId",
@@ -33,7 +33,7 @@ const usersDb = async () => {
 
 const collection = async () => {
   const payload = {
-    TableName: "collection",
+    TableName: "local_collection",
     AttributeDefinitions: [
       { AttributeName: "id", AttributeType: "N" },
       { AttributeName: "active", AttributeType: "N" },
@@ -82,7 +82,7 @@ const collection = async () => {
 
 const asset = async () => {
   const payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     AttributeDefinitions: [
       { AttributeName: "contractAddress", AttributeType: "S" },
       { AttributeName: "tokenId", AttributeType: "N" },

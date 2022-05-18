@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   }
 
   let payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     IndexName: 'owner-lsi',
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#owner': 'owner' },
     ExpressionAttributeValues: { ':contractAddress': formattedContract, ':owner': formattedOwner },
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     const payloadKeys = Object.values(collectionIds).map(id => ({'id': id}));
     payload = {
       RequestItems: {
-        collection: {
+        local_collection: {
           Keys: payloadKeys,
           ExpressionAttributeNames: { '#id': 'id', '#name': 'name' },
           ProjectionExpression: "#id, #name"
@@ -49,7 +49,7 @@ export default async function handler(req, res) {
       },
     };
     results = await DynamoDbQuery.item.getBatch(payload);
-    const collections = results.Responses.collection;
+    const collections = results.Responses.local_collection;
     collections.forEach(collection => {
       Items.forEach(item => {
         if (item.collectionId === collection.id) {

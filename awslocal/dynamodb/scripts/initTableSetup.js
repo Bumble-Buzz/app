@@ -32,7 +32,7 @@ const contracts = async () => {
 
 const users = async () => {
   const params = {
-    TableName: "user",
+    TableName: "local_user",
     AttributeDefinitions: [
       {
         AttributeName: "walletId",
@@ -53,7 +53,7 @@ const users = async () => {
 
 const assets = async () => {
   const payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     AttributeDefinitions: [
       { AttributeName: "contractAddress", AttributeType: "S" },
       { AttributeName: "tokenId", AttributeType: "N" },
@@ -151,7 +151,7 @@ const pendingCollection = async () => {
 
 const collection = async () => {
   const payload = {
-    TableName: "collection",
+    TableName: "local_collection",
     AttributeDefinitions: [
       { AttributeName: "id", AttributeType: "N" },
       { AttributeName: "active", AttributeType: "N" },
@@ -238,7 +238,7 @@ const contractsDelete = async () => {
 
 const usersDelete = async () => {
   const payload = {
-    TableName: "user"
+    TableName: "local_user"
   };
   const results = await DynamoDbQuery.table.delete(payload);
   console.log('table deleted:', results.TableDescription.TableName);
@@ -246,7 +246,7 @@ const usersDelete = async () => {
 
 const assetsDelete = async () => {
   const payload = {
-    TableName: "asset"
+    TableName: "local_asset"
   };
   const results = await DynamoDbQuery.table.delete(payload);
   console.log('table deleted:', results.TableDescription.TableName);
@@ -262,7 +262,7 @@ const pendingCollectionDelete = async () => {
 
 const collectionDelete = async () => {
   const payload = {
-    TableName: "collection"
+    TableName: "local_collection"
   };
   const results = await DynamoDbQuery.table.delete(payload);
   console.log('table deleted:', results.TableDescription.TableName);
@@ -324,7 +324,7 @@ const scanLazy = async () => {
 
 const queryAssets = async () => {
   const payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
     ExpressionAttributeValues: { ':contractAddress': 'contract-address', ':tokenId': 123 },
     KeyConditionExpression: '#contractAddress = :contractAddress AND #tokenId = :tokenId'
@@ -335,7 +335,7 @@ const queryAssets = async () => {
 
 const queryAssetsLsi = async () => {
   const payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     IndexName: 'creator-lsi',
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#creator': 'creator' },
     ExpressionAttributeValues: { ':contractAddress': 'contract-address', ':creator': '0xda121ab48c7675e4f25e28636e3efe602e49eec6' },
@@ -347,7 +347,7 @@ const queryAssetsLsi = async () => {
 
 const queryCollection = async () => {
   const payload = {
-    TableName: "collection",
+    TableName: "local_collection",
     ExpressionAttributeNames: { '#id': 'id' },
     ExpressionAttributeValues: { ':id': 123 },
     KeyConditionExpression: '#id = :id'
@@ -358,7 +358,7 @@ const queryCollection = async () => {
 
 const queryCollectionGsi = async () => {
   const payload = {
-    TableName: "collection",
+    TableName: "local_collection",
     IndexName: 'category-gsi',
     ExpressionAttributeNames: { '#category': 'category', '#active': 'active' },
     ExpressionAttributeValues: { ':category': 'photography', ':active': 0 },
@@ -370,7 +370,7 @@ const queryCollectionGsi = async () => {
 
 const queryCollectionGsi2 = async () => {
   const payload = {
-    TableName: "collection",
+    TableName: "local_collection",
     IndexName: 'owner-gsi',
     ExpressionAttributeNames: { '#owner': 'owner', '#active': 'active' },
     ExpressionAttributeValues: { ':owner': '0xC0E62F2F7FDfFF0679Ab940E29210E229cDCb8ED', ':active': 1 },
@@ -415,7 +415,7 @@ const query = async () => {
 
 const getUsers = async () => {
   const payload = {
-    TableName: "user",
+    TableName: "local_user",
     Key: {
       'walletId': '0xda121ab48c7675e4f25e28636e3efe602e49eec6'
     }
@@ -438,7 +438,7 @@ const getCreatedAssets = async () => {
 
 const getCollection = async () => {
   const payload = {
-    TableName: "collection",
+    TableName: "local_collection",
     Key: {
       'id': 2
     }
@@ -473,7 +473,7 @@ const putContracts = async (_val) => {
 
 const putUsers = async (val) => {
   const payload = {
-    TableName: "user",
+    TableName: "local_user",
     Item: {
       'walletId': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
       'name': 'joe',
@@ -491,7 +491,7 @@ const putUsers = async (val) => {
 
 const putAssets = async (val) => {
   let payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     Item: {
       'contractAddress': 'contract-address',
       'tokenId': 123,
@@ -503,7 +503,7 @@ const putAssets = async (val) => {
   await DynamoDbQuery.item.put(payload);
 
   payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     Item: {
       'contractAddress': 'contract-address',
       'tokenId': 456,
@@ -515,7 +515,7 @@ const putAssets = async (val) => {
   await DynamoDbQuery.item.put(payload);
 
   payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     Item: {
       'contractAddress': 'contract-address2',
       'tokenId': 789,
@@ -550,7 +550,7 @@ const putPendingCollection = async (val) => {
 
 const putCollection = async (val) => {
   const payload = {
-    TableName: "collection",
+    TableName: "local_collection",
     Item: {
       'id': 1,
       'contractAddress': '',
@@ -571,7 +571,7 @@ const putCollection = async (val) => {
   await DynamoDbQuery.item.put(payload);
 
   // const payload2 = {
-  //   TableName: "collection",
+  //   TableName: "local_collection",
   //   Item: {
   //     'id': 2,
   //     'name': 'verified collection',
@@ -643,7 +643,7 @@ const put = async (val) => {
 const mockCollections = async () => {
   const pk = 2;
   let payload = {
-    TableName: "collection",
+    TableName: "local_collection",
     ExpressionAttributeNames: { '#id': 'id' },
     ExpressionAttributeValues: { ':id': pk },
     KeyConditionExpression: '#id = :id'
@@ -654,7 +654,7 @@ const mockCollections = async () => {
 
   for (let i = pk+1; i < 99; i++) {
     payload = {
-      TableName: "collection",
+      TableName: "local_collection",
       Item: {
         'id': i,
         'contractAddress': item.contractAddress,
@@ -681,7 +681,7 @@ const mockAssets = async () => {
   const pk = '0x640C20ff0F34b75BDA2fCdB4334Acca32B599A81';
   const sk = 1;
   let payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
     ExpressionAttributeValues: { ':contractAddress': pk, ':tokenId': sk },
     KeyConditionExpression: '#contractAddress = :contractAddress AND #tokenId = :tokenId'
@@ -694,7 +694,7 @@ const mockAssets = async () => {
   for (let i = sk+1; i < 99; i++) {
     itemConfig.name = `asd${i}`
     payload = {
-      TableName: "asset",
+      TableName: "local_asset",
       Item: {
         'contractAddress': pk,
         'tokenId': i,
@@ -722,7 +722,7 @@ const mockSales = async () => {
   const pk = '0x640C20ff0F34b75BDA2fCdB4334Acca32B599A81';
   const sk = 1;
   let payload = {
-    TableName: "asset",
+    TableName: "local_asset",
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#tokenId': 'tokenId' },
     ExpressionAttributeValues: { ':contractAddress': pk, ':tokenId': sk },
     KeyConditionExpression: '#contractAddress = :contractAddress AND #tokenId = :tokenId'
@@ -735,7 +735,7 @@ const mockSales = async () => {
   for (let i = sk+1; i < 99; i++) {
     itemConfig.name = `asd${i}`
     payload = {
-      TableName: "asset",
+      TableName: "local_asset",
       Key: { 'contractAddress': item.contractAddress, 'tokenId': i },
       ExpressionAttributeNames: { "#onSale": "onSale", "#saleId": "saleId", "#price": "price", "#saleType": "saleType", "#category": "category" },
       ExpressionAttributeValues: { ":onSale": Number(1), ":saleId": i, ":price": i+1, ":saleType": 1, ":category": 'Art' },
@@ -750,7 +750,7 @@ const mockNotifications = async () => {
   const pk = '0xdA121aB48c7675E4F25E28636e3Efe602e49eec6';
   const sk = 1;
   let payload = {
-    TableName: "user",
+    TableName: "local_user",
     ExpressionAttributeNames: { '#walletId': 'walletId' },
     ExpressionAttributeValues: { ':walletId': pk },
     KeyConditionExpression: '#walletId = :walletId'
@@ -782,7 +782,7 @@ const mockNotifications = async () => {
   console.log('notifications', notifications);
 
   payload = {
-    TableName: "user",
+    TableName: "local_user",
     Key: { 'walletId': pk },
     ExpressionAttributeNames: { '#notifications': 'notifications' },
     ExpressionAttributeValues: { ':notifications': notifications },

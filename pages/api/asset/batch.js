@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     const payloadKeys = Object.values(data.ids).map(item => ({'contractAddress': item.contractAddress, 'tokenId': item.tokenId}));
     const payload = {
       RequestItems: {
-        asset: { Keys: payloadKeys }
+        local_asset: { Keys: payloadKeys }
       }
     };
     const results = await DynamoDbQuery.item.getBatch(payload);
