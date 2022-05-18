@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   if (session.user.id !== formattedWalletId) return res.status(401).json({ 'error': 'not authenticated' });
 
   const payload = {
-    TableName: "users",
+    TableName: "user",
     Item: {
       'walletId': formattedWalletId,
       'name': 'Anon',

@@ -21,7 +21,7 @@ export default async function handler(req, res) {
   if (session.user.id !== formattedWalletId) return res.status(401).json({ 'error': 'not authenticated' });
 
   const payload = {
-    TableName: "users",
+    TableName: "user",
     Key: { 'walletId': formattedWalletId },
     ExpressionAttributeNames: { '#name': 'name', '#bio': 'bio', '#timestamp': 'timestamp' },
     ExpressionAttributeValues: { ':name': data.name, ':bio': data.bio, ':timestamp': Date.getTimestamp().toString() },

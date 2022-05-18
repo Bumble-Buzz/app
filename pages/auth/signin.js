@@ -12,7 +12,7 @@ import CheckEnvironment from '@/components/CheckEnvironment';
 
 const usersDb = async () => {
   const payload = {
-    TableName: "users",
+    TableName: "user",
     AttributeDefinitions: [
       {
         AttributeName: "walletId",

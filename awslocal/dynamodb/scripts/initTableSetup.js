@@ -32,7 +32,7 @@ const contracts = async () => {
 
 const users = async () => {
   const params = {
-    TableName: "users",
+    TableName: "user",
     AttributeDefinitions: [
       {
         AttributeName: "walletId",
@@ -238,7 +238,7 @@ const contractsDelete = async () => {
 
 const usersDelete = async () => {
   const payload = {
-    TableName: "users"
+    TableName: "user"
   };
   const results = await DynamoDbQuery.table.delete(payload);
   console.log('table deleted:', results.TableDescription.TableName);
@@ -415,7 +415,7 @@ const query = async () => {
 
 const getUsers = async () => {
   const payload = {
-    TableName: "users",
+    TableName: "user",
     Key: {
       'walletId': '0xda121ab48c7675e4f25e28636e3efe602e49eec6'
     }
@@ -473,7 +473,7 @@ const putContracts = async (_val) => {
 
 const putUsers = async (val) => {
   const payload = {
-    TableName: "users",
+    TableName: "user",
     Item: {
       'walletId': '0xda121ab48c7675e4f25e28636e3efe602e49eec6',
       'name': 'joe',
@@ -750,7 +750,7 @@ const mockNotifications = async () => {
   const pk = '0xdA121aB48c7675E4F25E28636e3Efe602e49eec6';
   const sk = 1;
   let payload = {
-    TableName: "users",
+    TableName: "user",
     ExpressionAttributeNames: { '#walletId': 'walletId' },
     ExpressionAttributeValues: { ':walletId': pk },
     KeyConditionExpression: '#walletId = :walletId'
@@ -782,7 +782,7 @@ const mockNotifications = async () => {
   console.log('notifications', notifications);
 
   payload = {
-    TableName: "users",
+    TableName: "user",
     Key: { 'walletId': pk },
     ExpressionAttributeNames: { '#notifications': 'notifications' },
     ExpressionAttributeValues: { ':notifications': notifications },

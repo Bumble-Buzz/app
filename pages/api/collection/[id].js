@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
   if (Items.length > 0) {
     payload = {
-      TableName: "users",
+      TableName: "user",
       Key: {
         'walletId': Items[0].owner
       }
