@@ -7,8 +7,9 @@ export const WALLET_CONTEXT_ACTIONS = {
   WALLET: 'wallet-found',
   METAMASK: 'metamask-found',
   CONNECTED: 'connected',
-  NETWORK: 'network',
+  NETWORK_VALID: 'network-valid',
   NETWORK_VERSION: 'network-version',
+  NETWORK: 'network',
   ACCOUNT: 'account',
   ALL: 'all'
 };
@@ -35,7 +36,7 @@ const reducer = (state, action) => {
       newState = JSON.parse(JSON.stringify(state));
       newState.isConnected = action.payload.isConnected;
       return newState
-    case WALLET_CONTEXT_ACTIONS.NETWORK:
+    case WALLET_CONTEXT_ACTIONS.NETWORK_VALID:
       signOut({redirect: false});
       newState = JSON.parse(JSON.stringify(state));
       newState.isNetworkValid = action.payload.isNetworkValid;
@@ -44,6 +45,11 @@ const reducer = (state, action) => {
       signOut({redirect: false});
       newState = JSON.parse(JSON.stringify(state));
       newState.networkVersion = action.payload.networkVersion;
+      return newState
+    case WALLET_CONTEXT_ACTIONS.NETWORK:
+      signOut({redirect: false});
+      newState = JSON.parse(JSON.stringify(state));
+      newState.network = action.payload.network;
       return newState
     case WALLET_CONTEXT_ACTIONS.ACCOUNT:
       signOut({redirect: false});
@@ -57,6 +63,7 @@ const reducer = (state, action) => {
         isConnected: action.payload.isConnected,
         isNetworkValid: action.payload.isNetworkValid,
         networkVersion: action.payload.networkVersion,
+        network: action.payload.network,
         account: action.payload.account
       }
     default:
@@ -71,6 +78,7 @@ export const WalletProvider = ({ children }) => {
     isConnected: false,
     isNetworkValid: false,
     networkVersion: null,
+    network: null,
     account: null
   });
 

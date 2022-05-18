@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { WALLET_CONTEXT_ACTIONS } from '@/contexts/WalletContext';
+import ENUM from '@/enum/ENUM';
 const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 
@@ -7,13 +8,18 @@ const __init__ = async (dispatch) => {
   // register events
 
   ethereum.on('chainChanged', async (_chainId) => {
+    const networkVersion = await getNetworkVersion();
     dispatch({
-      type: WALLET_CONTEXT_ACTIONS.NETWORK,
+      type: WALLET_CONTEXT_ACTIONS.NETWORK_VALID,
       payload: { isNetworkValid: await isNetworkValid() }
     });
     dispatch({
       type: WALLET_CONTEXT_ACTIONS.NETWORK_VERSION,
-      payload: { networkVersion: await getNetworkVersion() }
+      payload: { networkVersion: networkVersion }
+    });
+    dispatch({
+      type: WALLET_CONTEXT_ACTIONS.NETWORK,
+      payload: { network: ENUM.NETWORKS.getNetworkById(Number(networkVersion)) }
     });
   });
 

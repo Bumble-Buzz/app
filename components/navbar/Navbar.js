@@ -12,6 +12,7 @@ import HeadlessSlideOver from '@/components/HeadlessSlideOver';
 import LinkWrapper from '@/components/wrappers/LinkWrapper';
 import IPFS from '@/utils/ipfs';
 import Lexicon from '@/lexicon/navbar';
+import ENUM from '@/enum/ENUM';
 import {
   PencilIcon, SearchIcon, MenuIcon, XIcon, BellIcon, ShoppingCartIcon
 } from '@heroicons/react/solid';
@@ -88,6 +89,7 @@ export default function Navbar() {
   const walletInit = async () => {
     await WalletUtil.__init__(WalletContext.dispatch);
 
+    const networkVersion = await WalletUtil.getNetworkVersion();
     WalletContext.dispatch({
       type: WALLET_CONTEXT_ACTIONS.ALL,
       payload: {
@@ -95,7 +97,8 @@ export default function Navbar() {
         isMetamaskFound: WalletUtil.isMetamaskFound(),
         isConnected: WalletUtil.isConnected(),
         isNetworkValid: await WalletUtil.isNetworkValid(),
-        networkVersion: await WalletUtil.getNetworkVersion(),
+        networkVersion: networkVersion,
+        network: ENUM.NETWORKS.getNetworkById(Number(networkVersion)),
         account: await WalletUtil.getAccount()
       }
     });

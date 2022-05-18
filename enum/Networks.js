@@ -57,6 +57,7 @@ const _getBinanceNetworks = () => {
 const getNetworkById = (_id) => {
   // local
   if (_id === 1337) return _getLocalNetworks().mainnet;
+  // if (_id === 1337) return _getLocalNetworks().localhost;
   // ethereum
   if (_id === 1) return _getEthereumNetworks().mainnet;
   if (_id === 3) return _getEthereumNetworks().ropsten;
