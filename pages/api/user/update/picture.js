@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { getSession } from "next-auth/react";
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 import Date from '@/utils/Date';
+import ENUM from '@/enum/ENUM';
 
 
 export default async function handler(req, res) {
@@ -18,8 +19,12 @@ export default async function handler(req, res) {
 
   if (session.user.id !== formattedWalletId) return res.status(401).json({ 'error': 'not authenticated' });
 
+  let networkId = Number(data.networkId);
+  if (!networkId || networkId <= 0) networkId = Number(process.env.NEXT_PUBLIC_CHAIN_ID);
+  const network = ENUM.NETWORKS.getNetworkById(networkId);
+
   const payload = {
-    TableName: "local_user",
+    TableName: network.tables.user,
     Key: { 'walletId': formattedWalletId },
     ExpressionAttributeNames: { '#picture': 'picture', '#timestamp': 'timestamp' },
     ExpressionAttributeValues: { ':picture': data.picture, ':timestamp': Date.getTimestamp().toString() },

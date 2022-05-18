@@ -1,14 +1,10 @@
 import Cors from 'cors';
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
+import ENUM from '@/enum/ENUM';
 
 
 export default async function handler(req, res) {
-  // console.log('req.body', req.body);
-  // console.log('req.url', req.url);
-  // console.log('req.query', req.query);
-  // console.log('req.param', req.param);
-
-  const { id } = req.query
+  const { id, networkId } = req.query
   // console.log('api param:', id);
 
   //check params
@@ -16,8 +12,12 @@ export default async function handler(req, res) {
 
   const collectionId = Number(id);
 
+  let formattedNetworkId = Number(networkId);
+  if (!formattedNetworkId || formattedNetworkId <= 0) formattedNetworkId = Number(process.env.NEXT_PUBLIC_CHAIN_ID);
+  const network = ENUM.NETWORKS.getNetworkById(formattedNetworkId);
+
   let payload = {
-    TableName: "local_collection",
+    TableName: network.tables.collection,
     ExpressionAttributeNames: { '#id': 'id' },
     ExpressionAttributeValues: { ':id': collectionId },
     KeyConditionExpression: '#id = :id',
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
   if (Items.length > 0) {
     payload = {
-      TableName: "local_user",
+      TableName: network.tables.user,
       Key: {
         'walletId': Items[0].owner
       }

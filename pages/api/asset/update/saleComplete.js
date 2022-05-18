@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { getSession } from "next-auth/react";
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 import { RpcNode } from '@/components/backend/Rpc';
+import ENUM from '@/enum/ENUM';
 import SaleAbi from '@/artifacts/contracts/sale/Sale.sol/Sale.json';
 import IERC721Abi from '@/artifacts/@openzeppelin/contracts/token/ERC721/IERC721.sol/IERC721.json';
 
@@ -63,9 +64,12 @@ export default async function handler(req, res) {
   if (!(await checkBlockchainSale(data))) return res.status(400).json({ 'error': 'market sale exists' });
   if (!(await checkBlockchainAsset(data))) return res.status(400).json({ 'error': 'you are not the owner of this asset' });
 
+  let networkId = Number(data.networkId);
+  if (!networkId || networkId <= 0) networkId = Number(process.env.NEXT_PUBLIC_CHAIN_ID);
+  const network = ENUM.NETWORKS.getNetworkById(networkId);
 
   const payload = {
-    TableName: "local_asset",
+    TableName: network.tables.asset,
     Key: { 'contractAddress': formattedContract, 'tokenId': formattedTokenId },
     ExpressionAttributeNames: {
       "#owner": "owner", "#onSale": "onSale", "#saleId": "saleId", "#price": "price", "#saleType": "saleType",

@@ -1,10 +1,11 @@
 import Cors from 'cors';
 import { ethers } from 'ethers';
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
+import ENUM from '@/enum/ENUM';
 
 
 export default async function handler(req, res) {
-  const { contract, id } = req.query
+  const { contract, id, networkId } = req.query
   // console.log('api param:', contract, id);
 
   //check params
@@ -14,8 +15,12 @@ export default async function handler(req, res) {
   const contractAddress = ethers.utils.getAddress(contract);
   const tokenId = Number(id);
 
+  let formattedNetworkId = Number(networkId);
+  if (!formattedNetworkId || formattedNetworkId <= 0) formattedNetworkId = Number(process.env.NEXT_PUBLIC_CHAIN_ID);
+  const network = ENUM.NETWORKS.getNetworkById(formattedNetworkId);
+
   let payload = {
-    TableName: "local_asset",
+    TableName: network.tables.asset,
     Key: { 'contractAddress': contractAddress, 'tokenId': tokenId }
   };
   let results = await DynamoDbQuery.item.get(payload);
@@ -29,12 +34,12 @@ export default async function handler(req, res) {
     const collectionPayloadKeys = [{ 'id': Item.collectionId }];
     payload = {
       RequestItems: {
-        local_user: {
+        [network.tables.user]: {
           Keys: userPayloadKeys,
           ExpressionAttributeNames: { '#walletId': 'walletId', '#name': 'name' },
           ProjectionExpression: '#walletId, #name'
         },
-        local_collection: {
+        [network.tables.collection]: {
           Keys: collectionPayloadKeys,
           ExpressionAttributeNames: { '#id': 'id', '#name': 'name', '#category': 'category' },
           ProjectionExpression: '#id, #name, #category'
@@ -42,7 +47,7 @@ export default async function handler(req, res) {
       }
     };
     results = await DynamoDbQuery.item.getBatch(payload);
-    const users = results.Responses.local_user;
+    const users = results.Responses[network.tables.user];
     users.forEach(user => {
       if (Item.owner === user.walletId) {
         Item['ownerName'] = user.name
@@ -51,7 +56,7 @@ export default async function handler(req, res) {
         Item['creatorName'] = user.name
       }
     });
-    const collections = results.Responses.local_collection;
+    const collections = results.Responses[network.tables.collection];
     collections.forEach(collection => {
       Item['collectionName'] = collection.name
       Item['category'] = collection.category

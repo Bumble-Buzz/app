@@ -96,7 +96,7 @@ module.exports = {
       owner: (id,contract,tokenId,limit) => API.get(`asset/sale/${id}?contract=${contract}&tokenId=${tokenId}&limit=${limit}`),
       all: (id,contract,tokenId,limit) => API.get(`asset/sale/all?owner=${id}&contract=${contract}&tokenId=${tokenId}&limit=${limit}`)
     },
-    collection: (id,tokenId,limit) => API.get(`asset/${id}?tokenId=${tokenId}&limit=${limit}`),
+    collection: (id,tokenId,limit) => API.get(`asset/${id}?tokenId=${tokenId}&limit=${limit}`), // not used, confirm then delete
     update: {
       saleCreate: payload => API.post(`asset/update/saleCreate`, payload),
       saleCancel: payload => API.post(`asset/update/saleCancel`, payload),

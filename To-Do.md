@@ -74,6 +74,10 @@ Things left to do:
         - LSI: creator, owner
         - GSI: collectionId, onSale + owner
 - Front-end dapp
+  - Collection
+    - Social media icon links are not properly working. Link given is not used
+  - Asset page
+    - When click on asset in `related` section, the related section is not refreshed. It continues to show the old list
   - Database lag
     - When dApp is on AWS, there is a delay between loading recently updated data from dynamoDB. This needs to be dealt with
     - Right now there is some delay before call is made to re-fetch data from dynamoDB

@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { getSession } from "next-auth/react";
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 import { RpcNode } from '@/components/backend/Rpc';
+import ENUM from '@/enum/ENUM';
 import AvaxTradeNftAbi from '@/artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
@@ -46,9 +47,13 @@ export default async function handler(req, res) {
     if (!(await checkBlockchainCreator(data))) return res.status(400).json({ 'error': 'record with creator not found on blockchain' });
   }
 
+  let networkId = Number(data.networkId);
+  if (!networkId || networkId <= 0) networkId = Number(process.env.NEXT_PUBLIC_CHAIN_ID);
+  const network = ENUM.NETWORKS.getNetworkById(networkId);
+
   // ensure if id already exists, we don't overwrite the record
   const payload = {
-    TableName: "local_asset",
+    TableName: network.tables.asset,
     Item: {
       'contractAddress': ethers.utils.getAddress(data.contractAddress),
       'tokenId': Number(data.tokenId),

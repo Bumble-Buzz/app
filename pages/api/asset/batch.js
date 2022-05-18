@@ -1,5 +1,6 @@
 import Cors from 'cors';
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
+import ENUM from '@/enum/ENUM';
 
 
 export default async function handler(req, res) {
@@ -9,12 +10,16 @@ export default async function handler(req, res) {
   // check parameters
   if (!data) return res.status(400).json({ 'error': 'invalid request parameters' });
 
+  let networkId = Number(data.networkId);
+  if (!networkId || networkId <= 0) networkId = Number(process.env.NEXT_PUBLIC_CHAIN_ID);
+  const network = ENUM.NETWORKS.getNetworkById(networkId);
+
   let Items = [];
   if (data.ids.length > 0) {
     const payloadKeys = Object.values(data.ids).map(item => ({'contractAddress': item.contractAddress, 'tokenId': item.tokenId}));
     const payload = {
       RequestItems: {
-        local_asset: { Keys: payloadKeys }
+        [network.tables.asset]: { Keys: payloadKeys }
       }
     };
     const results = await DynamoDbQuery.item.getBatch(payload);

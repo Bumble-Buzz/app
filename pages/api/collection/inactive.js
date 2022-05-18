@@ -2,10 +2,11 @@ import Cors from 'cors';
 import { ethers } from 'ethers';
 import { getSession } from "next-auth/react";
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
+import ENUM from '@/enum/ENUM';
 
 
 export default async function handler(req, res) {
-  const { id, limit } = req.query
+  const { id, limit, networkId } = req.query
   // console.log('api param:', id, limit);
 
   const session = await getSession({ req })
@@ -16,8 +17,12 @@ export default async function handler(req, res) {
     exclusiveStartKey = { 'id': Number(id), 'active': 0 };
   }
 
+  let formattedNetworkId = Number(networkId);
+  if (!formattedNetworkId || formattedNetworkId <= 0) formattedNetworkId = Number(process.env.NEXT_PUBLIC_CHAIN_ID);
+  const network = ENUM.NETWORKS.getNetworkById(formattedNetworkId);
+
   let payload = {
-    TableName: "local_collection",
+    TableName: network.tables.collection,
     IndexName: 'active-gsi',
     ExpressionAttributeNames: { '#active': 'active' },
     ExpressionAttributeValues: { ':active': 0 },

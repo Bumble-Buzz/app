@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { getSession } from "next-auth/react";
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 import { RpcNode } from '@/components/backend/Rpc';
+import ENUM from '@/enum/ENUM';
 import CollectionItemAbi from '@/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
 
 
@@ -36,8 +37,12 @@ export default async function handler(req, res) {
   // @todo This can only be run locally at the moment. Once deployed on testnet/mainnet, this needs to run
   if (!(await checkBlockchain(data))) return res.status(400).json({ 'error': 'record not found on blockchain' });
 
+  let networkId = Number(data.networkId);
+  if (!networkId || networkId <= 0) networkId = Number(process.env.NEXT_PUBLIC_CHAIN_ID);
+  const network = ENUM.NETWORKS.getNetworkById(networkId);
+
   const payload = {
-    TableName: "local_collection",
+    TableName: network.tables.collection,
     Key: { 'id': Number(data.id) },
     ExpressionAttributeNames: { "#active": "active" },
     ExpressionAttributeValues: { ":active": 0 },

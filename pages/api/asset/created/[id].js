@@ -1,10 +1,11 @@
 import Cors from 'cors';
 import { ethers } from 'ethers';
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
+import ENUM from '@/enum/ENUM';
 
 
 export default async function handler(req, res) {
-  const { id, limit, tokenId } = req.query
+  const { id, limit, tokenId, networkId } = req.query
   // console.log('api param:', id, tokenId, limit);
 
   //check params
@@ -16,8 +17,12 @@ export default async function handler(req, res) {
     exclusiveStartKey = { 'contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, 'creator': checkSumId, 'tokenId': Number(tokenId) };
   }
 
+  let formattedNetworkId = Number(networkId);
+  if (!formattedNetworkId || formattedNetworkId <= 0) formattedNetworkId = Number(process.env.NEXT_PUBLIC_CHAIN_ID);
+  const network = ENUM.NETWORKS.getNetworkById(formattedNetworkId);
+
   let payload = {
-    TableName: "local_asset",
+    TableName: network.tables.asset,
     IndexName: 'creator-lsi',
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#creator': 'creator' },
     ExpressionAttributeValues: { ':contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, ':creator': checkSumId },
@@ -35,7 +40,7 @@ export default async function handler(req, res) {
     const payloadKeys = Object.values(walletIds).map(id => ({'walletId': id}));
     payload = {
       RequestItems: {
-        local_user: {
+        [network.tables.user]: {
           Keys: payloadKeys,
           ExpressionAttributeNames: { '#walletId': 'walletId', '#name': 'name' },
           ProjectionExpression: "#walletId, #name"
@@ -43,7 +48,7 @@ export default async function handler(req, res) {
       },
     };
     results = await DynamoDbQuery.item.getBatch(payload);
-    const users = results.Responses.local_user;
+    const users = results.Responses[network.tables.user];
     Items.forEach(item => {
       users.forEach(user => {
         if (item.owner === user.walletId) {
