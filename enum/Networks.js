@@ -1,53 +1,55 @@
+import DB_TABLES from '@/enum/DbTables';
 
 const _getLocalNetworks = () => {
   return {
-    mainnet: { name: 'Local', id: 1337, currency: 'ETH' }
+    mainnet: { name: 'Local', id: 1337, currency: 'ETH', tables: DB_TABLES.local.mainnet },
+    localhost: { name: 'Local', id: 1337, currency: 'ETH', tables: DB_TABLES.local.localhost }
   }
 };
 
-const _getEhereumNetworks = () => {
+const _getEthereumNetworks = () => {
   return {
-    mainnet: { name: 'Ethereum', id: 1, currency: 'ETH' },
-    ropsten: { name: 'Ropsten', id: 3, currency: 'ETH' },
-    rinkeby: { name: 'Rinkeby', id: 4, currency: 'ETH' },
-    goerli: { name: 'Goerli', id: 5, currency: 'ETH' },
-    kovan: { name: 'Kovan', id: 42, currency: 'ETH' }
+    mainnet: { name: 'Ethereum', id: 1, currency: 'ETH', tables: DB_TABLES.ethereum.mainnet },
+    ropsten: { name: 'Ropsten', id: 3, currency: 'ETH', tables: DB_TABLES.ethereum.ropsten },
+    rinkeby: { name: 'Rinkeby', id: 4, currency: 'ETH', tables: DB_TABLES.ethereum.rinkeby },
+    goerli: { name: 'Goerli', id: 5, currency: 'ETH', tables: DB_TABLES.ethereum.goerli },
+    kovan: { name: 'Kovan', id: 42, currency: 'ETH', tables: DB_TABLES.ethereum.kovan }
   }
 };
 
 const _getAvalancheNetworks = () => {
   return {
-    mainnet: { name: 'Avalanche', id: 43114, currency: 'AVAX' },
-    testnet: { name: 'Avalanche Testnet', id: 43113, currency: 'AVAX' }
+    mainnet: { name: 'Avalanche', id: 43114, currency: 'AVAX', tables: DB_TABLES.avalanche.mainnet },
+    testnet: { name: 'Avalanche Testnet', id: 43113, currency: 'AVAX', tables: DB_TABLES.avalanche.testnet }
   }
 };
 
 const _getAuroraNetworks = () => {
   return {
-    mainnet: { name: 'Aurora', id: 1313161554, currency: 'ETH' },
-    testnet: { name: 'Aurora Testnet', id: 1313161555, currency: 'ETH' },
-    betanet: { name: 'Aurora Betanet', id: 1313161556, currency: 'ETH' }
+    mainnet: { name: 'Aurora', id: 1313161554, currency: 'ETH', tables: DB_TABLES.aurora.mainnet },
+    testnet: { name: 'Aurora Testnet', id: 1313161555, currency: 'ETH', tables: DB_TABLES.aurora.testnet },
+    betanet: { name: 'Aurora Betanet', id: 1313161556, currency: 'ETH', tables: DB_TABLES.aurora.betanet }
   }
 };
 
 const _getFantomNetworks = () => {
   return {
-    mainnet: { name: 'Fantom', id: 250, currency: 'FTM' },
-    testnet: { name: 'Fantom Testnet', id: 4002, currency: 'FTM' }
+    mainnet: { name: 'Fantom', id: 250, currency: 'FTM', tables: DB_TABLES.fantom.mainnet },
+    testnet: { name: 'Fantom Testnet', id: 4002, currency: 'FTM', tables: DB_TABLES.fantom.testnet }
   }
 };
 
 const _getPolygonNetworks = () => {
   return {
-    mainnet: { name: 'Polygon', id: 137, currency: 'MATIC' },
-    mumbai: { name: 'Polygon Mumbai', id: 80001, currency: 'MATIC' }
+    mainnet: { name: 'Polygon', id: 137, currency: 'MATIC', tables: DB_TABLES.polygon.mainnet },
+    mumbai: { name: 'Polygon Mumbai', id: 80001, currency: 'MATIC', tables: DB_TABLES.polygon.mumbai }
   }
 };
 
 const _getBinanceNetworks = () => {
   return {
-    mainnet: { name: 'Binance', id: 56, currency: 'BNB' },
-    testnet: { name: 'Binance Testnet', id: 97, currency: 'BNB' }
+    mainnet: { name: 'Binance', id: 56, currency: 'BNB', tables: DB_TABLES.binance.mainnet },
+    testnet: { name: 'Binance Testnet', id: 97, currency: 'BNB', tables: DB_TABLES.binance.testnet }
   }
 };
 
@@ -56,11 +58,11 @@ const getNetworkById = (_id) => {
   // local
   if (_id === 1337) return _getLocalNetworks().mainnet;
   // ethereum
-  if (_id === 1) return _getEhereumNetworks().mainnet;
-  if (_id === 3) return _getEhereumNetworks().ropsten;
-  if (_id === 4) return _getEhereumNetworks().rinkeby;
-  if (_id === 5) return _getEhereumNetworks().goerli;
-  if (_id === 42) return _getEhereumNetworks().kovan;
+  if (_id === 1) return _getEthereumNetworks().mainnet;
+  if (_id === 3) return _getEthereumNetworks().ropsten;
+  if (_id === 4) return _getEthereumNetworks().rinkeby;
+  if (_id === 5) return _getEthereumNetworks().goerli;
+  if (_id === 42) return _getEthereumNetworks().kovan;
   // avalanche
   if (_id === 43114) return _getAvalancheNetworks().mainnet;
   if (_id === 43113) return _getAvalancheNetworks().testnet;
@@ -82,7 +84,7 @@ const getNetworkById = (_id) => {
 export default {
   getNetworkById,
   local: _getLocalNetworks(),
-  ethereum: _getEhereumNetworks(),
+  ethereum: _getEthereumNetworks(),
   avalanche: _getAvalancheNetworks(),
   aurora: _getAuroraNetworks(),
   fantom: _getFantomNetworks(),
