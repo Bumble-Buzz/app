@@ -74,10 +74,23 @@ Things left to do:
         - LSI: creator, owner
         - GSI: collectionId, onSale + owner
 - Front-end dapp
-  - Collection
-    - Social media icon links are not properly working. Link given is not used
-  - Asset page
-    - When click on asset in `related` section, the related section is not refreshed. It continues to show the old list
+  - Bugs
+    - Hover text
+      - Hover text is not styled properly
+    - Max digits
+      - User can only enter numbers up to 6 decimal places. This needs to cover all decimal places for ETH currancy, which is 18 digits
+    - Collection
+      - Social media icon links are not properly working. Link given is not used
+    - Asset page
+      - When click on asset in `related` section, the related section is not refreshed. It continues to show the old list
+    - Sell page
+      - Approve / Approve all are not working as intended
+  - Enhancements
+    - Pull from blockchain
+      - In the case when DB is not updated with the asset/collection, give a button where user can click to import form blockchain,
+        if any missing data, update the UI and the DB
+      - Possibly add a separate task that listens to events from contracts, and it updates the DB if necessary
+      - Use case: Create new NFT asset. User refreshes the page before DB is updated. Asset exists in blockchain and not in DB
   - Database lag
     - When dApp is on AWS, there is a delay between loading recently updated data from dynamoDB. This needs to be dealt with
     - Right now there is some delay before call is made to re-fetch data from dynamoDB
@@ -115,6 +128,8 @@ Things left to do:
   - Security
     - Pages: admin / mod auth check
     - APIs: admin / mod auth check
+- CDK
+  - Name the app / services correctly
 - Social media
   - Discord server
   - Twitter account

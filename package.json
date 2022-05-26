@@ -12,10 +12,17 @@
     "hh-compile": "npx hardhat compile",
     "hh-size": "npx hardhat size-contracts",
     "hh-test": "npx hardhat test",
+    "hh-test-ropsten": "npx hardhat test --network ropsten",
     "hh-node": "npx hardhat node",
     "hh-deploy": "npx hardhat run scripts/deploy.js --network localhost",
+    "hh-deploy-aurora": "npx hardhat run scripts/deploy.js --network aurora",
     "hh-deploy-testnet": "npx hardhat run scripts/deploy.js --network testnet_aurora",
-    "hh-deploy-localGeth": "rm -fr .openzeppelin && npx hardhat run scripts/deploy.js --network localGeth"
+    "hh-deploy-ropsten": "npx hardhat run scripts/deploy.js --network ropsten",
+    "hh-deploy-localGeth": "rm -fr .openzeppelin && npx hardhat run scripts/deploy.js --network localGeth",
+    "hh-verify": "npx hardhat verify",
+    "hh-verify-aurora": "npx hardhat verify --network aurora",
+    "hh-verify-testnet_aurora": "npx hardhat verify --network testnet_aurora",
+    "hh-verify-ropsten": "npx hardhat verify --network ropsten"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.48.0",
@@ -68,6 +75,7 @@
     "web3modal": "^1.9.4"
   },
   "devDependencies": {
+    "@nomiclabs/hardhat-etherscan": "^3.0.3",
     "@svgr/webpack": "^6.2.1",
     "@tailwindcss/aspect-ratio": "^0.4.0",
     "@tailwindcss/forms": "^0.4.0",

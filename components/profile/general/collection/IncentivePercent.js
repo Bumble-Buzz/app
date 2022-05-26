@@ -62,13 +62,6 @@ export default function IncentivePercent({ isLoading, setLoading, account, setAc
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, signer);
 
-      // update collection in blockchain
-      const val = await contract.updateCollection(
-        collection.id, collection.reflection, collection.commission, _value, collection.owner
-      );
-
-      await WalletUtil.checkTransaction(val);
-
       const listener = async (id) => {
         console.log('found collection update event: ', id.toNumber());
         if (!dbTriggered && collection.id === Number(id)) {
@@ -78,6 +71,13 @@ export default function IncentivePercent({ isLoading, setLoading, account, setAc
         }
       };
       contract.on("onCollectionUpdate", listener);
+
+      // update collection in blockchain
+      const transaction = await contract.updateCollection(
+        collection.id, collection.reflection, collection.commission, _value, collection.owner
+      );
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);

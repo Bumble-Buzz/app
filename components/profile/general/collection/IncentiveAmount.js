@@ -32,11 +32,6 @@ export default function IncentiveAmount({ isLoading, setLoading, account, setAcc
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 
-      // deposit incentives
-      const val = await contract.depositIncentiveCollectionAccount(contractAddress, { value: ethers.utils.parseEther(_depositAmount.toString()) });
-
-      await WalletUtil.checkTransaction(val);
-
       const listener = async (user, _contractAddress, _amount) => {
         const amountInt = Number(_amount);
         const amount = Number(ethers.utils.formatEther(amountInt.toString()));
@@ -49,6 +44,11 @@ export default function IncentiveAmount({ isLoading, setLoading, account, setAcc
         }
       };
       contract.on("onDepositCollectionIncentive", listener);
+
+      // deposit incentives
+      const transaction = await contract.depositIncentiveCollectionAccount(contractAddress, { value: ethers.utils.parseEther(_depositAmount.toString()) });
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);
@@ -73,11 +73,6 @@ export default function IncentiveAmount({ isLoading, setLoading, account, setAcc
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 
-      // withdraw incentives
-      const val = await contract.withdrawIncentiveCollectionAccount(contractAddress, ethers.utils.parseEther(_withdrawAmount.toString()));
-
-      await WalletUtil.checkTransaction(val);
-
       const listener = async (user, _contractAddress, _amount) => {
         const amountInt = Number(_amount);
         const amount = Number(ethers.utils.formatEther(amountInt.toString()));
@@ -89,6 +84,11 @@ export default function IncentiveAmount({ isLoading, setLoading, account, setAcc
         }
       };
       contract.on("onWithdrawCollectionIncentive", listener);
+
+      // withdraw incentives
+      const transaction = await contract.withdrawIncentiveCollectionAccount(contractAddress, ethers.utils.parseEther(_withdrawAmount.toString()));
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);

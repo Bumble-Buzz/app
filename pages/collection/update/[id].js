@@ -167,13 +167,7 @@ export default function EditCollection({ collectionDataInit }) {
       if (contractFieldsModified()) {
         const signer = await WalletUtil.getWalletSigner();
         const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, signer);
-        // update collection in blockchain
-        const val = await contract.updateCollection(
-          collectionDataInit.id, state.reflection, state.commission, state.incentive, WalletContext.state.account
-        );
-          
-        await WalletUtil.checkTransaction(val);
-        
+
         const listener = async (id) => {
           console.log('found collection update event: ', id.toNumber());
           if (!dbTriggered && collectionDataInit.id === Number(id)) {
@@ -183,6 +177,13 @@ export default function EditCollection({ collectionDataInit }) {
           }
         };
         contract.on("onCollectionUpdate", listener);
+
+        // update collection in blockchain
+        const transaction = await contract.updateCollection(
+          collectionDataInit.id, state.reflection, state.commission, state.incentive, WalletContext.state.account
+        );
+        // await WalletUtil.checkTransaction(transaction);
+        await transaction.wait();
       } else if (dbFieldsModified()) {
         setBlockchainResults({ id: collectionDataInit.id, api: async (id,payload) => await API.collection.update.id(id, payload) });
       } else {
@@ -205,11 +206,6 @@ export default function EditCollection({ collectionDataInit }) {
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, signer);
 
-      // disable collection owner incentive access in blockchain
-      const val = await contract.disableCollectionOwnerIncentiveAccess(collectionDataInit.id);
-        
-      await WalletUtil.checkTransaction(val);
-      
       const listener = async (id) => {
         console.log('found collection owner incentive access event: ', id.toNumber());
         if (!dbTriggered && collectionDataInit.id === Number(id)) {
@@ -223,6 +219,11 @@ export default function EditCollection({ collectionDataInit }) {
         }
       };
       contract.on("onCollectionOwnerIncentiveAccess", listener);
+
+      // disable collection owner incentive access in blockchain
+      const transaction = await contract.disableCollectionOwnerIncentiveAccess(collectionDataInit.id);
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);

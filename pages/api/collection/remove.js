@@ -22,7 +22,7 @@ const checkBlockchain = async (collection) => {
   try {
     await contract.getCollection(collection.id);
   } catch(e) {
-    if (e.error.body.includes('The collection does not exist')) {
+    if (e.reason.includes('The collection does not exist')) {
       returnValue = true;
     }
   }

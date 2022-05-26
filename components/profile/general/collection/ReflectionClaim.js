@@ -23,11 +23,6 @@ export default function ReflectionClaim({ isLoading, setLoading, setAccount, con
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 
-      // claim rewards
-      const val = await contract.claimReflectionRewardListCollectionAccount(ownedTokenIds, contractAddress);
-
-      await WalletUtil.checkTransaction(val);
-
       const listener = async (user, reward, rewardType) => {
         const rewardInt = Number(reward);
         const rewardClaim = Number(ethers.utils.formatEther(rewardInt.toString()));
@@ -40,6 +35,11 @@ export default function ReflectionClaim({ isLoading, setLoading, setAccount, con
         }
       };
       contract.on("onClaimRewards", listener);
+
+      // claim rewards
+      const transaction = await contract.claimReflectionRewardListCollectionAccount(ownedTokenIds, contractAddress);
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);

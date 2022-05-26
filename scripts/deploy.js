@@ -3,7 +3,8 @@ const hre = require("hardhat");
 
 let ACCOUNTS;
 let CONTRACT_FACTORY;
-let CONTRACT;
+let CONTRACT = { address: '0x6679CdE5195A15bacbDDDAeBb170d865DBA7838B' };
+// let CONTRACT;
 let BANK_CONTRACT;
 let SALE_CONTRACT;
 let COLLECTION_ITEM_CONTRACT;
@@ -14,22 +15,31 @@ let TEST_NFT_CONTRACTS;
 async function main() {
   await getAccounts();
 
-  await avaxTrade();
-  await bank();
-  await sale();
+  // await avaxTrade();
+  // console.log("AvaxTrade deployed to:", CONTRACT.address);
+  // await bank();
+  // console.log("Bank deployed to:", BANK_CONTRACT.address);
+  // await sale();
+  // console.log("Sale deployed to:", SALE_CONTRACT.address);
   await collectionItem();
-  await updateAvaxTrade();
-  await avaxTradeNft();
-  await SampleErc721();
-
-  console.log("AvaxTrade deployed to:", CONTRACT.address);
-  console.log("Bank deployed to:", BANK_CONTRACT.address);
-  console.log("Sale deployed to:", SALE_CONTRACT.address);
   console.log("Collection Item deployed to:", COLLECTION_ITEM_CONTRACT.address);
-  console.log("AvaxTradeNft deployed to:", NFT_CONTRACT.address);
-  console.log("Sample NFT Contract deployed to:", SAMPLE_NFT_CONTRACT.address);
+  // await updateAvaxTrade();
+  // console.log("Updated AvaxTrade with contracts:", BANK_CONTRACT.address, SALE_CONTRACT.address, COLLECTION_ITEM_CONTRACT.address);
+  // await avaxTradeNft();
+  // console.log("AvaxTradeNft deployed to:", NFT_CONTRACT.address);
+  // await SampleErc721();
+  // console.log("Sample NFT Contract deployed to:", SAMPLE_NFT_CONTRACT.address);
 
-  await TestErc721();
+
+  // update AvaxTrade with sibling contracts
+  // const avaxTradeContract = await ethers.getContractAt("AvaxTrade", '0x1f8700f3D074a8999D7ef9a0e292542C1a3463E4');
+  // console.log('contracts', await avaxTradeContract.connect(ACCOUNTS[0]).getContracts());
+  // await avaxTradeContract.connect(ACCOUNTS[0]).setContracts(
+  //   '0xB75CE57645626d3511Bd933f39e4F652d9BfD5E3', '0x5D20E204a01C8156b0E4b877a2339904cfd8735a', '0xDf3bc1dCBBF6220C97c04191DEf9560Cb3A47829'
+  // );
+  // console.log('contracts', await avaxTradeContract.connect(ACCOUNTS[0]).getContracts());
+
+  // await TestErc721();
 }
 
 // todo use actual account when deploying to mainnet chain
@@ -41,6 +51,8 @@ const avaxTrade = async () => {
   CONTRACT_FACTORY = await ethers.getContractFactory("AvaxTrade");
   CONTRACT = await upgrades.deployProxy(CONTRACT_FACTORY, [ACCOUNTS[0].address], { kind: 'uups' });
   await CONTRACT.deployed();
+  const implementationAddress = await CONTRACT.connect(ACCOUNTS[0]).getImplementation();
+  console.log("AvaxTrade deployed to:", CONTRACT.address, implementationAddress);
 };
 
 const bank = async () => {

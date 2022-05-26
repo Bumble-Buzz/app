@@ -618,7 +618,7 @@ contract AvaxTrade is Initializable, UUPSUpgradeable, AccessControlUpgradeable, 
     * @dev Create local collection
   */
   function createLocalCollection(address _contractAddress) external onlyRole(ADMIN_ROLE) returns (uint256) {
-    uint256 id = CollectionItem(CONTRACTS.collectionItem).createLocalCollection(_contractAddress, msg.sender);
+    uint256 id = CollectionItem(CONTRACTS.collectionItem).localCollectionCreate(_contractAddress, msg.sender);
     Bank(CONTRACTS.bank).addBank(msg.sender); // this is okay even if bank account already exists
 
     emit onCollectionCreate(msg.sender, _contractAddress, "local", id);

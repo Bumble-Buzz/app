@@ -116,11 +116,6 @@ export default function Unverified() {
         const signer = await WalletUtil.getWalletSigner();
         const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 
-        // add collection in blockchain
-        const val = await contract.createUnvariviedCollection();
-
-        await WalletUtil.checkTransaction(val);
-        
         const listener = async (owner, contractAddress, collectionType, id) => {
           if (!dbTriggered && session.user.id === owner && EMPTY_ADDRESS === ethers.utils.getAddress(contractAddress)) {
             dbTriggered = true;
@@ -129,6 +124,11 @@ export default function Unverified() {
           }
         };
         contract.on("onCollectionCreate", listener);
+
+        // add collection in blockchain
+        const transaction = await contract.createUnvariviedCollection();
+        // await WalletUtil.checkTransaction(transaction);
+        await transaction.wait();
       }
     } catch (e) {
       console.error('e', e);

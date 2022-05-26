@@ -148,12 +148,10 @@ export default function Immediate({children, assetDataInit, setSaleCreated}) {
       setLoading(true);
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(assetDataInit.contractAddress, IERC721Abi.abi, signer);
-      const val = await contract.approve(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, assetDataInit.tokenId);
-      await WalletUtil.checkTransaction(val);
 
       const listener = async (owner, approved, tokenId) => {
         if (session.user.id === ethers.utils.getAddress(owner) && Number(assetDataInit.tokenId) === Number(tokenId) &&
-          ethers.utils.getAddress(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) === ethers.utils.getAddress(approved)
+        ethers.utils.getAddress(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) === ethers.utils.getAddress(approved)
         ) {
           dispatch({ type: 'approved', payload: { approved: (approved === process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) } });
           setLoading(false);
@@ -162,6 +160,10 @@ export default function Immediate({children, assetDataInit, setSaleCreated}) {
         }
       };
       contract.on("Approval", listener);
+
+      const transaction = await contract.approve(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, assetDataInit.tokenId);
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);
@@ -176,12 +178,10 @@ export default function Immediate({children, assetDataInit, setSaleCreated}) {
       setLoading(true);
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(assetDataInit.contractAddress, IERC721Abi.abi, signer);
-      const val = await contract.setApprovalForAll(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, true);
-      await WalletUtil.checkTransaction(val);
 
       const listener = async (owner, operator, approved) => {
         if (session.user.id === ethers.utils.getAddress(owner) && approved &&
-          ethers.utils.getAddress(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) === ethers.utils.getAddress(operator)
+        ethers.utils.getAddress(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) === ethers.utils.getAddress(operator)
         ) {
           dispatch({ type: 'approvedAll', payload: { approvedAll: true } });
           setLoading(false);
@@ -190,6 +190,10 @@ export default function Immediate({children, assetDataInit, setSaleCreated}) {
         }
       };
       contract.on("ApprovalForAll", listener);
+
+      const transaction = await contract.setApprovalForAll(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, true);
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);
@@ -204,12 +208,10 @@ export default function Immediate({children, assetDataInit, setSaleCreated}) {
       setLoading(true);
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(assetDataInit.contractAddress, IERC721Abi.abi, signer);
-      const val = await contract.setApprovalForAll(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, false);
-      await WalletUtil.checkTransaction(val);
 
       const listener = async (owner, operator, approved) => {
         if (session.user.id === ethers.utils.getAddress(owner) && !approved &&
-          ethers.utils.getAddress(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) === ethers.utils.getAddress(operator)
+        ethers.utils.getAddress(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) === ethers.utils.getAddress(operator)
         ) {
           dispatch({ type: 'approvedAll', payload: { approvedAll: false } });
           setLoading(false);
@@ -218,6 +220,10 @@ export default function Immediate({children, assetDataInit, setSaleCreated}) {
         }
       };
       contract.on("ApprovalForAll", listener);
+
+      const transaction = await contract.setApprovalForAll(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, false);
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);
@@ -244,14 +250,6 @@ export default function Immediate({children, assetDataInit, setSaleCreated}) {
       setLoading(true);
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
-
-      // create market sale
-      const formattedPrice = ethers.utils.parseEther(state.price.toString());
-      const val = await contract.createMarketSale(
-        assetDataInit.tokenId, assetDataInit.contractAddress, EMPTY_ADDRESS, formattedPrice, 1
-      );
-        
-      await WalletUtil.checkTransaction(val);
       
       const listener = async (itemId, tokenId, contractAddress, seller, saleType) => {
         console.log('found create market sale event: ', Number(itemId), Number(tokenId), contractAddress, seller, Number(saleType));
@@ -264,6 +262,15 @@ export default function Immediate({children, assetDataInit, setSaleCreated}) {
         }
       };
       contract.on("onCreateMarketSale", listener);
+
+      // create market sale
+      const formattedPrice = ethers.utils.parseEther(state.price.toString());
+      const transaction = await contract.createMarketSale(
+        assetDataInit.tokenId, assetDataInit.contractAddress, EMPTY_ADDRESS, formattedPrice, 1
+      );
+        
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);

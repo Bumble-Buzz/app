@@ -175,7 +175,7 @@ contract CollectionItem is Initializable, UUPSUpgradeable, AccessControlUpgradea
   /**
     * @dev Create local collection
   */
-  function createLocalCollection(address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) returns (uint256) {
+  function localCollectionCreate(address _contractAddress, address _owner) public onlyRole(ADMIN_ROLE) returns (uint256) {
     uint256 id = _createLocalCollection(_contractAddress, _owner);
 
     // create collection role

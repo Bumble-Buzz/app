@@ -16,6 +16,7 @@ import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 import IERC721Abi from '@/artifacts/@openzeppelin/contracts/token/ERC721/IERC721.sol/IERC721.json';
 const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 
+let ACTION_CLICKED = null;
 
 const reducer = (state, action) => {
   let newState;
@@ -119,9 +120,25 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
         {Lexicon.form.submit.processing}
       </ButtonWrapper>
     )
-    let actionButtonText = 'Sell';
-    if (!state.approved) actionButtonText = 'Approve';
-    return (<ButtonWrapper type="submit" classes="">{actionButtonText}</ButtonWrapper>)
+    // let actionButtonText = 'Sell';
+    // if (!state.approved) actionButtonText = 'Approve';
+
+    if (!state.approved && !state.approvedAll) {
+      return (<>
+        <ButtonWrapper type="submit" classes="" onClick={() => ACTION_CLICKED='approveAll'}>Approve All</ButtonWrapper>
+        <ButtonWrapper type="submit" classes="" onClick={() => ACTION_CLICKED='approve'}>Approve</ButtonWrapper>
+      </>)
+    }
+
+    if (state.approvedAll) {
+      return (<>
+        <ButtonWrapper type="submit" classes="" onClick={() => ACTION_CLICKED='unapproveAll'}>Unapprove All</ButtonWrapper>
+        <ButtonWrapper type="submit" classes="" onClick={() => ACTION_CLICKED='sell'}>Sell</ButtonWrapper>
+      </>)
+    }
+
+    return (<ButtonWrapper type="submit" classes="" onClick={() => ACTION_CLICKED='sell'}>Sell</ButtonWrapper>)
+    // return (<ButtonWrapper type="submit" classes="">Sell</ButtonWrapper>)
   };
 
   const approveAsset = async (e) => {
@@ -131,20 +148,82 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
       setLoading(true);
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(assetDataInit.contractAddress, IERC721Abi.abi, signer);
-      const val = await contract.approve(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, assetDataInit.tokenId);
-      // const val = await contract.setApprovalForAll(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, true);
-      await WalletUtil.checkTransaction(val);
-
+      
       const listener = async (owner, approved, tokenId) => {
         if (session.user.id === ethers.utils.getAddress(owner) && Number(assetDataInit.tokenId) === Number(tokenId) &&
-          ethers.utils.getAddress(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) === ethers.utils.getAddress(approved)
+        ethers.utils.getAddress(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) === ethers.utils.getAddress(approved)
         ) {
           dispatch({ type: 'approved', payload: { approved: (approved === process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) } });
           setLoading(false);
+          ACTION_CLICKED = null;
           contract.off("Approval", listener);
         }
       };
       contract.on("Approval", listener);
+
+      const transaction = await contract.approve(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, assetDataInit.tokenId);
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
+    } catch (e) {
+      console.error('e', e);
+      Toast.error(e.message);
+      setLoading(false);
+    }
+  };
+
+  const approveAllAssets = async (e) => {
+    e.preventDefault();
+
+    try {
+      setLoading(true);
+      const signer = await WalletUtil.getWalletSigner();
+      const contract = new ethers.Contract(assetDataInit.contractAddress, IERC721Abi.abi, signer);
+      
+      const listener = async (owner, operator, approved) => {
+        if (session.user.id === ethers.utils.getAddress(owner) && approved &&
+        ethers.utils.getAddress(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) === ethers.utils.getAddress(operator)
+        ) {
+          dispatch({ type: 'approvedAll', payload: { approvedAll: true } });
+          setLoading(false);
+          ACTION_CLICKED = null;
+          contract.off("ApprovalForAll", listener);
+        }
+      };
+      contract.on("ApprovalForAll", listener);
+
+      const transaction = await contract.setApprovalForAll(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, true);
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
+    } catch (e) {
+      console.error('e', e);
+      Toast.error(e.message);
+      setLoading(false);
+    }
+  };
+
+  const unapproveAllAssets = async (e) => {
+    e.preventDefault();
+
+    try {
+      setLoading(true);
+      const signer = await WalletUtil.getWalletSigner();
+      const contract = new ethers.Contract(assetDataInit.contractAddress, IERC721Abi.abi, signer);
+      
+      const listener = async (owner, operator, approved) => {
+        if (session.user.id === ethers.utils.getAddress(owner) && !approved &&
+        ethers.utils.getAddress(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) === ethers.utils.getAddress(operator)
+        ) {
+          dispatch({ type: 'approvedAll', payload: { approvedAll: false } });
+          setLoading(false);
+          ACTION_CLICKED = null;
+          contract.off("ApprovalForAll", listener);
+        }
+      };
+      contract.on("ApprovalForAll", listener);
+
+      const transaction = await contract.setApprovalForAll(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, false);
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);
@@ -154,6 +233,7 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
 
   const sellAsset = async (e) => {
     e.preventDefault();
+
 
     // revoke - approve empty address
     // const signer = await WalletUtil.getWalletSigner();
@@ -170,14 +250,6 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
       setLoading(true);
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
-
-      // create market sale
-      const formattedPrice = ethers.utils.parseEther(state.price.toString());
-      const val = await contract.createMarketSale(
-        assetDataInit.tokenId, assetDataInit.contractAddress, EMPTY_ADDRESS, formattedPrice, 1
-      );
-        
-      await WalletUtil.checkTransaction(val);
       
       const listener = async (itemId, tokenId, contractAddress, seller, saleType) => {
         console.log('found create market sale event: ', Number(itemId), Number(tokenId), contractAddress, seller, Number(saleType));
@@ -190,6 +262,15 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
         }
       };
       contract.on("onCreateMarketSale", listener);
+
+      // create market sale
+      const formattedPrice = ethers.utils.parseEther(state.price.toString());
+      const transaction = await contract.createMarketSale(
+        assetDataInit.tokenId, assetDataInit.contractAddress, EMPTY_ADDRESS, formattedPrice, 1
+      );
+        
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);
@@ -200,8 +281,12 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
   return (
     <form
       onSubmit={(e) => {
-        if (!state.approved) {
+        if (ACTION_CLICKED === 'approve') {
           approveAsset(e);
+        } else if (ACTION_CLICKED === 'approveAll') {
+          approveAllAssets(e);
+        } else if (ACTION_CLICKED === 'unapproveAll') {
+          unapproveAllAssets(e);
         } else {
           sellAsset(e);
         }

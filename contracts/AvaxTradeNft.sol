@@ -27,7 +27,7 @@ contract AvaxTradeNft is ERC721Enumerable, Ownable {
   bool private PAUSED = false;
 
   // events
-  event onNftMint(address owner, uint256 tokenId);
+  event onNftMint(address indexed owner, uint256 indexed tokenId);
 
 
   mapping(uint256 => ArtistDS) private ARTIST; // mapping token id to ArtistDS

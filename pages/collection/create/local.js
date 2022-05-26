@@ -77,6 +77,7 @@ export default function Local() {
         setLoading(false);
         setBlockchainResults(null);
       } catch (e) {
+        console.log('e', e);
         Toast.error(e.message);
         setLoading(false);
       }
@@ -107,11 +108,6 @@ export default function Local() {
       // upload image to ipfs
       const imageCid = await uploadImage();
 
-      // add collection in blockchain
-      const val = await contract.createLocalCollection(state.address);
-
-      await WalletUtil.checkTransaction(val);
-
       const listener = async (owner, contractAddress, collectionType, id) => {
         console.log('found local event: ', owner, contractAddress, collectionType, id.toNumber());
         if (!dbTriggered && session.user.id === owner && ethers.utils.getAddress(state.address) === ethers.utils.getAddress(contractAddress)) {
@@ -121,6 +117,11 @@ export default function Local() {
         }
       };
       contract.on("onCollectionCreate", listener);
+
+      // add collection in blockchain
+      const transaction = await contract.createLocalCollection(state.address);
+      // await WalletUtil.checkTransaction(val);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);

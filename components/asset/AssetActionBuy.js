@@ -105,18 +105,11 @@ export default function AssetActionBuy({ content, isSignInValid, priceInit }) {
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 
-      // complete market sale
-      const formattedPrice = ethers.utils.parseUnits(content.price.toString(), 'ether');
-
-      const val = await contract.completeMarketSale(content.saleId, { value: formattedPrice });
-
-      await WalletUtil.checkTransaction(val);
-
       const listener = async (itemId, tokenId, contractAddress, buyer, saleProfit) => {
         console.log('found complete market sale event: ', Number(itemId), Number(tokenId), contractAddress, buyer, Number(saleProfit));
         if (!dbTriggered && session.user.id === buyer && Number(content.tokenId) === Number(tokenId) &&
           ethers.utils.getAddress(content.contractAddress) === ethers.utils.getAddress(contractAddress)
-        ) {
+          ) {
           dbTriggered = true;
           const message = 'Sale has been completed';
           setBlockchainResults({ itemId, tokenId, contractAddress, buyer, saleProfit, message });
@@ -124,6 +117,12 @@ export default function AssetActionBuy({ content, isSignInValid, priceInit }) {
         }
       };
       contract.on("onCompleteMarketSale", listener);
+
+      // complete market sale
+      const formattedPrice = ethers.utils.parseUnits(content.price.toString(), 'ether');
+      const transaction = await contract.completeMarketSale(content.saleId, { value: formattedPrice });
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);

@@ -58,15 +58,10 @@ export default function AssetActionCancel({ content }) {
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 
-      // cancel market sale
-      const val = await contract.cancelMarketSale(content.saleId);
-
-      await WalletUtil.checkTransaction(val);
-
       const listener = async (itemId, tokenId, contractAddress, seller) => {
         console.log('found cancel market sale event: ', Number(itemId), Number(tokenId), contractAddress, seller);
         if (!dbTriggered && session.user.id === seller && Number(content.tokenId) === Number(tokenId) &&
-          ethers.utils.getAddress(content.contractAddress) === ethers.utils.getAddress(contractAddress)
+        ethers.utils.getAddress(content.contractAddress) === ethers.utils.getAddress(contractAddress)
         ) {
           dbTriggered = true;
           const message = 'Sale has been cancelled';
@@ -75,6 +70,11 @@ export default function AssetActionCancel({ content }) {
         }
       };
       contract.on("onCancelMarketSale", listener);
+
+      // cancel market sale
+      const transaction = await contract.cancelMarketSale(content.saleId);
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);

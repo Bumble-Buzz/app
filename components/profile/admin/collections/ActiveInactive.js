@@ -158,10 +158,7 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, signer);
 
-      const val = await contract.removeCollection(_asset.id);
-
-      await WalletUtil.checkTransaction(val);
-
+      
       const listener = async (id) => {
         if (!dbTriggered && _asset.id === Number(id)) {
           dbTriggered = true;
@@ -170,6 +167,10 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
         }
       };
       contract.on("onCollectionRemove", listener);
+
+      const transaction = await contract.removeCollection(_asset.id);
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);

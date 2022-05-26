@@ -150,11 +150,6 @@ export default function Mint() {
       const configCid = await uploadConfig(config);
       console.log('configCid:', configCid);
 
-      // mint NFT in blockchain
-      const val = await contract.mint(state.tokenId, { value: ethers.utils.parseEther('0.0') });
-
-      await WalletUtil.checkTransaction(val);
-
       const listener = async (from, to, tokenId) => {
         console.log('found create event: ', from, to, Number(tokenId));
         if (!dbTriggered && session.user.id === to) {
@@ -164,6 +159,11 @@ export default function Mint() {
         }
       };
       contract.on("Transfer", listener);
+
+      // mint NFT in blockchain
+      const transaction = await contract.mint(state.tokenId, { value: ethers.utils.parseEther('0.0') });
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);

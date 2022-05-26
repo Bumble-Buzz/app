@@ -28,11 +28,6 @@ export default function Commission({ isLoading, setLoading, account, setAccount 
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
 
-      // deposit incentives
-      const val = await contract.setMarketplaceCommission(_value);
-
-      await WalletUtil.checkTransaction(val);
-
       const listener = async (user, _amount) => {
         const amountInt = Number(_amount);
         const amount = Number(ethers.utils.formatEther(amountInt.toString()));
@@ -45,6 +40,11 @@ export default function Commission({ isLoading, setLoading, account, setAccount 
         }
       };
       contract.on("onDepositMarketplaceIncentive", listener);
+
+      // deposit incentives
+      const transaction = await contract.setMarketplaceCommission(_value);
+      // await WalletUtil.checkTransaction(transaction);
+      await transaction.wait();
     } catch (e) {
       console.error('e', e);
       Toast.error(e.message);

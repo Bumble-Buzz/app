@@ -23,7 +23,7 @@ const checkBlockchainSale = async (data) => {
   try {
     await contract.getSale(data.saleId);
   } catch(e) {
-    if (e.error.body.includes('The sale does not exist')) {
+    if (e.reason.includes('The sale does not exist')) {
       returnValue = true;
     }
   }
