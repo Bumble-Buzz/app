@@ -176,7 +176,6 @@ export default function Verified() {
       const transaction = await contract.createVerifiedCollection(
         state.address, state.supply, state.reflection, state.commission, WalletContext.state.account, state.incentive
       );
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

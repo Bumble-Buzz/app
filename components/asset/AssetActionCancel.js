@@ -73,7 +73,6 @@ export default function AssetActionCancel({ content }) {
 
       // cancel market sale
       const transaction = await contract.cancelMarketSale(content.saleId);
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

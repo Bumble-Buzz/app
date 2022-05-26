@@ -38,7 +38,6 @@ export default function NftCommissionClaim({ isLoading, setLoading, setAccount }
 
       // claim rewards
       const transaction = await contract.claimNftCommissionRewardUserAccount();
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

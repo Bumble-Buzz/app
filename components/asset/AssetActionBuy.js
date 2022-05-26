@@ -121,7 +121,6 @@ export default function AssetActionBuy({ content, isSignInValid, priceInit }) {
       // complete market sale
       const formattedPrice = ethers.utils.parseUnits(content.price.toString(), 'ether');
       const transaction = await contract.completeMarketSale(content.saleId, { value: formattedPrice });
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

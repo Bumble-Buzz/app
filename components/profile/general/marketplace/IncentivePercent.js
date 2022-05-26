@@ -43,7 +43,6 @@ export default function IncentivePercent({ isLoading, setLoading, account, setAc
 
       // deposit incentives
       const transaction = await contract.setMarketplaceIncentiveCommission(_value);
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

@@ -43,7 +43,6 @@ export default function ListingPrice({ isLoading, setLoading, account, setAccoun
 
       // deposit incentives
       const transaction = await contract.setMarketplaceListingPrice(ethers.utils.parseEther(_value.toString()));
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

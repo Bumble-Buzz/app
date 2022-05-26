@@ -162,7 +162,6 @@ export default function Mint() {
 
       // mint NFT in blockchain
       const transaction = await contract.mint(state.tokenId, { value: ethers.utils.parseEther('0.0') });
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

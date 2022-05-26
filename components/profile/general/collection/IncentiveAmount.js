@@ -47,7 +47,6 @@ export default function IncentiveAmount({ isLoading, setLoading, account, setAcc
 
       // deposit incentives
       const transaction = await contract.depositIncentiveCollectionAccount(contractAddress, { value: ethers.utils.parseEther(_depositAmount.toString()) });
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);
@@ -87,7 +86,6 @@ export default function IncentiveAmount({ isLoading, setLoading, account, setAcc
 
       // withdraw incentives
       const transaction = await contract.withdrawIncentiveCollectionAccount(contractAddress, ethers.utils.parseEther(_withdrawAmount.toString()));
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

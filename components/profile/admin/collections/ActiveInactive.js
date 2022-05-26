@@ -169,7 +169,6 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
       contract.on("onCollectionRemove", listener);
 
       const transaction = await contract.removeCollection(_asset.id);
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

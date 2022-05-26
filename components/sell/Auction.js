@@ -162,7 +162,6 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
       contract.on("Approval", listener);
 
       const transaction = await contract.approve(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, assetDataInit.tokenId);
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);
@@ -192,7 +191,6 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
       contract.on("ApprovalForAll", listener);
 
       const transaction = await contract.setApprovalForAll(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, true);
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);
@@ -222,7 +220,6 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
       contract.on("ApprovalForAll", listener);
 
       const transaction = await contract.setApprovalForAll(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, false);
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);
@@ -268,8 +265,6 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
       const transaction = await contract.createMarketSale(
         assetDataInit.tokenId, assetDataInit.contractAddress, EMPTY_ADDRESS, formattedPrice, 1
       );
-        
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

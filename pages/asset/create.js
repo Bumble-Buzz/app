@@ -154,26 +154,7 @@ export default function Create() {
         configCid,
         { value: ethers.utils.parseEther('0.0') }
       );
-
-      // const transactionReceipt = await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
-      // const transactionReceipt = await transaction.wait();
-      // const requestId = transactionReceipt;
-      // console.log('requestId:', requestId);
-
-      // let owner, tokenId;
-      // const events = requestId.events;
-      // events.forEach(event => {
-      //   if (event.event !== 'onNftMint') return;
-      //   owner = event.args['owner'];
-      //   tokenId = event.args['tokenId'];
-      // });
-      // console.log('minted:', owner, Number(tokenId));
-
-      // dispatch({ type: 'clear' });
-      // setMinted(true);
-      // setLoading(false);
-      // setBlockchainResults(null);
       console.log('end');
     } catch (e) {
       console.log('e', e);

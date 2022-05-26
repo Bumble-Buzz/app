@@ -38,7 +38,6 @@ export default function CollectionCommissionClaim({ isLoading, setLoading, setAc
 
       // claim rewards
       const transaction = await contract.claimCollectionCommissionRewardUserAccount();
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

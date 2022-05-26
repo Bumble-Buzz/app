@@ -38,7 +38,6 @@ export default function ReflectionClaim({ isLoading, setLoading, setAccount, con
 
       // claim rewards
       const transaction = await contract.claimReflectionRewardListCollectionAccount(ownedTokenIds, contractAddress);
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

@@ -43,7 +43,6 @@ export default function IncentiveAmount({ isLoading, setLoading, account, setAcc
 
       // deposit incentives
       const transaction = await contract.depositMarketplaceIncentiveVault({ value: ethers.utils.parseEther(_value.toString()) });
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

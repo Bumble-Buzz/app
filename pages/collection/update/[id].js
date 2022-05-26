@@ -182,7 +182,6 @@ export default function EditCollection({ collectionDataInit }) {
         const transaction = await contract.updateCollection(
           collectionDataInit.id, state.reflection, state.commission, state.incentive, WalletContext.state.account
         );
-        // await WalletUtil.checkTransaction(transaction);
         await transaction.wait();
       } else if (dbFieldsModified()) {
         setBlockchainResults({ id: collectionDataInit.id, api: async (id,payload) => await API.collection.update.id(id, payload) });
@@ -222,7 +221,6 @@ export default function EditCollection({ collectionDataInit }) {
 
       // disable collection owner incentive access in blockchain
       const transaction = await contract.disableCollectionOwnerIncentiveAccess(collectionDataInit.id);
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

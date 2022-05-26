@@ -43,7 +43,6 @@ export default function Commission({ isLoading, setLoading, account, setAccount 
 
       // deposit incentives
       const transaction = await contract.setMarketplaceCommission(_value);
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

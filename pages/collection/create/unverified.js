@@ -127,7 +127,6 @@ export default function Unverified() {
 
         // add collection in blockchain
         const transaction = await contract.createUnvariviedCollection();
-        // await WalletUtil.checkTransaction(transaction);
         await transaction.wait();
       }
     } catch (e) {

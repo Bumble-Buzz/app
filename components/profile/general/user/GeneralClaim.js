@@ -39,7 +39,6 @@ export default function UserAccountClaim({ isLoading, setLoading, setAccount }) 
 
       // claim rewards
       const transaction = await contract.claimGeneralRewardUserAccount();
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

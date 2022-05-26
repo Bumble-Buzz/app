@@ -76,7 +76,6 @@ export default function IncentivePercent({ isLoading, setLoading, account, setAc
       const transaction = await contract.updateCollection(
         collection.id, collection.reflection, collection.commission, _value, collection.owner
       );
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);

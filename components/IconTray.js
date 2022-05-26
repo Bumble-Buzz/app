@@ -47,7 +47,6 @@ export default function IconTray({ items, specialItems, options }) {
 
       // deposit incentives
       const transaction = await contract.depositIncentiveCollectionAccount(options.contractAddress, { value: ethers.utils.parseEther(_depositAmount.toString()) });
-      // await WalletUtil.checkTransaction(transaction);
       await transaction.wait();
     } catch (e) {
       console.error('e', e);
