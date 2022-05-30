@@ -1,7 +1,7 @@
 {
-  "name": "bumblebuzz",
+  "name": "@bumblebuzz/app",
   "version": "0.1.0",
-  "private": true,
+  "description": "NFT Marketplace app",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -29,6 +29,7 @@
     "@aws-sdk/client-s3": "^3.88.0",
     "@aws-sdk/lib-dynamodb": "^3.48.0",
     "@aws-sdk/s3-request-presigner": "^3.88.0",
+    "@bumblebuzz/contracts": "~0.1.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-brands-svg-icons": "^5.15.4",
     "@fortawesome/free-regular-svg-icons": "^5.15.4",

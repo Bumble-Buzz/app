@@ -5,7 +5,7 @@ import { getSession } from "next-auth/react";
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 import { RpcNode } from '@/components/backend/Rpc';
 import ENUM from '@/enum/ENUM';
-import CollectionItemAbi from '@/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
+import CollectionItemAbi from '@bumblebuzz/contracts/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
 
 
 const COLLECTION_TYPE = [ 'local', 'verified', 'unverified' ];

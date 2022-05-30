@@ -13,7 +13,7 @@ import Menu from '@/public/menu.svg';
 import Toast from '@/components/Toast';
 import { MenuIcon, RefreshIcon } from '@heroicons/react/solid';
 
-import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
+import AvaxTradeAbi from '@bumblebuzz/contracts/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 
 const DIALOG = { title: '', content: () => {} };

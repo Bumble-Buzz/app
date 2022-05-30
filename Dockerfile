@@ -6,6 +6,7 @@ FROM node:16.13.2-alpine3.14 as base
 
 WORKDIR /usr/src/app
 
+COPY ./.npmrc ./
 COPY ./package.json ./
 COPY ./package-lock.json ./
 

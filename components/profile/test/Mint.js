@@ -15,9 +15,9 @@ import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
-import AvaxTradeNftAbi from '@/artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
-import TestErc721 from '@/artifacts/contracts/TestErc721.sol/TestErc721.json';
-import IERC721Abi from '@/artifacts/@openzeppelin/contracts/token/ERC721/IERC721.sol/IERC721.json';
+import AvaxTradeNftAbi from '@bumblebuzz/contracts/artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
+import TestErc721 from '@bumblebuzz/contracts/artifacts/contracts/TestErc721.sol/TestErc721.json';
+import IERC721Abi from '@bumblebuzz/contracts/artifacts/@openzeppelin/contracts/token/ERC721/IERC721.sol/IERC721.json';
 
 
 export default function Mint() {

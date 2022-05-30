@@ -33,7 +33,10 @@ dynamodb:
 ###################
 
 push:
-	docker build --build-arg APP_ENV=dev_aws --build-arg NEXTAUTH_URL=http://localhost:80 -t bumblebuzz .
+	docker build \
+	--build-arg APP_ENV=dev_aws \
+	--build-arg NEXTAUTH_URL=http://localhost:80 \
+	-t bumblebuzz .
 	docker tag bumblebuzz:latest 817932929274.dkr.ecr.us-east-1.amazonaws.com/bumblebuzz:v0.0.1
 	docker push 817932929274.dkr.ecr.us-east-1.amazonaws.com/bumblebuzz:v0.0.1
 

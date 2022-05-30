@@ -16,7 +16,7 @@ import HeadlessSwitch from '@/components/HeadlessSwitch';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
-import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
+import AvaxTradeAbi from '@bumblebuzz/contracts/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 
 const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';

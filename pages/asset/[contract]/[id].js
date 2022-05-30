@@ -27,7 +27,7 @@ import {
   DocumentIcon, DocumentTextIcon, DocumentReportIcon, ClipboardListIcon
 } from '@heroicons/react/outline';
 
-import BankAbi from '@/artifacts/contracts/bank/Bank.sol/Bank.json';
+import BankAbi from '@bumblebuzz/contracts/artifacts/contracts/bank/Bank.sol/Bank.json';
 
 
 export default function Asset({ assetDataInit }) {

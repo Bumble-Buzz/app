@@ -15,7 +15,7 @@ import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
-import AvaxTradeNftAbi from '@/artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
+import AvaxTradeNftAbi from '@bumblebuzz/contracts/artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
 export default function Create() {

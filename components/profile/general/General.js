@@ -10,8 +10,8 @@ import Marketplace from '@/components/profile/general/marketplace/Marketplace';
 import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import Toast from '@/components/Toast';
 
-import BankAbi from '@/artifacts/contracts/bank/Bank.sol/Bank.json';
-import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
+import BankAbi from '@bumblebuzz/contracts/artifacts/contracts/bank/Bank.sol/Bank.json';
+import AvaxTradeAbi from '@bumblebuzz/contracts/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 
 export default function General({ initialData }) {

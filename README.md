@@ -1,5 +1,14 @@
 # bumblebuzz
-BumbleBuzz marketplace
+BumbleBuzz marketplace app
+
+# create .npmrc file
+```
+cat << EOF > .npmrc
+@reach-now:registry=${CODEARTIFACT_REPOSITORY}
+${CODEARTIFACT_REPOSITORY#https:}:always-auth=true
+${CODEARTIFACT_REPOSITORY#https:}:_authToken=${CODEARTIFACT_AUTH_TOKEN}
+EOF
+```
 
 # todo:
 ## download all external files and use them locally in all commands?

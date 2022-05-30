@@ -4,8 +4,8 @@ import { getSession } from "next-auth/react";
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 import { RpcNode } from '@/components/backend/Rpc';
 import ENUM from '@/enum/ENUM';
-import SaleAbi from '@/artifacts/contracts/sale/Sale.sol/Sale.json';
-import IERC721Abi from '@/artifacts/@openzeppelin/contracts/token/ERC721/IERC721.sol/IERC721.json';
+import SaleAbi from '@bumblebuzz/contracts/artifacts/contracts/sale/Sale.sol/Sale.json';
+import IERC721Abi from '@bumblebuzz/contracts/artifacts/@openzeppelin/contracts/token/ERC721/IERC721.sol/IERC721.json';
 
 
 /**

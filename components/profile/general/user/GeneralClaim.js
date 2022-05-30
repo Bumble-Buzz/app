@@ -6,7 +6,7 @@ import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import Toast from '@/components/Toast';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
-import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
+import AvaxTradeAbi from '@bumblebuzz/contracts/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 
 const ACCOUNT_IDENTIFIER = 'general';

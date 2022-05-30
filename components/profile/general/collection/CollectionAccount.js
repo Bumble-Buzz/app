@@ -12,7 +12,7 @@ import Toast from '@/components/Toast';
 import NumberFormatter from '@/utils/NumberFormatter';
 import ENUM from '@/enum/ENUM';
 
-import BankAbi from '@/artifacts/contracts/bank/Bank.sol/Bank.json';
+import BankAbi from '@bumblebuzz/contracts/artifacts/contracts/bank/Bank.sol/Bank.json';
 
 
 const BATCH_SIZE = 20;

@@ -18,7 +18,7 @@ import HeadlessSwitch from '@/components/HeadlessSwitch';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon, UploadIcon, ClipboardCopyIcon } from '@heroicons/react/solid';
 
-import CollectionItemAbi from '@/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
+import CollectionItemAbi from '@bumblebuzz/contracts/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
 import _ from 'lodash';
 
 

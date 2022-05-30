@@ -9,7 +9,7 @@ import Toast from '@/components/Toast';
 import NumberFormatter from '@/utils/NumberFormatter';
 import ENUM from '@/enum/ENUM';
 
-import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
+import AvaxTradeAbi from '@bumblebuzz/contracts/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 
 export default function Marketplace({ }) {

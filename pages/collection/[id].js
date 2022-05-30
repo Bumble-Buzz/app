@@ -21,7 +21,7 @@ import Toast from '@/components/Toast';
 import ENUM from '@/enum/ENUM';
 import { ShieldCheckIcon, ShieldExclamationIcon } from '@heroicons/react/solid';
 
-import BankAbi from '@/artifacts/contracts/bank/Bank.sol/Bank.json';
+import BankAbi from '@bumblebuzz/contracts/artifacts/contracts/bank/Bank.sol/Bank.json';
 
 
 const BATCH_SIZE = 40;

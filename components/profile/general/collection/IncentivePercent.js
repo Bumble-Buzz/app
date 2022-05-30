@@ -8,7 +8,7 @@ import HeadlessDialog from '@/components/HeadlessDialog';
 import Toast from '@/components/Toast';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 
-import CollectionItemAbi from '@/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
+import CollectionItemAbi from '@bumblebuzz/contracts/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
 
 
 const IDENTIFIER = 'incentive_percent';

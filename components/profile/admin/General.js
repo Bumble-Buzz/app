@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import WalletUtil from '@/components/wallet/WalletUtil';
 import Toast from '@/components/Toast';
 
-import AvaxTradeAbi from '@/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
+import AvaxTradeAbi from '@bumblebuzz/contracts/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
 export default function General() {
 

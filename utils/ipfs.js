@@ -21,7 +21,7 @@ const getValidHttpUrl = (_url) => {
   let validUrl = '';
   if (isBumbleBuzzUrl(_url)) validUrl = _url.replace('bumblebuzz://', getBumbleBuzzBaseUrl());
   if (isIpfsUrl(_url)) validUrl = _url.replace('ipfs://', getIpfsBaseUrl());
-  console.log('valid url:', _url, validUrl);
+  // console.log('valid url:', _url, validUrl);
   return validUrl;
 };
 

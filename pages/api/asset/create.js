@@ -4,7 +4,7 @@ import { getSession } from "next-auth/react";
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
 import { RpcNode } from '@/components/backend/Rpc';
 import ENUM from '@/enum/ENUM';
-import AvaxTradeNftAbi from '@/artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
+import AvaxTradeNftAbi from '@bumblebuzz/contracts/artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 
 
 /**
