@@ -49,7 +49,7 @@ function Footer() {
       <div className="flex flex-col justify-between items-center xsm:flex-row gap-2 w-full">
         <div className="w-full py-4 px-4 mx-auto text-center">
           <div className="text-sm text-blueGray-500 font-semibold py-1">
-            Copyright © 2021 Avoaxcado Team
+            Copyright © 2022 BumbleBuzz Team
           </div>
         </div>
       </div>
