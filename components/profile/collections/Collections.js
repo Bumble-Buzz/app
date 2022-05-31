@@ -218,11 +218,7 @@ export default function Collections({ initialData }) {
               image={collection.image}
               body={(<>
                 <div className="flex flex-nowrap flex-col gap-2">
-                  {collection.collectionType === 'local' || collection.collectionType === 'unverified' ?
-                    (<div className="grow w-full font-bold truncate">{collection.name} - {collection.collectionType}</div>)
-                    :
-                    (<div className="grow w-full font-bold truncate">{collection.name}</div>)
-                  }
+                  <div className="grow w-full font-bold truncate">{collection.name}</div>
                   <div className="grow w-full -mt-2 truncate">
                     <>created by </>
                     {collection.ownerName && (<LinkWrapper link={`/profile/${collection.owner}`} linkText={collection.ownerName} />)}

@@ -128,7 +128,7 @@ export default function Collection({ collectionDataInit }) {
           <div className='flex flex-col flex-wrap flex-1 grow items-center'>
             {/* title */}
             <div className='px-2 py-2 flex flex-col flex-wrap w-full text-center'>
-              <div className='w-full text-4xl font-bold'>{collectionDataInit.name} asdas dasdasdasd asdasdasd</div>
+              <div className='w-full text-4xl font-bold'>{collectionDataInit.name}</div>
               <div className='w-full truncate'>
                 <>created by </>
                 {collectionDataInit.ownerName && (<LinkWrapper link={`/profile/${collectionDataInit.owner}`} linkText={collectionDataInit.ownerName} />)}
