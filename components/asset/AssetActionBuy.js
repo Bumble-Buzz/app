@@ -13,6 +13,7 @@ import Date from '@/utils/Date';
 import ENUM from '@/enum/ENUM';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
+import CheckEnvironment from '@/components/CheckEnvironment';
 
 import AvaxTradeAbi from '@bumblebuzz/contracts/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
@@ -99,6 +100,9 @@ export default function AssetActionBuy({ content, isSignInValid, priceInit }) {
     e.preventDefault();
 
     if (!isSignInValid) return ROUTER.push('/auth/signin');
+
+    /** @todo Remove once product released **/
+    if (CheckEnvironment.isDevProdMode) { Toast.info(process.env.NEXT_PUBLIC_FEATURE_UNDER_DEVELOPMENT); return; }
 
     try {
       setLoading(true);

@@ -15,6 +15,7 @@ import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import HeadlessSwitch from '@/components/HeadlessSwitch';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
+import CheckEnvironment from '@/components/CheckEnvironment';
 
 import AvaxTradeAbi from '@bumblebuzz/contracts/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 
@@ -101,6 +102,9 @@ export default function Unverified() {
 
   const addCollection = async (e) => {
     e.preventDefault();
+
+    /** @todo Remove once product released **/
+    if (CheckEnvironment.isDevProdMode) { Toast.info(process.env.NEXT_PUBLIC_FEATURE_UNDER_DEVELOPMENT); return; }
 
     try {
       setLoading(true);

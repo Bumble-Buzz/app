@@ -11,6 +11,7 @@ import AssetImage from '@/components/asset/AssetImage';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 import NumberFormatter from '@/utils/NumberFormatter';
+import CheckEnvironment from '@/components/CheckEnvironment';
 
 import AvaxTradeAbi from '@bumblebuzz/contracts/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
 import IERC721Abi from '@bumblebuzz/contracts/artifacts/@openzeppelin/contracts/token/ERC721/IERC721.sol/IERC721.json';
@@ -144,11 +145,14 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
   const approveAsset = async (e) => {
     e.preventDefault();
 
+    /** @todo Remove once product released **/
+    if (CheckEnvironment.isDevProdMode) { Toast.info(process.env.NEXT_PUBLIC_FEATURE_UNDER_DEVELOPMENT); return; }
+
     try {
       setLoading(true);
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(assetDataInit.contractAddress, IERC721Abi.abi, signer);
-      
+
       const listener = async (owner, approved, tokenId) => {
         if (session.user.id === ethers.utils.getAddress(owner) && Number(assetDataInit.tokenId) === Number(tokenId) &&
         ethers.utils.getAddress(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) === ethers.utils.getAddress(approved)
@@ -173,11 +177,14 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
   const approveAllAssets = async (e) => {
     e.preventDefault();
 
+    /** @todo Remove once product released **/
+    if (CheckEnvironment.isDevProdMode) { Toast.info(process.env.NEXT_PUBLIC_FEATURE_UNDER_DEVELOPMENT); return; }
+
     try {
       setLoading(true);
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(assetDataInit.contractAddress, IERC721Abi.abi, signer);
-      
+
       const listener = async (owner, operator, approved) => {
         if (session.user.id === ethers.utils.getAddress(owner) && approved &&
         ethers.utils.getAddress(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) === ethers.utils.getAddress(operator)
@@ -202,11 +209,14 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
   const unapproveAllAssets = async (e) => {
     e.preventDefault();
 
+    /** @todo Remove once product released **/
+    if (CheckEnvironment.isDevProdMode) { Toast.info(process.env.NEXT_PUBLIC_FEATURE_UNDER_DEVELOPMENT); return; }
+
     try {
       setLoading(true);
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(assetDataInit.contractAddress, IERC721Abi.abi, signer);
-      
+
       const listener = async (owner, operator, approved) => {
         if (session.user.id === ethers.utils.getAddress(owner) && !approved &&
         ethers.utils.getAddress(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS) === ethers.utils.getAddress(operator)
@@ -230,6 +240,9 @@ export default function Auction({children, assetDataInit, setSaleCreated}) {
 
   const sellAsset = async (e) => {
     e.preventDefault();
+
+    /** @todo Remove once product released **/
+    if (CheckEnvironment.isDevProdMode) { Toast.info(process.env.NEXT_PUBLIC_FEATURE_UNDER_DEVELOPMENT); return; }
 
 
     // revoke - approve empty address

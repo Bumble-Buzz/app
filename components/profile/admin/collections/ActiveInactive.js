@@ -7,6 +7,7 @@ import Toast from '@/components/Toast';
 import WalletUtil from '@/components/wallet/WalletUtil';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import InputWrapper from '@/components/wrappers/InputWrapper';
+import CheckEnvironment from '@/components/CheckEnvironment';
 
 import CollectionItemAbi from '@bumblebuzz/contracts/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
 
@@ -115,6 +116,9 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
   };
 
   const action = async (_asset, _activate) => {
+    /** @todo Remove once product released **/
+    if (CheckEnvironment.isDevProdMode) { Toast.info(process.env.NEXT_PUBLIC_FEATURE_UNDER_DEVELOPMENT); return; }
+
     try {
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, signer);
@@ -154,6 +158,9 @@ export default function ActiveInactive({ initialData, title, isSearch = true, cl
 
   // remove collection in blockchain
   const remove = async (_asset) => {
+    /** @todo Remove once product released **/
+    if (CheckEnvironment.isDevProdMode) { Toast.info(process.env.NEXT_PUBLIC_FEATURE_UNDER_DEVELOPMENT); return; }
+
     try {
       const signer = await WalletUtil.getWalletSigner();
       const contract = new ethers.Contract(process.env.NEXT_PUBLIC_COLLECTION_ITEM_CONTRACT_ADDRESS, CollectionItemAbi.abi, signer);

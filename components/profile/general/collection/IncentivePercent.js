@@ -7,6 +7,7 @@ import InputWrapper from '@/components/wrappers/InputWrapper';
 import HeadlessDialog from '@/components/HeadlessDialog';
 import Toast from '@/components/Toast';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
+import CheckEnvironment from '@/components/CheckEnvironment';
 
 import CollectionItemAbi from '@bumblebuzz/contracts/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
 
@@ -54,6 +55,9 @@ export default function IncentivePercent({ isLoading, setLoading, account, setAc
 
   const percentUpdate = async (e, _value) => {
     e.preventDefault();
+
+    /** @todo Remove once product released **/
+    if (CheckEnvironment.isDevProdMode) { Toast.info(process.env.NEXT_PUBLIC_FEATURE_UNDER_DEVELOPMENT); return; }
 
     try {
       setLoading(IDENTIFIER);

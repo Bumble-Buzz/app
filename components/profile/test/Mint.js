@@ -14,6 +14,7 @@ import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import ButtonWrapper from '@/components/wrappers/ButtonWrapper';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
+import CheckEnvironment from '@/components/CheckEnvironment';
 
 import AvaxTradeNftAbi from '@bumblebuzz/contracts/artifacts/contracts/AvaxTradeNft.sol/AvaxTradeNft.json';
 import TestErc721 from '@bumblebuzz/contracts/artifacts/contracts/TestErc721.sol/TestErc721.json';
@@ -130,6 +131,9 @@ export default function Mint() {
 
   const createNft = async (e) => {
     e.preventDefault();
+
+    /** @todo Remove once product released **/
+    if (CheckEnvironment.isDevProdMode) { Toast.info(process.env.NEXT_PUBLIC_FEATURE_UNDER_DEVELOPMENT); return; }
 
     const signer = await WalletUtil.getWalletSigner();
     const contract = new ethers.Contract(ethers.utils.getAddress(state.contractAddress), TestErc721.abi, signer);

@@ -17,6 +17,7 @@ import ContentWrapper from '@/components/wrappers/ContentWrapper';
 import HeadlessSwitch from '@/components/HeadlessSwitch';
 import Lexicon from '@/lexicon/create';
 import { DotsCircleHorizontalIcon, UploadIcon, ClipboardCopyIcon } from '@heroicons/react/solid';
+import CheckEnvironment from '@/components/CheckEnvironment';
 
 import CollectionItemAbi from '@bumblebuzz/contracts/artifacts/contracts/collectionItem/CollectionItem.sol/CollectionItem.json';
 import _ from 'lodash';
@@ -160,6 +161,9 @@ export default function EditCollection({ collectionDataInit }) {
   const updateCollection = async (e) => {
     e.preventDefault();
 
+    /** @todo Remove once product released **/
+    if (CheckEnvironment.isDevProdMode) { Toast.info(process.env.NEXT_PUBLIC_FEATURE_UNDER_DEVELOPMENT); return; }
+
     try {
       setLoading(true);
 
@@ -198,6 +202,9 @@ export default function EditCollection({ collectionDataInit }) {
 
   const disableOwnerIncentiveAccess = async (e) => {
     e.preventDefault();
+
+    /** @todo Remove once product released **/
+    if (CheckEnvironment.isDevProdMode) { Toast.info(process.env.NEXT_PUBLIC_FEATURE_UNDER_DEVELOPMENT); return; }
 
     try {
       setLoading(true);
