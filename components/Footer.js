@@ -32,7 +32,7 @@ function Footer() {
               {/* <div className='font-bold'>About Us</div> */}
               <div>Team</div>
               <div>Partners</div>
-              <div>Documentation</div>
+              <div><a href="https://docs.bumblebuzz.io/" target='blank' className='text-blue-500'>Documentation</a></div>
             </div>
             <div className='flex flex-col flex-1 text-left'>
               {/* <div className='font-bold'>Additional Info</div> */}
