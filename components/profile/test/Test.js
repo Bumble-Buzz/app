@@ -14,7 +14,7 @@ export default function Test({ }) {
           (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('general')}>General</button>)
         }
         {tab === 'mint' ?
-          (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('collections')}>Mint</button>)
+          (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none text-blue-500 border-b-2 font-medium border-blue-500" onClick={() => setTab('mint')}>Mint</button>)
           :
           (<button className="text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none" onClick={() => setTab('mint')}>Mint</button>)
         }

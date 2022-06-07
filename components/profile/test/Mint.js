@@ -106,7 +106,7 @@ export default function Mint() {
       if (!blockchainResults || dbTriggered) return;
 
       try {
-        console.log('blockchainResults contract address:', state.contractAddress);
+        console.log('blockchainResults contract address:', state.contractAddress, Number(blockchainResults.tokenId));
         const payload = {
           'contractAddress': ethers.utils.getAddress(state.contractAddress),
           'tokenId': Number(blockchainResults.tokenId),
@@ -156,7 +156,7 @@ export default function Mint() {
 
       const listener = async (from, to, tokenId) => {
         console.log('found create event: ', from, to, Number(tokenId));
-        if (!dbTriggered && session.user.id === to) {
+        if (!dbTriggered && session.user.id === to && Number(state.tokenId) === Number(tokenId)) {
           dbTriggered = true;
           setBlockchainResults({ from, to, tokenId, config });
           contract.off("Transfer", listener);
