@@ -86,6 +86,7 @@ Things left to do:
     - Sell page
       - Approve / Approve all are not working as intended
   - Enhancements
+    - AWS S3 Images/Config per chain
     - Pull from blockchain
       - In the case when DB is not updated with the asset/collection, give a button where user can click to import form blockchain,
         if any missing data, update the UI and the DB
