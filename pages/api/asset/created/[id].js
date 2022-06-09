@@ -10,11 +10,15 @@ export default async function handler(req, res) {
 
   //check params
   if (!id) return res.status(400).json({ invalid: id });
-  const checkSumId = ethers.utils.getAddress(id);
+
+  const formattedCreator = ethers.utils.getAddress(id);
+  const formattedTokenId = Number(tokenId);
+  let formattedLimit = Number(limit);
+  if (formattedLimit > 50) limit = 50;
 
   let exclusiveStartKey = undefined;
-  if (id && tokenId && Number.isInteger(Number(tokenId))) {
-    exclusiveStartKey = { 'contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, 'creator': checkSumId, 'tokenId': Number(tokenId) };
+  if (id && tokenId && Number.isInteger(formattedTokenId)) {
+    exclusiveStartKey = { 'contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, 'creator': formattedCreator, 'tokenId': formattedTokenId };
   }
 
   let formattedNetworkId = Number(networkId);
@@ -25,10 +29,10 @@ export default async function handler(req, res) {
     TableName: network.tables.asset,
     IndexName: 'creator-lsi',
     ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#creator': 'creator' },
-    ExpressionAttributeValues: { ':contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, ':creator': checkSumId },
+    ExpressionAttributeValues: { ':contractAddress': process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS, ':creator': formattedCreator },
     KeyConditionExpression: '#contractAddress = :contractAddress AND #creator = :creator',
     ExclusiveStartKey: exclusiveStartKey,
-    Limit: Number(limit) || 10
+    Limit: formattedLimit || 10
   };
   let results = await DynamoDbQuery.item.query(payload);
   const {Items, LastEvaluatedKey, Count, ScannedCount} = results;

@@ -136,6 +136,52 @@ const asset = async () => {
         Projection: {
           ProjectionType: "ALL"
         }
+      },
+      {
+        IndexName: "owner-gsi",
+        KeySchema: [
+          { AttributeName: "owner", KeyType: "HASH" }
+        ],
+        Projection: {
+          ProjectionType: "ALL"
+        }
+      }
+    ],
+    BillingMode: "PAY_PER_REQUEST",
+  };
+  const results = await API.db.table.create(payload);
+  console.log('Created:', results.data);
+};
+
+const contracts = async () => {
+  const payload = {
+    TableName: "local_contract",
+    AttributeDefinitions: [
+      { AttributeName: "contractAddress", AttributeType: "S" },
+      { AttributeName: "type", AttributeType: "N" },
+      { AttributeName: "isProcessed", AttributeType: "N" },
+    ],
+    KeySchema: [
+      { AttributeName: "contractAddress", KeyType: "HASH" }
+    ],
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: "type-gsi",
+        KeySchema: [
+          { AttributeName: "type", KeyType: "HASH" }
+        ],
+        Projection: {
+          ProjectionType: "ALL"
+        }
+      },
+      {
+        IndexName: "isProcessed-gsi",
+        KeySchema: [
+          { AttributeName: "isProcessed", KeyType: "HASH" }
+        ],
+        Projection: {
+          ProjectionType: "ALL"
+        }
       }
     ],
     BillingMode: "PAY_PER_REQUEST",
@@ -147,9 +193,10 @@ const asset = async () => {
 const initTableSetup = async () => {
   console.log('start - initTableSetup');
 
-  await usersDb();
-  await collection();
-  await asset();
+  // await usersDb();
+  // await collection();
+  // await asset();
+  // await contracts();
 
   console.log('end - initTableSetup');
 };

@@ -71,7 +71,7 @@ export default function Wallet({ userDataInit }) {
     fallbackData: userDataInit,
     ...API.swr.options
   });
-  const {data: walletInit} = useSWR(API.swr.asset.created(ROUTER.query.wallet, 'null', BATCH_SIZE), API.swr.fetcher, API.swr.options);
+  const {data: walletInit} = useSWR(API.swr.asset.owned(ROUTER.query.wallet, 'null', 'null', BATCH_SIZE), API.swr.fetcher, API.swr.options);
   const {data: collectionInit} = useSWR(API.swr.collection.owned(ROUTER.query.wallet, 'null', BATCH_SIZE), API.swr.fetcher, API.swr.options);
   const {data: createdInit} = useSWR(API.swr.asset.created(ROUTER.query.wallet, 'null', BATCH_SIZE), API.swr.fetcher, API.swr.options);
   const {data: listingInit} = useSWR(API.swr.asset.sale.owner(ROUTER.query.wallet, 'null', 'null', BATCH_SIZE), API.swr.fetcher, API.swr.options);

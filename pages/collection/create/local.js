@@ -62,7 +62,7 @@ export default function Local() {
       if (!blockchainResults || dbTriggered) return;
 
       try {
-        const payload = {
+        let payload = {
           'id': Number(blockchainResults.id),
           'contractAddress': ethers.utils.getAddress(state.address),
           'name': state.name,
@@ -72,6 +72,11 @@ export default function Local() {
           'social': [ state.social.discord, state.social.twitter, state.social.website ]
         };
         await API.collection.create.local(payload);
+
+        payload = {
+          'contractAddress': ethers.utils.getAddress(state.address)
+        };
+        await API.contract.add(payload);
 
         dispatch({ type: 'clear' });
         setCollectionCreated(true);

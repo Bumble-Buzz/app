@@ -60,7 +60,7 @@ export default function WalletContent({ initialData }) {
   // fetch data from database using SWR
   useSWRInfinite(
     (pageIndex, previousPageData) => {
-      return API.swr.asset.created(ROUTER.query.wallet, apiSortKey.tokenId, BATCH_SIZE);
+      return API.swr.asset.created(ROUTER.query.wallet, apiSortKey.contractAddress, apiSortKey.tokenId, BATCH_SIZE);
     },
     API.swr.fetcher,
     {
@@ -160,7 +160,7 @@ export default function WalletContent({ initialData }) {
         if (dbFetchCount >= dbFetchLimit) break;
   
         // fetch next batch from db
-        const nextAssets = await API.asset.created(ROUTER.query.wallet, latestSortKey.tokenId, BATCH_SIZE);
+        const nextAssets = await API.asset.created(ROUTER.query.wallet, latestSortKey.contractAddress, latestSortKey.tokenId, BATCH_SIZE);
         dbFetchCount++;
   
         workingAssets.push(...nextAssets.data.Items);

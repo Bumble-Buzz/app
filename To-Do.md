@@ -7,6 +7,8 @@ Things left to do:
   - Name the app, then make the change everywhere
   - Collection
     - Add maximum on total supply?
+    - On collection creation, ensure the creator is the owner of the NFT contract
+    - On collection creation, verrify that the address is an actual ERC721 contract
   - All attributes and functions have correct access classifiers (private/internal/public)
   - Use one specific version in the contracts, not a range (0.8.4)
   - Remove `import "hardhat/console.sol";` from all contracts
@@ -59,10 +61,10 @@ Things left to do:
             - buyer: walletId
             - timestamp: timestamp when notofication was created
       - contracts: All known contracts (need to be updated constantly)
-        - contractAddress, name, symbol, type::number (0===invalid, 721===ERC721, 1155=ERC1155), isVerified::number (0===no, 1===yes), isProcessed::number (0===no, 1===yes)
+        - contractAddress, name, symbol, type::number (0===invalid, 1===local, 20===ERC20, 721===ERC721, 1155===ERC1155), isVerified::number (0===no, 1===yes), isProcessed::number (0===no, 1===pending, 2===initiated, 3===yes)
         - PK: contractAddress
         - LSI: 
-        - GSI: type, isVerified, isProcessed
+        - GSI: type, isProcessed, isVerified (maybe?)
       - collection: List of collections
         - id, name, contractAddress, description, totalSupply, reflection, commission, incentive, owner, collectionType, ownerIncentiveAccess, active::number, category, image
         - PK: id

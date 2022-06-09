@@ -18,6 +18,12 @@ import { DotsCircleHorizontalIcon } from '@heroicons/react/solid';
 import CheckEnvironment from '@/components/CheckEnvironment';
 
 import AvaxTradeAbi from '@bumblebuzz/contracts/artifacts/contracts/AvaxTrade.sol/AvaxTrade.json';
+import IERC721Abi from '@bumblebuzz/contracts/artifacts/@openzeppelin/contracts/token/ERC721/IERC721.sol/IERC721.json';
+
+const ERC_20_INTERFACE_ID = '0x36372b07';
+const ERC_165_INTERFACE_ID = '0x01ffc9a7';
+const ERC_721_INTERFACE_ID = '0x80ac58cd';
+const ERC_1155_INTERFACE_ID = '0xd9b67a26';
 
 
 const reducer = (state, action) => {
@@ -99,7 +105,7 @@ export default function Verified() {
       if (!blockchainResults || dbTriggered) return;
 
       try {
-        const payload = {
+        let payload = {
           'id': Number(blockchainResults.id),
           'contractAddress': ethers.utils.getAddress(state.address),
           'name': state.name,
@@ -114,6 +120,11 @@ export default function Verified() {
           'social': [ state.social.discord, state.social.twitter, state.social.website ]
         };
         await API.collection.create.verified(payload);
+
+        payload = {
+          'contractAddress': ethers.utils.getAddress(state.address)
+        };
+        await API.contract.add(payload);
 
         dispatch({ type: 'clear' });
         setCollectionCreated(true);
@@ -144,6 +155,26 @@ export default function Verified() {
   });
 
 
+  const checkErc721 = async (_signer, _contractAddress) => {
+    const contract = new ethers.Contract(ethers.utils.getAddress(_contractAddress), IERC721Abi.abi, _signer);
+    return await contract.callStatic.supportsInterface(ERC_721_INTERFACE_ID);
+  };
+  const checkErc1155 = async (_signer, _contractAddress) => {
+    const contract = new ethers.Contract(ethers.utils.getAddress(_contractAddress), IERC721Abi.abi, _signer);
+    return await contract.callStatic.supportsInterface(ERC_1155_INTERFACE_ID);
+  };
+  const checkContractType = async (_signer) => {
+    try {
+      const isErc721 = await checkErc721(_signer, ethers.utils.getAddress(state.address));
+      if (!isErc721) {
+        const isErc1155 = await checkErc1155(_signer, ethers.utils.getAddress(state.address));
+        if (isErc1155) contractType = 1155;
+      }
+    } catch (e) {
+      throw({ message: 'Contract address is not valid' });
+    }
+  };
+
   const addCollection = async (e) => {
     e.preventDefault();
 
@@ -162,6 +193,9 @@ export default function Verified() {
     const contract = new ethers.Contract(process.env.NEXT_PUBLIC_AVAX_TRADE_CONTRACT_ADDRESS, AvaxTradeAbi.abi, signer);
     try {
       setLoading(true);
+
+      // verify contract address
+      await checkContractType(signer);
 
       // upload image to ipfs
       const imageCid = await uploadImage();

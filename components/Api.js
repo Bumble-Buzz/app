@@ -122,6 +122,15 @@ module.exports = {
       ownerincentiveaccess: (id,payload) => API.post(`collection/update/${id}/ownerincentiveaccess`, payload)
     }
   },
+  contract: {
+    id: id => API.get(`contract/${id}`),
+    type: (type,contract,limit) => API.get(`contract/type?type=${type}&contract=${contract}&limit=${limit}`),
+    processed: (processed,limit) => API.get(`contract/processed/${processed}?limit=${limit}`),
+    add: payload => API.post(`contract/add`, payload),
+    update: {
+      processed: (payload) => API.post(`collection/update/processed`, payload)
+    }
+  },
   // db: {
   //   table: {
   //     list: payload => API.put(`db/table/list`, payload),

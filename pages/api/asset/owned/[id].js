@@ -1,33 +1,38 @@
 import Cors from 'cors';
 import { ethers } from 'ethers';
 import DynamoDbQuery from '@/components/backend/db/DynamoDbQuery';
+import ENUM from '@/enum/ENUM';
 
 
 export default async function handler(req, res) {
-  const { owner, contract, tokenId, limit } = req.query
+  const { id, contract, tokenId, limit, networkId } = req.query
   // console.log('api param:', id, contract, tokenId, limit);
 
   //check params
-  if (!owner) return res.status(400).json({ 'error': 'invalid request parameters' });
-  if (!contract) return res.status(400).json({ 'error': 'invalid request parameters' });
+  if (!id) return res.status(400).json({ 'error': 'invalid request parameters' });
 
-  const formattedOwner = ethers.utils.getAddress(owner);
-  const formattedContract = ethers.utils.getAddress(contract);
+  const formattedOwner = ethers.utils.getAddress(id);
   const formattedTokenId = Number(tokenId);
   let formattedLimit = Number(limit);
   if (formattedLimit > 50) limit = 50;
 
   let exclusiveStartKey = undefined;
-  if (owner && tokenId && Number.isInteger(formattedTokenId)) {
+  if (id && contract && tokenId && Number.isInteger(formattedTokenId)) {
+    const formattedContract = ethers.utils.getAddress(contract);
     exclusiveStartKey = { 'contractAddress': formattedContract, 'owner': formattedOwner, 'tokenId': formattedTokenId };
   }
 
+  let formattedNetworkId = Number(networkId);
+  if (!formattedNetworkId || formattedNetworkId <= 0) formattedNetworkId = Number(process.env.NEXT_PUBLIC_CHAIN_ID);
+  const network = ENUM.NETWORKS.getNetworkById(formattedNetworkId);
+
   let payload = {
-    TableName: "local_asset",
-    IndexName: 'owner-lsi',
-    ExpressionAttributeNames: { '#contractAddress': 'contractAddress', '#owner': 'owner' },
-    ExpressionAttributeValues: { ':contractAddress': formattedContract, ':owner': formattedOwner },
-    KeyConditionExpression: '#contractAddress = :contractAddress AND #owner = :owner',
+    TableName: network.tables.asset,
+    IndexName: 'owner-gsi',
+    ExpressionAttributeNames: { '#owner': 'owner', '#onSale': 'onSale' },
+    ExpressionAttributeValues: { ':owner': formattedOwner, ':onSale': Number(0) },
+    KeyConditionExpression: '#owner = :owner',
+    FilterExpression: '#onSale = :onSale',
     ExclusiveStartKey: exclusiveStartKey,
     Limit: formattedLimit || 10
   };
@@ -41,7 +46,7 @@ export default async function handler(req, res) {
     const payloadKeys = Object.values(collectionIds).map(id => ({'id': id}));
     payload = {
       RequestItems: {
-        local_collection: {
+        [network.tables.collection]: {
           Keys: payloadKeys,
           ExpressionAttributeNames: { '#id': 'id', '#name': 'name' },
           ProjectionExpression: "#id, #name"
@@ -49,7 +54,7 @@ export default async function handler(req, res) {
       },
     };
     results = await DynamoDbQuery.item.getBatch(payload);
-    const collections = results.Responses.local_collection;
+    const collections = results.Responses[network.tables.collection];
     collections.forEach(collection => {
       Items.forEach(item => {
         if (item.collectionId === collection.id) {
